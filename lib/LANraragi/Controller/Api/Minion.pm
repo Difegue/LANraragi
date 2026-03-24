@@ -10,21 +10,22 @@ use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 # Returns basic info for the given Minion job id.
 sub minion_job_status {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = $self->stash('jobid');
     my $job  = $self->minion->job($id);
 
     if ($job) {
 
         my %info = %{ $job->info };
+        my $err = defined $info{error} ? $info{error} : "";
 
         # Render a basic json containing the minion job info
         $self->render(
-            json => {
+            openapi => {
                 task  => $info{task},
                 state => $info{state},
                 notes => $info{notes},
-                error => $info{error}
+                error => $err
             }
         );
 
@@ -35,12 +36,12 @@ sub minion_job_status {
 
 # Returns the full info for the given Minion job id.
 sub minion_job_detail {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = $self->stash('jobid');
     my $job  = $self->minion->job($id);
 
     if ($job) {
-        $self->render( json => $job->info );
+        $self->render( openapi => $job->info );
     } else {
         render_api_response( $self, "minion_job_detail", "No job with this ID." );
     }
@@ -49,7 +50,7 @@ sub minion_job_detail {
 # Queues a job into Minion.
 sub queue_minion_job {
 
-    my ($self)   = shift;
+    my ($self)   = shift->openapi->valid_input or return;
     my $jobname  = $self->stash('jobname');
     my @jobargs  = decode_json( $self->req->param('args') );
     my $priority = $self->req->param('priority') || 0;
@@ -57,7 +58,7 @@ sub queue_minion_job {
     my $jobid = $self->minion->enqueue( $jobname => @jobargs => { priority => $priority } );
 
     $self->render(
-        json => {
+        openapi => {
             operation => "queue_minion_job",
             success   => 1,
             job       => $jobid

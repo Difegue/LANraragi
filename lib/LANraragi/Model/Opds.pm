@@ -10,8 +10,8 @@ use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic  qw(get_tag_with_namespace);
 use LANraragi::Utils::Archive  qw(get_filelist);
-use LANraragi::Utils::Database qw(get_archive_json );
-use LANraragi::Utils::Path     qw(create_path);
+use LANraragi::Utils::Database qw(get_archive_json);
+use LANraragi::Utils::Path     qw(get_archive_path);
 
 use LANraragi::Model::Category;
 use LANraragi::Model::Search;
@@ -95,7 +95,7 @@ sub get_opds_data {
     my $id    = shift;
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file = create_path( $redis->hget( $id, "file" ) );
+    my $file = get_archive_path( $redis, $id );
     unless ( -e $file ) { return; }
 
     my $arcdata = get_archive_json( $redis, $id );
@@ -138,10 +138,10 @@ sub render_archive_page {
     my ( $mojo, $id, $page ) = @_;
 
     my $redis   = $mojo->LRR_CONF->get_redis;
-    my $archive = $redis->hget( $id, "file" );
+    my $archive = get_archive_path( $redis, $id );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive);
+    my @images = get_filelist($archive, $id);
 
     # If the page number is invalid, use the first page.
     if ( $page > scalar @images ) {

@@ -22,7 +22,11 @@ cp -R /ucrt64/lib/ImageMagick-7.1.2 ./win-dist/runtime/lib
 find ./win-dist/runtime/lib/ImageMagick-7.1.2/ -name "*.a" -type f -delete
 
 # Copy vips modules
-cp -R /ucrt64/lib/vips-modules-8.17 ./win-dist/runtime/lib
+cp -R /ucrt64/lib/vips-modules-8.18 ./win-dist/runtime/lib
+
+# Remove unused vips modules
+rm ./win-dist/runtime/lib/vips-modules-8.18/vips-poppler.dll
+rm ./win-dist/runtime/lib/vips-modules-8.18/vips-openslide.dll
 
 # Copy more openssl stuff
 mkdir -p ./win-dist/runtime/share
@@ -35,6 +39,7 @@ unzip -qq redis.zip
 rm redis.zip
 
 mkdir -p win-dist/runtime/redis
+mkdir -p win-dist/tools/
 
 mv ./Redis-7.2.9-Windows-x64-msys2/* ./win-dist/runtime/redis
 
@@ -43,6 +48,7 @@ rm -rf ./Redis-7.2.9-Windows-x64-msys2
 # Copy the actual app
 cp ./package.json ./win-dist
 cp ./lrr.conf ./win-dist
+cp ./tools/openapi.yaml ./win-dist/tools/
 cp -R ./lib ./win-dist
 cp -R ./public ./win-dist
 cp -R ./script ./win-dist

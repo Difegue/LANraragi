@@ -1,5 +1,6 @@
 /**
- * Plugins Operations.
+ * Plugins Operations
+ * @global
  */
 const Plugins = {};
 
@@ -22,7 +23,7 @@ Plugins.initializeAll = function () {
                 });
             } else {
                 LRR.toast({
-                    heading: I18N.PluginUploadError ,
+                    heading: I18N.PluginUploadError,
                     text: data.result.error,
                     icon: "error",
                     hideAfter: false,

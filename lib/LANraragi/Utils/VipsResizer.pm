@@ -6,38 +6,35 @@ use strict;
 use warnings;
 use utf8;
 
-use LANraragi::Utils::Vips qw(new_from_buffer init);
+use LANraragi::Utils::Vips    qw(init);
 use LANraragi::Utils::Logging qw(get_logger);
 
 sub new {
     my $class = shift;
 
-    my $self = {
-        logger => get_logger("VIPS", "lanraragi"),
-    };
+    my $self = { logger => get_logger( "VIPS", "lanraragi" ), };
     LANraragi::Utils::Vips::init("LANraragi");
 
     return bless $self, $class;
 }
 
-sub resize_page($self, $content, $quality, $format) {
+sub resize_page ( $self, $content, $quality, $format ) {
     $self->{logger}->trace("Resizing page");
-    my $img = LANraragi::Utils::Vips::resize_to_width($content, 1064);
+    my $img = LANraragi::Utils::Vips::resize_to_width( $content, 1064 );
 
     # Set format to jpeg and quality
-    my $buffer = LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    my $buffer = LANraragi::Utils::Vips::write_to_buffer( $img, ".$format", $quality );
     LANraragi::Utils::Vips::unref_image($img);
     return $buffer;
 }
 
-sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
+sub resize_thumbnail ( $self, $content, $quality, $use_hq, $format ) {
     $self->{logger}->trace("VIPS: Resizing page");
-    my $img = LANraragi::Utils::Vips::fit_resize($content, 500, 1000);
+    my $img = LANraragi::Utils::Vips::fit_resize( $content, 500, 1000 );
 
-    my $buffer = LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    my $buffer = LANraragi::Utils::Vips::write_to_buffer( $img, ".$format", $quality );
     LANraragi::Utils::Vips::unref_image($img);
     return $buffer;
 }
-
 
 1;

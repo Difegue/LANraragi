@@ -245,6 +245,7 @@ tr.gtr1 {
     padding: 2px 3px;
     width: 80%;
     max-width: 450px;
+    box-sizing: border-box;
 }
 
 .stdinput:hover {

@@ -27,6 +27,7 @@
     <script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/common.js?$version") %]" type="text/javascript"></script>
@@ -80,6 +81,11 @@
             <a id="imgLink" style="cursor:pointer;">[% c.lh("View full-size image") %]</a>
             <i class="fa fa-caret-right fa-lg"></i>
             <a href="[% c.url_for("/random") %]">[% c.lh("Switch to another random archive") %]</a>
+
+            [% IF userlogged %]
+            <i class="fa fa-caret-right fa-lg"></i>
+            <a id="regenerate-cache" style="cursor:pointer;">[% c.lh("Clean Archive Cache") %]</a>
+            [% END %]
         </div>
 
     </div>
@@ -87,6 +93,7 @@
     <script>
         // This would be better in the reader.js file, but it's faster to source this data from the server template for now.
         Reader.trackProgressLocally = "[% use_local %]" === "1";
+        Reader.authenticateProgress = "[% auth_progress %]" === "1";
     </script>
 
     <div id="overlay-shade"></div>
@@ -104,15 +111,8 @@
 
                     <h2>[% c.lh("Admin Options") %]</h2>
 
-                    <input class="stdbtn" type='button' id="set-thumbnail" value="[% c.lh('Set this Page as Thumbnail') %]"
-                        style="width:160px" title="[% c.lh('Set the currently opened page as the thumbnail for this archive.') %]" />
-                    <input id="regenerate-cache" class='stdbtn' type='button' value="[% c.lh("Clean Archive Cache") %]"
-                        style="width:160px" />
-                    <br>
-                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"
-                        style="width:160px" />
-                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"
-                        style="width:160px" />
+                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/>
 
                     <h2>[% c.lh("Categories") %]</h2>
 
@@ -131,13 +131,17 @@
 
                     <br />
                     <span>[% c.lh("Add to : ") %]</span>
-                    <select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
+                    <select id="category" class="favtag-btn" style="width:200px">
                         <option selected value="">[% c.lh(" -- No Category -- ") %]</option>
                         [% FOREACH categories %]
                         <option value="[% id %]">[% name %]</option>
                         [% END %]
                     </select>
-                    <a class="fas fa-plus" id="add-category" href="#" title="[% c.lh('Add Archive to Category') %]"></a>
+                    <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
+
+                    <h2>[% c.lh("Rating") %]</h2>
+                    <div data-raty></div>
+                
                 </div>
                 [% END %]
             </div>
@@ -146,7 +150,8 @@
 
         <br><br>
 
-        <h2 class="ih" style="text-align:center">[% c.lh("Pages") %]</h2>
+        <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
+        <div class="chapter-selector"></div>
 
         <div id="extract-spinner" style="width: 80%; margin-left: auto; margin-right: auto">
             <p class="loading-spinner">
@@ -154,6 +159,8 @@
             </p>
             [% c.lh("Working on it...") %]
         </div>
+
+        <div id="pages-section">
     </div>
     </div>
     </div>
@@ -232,7 +239,7 @@
 
 <div id="preload-images">
     <h2 class="config-panel"> [% c.lh("How many images to preload") %]</h2>
-    <input id="preload-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is two images.') %]">
+    <input id="preload-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is two images.') %]" type="number">
     <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
 </div>
 

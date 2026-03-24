@@ -65,9 +65,10 @@ COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /templates templates
 COPY --chown=koyomi:koyomi /locales locales
 COPY --chown=koyomi:koyomi /tests tests
+COPY --chown=koyomi:koyomi /tools/openapi.yaml tools/openapi.yaml
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
-COPY /tools/build/docker/wsl.conf /etc/wsl.conf
+
 #Copy s6-overlay 3.x services
 #Uses a system-d like definition that can't be use in 2.x
 COPY /tools/build/docker/s6/s6-rc.d/ /etc/s6-overlay/s6-rc.d/

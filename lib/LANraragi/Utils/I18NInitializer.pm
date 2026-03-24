@@ -9,26 +9,43 @@ use LANraragi::Utils::I18N;
 sub initialize {
     my ($app) = @_;
 
+    # Load forced language setting at startup to avoid querying Redis on every request
+    my $forced_language = $app->LRR_CONF->get_language;
+    $app->defaults( forced_language => $forced_language );
+    
+    $app->LRR_LOGGER->debug("Forced language setting: $forced_language");
+
     $app->helper(
         lh => sub {
             my ( $c, $key, @args ) = @_;
-            my $accept_language = $c->req->headers->accept_language;
-
+            
             my @langs = ();
+            
+            # Check if there's a forced language setting (loaded at startup)
+            my $forced_language = $c->stash('forced_language');
+            
+            if ( $forced_language && $forced_language ne 'auto' ) {
+                # Use the forced language setting
+                push @langs, $forced_language;
+                $c->LRR_LOGGER->trace( "Using forced language: $forced_language" );
+            } else {
+                # Fall back to Accept-Language header
+                my $accept_language = $c->req->headers->accept_language;
 
-            if ($accept_language) {
+                if ($accept_language) {
 
-                # An Accept-Language header looks like: Accept-Language zh-TW,zh-CN;q=0.8,fr;q=0.7,fr-FR;q=0.5,en-US;q=0.3,en;q=0.2
-                # Split the header by commas to get the languages
-                @langs = split /,/, $accept_language;
+                    # An Accept-Language header looks like: Accept-Language zh-TW,zh-CN;q=0.8,fr;q=0.7,fr-FR;q=0.5,en-US;q=0.3,en;q=0.2
+                    # Split the header by commas to get the languages
+                    @langs = split /,/, $accept_language;
 
-                # For each language, remove the quality value (aka ;q=0.9)
-                # Browsers usually order the languages by quality already do we don't really need them
-                foreach my $lang (@langs) {
-                    $lang =~ s/;.*//;    # remove any quality value
+                    # For each language, remove the quality value (aka ;q=0.9)
+                    # Browsers usually order the languages by quality already do we don't really need them
+                    foreach my $lang (@langs) {
+                        $lang =~ s/;.*//;    # remove any quality value
+                    }
+
+                    $c->LRR_LOGGER->trace( "Detected languages in order of preference: " . join( ", ", @langs ) );
                 }
-
-                $c->LRR_LOGGER->trace( "Detected languages in order of preference: " . join( ", ", @langs ) );
             }
 
             # Add english to the end of the list if not already present

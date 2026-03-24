@@ -1,5 +1,6 @@
 /**
- * Batch Operations.
+ * Batch Operations
+ * @global
  */
 const Batch = {};
 
@@ -217,30 +218,30 @@ Batch.updateBatchStatus = function (event) {
         $("#log-container").append(I18N.BatchOperationError(msg.id, msg.message));
     } else {
         switch (Batch.currentOperation) {
-        case "plugin":
-            $("#log-container").append(I18N.BatchSuccessPlugin(msg.id, Batch.currentPlugin, msg.tags));
-            break;
-        case "delete":
-            $("#log-container").append(I18N.BatchSuccessDelete(msg.id, msg.filename));
-            break;
-        case "tagrules":
-            $("#log-container").append(I18N.BatchSuccessTagRul(msg.id, msg.tags));
-            break;
-        case "addcat":
-            // Append the message at the end of this log,
-            // as it can contain the warning about the ID already being in the category
-            $("#log-container").append(I18N.BatchSuccessCategr(msg.id,msg.category,msg.message));
-            break;
-        case "clearnew": {
-            $("#log-container").append(I18N.BatchSuccessClrNew(msg.id));
-            // Remove last character from matching row
-            const t = $(`#${msg.id}`).next().text().replace("🆕", "");
-            $(`#${msg.id}`).next().text(t);
-            break;
-        }
-        default:
-            $("#log-container").append(I18N.BatchUnknownOperat(Batch.currentOperation,msg.message));
-            break;
+            case "plugin":
+                $("#log-container").append(I18N.BatchSuccessPlugin(msg.id, Batch.currentPlugin, msg.tags));
+                break;
+            case "delete":
+                $("#log-container").append(I18N.BatchSuccessDelete(msg.id, msg.filename));
+                break;
+            case "tagrules":
+                $("#log-container").append(I18N.BatchSuccessTagRul(msg.id, msg.tags));
+                break;
+            case "addcat":
+                // Append the message at the end of this log,
+                // as it can contain the warning about the ID already being in the category
+                $("#log-container").append(I18N.BatchSuccessCategr(msg.id, msg.category, msg.message));
+                break;
+            case "clearnew": {
+                $("#log-container").append(I18N.BatchSuccessClrNew(msg.id));
+                // Remove last character from matching row
+                const t = $(`#${msg.id}`).next().text().replace("🆕", "");
+                $(`#${msg.id}`).next().text(t);
+                break;
+            }
+            default:
+                $("#log-container").append(I18N.BatchUnknownOperat(Batch.currentOperation, msg.message));
+                break;
         }
 
         $("#log-container").append("\n\n");

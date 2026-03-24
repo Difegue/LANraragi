@@ -313,6 +313,15 @@ msgstr "This will delete metadata for old files when they're replaced! Use with 
 
 # ------Start of Config_Global.html.tt2------
 
+msgid "Language"
+msgstr "Language"
+
+msgid "Automatic (browser default)"
+msgstr "Automatic (browser default)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+
 msgid "Site Title"
 msgstr "Site Title"
 
@@ -361,6 +370,15 @@ msgstr "Enabling this option will save reading progression on the browser (throu
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 
+msgid "Authenticated Progress Tracking"
+msgstr "Authenticated Progress Tracking"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+
 msgid "Debug Mode"
 msgstr "Debug Mode"
 
@@ -372,6 +390,12 @@ msgstr "Fully effective after restarting LANraragi."
 
 msgid "Clean Database"
 msgstr "Clean Database"
+
+msgid "Enable Metrics"
+msgstr "Enable Metrics"
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "Cleaning the database will remove entries that aren't on your filesystem."
@@ -436,6 +460,12 @@ msgstr "Have API requests support Cross-Origin Resource Sharing, which allows we
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
+
+msgid "Disable OpenAPI Validation"
+msgstr "Disable OpenAPI Validation"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
 
 # ------End of Config_Security.html.tt2------
 
@@ -553,6 +583,15 @@ msgstr "<b>tag => new-tag</b> : replaces one tag, but use a hash table internall
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 
+msgid "Excluded Namespaces"
+msgstr "Excluded Namespaces"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+
 # ------End of Config_Tags.html.tt2------
 
 # ------Start of Config_Theme.html.tt2------
@@ -611,6 +650,9 @@ msgstr "Save Metadata"
 
 msgid "Delete Archive"
 msgstr "Delete Archive"
+
+msgid "Read Archive"
+msgstr "Read Archive"
 
 msgid "Return to Library"
 msgstr "Return to Library"
@@ -925,6 +967,18 @@ msgstr " -- No Category -- "
 
 msgid "Add Archive to Category"
 msgstr "Add Archive to Category"
+
+msgid "Rating"
+msgstr "Rating"
+
+msgid "Set Rating"
+msgstr "Set Rating"
+
+msgid "Clear Rating"
+msgstr "Clear Rating"
+
+msgid " -- Select Rating -- "
+msgstr " -- Select Rating -- "
 
 msgid "Pages"
 msgstr "Pages"
@@ -1525,6 +1579,36 @@ msgstr "Starting auto next page failed!"
 
 msgid "Please set the auto next page interval to a positive number."
 msgstr "Please set the auto next page interval to a positive number."
+
+msgid "Chapters"
+msgstr "Chapters"
+
+msgid "Pages"
+msgstr "Pages"
+
+msgid "Add Chapter at this Page"
+msgstr "Add Chapter at this Page"
+
+msgid "Edit Chapter name"
+msgstr "Edit Chapter name"
+
+msgid "Delete Chapter"
+msgstr "Delete Chapter"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Are you sure you want to delete this chapter/section?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Enter a title for this chapter/section:"
+
+msgid "Chapter added!"
+msgstr "Chapter added!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Error adding/removing chapter:"
+
+msgid "Untitled Chapter"
+msgstr "Untitled Chapter"
 
 msgid "A script is already running."
 msgstr "A script is already running."

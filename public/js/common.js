@@ -1,11 +1,12 @@
 /**
  * Functions that get used in multiple pages but don't really depend on networking.
+ * @global
  */
 const LRR = {};
 
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
-    val = cookies.split('; ').find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
+    let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
     if (val === undefined) {
         console.warn("lrr_baseurl cookie undefined, must be set by backend");
         val = "";
@@ -24,14 +25,17 @@ function _get_baseurl_cookie() {
 // change.
 LRR.apiURL = class {
     static base_url = _get_baseurl_cookie();
+    load_url = "";
 
     constructor(load_url) {
         // accept instances of self as well, to make wrapping
         // idempotent
         if (load_url instanceof LRR.apiURL) {
-            load_url = load_url.load_url;
+            this.load_url = load_url.load_url;
         }
-        this.load_url = load_url;
+        else {
+            this.load_url = load_url;
+        }
         if (!this.load_url.startsWith("/")) {
             console.trace("passed non-absolute URL to apiURL");
             this.load_url = "/" + this.load_url;
@@ -49,9 +53,9 @@ LRR.apiURL = class {
  * Helper function to get user logged status based on tt2 userLogged attribute.
  * @returns true if user is logged in, else false.
  */
-LRR.isUserLogged = function() {
+LRR.isUserLogged = function () {
     const value = document.body.dataset.userLogged;
-    return value === '1';
+    return value === "1";
 };
 
 /**
@@ -109,7 +113,7 @@ LRR.isNullOrWhitespace = function (input) {
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
     if (namespace !== "source") {
-        return new LRR.apiURL(`/?q=${encodeURIComponent(namespacedTag)}`);
+        return new LRR.apiURL(`/?q=${encodeURIComponent(namespacedTag)}$`);
     } else if (/https?:\/\//.test(tag)) {
         return `${tag}`;
     } else {
@@ -132,6 +136,7 @@ LRR.openInNewTab = function (url) {
  * @returns
  */
 LRR.toggleOverlay = function (selector) {
+    Reader.updateArchiveOverlay();
     const overlay = $(selector);
     overlay.is(":visible")
         ? LRR.closeOverlay()
@@ -225,6 +230,15 @@ LRR.splitTagsByNamespace = function (tags) {
 };
 
 /**
+ * Converts tag dictionary into list of tags.
+ * @param {{ [namespace: string]: string[] }} tagsDict Per-namespace dictionary of arrays containing tags under each namespace.
+ * @returns List of tags prefixed with namespace.
+ */
+LRR.buildTagList = function (tagsDict) {
+    return Object.entries(tagsDict).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)));
+};
+
+/**
  * Builds a caption div containing clickable tags. Namespaces are resolved on the fly.
  * @param {*} tags string containing all tags, split by commas.
  * @returns the div
@@ -234,7 +248,7 @@ LRR.buildTagsDiv = function (tags) {
 
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
 
-    let line = "<table class=\"itg\" style=\"box-shadow: 0 0 0 0; border: none; border-radius: 0\" ><tbody>";
+    let line = `<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>`;
 
     // Go through resolved namespaces and print tag divs
     Object.keys(tagsByNamespace).sort().forEach((key) => {
@@ -259,10 +273,10 @@ LRR.buildTagsDiv = function (tags) {
                     </div>`;
         });
 
-        line += "</td></tr>";
+        line += `</td></tr>`;
     });
 
-    line += "</tbody></table>";
+    line += `</tbody></table>`;
     return line;
 };
 
@@ -273,13 +287,13 @@ LRR.buildTagsDiv = function (tags) {
  * @returns HTML component string
  */
 LRR.buildBookmarkIconElement = function (id, bookmark_class) {
-    if ( !LRR.bookmarkLinkConfigured() ) {
+    if (!LRR.bookmarkLinkConfigured()) {
         return "";
     }
     const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
     const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
     const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-    const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
+    const style = !LRR.isUserLogged() ? `style="opacity: 0.5; cursor: not-allowed;"` : "";
     return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="${I18N.ToggleBookmark}" ${style}></i>`;
 };
 
@@ -300,12 +314,12 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
-                    ${LRR.buildProgressDiv(data)}
+                    ${LRR.buildStatusDiv(data)}
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                 </div>
                 <div class="${thumbCss}">
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
-                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
+                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
                         <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
@@ -314,6 +328,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                     ${bookmarkIcon}
                 </div>
                 <div class="id4">
+                        ${LRR.buildPageCountDiv(data)}
                         <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
                         ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
@@ -321,32 +336,97 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
 };
 
 /**
- * Show an emoji or a progress number for the given archive data.
+ * Show an emoji for the given archive data.
  * @param {*} arcdata The archive data object
  * @returns HTML string
  */
-LRR.buildProgressDiv = function (arcdata) {
-    const id = arcdata.arcid;
+LRR.buildStatusDiv = function (arcdata) {
     const { isnew } = arcdata;
+    let { progress, pagecount } = LRR.getProgress(arcdata);
+
+    if (isnew === "true") {
+        return "<div class='isnew'>🆕</div>";
+    } else if (pagecount > 0 && (progress / pagecount) > 0.85) { // Consider an archive read if progress is past 85% of total
+        return "<div class='isnew'>👑</div>";
+    }
+    // If there wasn't sufficient data, return an empty string
+    return "";
+};
+
+LRR.buildPageCountDiv = function (arcdata) {
+
+    // TODO - This might evolve with Tanks to show the amount of IDs in the tank with total pagecount on hover
+    let { progress, pagecount } = LRR.getProgress(arcdata);
+    if (pagecount > 0) {
+        return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
+    }
+    return "";
+};
+
+LRR.buildChapterObject = function(toc, totalpages) {
+    const chapters = [];
+    if (toc.length === 0) {
+        return chapters;
+    }
+
+    if (toc[0].page > 1) {
+        // Fill in gap before first chapter
+        chapters.push({
+            name: I18N.UntitledChapter,
+            startPage: 1,
+            endPage: toc[0].page - 1,
+        });
+    }
+
+    toc.forEach((entry) => {
+
+        if (chapters.length > 0) {
+            // Fill in gap between previous chapter and this one
+            const prevChapter = chapters[chapters.length - 1];
+            if (entry.page > prevChapter.startPage + 1) {
+                prevChapter.endPage = entry.page - 1;
+            } else {
+                prevChapter.endPage = prevChapter.startPage;
+            }
+        }
+
+        chapters.push({
+            name: entry.name,
+            startPage: entry.page,
+            endPage: null, // to be filled in later
+        });
+    });
+
+    // Fill in end page for last chapter
+    const lastChapter = chapters[chapters.length - 1];
+    if (lastChapter.startPage <= totalpages) {
+        lastChapter.endPage = totalpages;
+    } else {
+        lastChapter.endPage = lastChapter.startPage;
+    }
+
+    return chapters;
+}
+
+/**
+ * Get the progress and pagecount for the given archive data, considering localStorage if needed.
+ * @param {*} arcdata The archive data object
+ * @returns progress and pagecount
+ */
+LRR.getProgress = function (arcdata) {
+    const id = arcdata.arcid;
+
     const pagecount = parseInt(arcdata.pagecount || 0, 10);
     let progress = -1;
 
-    if (Index.isProgressLocal) {
+    if (Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
         progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
     } else {
         progress = parseInt(arcdata.progress || 0, 10);
     }
 
-    if (isnew === "true") {
-        return "<div class=\"isnew\">🆕</div>";
-    } else if (pagecount > 0) {
-        // Consider an archive read if progress is past 85% of total
-        if ((progress / pagecount) > 0.85) return "<div class='isnew'>👑</div>";
-        else return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
-    }
-    // If there wasn't sufficient data, return an empty string
-    return "";
-};
+    return { progress, pagecount };
+}
 
 /**
  * Show a generic error toast with a given header and message.
@@ -397,14 +477,6 @@ LRR.getImgSize = function (target) {
         },
     });
     return imgSize;
-};
-
-LRR.getImgSizeAsync = function (target) {
-    return $.ajax({
-        url: target,
-        cache: true,
-        type: "HEAD",
-    });
 };
 
 /**

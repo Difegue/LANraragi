@@ -11,60 +11,21 @@
 <tr>
     <td colspan="2">
 
-        <!-- TODO: This series of inputs should be generated dynamically to account for custom css files. -->
+        [% FOREACH css IN csslist %]
+
         <div style="display: inline-block;">
-            <input type="radio" id="modern" name="theme" value="modern.css" [% IF theme=="modern.css" %]checked[% END
+            <input type="radio" id="[% css.id %]" class="theme-switch" name="theme" title="[% css.name %]" value="[% css.file %]" [% IF theme==css.file %]checked[% END
                 %]>
-            <label for="modern">
-                <div id="modern-div" style="cursor:pointer">
-                    <img title="Hachikuji" src="[% c.url_for("/img/theme_preview/hachikuji.png") %]" class="theme-preview">
-                    <h3>Hachikuji</h3>
+            <label for="[% css.id %]">
+                <div id="[% css.id %]-div" class="theme-switch" title="[% css.name %]" style="cursor:pointer">
+                    <img title="[% css.name %]" src="[% c.url_for(css.preview) %]" class="theme-preview">
+                    <h3>[% css.name %]</h3>
                 </div>
 
             </label>
         </div>
 
-        <div style="display: inline-block;">
-            <input type="radio" id="modern_clear" name="theme" value="modern_clear.css" [% IF theme=="modern_clear.css"
-                %]checked[% END %]>
-            <label for="modern_clear">
-                <div id="modern-clear-div" style="cursor:pointer">
-                    <img title="Yotsugi" src="[% c.url_for("/img/theme_preview/yotsugi.png") %]" class="theme-preview">
-                    <h3>Yotsugi</h3>
-                </div>
-            </label>
-        </div>
-
-        <div style="display: inline-block;">
-            <input type="radio" id="modern_red" name="theme" value="modern_red.css" [% IF theme=="modern_red.css"
-                %]checked[% END %]>
-            <label for="modern_red">
-                <div id="modern-red-div" style="cursor:pointer">
-                    <img title="Nadeko" src="[% c.url_for("/img/theme_preview/nadeko.png") %]" class="theme-preview">
-                    <h3>Nadeko</h3>
-                </div>
-            </label>
-        </div>
-
-        <div style="display: inline-block;">
-            <input type="radio" id="ex" name="theme" value="ex.css" [% IF theme=="ex.css" %]checked[% END %]>
-            <label for="ex">
-                <div id="ex-div" style="cursor:pointer">
-                    <img title="Sad Panda" src="[% c.url_for("/img/theme_preview/sadpanda.png") %]" class="theme-preview">
-                    <h3>Sad Panda</h3>
-                </div>
-            </label>
-        </div>
-
-        <div style="display: inline-block;">
-            <input type="radio" id="g" name="theme" value="g.css" [% IF theme=="g.css" %]checked[% END %]>
-            <label for="g">
-                <div id="g-div" style="cursor:pointer">
-                    <img title="H-Verse" src="[% c.url_for("/img/theme_preview/hverse.png") %]" class="theme-preview">
-                    <h3>H-Verse</h3>
-                </div>
-            </label>
-        </div>
+        [% END %] 
 
     </td>
 </tr>

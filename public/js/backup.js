@@ -1,5 +1,6 @@
 /**
- * Backup Operations.
+ * Backup Operations
+ * @global
  */
 const Backup = {};
 

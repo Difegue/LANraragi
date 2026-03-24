@@ -15,6 +15,7 @@ class Lanraragi < Formula
   depends_on "cpanminus"
   depends_on "ghostscript"
   depends_on "imagemagick"
+  depends_on "vips"
   depends_on "libarchive"
   depends_on "node"
   depends_on "openssl@3"
@@ -57,27 +58,23 @@ class Lanraragi < Formula
               "$ENV{ARCHIVE_LIBARCHIVE_LIB_DLL}",
               "'#{ENV["ARCHIVE_LIBARCHIVE_LIB_DLL"]}'"
 
-    (libexec/"lib").install Dir["lib/*"]
+    (libexec/"lib").install     Dir["lib/*"]
+    (libexec/"tools").install   "tools/openapi.yaml"
     libexec.install "script", "package.json", "public", "locales", "templates", "tests", "lrr.conf"
     libexec.install "tools/build/homebrew/redis.conf"
     bin.install "tools/build/homebrew/lanraragi"
   end
 
   test do
-    # brew-core uses this to test user-facing functionality by checking for the redis table flip.
-    # As this is used for CI here, it's more logical to run the test suite instead.
+    # Set PERL5LIB as we're not calling the launcher script
     ENV["PERL5LIB"] = libexec/"lib/perl5"
-    ENV["LRR_LOG_DIRECTORY"] = testpath/"log"
 
-    system "npm", "--prefix", libexec, "test"
-
-    # but while we're at it, we can also check for the table flip! it's free real estate
     # Make sure lanraragi writes files to a path allowed by the sandbox
     ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] = testpath
     %w[server.pid shinobu.pid minion.pid].each { |file| touch file }
 
-    # Set PERL5LIB as we're not calling the launcher script
-    ENV["PERL5LIB"] = libexec/"lib/perl5"
+    # On top of the brew-core testing, we can and do want to run the test suite for CI.  
+    system "npm", "--prefix", libexec, "test"
 
     # This can't have its _user-facing_ functionality tested in the `brew test`
     # environment because it needs Redis. It fails spectacularly tho with some
@@ -91,5 +88,6 @@ class Lanraragi < Formula
     # Execute through npm to avoid starting a redis-server
     return_value = OS.mac? ? 61 : 111
     assert_match output, shell_output("npm start --prefix #{libexec}", return_value)
+    
   end
 end

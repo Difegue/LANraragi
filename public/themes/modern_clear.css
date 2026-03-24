@@ -342,6 +342,7 @@ tr.gtr1 {
     max-width: 450px;
     width: 80%;
     border-radius: 3px;
+    box-sizing: border-box;
 }
 
 .tagger {

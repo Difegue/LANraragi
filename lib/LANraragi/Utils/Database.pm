@@ -22,7 +22,7 @@ use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Path    qw(create_path open_path date_modified);
+use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified get_archive_path);
 
 use LANraragi::Model::Config;
 
@@ -84,7 +84,7 @@ sub change_archive_id ( $old_id, $new_id ) {
     }
 
     # Update archive size
-    my $file = create_path( $redis->hget( $new_id, "file" ) );
+    my $file = get_archive_path( $redis, $new_id );
     $redis->hset( $new_id, "arcsize", -s $file );
     $redis->quit;
 
@@ -123,7 +123,7 @@ sub add_timestamp_tag ( $redis, $id ) {
 
         if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
             $logger->debug("Using file date");
-            $date = date_modified( $redis->hget( $id, "file" ) );
+            $date = date_modified( get_archive_path( $redis, $id ) );
         } else {
             $logger->debug("Using current date");
             $date = time();
@@ -138,8 +138,8 @@ sub add_pagecount ( $redis, $id ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    my $file   = $redis->hget( $id, "file" );
-    my @images = get_filelist($file);
+    my $file   = get_archive_path( $redis, $id );
+    my @images = get_filelist( $file, $id );
     $redis->hset( $id, "pagecount", scalar @images );
 }
 
@@ -231,8 +231,8 @@ sub get_tags ($id) {
 sub build_json ( $id, %hash ) {
 
     # Grab all metadata from the hash
-    my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
-      @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize)};
+    my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize, $toc ) =
+      @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize toc)};
 
     $file = create_path($file);
 
@@ -241,6 +241,27 @@ sub build_json ( $id, %hash ) {
 
     # Parameters have been obtained, let's decode them.
     ( $_ = LANraragi::Utils::Redis::redis_decode($_) ) for ( $name, $title, $tags, $summary );
+
+    my @chapters = ();
+
+    if ( defined $toc ) {
+        eval { $toc = decode_json($toc) };
+
+        if ( my $decode_error = $@ ) {
+            get_logger( "Archive", "lanraragi" )->error("Failed to parse ToC JSON for archive $id: $decode_error");
+            $toc = undef;
+        }
+        if ( defined $toc && ref($toc) eq 'HASH' ) {
+            foreach my $page ( keys %$toc ) {
+                push @chapters, { page => $page + 0, name => $toc->{$page} };
+            }
+        } elsif ( defined $toc ) {
+            get_logger( "Archive", "lanraragi" )->error("ToC is not a hash: $toc");
+        }
+
+        # Sort chapters by page number
+        @chapters = sort { $a->{page} <=> $b->{page} } @chapters;
+    }
 
     # Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
@@ -258,7 +279,8 @@ sub build_json ( $id, %hash ) {
         progress     => $progress     ? int($progress)     : 0,
         pagecount    => $pagecount    ? int($pagecount)    : 0,
         lastreadtime => $lastreadtime ? int($lastreadtime) : 0,
-        size         => $arcsize      ? int($arcsize)      : 0
+        size         => $arcsize      ? int($arcsize)      : 0,
+        toc          => \@chapters
     };
 
     return $arcdata;
@@ -360,7 +382,7 @@ sub clean_database {
         }
 
         # Check if the linked file exists
-        my $file = create_path( $redis->hget( $id, "file" ) );
+        my $file = get_archive_path( $redis, $id );
         unless ( -e $file ) {
             LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
@@ -511,7 +533,11 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         }
 
         # Tag is lowercased here to avoid redundancy/dupes
-        $redis->srem( "INDEX_" . LANraragi::Utils::Redis::redis_encode( lc($tag) ), $id );
+        $tag = LANraragi::Utils::Redis::redis_encode( lc($tag) );
+
+        # Update tag index and stats for the tag
+        $redis->srem( "INDEX_" . $tag, $id );
+        $redis->zincrby( "LRR_STATS", -1, $tag );
     }
 
     foreach my $tag (@newtags) {
@@ -525,7 +551,11 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
             $redis->hset( "LRR_URLMAP", $url, $id );
         }
 
-        $redis->sadd( "INDEX_" . LANraragi::Utils::Redis::redis_encode( lc($tag) ), $id );
+        $tag = LANraragi::Utils::Redis::redis_encode( lc($tag) );
+
+        # Update tag index and stats for the tag
+        $redis->sadd( "INDEX_" . $tag, $id );
+        $redis->zincrby( "LRR_STATS", 1, $tag );
     }
 
     # Add or remove the ID from the untagged list
@@ -544,7 +574,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 sub compute_id ($file) {
 
     #Read the first 512 KBs only (allows for faster disk speeds )
-    open_path( my $handle, '<:raw', $file ) or die "Couldn't open $file :" . $!;
+    open_path_or_die( my $handle, '<:raw', $file );
     my $data;
     my $len = read $handle, $data, 512000;
     close $handle;
@@ -610,7 +640,7 @@ sub get_computed_tagrules {
 }
 
 sub add_arcsize ( $redis, $id ) {
-    my $file = create_path( $redis->hget( $id, "file" ) );
+    my $file = get_archive_path( $redis, $id );
     $redis->hset( $id, "arcsize", -s $file );
 }
 

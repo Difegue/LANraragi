@@ -33,7 +33,8 @@ my @vendor_js = (
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
     "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
-    "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js"
+    "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
+    "/raty-js/build/raty.min.js",
 );
 
 my @vendor_woff = (
@@ -98,11 +99,11 @@ install_package( "Config::AutoConf", $cpanopt );
 IPC::Cmd->import('can_run');
 require Config::AutoConf;
 
-
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
 #Fails on win even if redis is in the path
-if ( IS_UNIX ) {
+if (IS_UNIX) {
+
     #Check for Redis
     say("Checking for Redis...");
     can_run('redis-server')
@@ -151,17 +152,21 @@ if ( $back || $full ) {
         install_package( "Linux::Inotify2", $cpanopt );
     }
 
-    if ( IS_UNIX ) {
+    if (IS_UNIX) {
         say("Installing dependencies for unix-like systems... (This will do nothing if the package is there already)");
 
-        install_package( "Net::DNS::Native", $cpanopt );
+        install_package( "Net::DNS::Native",            $cpanopt );
         install_package( "Mojolicious::Plugin::Status", $cpanopt );
     } else {
         say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
 
         install_package( "Win32::Process", $cpanopt );
-        install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/c12d7af52610f5a40c89379b303f7cce714d78f8.zip " . $cpanopt );
-        install_package( "File::ChangeNotify::Watcher::Win32", "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip " .$cpanopt );
+        install_package( "Win32::FileSystemHelper",
+            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip " . $cpanopt );
+        install_package( "File::ChangeNotify::Watcher::Win32",
+            "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip "
+              . $cpanopt );
+        install_package( "Win32API::File", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {

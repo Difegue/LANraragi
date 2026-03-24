@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 05:28+0200\n"
-"PO-Revision-Date: 2025-09-24 00:02+0000\n"
+"PO-Revision-Date: 2026-03-12 23:44+0000\n"
 "Last-Translator: Guerra24 <lili@guerra24.net>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/es/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -435,6 +435,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "Limpiar base de datos"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
 "Al limpiar la base de datos se eliminarán los registros que no se encuentran "
@@ -710,6 +716,9 @@ msgstr "Guardar metadatos"
 msgid "Delete Archive"
 msgstr ""
 
+msgid "Read Archive"
+msgstr "Leer archivo"
+
 msgid "Return to Library"
 msgstr ""
 
@@ -836,8 +845,8 @@ msgstr "Baka deja de utilizar la contraseña inicial"
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
 "<a href=\"/login\">Inicia sesión</a> con la contraseña \"kamimamita\" y <a "
-"href=\"/config\">cámbiala inmediatamente</a>.<br/>... ¡O deshabilítala!<br/>¿"
-"Por qué no revisas las opciones de configuraciones, ya que estás en ello? "
+"href=\"/config\">cámbiala inmediatamente</a>.<br/>... ¡O deshabilítala! <br/>"
+"¿Por qué no revisas las opciones de configuraciones, ya que estás en ello? "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1303,8 +1312,8 @@ msgstr "¡Copia de seguridad restaurada!"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
-"Ocurrió un error al restaurar la copia de seguridad.<br/>Por favor revisa el "
-"registro del servidor y que el JSON esté en el formato correcto."
+"Ocurrió un error al restaurar la copia de seguridad.<br/> Por favor revisa "
+"el registro del servidor y que el JSON esté en el formato correcto."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr ""
@@ -1460,9 +1469,10 @@ msgstr "Acerca de los complementos"
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
 "Puedes utilizar complementos para obtener metadatos de forma automática para "
-"este archivo.<br/>¡Solo selecciona un complemento de la lista y ejecútalo!<"
-"br/>Algunos complementos pueden utilizar un argumento opcional. Si es el "
-"caso, una caja de texto aparecerá para que puedas ingresar dicho argumento."
+"este archivo.<br/> ¡Solo selecciona un complemento de la lista y "
+"ejecútalo!<br/> Algunos complementos pueden utilizar un argumento opcional. "
+"Si es el caso, una caja de texto aparecerá para que puedas ingresar dicho "
+"argumento."
 
 msgid "Metadata saved!"
 msgstr "¡Metadatos guardados!"
@@ -1887,3 +1897,67 @@ msgstr "Ingresa un número positivo para el intervalo de cambio de página."
 
 msgid "The maximum value allowed is 4GB."
 msgstr "El tamaño máximo permitido es 4GB."
+
+msgid "Authenticated Progress Tracking"
+msgstr "Registro de progreso al estar autenticado"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"Si se habilita, el progreso del lado del servidor solo se guardará cuando "
+"tengas una sesión iniciada y reemplazará el progreso del cliente. Esto evita "
+"que los usuarios sin sesión modifiquen el progreso del servidor."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"Al habilitarse el progreso del lado del cliente permite a los usuarios sin "
+"sesión mantener el progreso de forma local."
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Automatic (browser default)"
+msgstr "Automático (el del navegador)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Selecciona el idioma para la interfaz. Usa automático para utilizar el "
+"idioma preferido del navegador."
+
+msgid "Rating"
+msgstr "Puntuación"
+
+msgid "Set Rating"
+msgstr "Colocar puntuación"
+
+msgid "Clear Rating"
+msgstr "Quitar puntuación"
+
+msgid " -- Select Rating -- "
+msgstr " -- Seleccionar puntuación -- "
+
+msgid "Chapters"
+msgstr "Capítulos"
+
+msgid "Add Chapter at this Page"
+msgstr "Agregar capítulo en esta página"
+
+msgid "Edit Chapter name"
+msgstr "Editar nombre del capítulo"
+
+msgid "Delete Chapter"
+msgstr "Eliminar capítulo"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "¿Estás seguro de que deseas eliminar este capítulo?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Ingresa un título para este capítulo:"
+
+msgid "Chapter added!"
+msgstr "¡Capítulo agregado!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Error al agregar/eliminar capítulo:"
+
+msgid "Untitled Chapter"
+msgstr "Capítulo sin nombre"

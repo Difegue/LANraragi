@@ -20,18 +20,18 @@ perl Makefile.PL && mingw32-make install
 cd ../ && rm -rf Crypt-DES-2.07
 
 cpanm --notest --installdeps Minion -M https://cpan.metacpan.org
-curl -L -s https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-10.31.tar.gz | tar -xz
-cd Minion-10.31
+curl -L -s https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz | tar -xz
+cd Minion-11.0
 sed -i "s/croak 'Minion workers do not support fork emulation'/#croak 'Minion workers do not support fork emulation'/" lib/Minion.pm
 perl Makefile.PL && mingw32-make install
-cd ../ && rm -rf Minion-10.31
+cd ../ && rm -rf Minion-11.0
 
 cpanm --notest --installdeps Image::Magick -M https://cpan.metacpan.org
-curl -L -s https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/Image-Magick-7.1.1-28.tar.gz | tar -xz
-cd Image-Magick-7.1.1
+curl -L -s https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/Image-Magick-7.1.2-3.tar.gz | tar -xz
+cd Image-Magick-7.1.2
 patch -p1 < ../build/windows/perl-Image-Magic-fix-msys2.patch
 perl Makefile.PL && mingw32-make install
-cd ../ && rm -rf Image-Magick-7.1.1
+cd ../ && rm -rf Image-Magick-7.1.2
 
 # Install remaining modules
 cpanm --notest --installdeps . -M https://cpan.metacpan.org

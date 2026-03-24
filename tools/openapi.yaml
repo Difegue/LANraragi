@@ -1,0 +1,3756 @@
+openapi: 3.1.0
+info:
+  version: 0.9.6
+  title: LANraragi API
+tags:
+  - name: search
+    description: Perform searches.
+  - name: archives
+    description: Everything dealing with Archives.
+  - name: database
+    description: Database management APIs.
+  - name: categories
+    description: Endpoints related to Categories.
+  - name: tankoubons
+    description: Endpoints related to Tankoubons.
+  - name: plugins
+    description: APIs to list and execute Plugins.
+  - name: shinobu
+    description: Shinobu Filewatcher APIs.
+  - name: minion
+    description: Minion Job Queue APIs.
+  - name: opds
+    description: Endpoints related to OPDS catalog generation and serving.
+  - name: misc
+    description: Other APIs that don't fit a dedicated theme.
+
+paths:
+  /opds:
+    get:
+      operationId: getOpdsCatalog
+      x-mojo-to: api-other#serve_opds_catalog
+      summary: Get the OPDS Catalog
+      description: Get the Archive Index as an OPDS 1.2 Catalog with PSE 1.1 compatibility.
+      tags:
+        - opds
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Category ID. If passed, the OPDS catalog will be filtered to only show archives from this category.
+      responses:
+        '200':
+          description: OPDS catalog XML
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                xml:
+                  summary: A sample XML response
+                  value: >
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <feed xmlns="http://www.w3.org/2005/Atom" 
+                        xmlns:dcterms="http://purl.org/dc/terms/"
+                        xmlns:opds="http://opds-spec.org/2010/catalog" 
+                        xmlns:pse="http://vaemendis.net/opds-pse/ns">
+
+                        <id>urn:lrr:0</id>
+
+                        <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+                        <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+
+                        <title>LANraragi</title>
+                        <updated>2010-01-10T10:03:10Z</updated>
+                        <subtitle>Welcome to this Library running LANraragi!</subtitle>
+                        <icon>/favicon.ico</icon>
+                        <author>
+                            <name>9.9.9</name>
+                            <uri>http://github.org/Difegue/LANraragi</uri>
+                        </author>
+
+                        <link rel="http://opds-spec.org/facet" 
+                            href="/api/opds" 
+                            title="All Archives" 
+                            opds:facetGroup="Categories" 
+                            opds:activeFacet="true" />
+
+                        
+                        <link rel="http://opds-spec.org/facet" 
+                            href="/api/opds?category=SET_1589138380" 
+                            title="AMERICA ONRY"  
+                            opds:facetGroup="Categories" 
+                            />
+                        
+                        <link rel="http://opds-spec.org/facet" 
+                            href="/api/opds?category=SET_1589141306" 
+                            title="Segata Sanshiro"  
+                            opds:facetGroup="Categories" 
+                            thr:count="2" />
+                        
+
+                        
+                        <entry>
+                            <title>Fate GO MEMO</title>
+                            <id>urn:lrr:28697b96f0ac5858be2614ed10ca47742c9522fd</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name>wada rco</name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher>wadamemo</dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="Archive" />
+                            
+                            <summary>parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too</summary>
+
+                            <link rel="alternate" href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}" pse:count="1" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd" />
+                        </entry>
+                        
+                        <entry>
+                            <title>Fate GO MEMO 2</title>
+                            <id>urn:lrr:2810d5e0a8d027ecefebca6237031a0fa7b91eb3</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name>wada rco</name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher>wadamemo</dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="Archive" />
+                            
+                            <summary>parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color</summary>
+
+                            <link rel="alternate" href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" />
+                        </entry>
+                        
+                        <entry>
+                            <title>Ghost in the Shell 1.5 - Human-Error Processor vol01ch01</title>
+                            <id>urn:lrr:4857fd2e7c00db8b0af0337b94055d8445118630</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name>shirow masamune</name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher></dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="Archive" />
+                            
+                            <summary>artist:shirow masamune</summary>
+
+                            <link rel="alternate" href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630" />
+                        </entry>
+                        
+                        <entry>
+                            <title>Rohan Kishibe goes to Gucci</title>
+                            <id>urn:lrr:e4c422fd10943dc169e3489a38cdbf57101a5f7e</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name></name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher></dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="New Archive" />
+                            
+                            <summary>parody: jojo&#39;s bizarre adventure</summary>
+
+                            <link rel="alternate" href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}" pse:count="10" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" />
+                        </entry>
+                        
+                        <entry>
+                            <title>Saturn Backup Cartridge - American Manual</title>
+                            <id>urn:lrr:e69e43e1355267f7d32a4f9b7f2fe108d2401ebg</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name></name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher></dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="Archive" />
+                            
+                            <summary>character:segata, female:very cool too</summary>
+
+                            <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg" />
+                        </entry>
+                        
+                        <entry>
+                            <title>Saturn Backup Cartridge - Japanese Manual</title>
+                            <id>urn:lrr:e69e43e1355267f7d32a4f9b7f2fe108d2401ebf</id>
+                            <updated>2010-01-10T10:01:11Z</updated>
+                            <published>2010-01-10T10:01:11Z</published>
+                            <author>
+                                <name></name>
+                            </author>
+                            <rights></rights>
+                            <dcterms:language></dcterms:language>
+                            <dcterms:publisher></dcterms:publisher>
+                            <dcterms:issued></dcterms:issued>
+                            
+                            <category term="Archive" />
+                            
+                            <summary>character:segata sanshiro, male:very cool</summary>
+
+                            <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"
+                                type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                            <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg" />
+                            <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail"
+                                type="image/jpeg" />
+                            <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Download/Read"
+                                type="application/x-cbz" />
+                            <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                                href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}" pse:count="2"  pse:lastRead="10" />
+                            <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" />
+                        </entry>
+                        
+
+                    </feed>
+  /opds/{id}:
+    get:
+      operationId: getOpdsItem
+      x-mojo-to: api-other#serve_opds_item
+      summary: Get a specific archive through OPDS
+      description: Returns a specific OPDS item as XML. This will show only one <entry\> for the given ID in the result, instead of all the archives.
+      tags:
+        - opds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OPDS entry XML
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                xml: 
+                  summary: A sample XML response
+                  value: >
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <entry xmlns="http://www.w3.org/2005/Atom" 
+                        xmlns:thr="http://purl.org/syndication/thread/1.0"
+                        xmlns:dcterms="http://purl.org/dc/terms/" 
+                        xmlns:opds="http://opds-spec.org/2010/catalog"
+                        xmlns:pse="http://vaemendis.net/opds-pse/ns" 
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:schema="http://schema.org/">
+
+                        <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+                        <link rel="self" href="/api/opds/0a053b3a3960e85c331da2905513a18fa1375d99" type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+                        <title>Aya Sugimoto - [1989.05.15] 杉本彩写真集 Seductive</title>
+                        <id>urn:lrr:0a053b3a3960e85c331da2905513a18fa1375d99</id>
+                        <updated>2024-07-02T20:40:58Z</updated>
+                        <published>2024-07-02T20:40:58Z</published>
+                        <author>
+                            <name></name>
+                        </author>
+                        <rights></rights>
+                        <dcterms:language></dcterms:language>
+                        <dcterms:publisher></dcterms:publisher>
+                        <dcterms:issued></dcterms:issued>
+                        
+                        <category term="Archive" />
+                        
+                        <summary>date_added:1719952858</summary>
+
+                        <link rel="http://opds-spec.org/image" href="/api/archives/0a053b3a3960e85c331da2905513a18fa1375d99/thumbnail" type="image/jpeg" />
+                        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/0a053b3a3960e85c331da2905513a18fa1375d99/thumbnail" type="image/jpeg" />
+                        <link rel="http://opds-spec.org/acquisition" href="/api/archives/0a053b3a3960e85c331da2905513a18fa1375d99/download" title="Download/Read"
+                            type="application/x-cbr" />
+                        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+                            href="/api/opds/0a053b3a3960e85c331da2905513a18fa1375d99/pse?page=%7BpageNumber%7D" pse:count="33" 
+                            
+                            />
+                        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=0a053b3a3960e85c331da2905513a18fa1375d99" />
+
+                    </entry>
+  /opds/{id}/pse:
+    get:
+      operationId: getOpdsPage
+      x-mojo-to: api-other#serve_opds_page
+      summary: OPDS-PSE 
+      description: Returns a specific image page for OPDS-PSE as XML.
+      tags:
+        - opds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Image file for the requested page
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  
+  /info:
+    get:
+      operationId: getServerInfo
+      x-mojo-to: api-other#serve_serverinfo
+      summary: Get server info
+      description: >-
+        Returns some basic information about the LRR instance this server is running.
+      tags:
+        - misc
+      responses:
+        '200':
+          description: Server info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerInfo'
+  
+  /plugins/{type}:
+    get:
+      security:
+        - api_key: []
+      operationId: listPlugins
+      x-mojo-to: api-other#list_plugins
+      summary: 🔑 List available plugins
+      description: List all plugins of the given type.
+      tags:
+        - plugins
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type of plugins you want to list. You can use "all" to get all types at once.
+          schema:
+            type: string
+            enum:
+              - download
+              - login
+              - metadata
+              - script
+              - all
+      responses:
+        '200':
+          description: Array of plugins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginInfo'
+  /plugins/use:
+    post:
+      security:
+        - api_key: []
+      operationId: usePluginSync
+      x-mojo-to: api-other#use_plugin_sync
+      summary: 🔑 Use a Plugin
+      description: > 
+        Uses a Plugin and returns the result. 
+        If using a metadata plugin, the matching archive will not be modified in the database.
+        See more info on Plugins in the matching section of the Docs.
+      tags:
+        - plugins
+      parameters:
+        - name: id
+          in: query
+          description: ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+          required: false
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: plugin
+          in: query
+          description: Namespace of the plugin to use.
+          required: false
+          schema:
+            type: string
+        - name: arg
+          in: query
+          description: Optional One-Shot argument to use when executing this Plugin.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Plugin result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - use_plugin
+                  type:
+                    type: string
+                    nullable: true
+                    enum: 
+                      - download
+                      - login
+                      - metadata
+                      - script
+                  success:
+                    type: integer
+                    description: Whether the Plugin run succeeded or not. 
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  data:
+                    type: object
+                    description: Arbitrary data returned by the Plugin.
+                example:
+                  operation: use_plugin
+                  success: 1
+                  type: metadata
+                  data: 
+                    new_tags: pages:45                   
+  /plugins/queue:
+    post:
+      security:
+        - api_key: []
+      operationId: usePluginAsync
+      x-mojo-to: api-other#use_plugin_async
+      summary: 🔑 Use a Plugin Asynchronously
+      description: > 
+        Uses a Plugin and returns a Minion Job ID matching the Plugin run.
+        This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.
+      tags:
+        - plugins
+      parameters:
+        - name: id
+          in: query
+          description: ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+          required: false
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: priority
+          in: query
+          required: false
+          default: 0
+          description: Priority of the Minion job. The higher the number, the more important the job is.
+          schema:
+            type: integer
+        - name: plugin
+          in: query
+          description: Namespace of the plugin to use.
+          required: false
+          schema:
+            type: string
+        - name: arg
+          in: query
+          description: Optional One-Shot argument to use when executing this Plugin.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - queue_plugin_exec
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                    description: ID of the created Minion job
+                example:
+                  job: 86
+                  operation: queue_plugin_exec
+                  success: 1
+  
+  /tempfolder:
+    delete:
+      security:
+        - api_key: []
+      operationId: cleanTempfolder
+      x-mojo-to: api-other#clean_tempfolder
+      summary: Clean the Temporary Folder
+      description: Cleans the server's temporary folder.
+      tags:
+        - misc
+      responses:
+        '200':
+          description: Cleanup result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - cleantemp
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    description: Error message if something went wrong during cleanup. (The call will still return 200)
+                    nullable: true
+                  newsize:
+                    type: integer
+                    description: Current size of the temporary folder post-cleanup.
+                example:
+                  operation: cleantemp
+                  error: null
+                  newsize: 0
+                  success: 1
+  /download_url:
+    post:
+      security:
+        - api_key: []
+      operationId: downloadUrl
+      x-mojo-to: api-other#download_url
+      summary: Queue a URL download
+      description: Add a URL to be downloaded by the server and added to its library.
+      tags:
+        - misc
+      parameters:
+        - name: url
+          in: query
+          description: URL to download
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: catid
+          in: query
+          required: false
+          description: Category ID to add the downloaded URL to.
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - download_url
+                  url:
+                    type: string
+                    description: URL queued for download
+                  category:
+                    type: string
+                    nullable: true
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 86
+                  operation: download_url
+                  success: 1
+                  url: https://example.com
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /regen_thumbs:
+    post:
+      security:
+        - api_key: []
+      operationId: regenThumbnails
+      x-mojo-to: api-other#regen_thumbnails
+      summary: Regenerate Thumbnails
+      description: Queue a Minion job to regenerate missing/all thumbnails on the server.
+      tags:
+        - misc
+      parameters:
+        - name: force
+          in: query
+          description: Whether to generate all thumbnails, or only the missing ones.
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - regen_thumbnails
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 3
+                  operation: regen_thumbnails
+                  success: 1
+  
+  /archives:
+    get:
+      operationId: getAllArchives
+      x-mojo-to: api-archive#serve_archivelist
+      summary: Get all Archives
+      description: > 
+        Returns a list of all archives in the database. 
+        You can use the IDs of this JSON with the other endpoints.
+      tags:
+        - archives
+      responses:
+        '200':
+          description: Array of archives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArchiveMetadataJson'
+  /archives/untagged:
+    get:
+      operationId: getUntaggedArchives
+      x-mojo-to: api-archive#serve_untagged_archivelist
+      summary: Get all untagged archives
+      description: >
+        Get archives that don't have any tags recorded. 
+        This follows the same rules as the Batch Tagging filter and will include archives that have parody:, date_added:, series: or artist: tags.
+      tags:
+        - archives
+      responses:
+        '200':
+          description: Array of archive IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  minLength: 40
+                  maxLength: 40
+              example:
+                - d1858d5dc36925aa66be072a97817650d39de166
+                - c3458d5dc36925da93be072a97817650d39de166
+                - 28697b96f0ac5858be2614ed10ca47742c9522fd
+  /archives/upload:
+    put:
+      security:
+        - api_key: []
+      operationId: uploadArchive
+      x-mojo-to: api-archive#create_archive
+      summary: 🔑 Upload Archive
+      description: >-
+        Upload an Archive to the server.  
+
+        If a SHA1 checksum of the Archive is included, the server will perform
+        an optional in-transit, file integrity validation, and reject the upload
+        if the server-side checksum does not match.
+      tags:
+        - archives
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archive file to upload
+                file_checksum:
+                  type: string
+                  description: SHA1 checksum of the archive for in-transit validation.
+                  pattern: ^[a-fA-F0-9]{40}$
+                category_id:
+                  type: string
+                  description: Category ID you'd want the archive to be added to.
+                  minLength: 14
+                  maxLength: 14
+                tags:
+                  type: string
+                  description: >-
+                    Set of tags you want to insert in the database alongside the
+                    archive.
+                title:
+                  type: string
+                  description: Title of the Archive.
+                summary:
+                  type: string
+                  description: Summary of the Archive.
+      responses:
+        '200':
+          description: Archive uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - operation
+                  - success
+                  - id
+                properties:
+                  operation:
+                    type: string
+                    description: Name of operation
+                    example: upload
+                  success:
+                    type: integer
+                    description: Returns 1 if operation was successful, else 0
+                    enum:
+                      - 1
+                  id:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                    description: ID of the uploaded archive
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '409':
+          description: Duplicate archive
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - operation
+                  - success
+                  - error
+                  - id
+                properties:
+                  operation:
+                    type: string
+                    description: Name of operation
+                    enum: 
+                      - upload
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                    description: Returns 0 for failed operation
+                  error:
+                    type: string
+                    description: Error message indicating the archive already exists
+                  id:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                    description: ID of the existing archive  
+                example:
+                  operation: upload
+                  error: This file already exists in the Library. Enable replace duplicated archive in config to replace old ones.
+                  success: 0
+                  id: 0b91b546850e881034833c73375558928ddcec7c
+        '415':
+          description: Unsupported file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '417':
+          description: Checksum mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}:
+    get:
+      operationId: getArchive
+      x-mojo-to: api-archive#serve_metadata
+      deprecated: true
+      summary: Get archive metadata (deprecated)
+      description: Get Metadata (title, tags) for a given Archive.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveMetadataJson'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteArchive
+      x-mojo-to: api-archive#delete_archive
+      summary: 🔑 Delete archive
+      description: |-
+        Delete both the archive metadata and the file stored on the server.  
+        🙏 Please ask your user for confirmation before invoking this endpoint.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive deleted response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - delete_archive
+                  id:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                    description: ID of the archive
+                  filename:
+                    type: string
+                    description: Filename of the deleted archive
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if operation was successful, else 0
+                example:
+                  operation: delete_archive
+                  success: 1
+                  id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
+                  filename: big_chungus.zip
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/metadata:
+    get:
+      operationId: getArchiveMetadata
+      x-mojo-to: api-archive#serve_metadata
+      summary: Get archive metadata
+      description: Get Metadata (title, tags) for a given Archive. 
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveMetadataJson'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateArchiveMetadata
+      x-mojo-to: api-archive#update_metadata
+      summary: 🔑 Update archive metadata
+      description: >-
+        Update tags and title for the given Archive.  
+
+        Data supplied to the server through this method will **overwrite** the previous data.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: title
+          in: query
+          required: false
+          description: New Title of the Archive.
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: New Tags of the Archive.
+          schema:
+            type: string
+        - name: summary
+          in: query
+          required: false
+          description: New Summary of the Archive.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Archive metadata updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_metadata
+                success: 1
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/thumbnail:
+    get:
+      operationId: getArchiveThumbnail
+      x-mojo-to: api-archive#serve_thumbnail
+      summary: Get archive thumbnail
+      description: >-
+        Get a Thumbnail image for a given Archive. This endpoint will return a
+        placeholder image if it doesn't already exist. If you want to queue
+        generation of the thumbnail in the background, you can use the
+        no_fallback query parameter. This will give you a background job ID
+        instead of the placeholder.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive to process
+          schema:
+            type: string
+            maxLength: 40
+            minLength: 40
+        - name: no_fallback
+          in: query
+          required: false
+          description: >-
+            Disables the placeholder image, queues the thumbnail for extraction
+            and returns a JSON with code 202. This parameter does nothing if the
+            image already exists. (You will get the image with code 200 no
+            matter what)
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+        - name: page
+          in: query
+          required: false
+          description: >-
+            Specify which page you want to get a thumbnail for. Defaults to the
+            cover, aka page 1.
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: If the thumbnail was already extracted, you get it directly.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: serve_thumbnail
+                error: No archive ID specified.
+                success: 0
+    put:
+      security:
+        - api_key: []
+      operationId: updateArchiveThumbnail
+      x-mojo-to: api-archive#update_thumbnail
+      summary: 🔑 Update archive thumbnail
+      description: >-
+        Update the cover thumbnail for the given Archive. You can specify a page
+        number to use as the thumbnail, or you can use the default thumbnail.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: page
+          in: query
+          required: false
+          description: Page you want to make the thumbnail out of. Defaults to 1.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Archive thumbnail updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    description: Name of operation
+                    enum: 
+                      - update_thumbnail
+                  success:
+                    type: integer
+                    description: Returns 1 if operation was successful, else 0
+                    enum: 
+                      - 0
+                      - 1
+                  new_thumbnail:
+                    type: string
+                    description: New thumbnail URL
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_thumbnail
+                error: No archive ID specified.
+                success: 0
+  /archives/{id}/categories:
+    get:
+      operationId: getArchiveCategories
+      x-mojo-to: api-archive#get_categories
+      summary: Get archive categories
+      description: Get all the Categories which currently refer to this Archive ID.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    description: Array of category metadata
+                    items:
+                      $ref: '#/components/schemas/CategoryMetadataJson'
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - find_arc_categories
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if operation was successful, else 0
+                example:
+                  operation: find_arc_categories
+                  success: 1
+                  categories:
+                    - id: SET_1613080290
+                      name: My great category
+                      pinned: 0
+                      search: null
+                      archives:
+                        - 0d50858d727723d856d2ab78564bb8e906e65f14
+                        - 7f03b8b1f337e1e42b2c2890533c0de7479d41ca
+                    - id: SET_1613080294
+                      name: My other category
+                      pinned: 1
+                      search: null
+                      archives:
+                        - 0d50858d727723d856d2ab78564bb8e906e65f14
+                        - 75d18ce470dc99f83dc355bdad66319d1f33c82b
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/tankoubons:
+    get:
+      operationId: getArchiveTankoubons
+      x-mojo-to: api-tankoubon#get_tankoubons_file
+      summary: Get archive tankoubons
+      description: Get all the Tankoubons which currently refer to this Archive ID.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive tankoubons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tankoubons:
+                    type: array
+                    description: Array of tankoubon IDs
+                    items:
+                      type: string
+                      minLength: 15
+                      maxLength: 15
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - find_arc_tankoubons
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if operation was successful, else 0
+                example:
+                  operation: find_arc_tankoubons
+                  success: 1
+                  tankoubons:
+                    - TANK_1688616437
+                    - TANK_1688693913
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse' 
+  /archives/{id}/toc:
+    put: 
+      security:
+        - api_key: []
+      operationId: addArchiveToc
+      x-mojo-to: api-archive#add_toc
+      summary: 🔑 Add entry to Archive Table of Contents
+      description: >-
+        Add an entry to the Table of Contents of a given Archive.  
+        The ToC is stored as a JSON-encoded key-value array mapping a page to a title for the chapter/section starting at that page.  
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: page
+          in: query
+          required: true
+          description: Page number where the chapter/section starts.
+          schema:
+            type: integer
+        - name: title
+          in: query
+          required: true
+          description: Title of the chapter/section.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Archive TOC updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_toc
+                success: 1
+                successMessage: Added ToC entry for page 143.
+        '400':
+          description: No archive ID response or other error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteArchiveToc
+      x-mojo-to: api-archive#remove_toc
+      summary: 🔑 Remove entry from Archive Table of Contents
+      description: >-
+        Delete an entry from the Table of Contents of a given Archive.  
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: page
+          in: query
+          required: true
+          description: Page number of the chapter/section to delete.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Archive TOC updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: remove_toc
+                success: 1
+                successMessage: Removed ToC entry for page 143.
+        '400':
+          description: No archive ID response or other error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/download:
+    get:
+      operationId: downloadArchive
+      x-mojo-to: api-archive#serve_file
+      summary: Download archive
+      description: Download an Archive from the server.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to download.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Archive file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: download_archive
+                error: No archive ID specified.
+                success: 0
+  /archives/{id}/files:
+    get:
+      operationId: getFiles
+      x-mojo-to: api-archive#get_file_list
+      summary: Extract an Archive
+      description: >-
+        Get a list of URLs pointing to the images contained in an archive. 
+        If necessary, this endpoint also launches a background Minion job to
+        extract the archive so it is ready for reading.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: force
+          in: query
+          required: false
+          description: >-
+            Force a full background re-extraction of the Archive. Existing
+            cached files might still be used in subsequent
+            `/api/archives/:id/page` calls until the Archive is fully
+            re-extracted.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: You get page URLs, and the ID of the background extract job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job:
+                    type: integer
+                    description: ID of the background extract job
+                  pages:
+                    type: array
+                    items:
+                      type: string
+                      description: Page URLs
+              example:
+                job: 561
+                pages: 
+                  - .\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=00.jpg
+                  - .\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=01.jpg
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: get_file_list
+                error: No archive ID specified.
+                success: 0
+  /archives/{id}/files/thumbnails:
+    post:
+      operationId: queueArchivePageThumbnailExtraction
+      x-mojo-to: api-archive#generate_page_thumbnails
+      summary: Extract page thumbnails
+      description: >-
+        Create thumbnails for every page of a given Archive.  
+        This endpoint will queue generation of the thumbnails in the background.  
+        
+
+        If all thumbnails are detected as already existing, the call will return HTTP code 200.  
+
+        This endpoint can be called multiple times -- If a thumbnailing job is already in progress for the given ID, it'll just give you the ID for that ongoing job.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: force
+          in: query
+          required: false
+          description: >-
+            Whether to force regeneration of all thumbnails even if they already
+            exist.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: If thumbnails are already extracted and `force=0`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  operation:
+                    type: string
+                    description: Name of operation
+                    enum:
+                      - generate_page_thumbnails
+                  success:
+                    type: string
+                    description: Returns 1 if operation was successful, else 0
+                    enum: 
+                      - 0
+                      - 1
+                example:
+                  message: No job queued, all thumbnails already exist.
+                  operation: generate_page_thumbnails
+                  success: 1
+        '202':
+          description: >-
+            The thumbnails are queued for extraction. You can use
+            `/api/minion/:jobid` to track progress, by looking at
+            `notes->progress` and `notes->pages`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/page:
+    get:
+      operationId: getPage
+      x-mojo-to: api-archive#serve_page
+      summary: Get an archive page
+      description: Get an archive page. This call is mainly used alongside `/api/archives/files`.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to download.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: path
+          in: query
+          required: true
+          description: Path to the image. 
+      responses:
+        '200':
+          description: Archive page
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/progress/{page}:
+    put:
+      operationId: updateArchiveProgress
+      x-mojo-to: api-archive#update_progress
+      summary: Update reading progression
+      description: >-
+        Tell the server which page of this Archive you're currently
+        showing/reading, so that it updates its internal reading progression
+        accordingly.  
+
+        This endpoint will also update the date this Archive was last read,
+        using the current server timestamp.  
+
+
+        You should call this endpoint only when you're sure the user is
+        currently reading the page you present.  
+
+        **Don't** use it when preloading images off the server.
+
+
+        Whether to make reading progression regressible or not is up to the
+        client. (The web client will reduce progression if the user starts
+        reading previous pages)  
+
+        Consider however removing the "New!" flag from an archive when you start
+        updating its progress - The web client won't display any reading
+        progression if the new flag is still set.  
+
+
+        ⚠ If the server is configured to use clientside progress tracking, this
+        API call will return an error!  
+
+        Make sure to check using `/api/info` whether the server tracks reading
+        progression or not before calling this endpoint.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+        - name: page
+          in: path
+          required: true
+          description: >-
+            Current page to update the reading progress to.  
+
+            **Must** be a positive integer, and inferior or equal to the total page number of the archive.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                    description: ID of the archive updated
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - update_progress
+                  page:
+                    type: integer
+                    description: Updated reading progress
+                  lastreadtime:
+                    type: integer
+                    description: Last read time in epoch seconds
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if successful, else 0
+                example:
+                  id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
+                  operation: update_progress
+                  page: 34
+                  lastreadtime: 123943543
+                  success: 1
+        '400':
+          description: Generic error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_progress
+                error: Server-side Progress Tracking is disabled on this instance.
+                success: 0
+        '401':
+          description: Authentication required when authprogress is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_progress
+                error: This operation requires authentication.
+                success: 0
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/isnew:
+    put:
+      security:
+        - api_key: []
+      operationId: setNewArchiveFlag
+      x-mojo-to: api-archive#add_new
+      summary: 🔑 Set Archive New flag
+      description: Sets/Restores the "New!" flag on an archive.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      operationId: clearNewArchiveFlag
+      x-mojo-to: api-archive#clear_new
+      summary: Clear Archive New flag
+      description: Clears the "New!" flag on an archive.
+      tags:
+        - archives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Archive to process.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - operation
+                  - success
+                properties:
+                  id:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                    description: ID of the archive
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - clear_new
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if successful, else 0
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /search:
+    get:
+      operationId: searchArchives
+      x-mojo-to: api-search#handle_api
+      summary: Search Archives
+      description: >-
+        Search for Archives. You can use the IDs of this JSON with the other
+        endpoints.
+      tags:
+        - search
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: ID of the category you want to restrict this search to.
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: filter
+          in: query
+          required: false
+          description: >-
+            Search query. You can use the following special characters in it:
+
+
+            **Quotation Marks ("...")**
+
+            Exact string search. Allows a search term to include spaces.
+            Everything placed inside a pair of quotation marks is treated as a
+            singular term. Wildcard characters are still interpreted as
+            wildcards.
+
+
+            **Question Mark (?), Underscore (_)**
+
+            Wildcard. Can match any single character.
+
+
+            **Asterisk (*), Percentage Sign (%)**
+
+            Wildcard. Can match any sequence of characters (including none).
+
+
+            **Subtraction Sign (-)**
+
+            Exclusion. When placed before a term, prevents search results from
+            including that term.
+
+
+            **Dollar Sign ($)**
+
+            Add at the end of a tag to perform an exact tag search rather than
+            displaying all elements that start with the term. Only matches tags
+            regardless of search parameters and can be used as an exclusion to
+            ignore misc tags in the search query.
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          description: >-
+            From which archive in the total result count this enumeration should
+            start. The total number of archives displayed depends on the
+            server-side page size preference.  
+
+
+            From 0.8.2 onwards, you can use "-1" here to get the full, unpaged data.
+          schema:
+            type: integer
+        - name: sortby
+          in: query
+          required: false
+          description: >-
+            Namespace by which you want to sort the results. There are specific
+            sort keys you can use:
+
+            - *title* if you want to sort by title
+
+            - *lastread* if you want to sort by last read time. (If
+            **Server-side Progress Tracking** is enabled)  
+
+
+            (Default value is title. If you sort by lastread, IDs that have
+            never been read will be removed from the search.)
+          schema:
+            type: string
+        - name: order
+          in: query
+          required: false
+          description: Order of the sort, either `asc` or `desc`.
+          schema:
+            type: string
+        - name: newonly
+          in: query
+          required: false
+          description: Limit search to new archives only.
+          schema:
+            type: boolean
+        - name: untaggedonly
+          in: query
+          required: false
+          description: Limit search to untagged archives only.
+          schema:
+            type: boolean
+        - name: groupby_tanks
+          in: query
+          required: false
+          default: false
+          description: >-
+            Enable or disable Tankoubon grouping. Defaults to true.
+
+            When enabled, Tankoubons will show in search results, replacing all
+            the archive IDs they contain.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive metadata objects for each search result
+                    items:
+                      $ref: '#/components/schemas/ArchiveMetadataJson'
+                  recordsFiltered:
+                    type: integer
+                    description: Amount of archives in the search result
+                  recordsTotal:
+                    type: integer
+                    description: Total number of archives available. This result will change depending on the `groupby_tanks` parameter.
+                example:
+                  data:
+                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                      isnew: false
+                      extension: rar
+                      pagecount: 34
+                      progress: 3
+                      tags: parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color
+                      lastreadtime: 1337038281
+                      title: Fate GO MEMO
+                      filename: Fate GO MEMO
+                      summary: null
+                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                      isnew: false
+                      extension: rar
+                      pagecount: 34
+                      progress: 3
+                      tags: parody:jojo's bizarre adventure
+                      lastreadtime: 1337038281
+                      title: Rohan Kishibe goes to Gucci
+                      filename: Gucc
+                      summary: cool summary
+                  recordsFiltered: 2
+                  recordsTotal: 2
+        '204':
+          description: Search engine is not initialized yet. Please wait a few seconds.
+  /search/random:
+    get:
+      operationId: searchRandomArchives
+      x-mojo-to: api-search#get_random_archives
+      summary: Search random Archives
+      description: Get randomly selected Archives from the given filter and/or category.
+      tags:
+        - search
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: ID of the category you want to restrict this search to.
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: filter
+          in: query
+          required: false
+          description: >-
+            Search query. This follows the same rules as the queries in `/api/search`.
+          schema:
+            type: string
+        - name: count
+          in: query
+          required: false
+          default: 5
+          description: >-
+            How many archives you want to pull randomly. Defaults to 5.  
+
+
+            If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
+          schema:
+            type: integer
+        - name: newonly
+          in: query
+          required: false
+          description: Limit search to new archives only.
+          schema:
+            type: boolean
+        - name: untaggedonly
+          in: query
+          required: false
+          description: Limit search to untagged archives only.
+          schema:
+            type: boolean
+        - name: groupby_tanks
+          in: query
+          required: false
+          description: >-
+            Enable or disable Tankoubon grouping. Defaults to true.
+
+            When enabled, Tankoubons will show in search results, replacing all
+            the archive IDs they contain.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive metadata objects for each search result
+                    items:
+                      $ref: '#/components/schemas/ArchiveMetadataJson'
+                  recordsTotal:
+                    type: integer
+              example:
+                  data:
+                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                      isnew: false
+                      extension: rar
+                      pagecount: 34
+                      progress: 3
+                      tags: parody:jojo's bizarre adventure
+                      lastreadtime: 1337038281
+                      title: Rohan Kishibe goes to Gucci
+                      filename: Gucc
+                      summary: cool summary
+                  recordsTotal: 2
+  /search/cache:
+    delete:
+      security:
+        - api_key: []
+      operationId: discardSearchCache
+      x-mojo-to: api-search#clear_cache
+      summary: 🔑 Discard Search Cache
+      description: Discard the cache containing previous user searches.
+      tags:
+        - search
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: No archive ID response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  
+  /database/stats:
+    get:
+      operationId: getStatistics
+      x-mojo-to: api-database#serve_tag_stats
+      summary: Get Statistics
+      description: Get tags from the database, with a value symbolizing their prevalence.
+      tags:
+        - database
+      parameters:
+        - name: minweight
+          in: query
+          required: false
+          description: >-
+            Add this parameter if you want to only get tags whose weight is at
+            least the given minimum.  
+
+            Default is 1 if not specified, to get all tags.
+          schema:
+            type: integer
+        - name: hide_excluded_namespaces
+          in: query
+          required: false
+          description: >-
+            Set to true to exclude namespaces configured in server settings from
+            the results. Default behavior returns all tags.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    namespace:
+                      type: string
+                      nullable: true
+                      description: Namespace of the tag
+                    text:
+                      type: string
+                      required: true
+                      description: The tag itself
+                    weight:
+                      type: integer
+                      description: Weight of the tag in the database
+              example:
+                - namespace: character
+                  text: jeanne alter
+                  weight: 2
+                - namespace: character
+                  text: xuanzang
+                  weight: 2
+                - namespace: parody
+                  text: fate grand order
+                  weight: 3
+                - namespace: null
+                  text: artbook
+                  weight: 3
+  /database/backup:
+    get:
+      security:
+        - api_key: []
+      operationId: getBackupJson
+      x-mojo-to: api-database#serve_backup
+      summary: 🔑 Get a backup JSON
+      description: >-
+        Scans the entire database and returns a backup in JSON form.  
+
+        This backup can be reimported manually through the Backup and Restore feature.
+      tags:
+        - database
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archives:
+                    type: array
+                    description: Array of archive metadata
+                    items:
+                      $ref: '#/components/schemas/BackupArchiveMetadataJson'
+                  categories:
+                    type: array
+                    description: Array of category metadata
+                    items:
+                      $ref: '#/components/schemas/BackupCategoryMetadataJson'
+                  tankoubons:
+                    type: array
+                    description: Array of tankoubon metadata
+                    items:
+                      $ref: '#/components/schemas/TankoubonMetadataJson'
+                example:
+                  archives:
+                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                      title: Fate GO MEMO
+                      tags: parody:fate grand order, group:wadamemo, artist:wada rco, artbook, full color, super:test, date_added:1553537258
+                      summary: null
+                      thumbhash: ec2a0ca3a3da67a9390889f0910fe494241faa9a
+                      filename: FateGOMEMO
+                    - arcid: d1858d5dc36925aa66be072a97817650d39de166
+                      title: test title
+                      tags: null
+                      summary: null
+                      thumbhash: 9846bb6d62949b56545c42e88d8010446b65702e
+                      filename: (Memes)9B789D38B0784C5FBC9D59A9F24D20F2
+                  categories:
+                    - archives: []
+                      catid: SET_1749925633
+                      name: english
+                      search: language:english
+                  tankoubons:
+                    - tankid: TANK_1749925516
+                      name: sailor moon
+                      archives:
+                        - 28697b96f0ac5858be2614ed10ca47742c9522fd
+                        - d1858d5dc36925aa66be072a97817650d39de166
+  /database/isnew:
+    delete:
+      security:
+        - api_key: []
+      operationId: clearNewAll
+      x-mojo-to: api-database#clear_new_all
+      summary: 🔑 Clear All "New" flags
+      description: Clears the "New!" flag on all archives.
+      tags:
+        - database
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /database/drop:
+    post:
+      security:
+        - api_key: []
+      operationId: dropDatabase
+      x-mojo-to: api-database#drop_database
+      summary: 🔑 Drop the Database
+      description: >-
+        Delete the entire database, including user preferences.
+
+        This is a rather dangerous endpoint, invoking it might lock you out of
+        the server as a client!
+      tags:
+        - database
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /database/clean:
+    post:
+      security:
+        - api_key: []
+      operationId: cleanDatabase
+      x-mojo-to: api-database#clean_database
+      summary: 🔑 Clean the Database
+      description: >-
+        Cleans the Database, hiding then removing entries for files that are no longer on the filesystem.  
+
+        Entries that are no longer on the filesystem are only unlinked at first so they don't appear in the UI -- A subsequent run of this cleanup will **delete** unlinked entries.
+      tags:
+        - database
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    description: Name of the operation
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if operation successful, else 0.
+                  deleted:
+                    type: integer
+                    description: Amount of unlinked DB entries that were deleted
+                  unlinked:
+                    type: integer
+                    description: Amount of live DB entries that got unlinked - Run Clean again to delete them. 
+  
+  /shinobu:
+    get:
+      security:
+        - api_key: []
+      operationId: shinobuStatus
+      x-mojo-to: api-shinobu#shinobu_status
+      summary: 🔑 Get Shinobu status
+      description: Get the current status of the FileWatcher.
+      tags:
+        - shinobu
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - shinobu_status
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  is_alive:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  pid:
+                    type: integer
+                    description: Current PID of the Watcher process
+                example:
+                  success: 1
+                  is_alive: 1
+                  operation: shinobu_status
+                  pid: 1608
+  /shinobu/stop:
+    post:
+      security:
+        - api_key: []
+      operationId: shinobuStop
+      x-mojo-to: api-shinobu#stop_shinobu
+      summary: 🔑 Stop Shinobu
+      description: Stops the Filewatcher. Use `/api/shinobu/restart` to start it again.
+      tags:
+        - shinobu
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /shinobu/restart:
+    post:
+      security:
+        - api_key: []
+      operationId: shinobuRestart
+      x-mojo-to: api-shinobu#restart_shinobu
+      summary: 🔑 Restart Shinobu
+      description: Restart the Shinobu filewatcher
+      tags:
+        - shinobu
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - shinobu_restart
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  new_pid:
+                    type: integer
+                    description: PID of the new Watcher process.
+                example:
+                  operation: shinobu_restart
+                  success: 1
+                  new_pid: 1727
+  /shinobu/rescan:
+    post:
+      security:
+        - api_key: []
+      operationId: shinobuRescan
+      x-mojo-to: api-shinobu#reset_filemap
+      summary: 🔑 Rescan filemap and restart Shinobu
+      description: This deletes the internal map of scanned files on your system (the "filemap") and restarts Shinobu, effectively prompting a full rescan of your FS.
+      tags:
+        - shinobu
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - shinobu_rescan
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  new_pid:
+                    type: integer
+                    description: PID of the new Watcher process.
+                example:
+                  operation: shinobu_rescan
+                  success: 1
+                  new_pid: 1727
+  
+  /minion/{jobid}:
+    get:
+      operationId: minionJobStatus
+      x-mojo-to: api-minion#minion_job_status
+      summary: Get the basic status of a Minion Job
+      description: >- 
+        For a given Minion job ID, check whether it succeeded or failed.  
+
+        Minion jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
+
+        For some jobs, you can check the notes field for progress information. Look at https://docs.mojolicious.org/Minion/Guide#Job-progress for more information.
+      tags:
+        - minion
+      parameters:
+        - name: jobid
+          in: path
+          required: true
+          description: ID of the Job to query status for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Job status data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task:
+                    type: string
+                  state:
+                    type: string
+                    enum:
+                      - inactive
+                      - active
+                      - finished
+                      - failed
+                  notes:
+                    type: object
+                    description: Arbitrary data attached to the Job.
+                    required: false
+                    nullable: true
+                  error:
+                    type: string
+                    nullable: true
+                example:
+                  state: finished
+                  task: handle_upload
+                  notes:
+                    example_note: This note could contain the name of the upload, for example.
+                  error: null
+
+  /minion/{jobid}/detail:
+    get:
+      security:
+        - api_key: []
+      operationId: minionJobDetail
+      x-mojo-to: api-minion#minion_job_detail
+      summary: 🔑 Get the full status of a Minion Job
+      description: >- 
+        Get the status of a Minion Job.  
+
+        This API is there for internal usage mostly, but you can use it to get detailed status for jobs like plugin runs or URL downloads.
+      tags:
+        - minion
+      parameters:
+        - name: jobid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Job detail
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                    args: [/tmp/QF3UCnKdMr/myfile.zip]
+                    attempts: 1
+                    children: []
+                    created: 1601145004
+                    delayed: 1601145004
+                    expires: null
+                    finished: 1601145004
+                    id: 7
+                    lax: 0
+                    notes: {}
+                    parents: []
+                    priority: 0
+                    queue: default
+                    result: 
+                      id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
+                      message: This file already exists in the Library.
+                      success: 0
+                    retried: null
+                    retries: 0
+                    started: 1601145004
+                    state: finished
+                    task: handle_upload
+                    time: 1601145005
+                    worker: 1
+  /minion/{jobname}/queue:
+    post:
+      security:
+        - api_key: []
+      operationId: queueMinionJob
+      x-mojo-to: api-minion#queue_minion_job
+      summary: 🔑 Queue a Minion job
+      description: >- 
+        Queue a Job with the specified type and parameters.  
+
+        See LANraragi::Utils::Minion for all the available types of jobs and the parameters they require.  
+
+
+        There's no API contract in place for whether a Job type exists on a given server version, so I wouldn't recommend using this unless you have a good reason to.  
+      tags:
+        - minion
+      parameters:
+        - name: jobname
+          in: path
+          required: true
+          description: Type of the job to instantiate.
+          schema:
+            type: string
+            enum:
+              - thumbnail_task
+              - page_thumbnails
+              - regen_all_thumbnails
+              - find_duplicates
+              - build_stat_hashes
+              - handle_upload
+              - download_url
+              - run_plugin
+        - name: args
+          in: query
+          required: true
+          description: Arguments as a JSON array string
+          schema:
+            type: string
+        - name: priority
+          in: query
+          required: false
+          default: 0
+          description: Priority of the Minion job. The higher the number, the more important the job is.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+  
+  /categories:
+    get:
+      operationId: getCategoryList
+      x-mojo-to: api-category#get_category_list
+      summary: Get all Categories
+      description: Get all the categories saved on the server.
+      tags:
+        - categories
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryMetadataJson'
+    put:
+      security:
+        - api_key: []
+      operationId: createCategory
+      x-mojo-to: api-category#create_category
+      summary: 🔑 Create a Category
+      description: Create a new Category.
+      tags:
+        - categories
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the Category.
+                search:
+                  type: string
+                  description: Matching predicate, if creating a Dynamic Category.
+                pinned:
+                  type: boolean
+                  description: Add this parameter if you want the created category to be pinned.
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the Category.
+                search:
+                  type: string
+                  description: Matching predicate, if creating a Dynamic Category.
+                pinned:
+                  type: boolean
+                  description: Add this parameter if you want the created category to be pinned.
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - create_category
+                  category_id:
+                    type: string
+                    description: ID of the created Category
+                    minLength: 14
+                    maxLength: 14
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /categories/bookmark_link:
+    get:
+      operationId: getBookmarkLink
+      x-mojo-to: api-category#get_bookmark_link
+      summary: Get bookmark-linked Category
+      description: >- 
+        Retrieves the ID of the category currently linked to the bookmark feature.  
+
+        Returns an empty string if no category is linked.
+      tags:
+        - categories
+      responses:
+        '200':
+          description: Link
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - get_bookmark_link
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  category_id:
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+    delete:
+      security:
+        - api_key: []
+      operationId: removeBookmarkLink
+      x-mojo-to: api-category#remove_bookmark_link
+      summary: 🔑 Disable bookmark feature
+      description: >- 
+        Disables the bookmark feature by removing the link to any category.  
+      
+        Returns the ID of the previously linked category.
+      tags:
+        - categories
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                  category_id:
+                    description: ID of the previously linked category.
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+  /categories/bookmark_link/{id}:
+    put:
+      security:
+        - api_key: []
+      operationId: updateBookmarkLink
+      x-mojo-to: api-category#update_bookmark_link
+      summary: 🔑 Update bookmark-linked Category
+      description: >- 
+        Links the bookmark feature to the specified static category.  
+      
+        This determines which category archives are added to when using the bookmark button.
+      tags:
+        - categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                  category_id:
+                    type: string
+                    description: ID of the category that was linked
+                    minLength: 14
+                    maxLength: 14
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Category with specified ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /categories/{id}:
+    get:
+      operationId: getCategory
+      x-mojo-to: api-category#get_category
+      summary: Get a single Category
+      description: Get the details of the specified category ID.
+      tags:
+        - categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+      responses:
+        '200':
+          description: Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryMetadataJson'
+    put:
+      security:
+        - api_key: []
+      operationId: updateCategory
+      x-mojo-to: api-category#update_category
+      summary: 🔑 Update Category
+      description: Modify a Category.
+      tags:
+        - categories
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: New name of the Category
+                search:
+                  type: string
+                  description: Predicate. Trying to add a predicate to a category that already contains Archives will give you an error.
+                pinned:
+                  type: boolean
+                  description: Add this argument to pin the Category. If you don't, the category will be unpinned on update.
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                search:
+                  type: string
+                pinned:
+                  type: boolean
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_category
+                  category_id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Category is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteCategory
+      x-mojo-to: api-category#delete_category
+      summary: 🔑 Delete Category
+      tags:
+        - categories
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The category ID is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /categories/{id}/{archive}:
+    put:
+      security:
+        - api_key: []
+      operationId: addToCategory
+      x-mojo-to: api-category#add_to_category
+      summary: 🔑 Add an Archive to a Category
+      description: Adds the specified Archive ID (see Archive API) to the given Category.
+      tags:
+        - categories
+      parameters:
+        - name: id
+          in: path
+          description: Archive ID to add.
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: archive
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The category ID is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: removeFromCategory
+      x-mojo-to: api-category#remove_from_category
+      summary: 🔑 Remove an Archive from a Category
+      description: Remove an Archive ID from a Category.
+      tags:
+        - categories
+      parameters:
+        - name: id
+          in: path
+          description: Archive ID to remove.
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: archive
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The category ID is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /tankoubons:
+    get:
+      operationId: getTankoubonList
+      x-mojo-to: api-tankoubon#get_tankoubon_list
+      summary: Get all Tankoubons
+      description: Get list of Tankoubons paginated.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: >- 
+            Page of the list of Tankoubons.  
+
+            The amount of tanks per page depends on the server `archives_per_page` setting.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tankoubons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TankoubonMetadataJson'
+                  total:
+                    type: integer
+                    description: Total count of Tankoubons on the server
+                  filtered:
+                    type: integer
+                    description: Number of Tankoubons on the current page
+    put:
+      security:
+        - api_key: []
+      operationId: createTankoubon
+      x-mojo-to: api-tankoubon#create_tankoubon
+      summary: 🔑 Create a Tankoubon
+      description: Create a new Tankoubon or update the name of an existing one.
+      tags:
+        - tankoubons
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the Tankoubon
+                tankid:
+                  type: string
+                  description: ID of an existing Tankoubon, if you want to change its name.
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the Tankoubon
+                tankid:
+                  type: string
+                  description: ID of an existing Tankoubon, if you want to change its name.
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - create_tankoubon
+                  tankoubon_id:
+                    type: string
+                    description: ID of the created/modified Tankoubon
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}:
+    get:
+      operationId: getTankoubon
+      x-mojo-to: api-tankoubon#get_tankoubon
+      summary: Get a single Tankoubon
+      description: >-
+        Get the details of the specified tankoubon ID, with the archives list paginated.  
+
+        The amount of archives per page depends on the server `archives_per_page` setting.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon desired
+          schema:
+            type: string
+        - name: include_full_data
+          in: query
+          required: false
+          description: If set to true, a `full_data` array will be added to the response with full Archive metadata.
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          required: false
+          default: 0
+          description: Page of the Archives list. You can use -1 to return all archives if needed.  
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tankoubon
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      archives:
+                        type: array
+                        description: Paginated list of archive IDs or tankoubon IDs.
+                        items:
+                          type: string
+                          oneOf:
+                            - minLength: 40
+                              maxLength: 40
+                              pattern: "^[0-9a-f]{40}$"
+                            - minLength: 15
+                              maxLength: 15
+                              pattern: "^TANK_[0-9]{10}$"
+                        uniqueItems: true
+                      full_data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ArchiveMetadataJson'
+                  total:
+                    type: integer
+                    description: The total amount of archives in this Tankoubon.
+                  filtered:
+                    type: integer
+                    description: The amount of archives in the current page.
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateTankoubon
+      x-mojo-to: api-tankoubon#update_tankoubon
+      summary: 🔑 Update Tankoubon metadata/contents
+      description: >- 
+        Modify the full metadata (name, summary, additional tags) or the contents of a Tankoubon.  
+
+        If you only need to change the name of Tank, consider just using PUT `/api/tankoubons`.  
+
+
+        Note: If there is no need to update something in one of the `data` keys, do not send the key -- This otherwise can result in unwanted results.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Json with 2 optional keys "archives" and "metadata"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                archives:
+                  description: Ordered array with the IDs of the archives.
+                  type: array
+                  items:
+                    type: string
+                    minLength: 40
+                    maxLength: 40
+                metadata:
+                  description: Metadata parameters -- All are optional.
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Name of the Tankoubon
+                    summary:
+                      type: string
+                      description: Summary of the Tankoubon
+                    tags:
+                      type: string
+                      description: Additional tags for the Tankoubon, in LRR comma-separated format.
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteTankoubon
+      x-mojo-to: api-tankoubon#delete_tankoubon
+      summary: 🔑 Delete Tankoubon
+      description: Remove a Tankoubon from the server. This doesn't delete underlying Archives.
+      tags:
+        - tankoubons
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/{archive}:
+    put:
+      security:
+        - api_key: []
+      operationId: addToTankoubon
+      x-mojo-to: api-tankoubon#add_to_tankoubon
+      summary: 🔑 Add an Archive to a Tankoubon
+      description: Append an archive at the final position of a Tankoubon.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+        - name: archive
+          in: path
+          required: true
+          description: ID of the Archive to append.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: removeFromTankoubon
+      x-mojo-to: api-tankoubon#remove_from_tankoubon
+      summary: 🔑 Remove an Archive from a Tankoubon
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+        - name: archive
+          in: path
+          required: true
+          description: ID of the Archive to remove.
+          schema:
+            type: string
+            minLength: 40
+            maxLength: 40
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'Use Authorization: Bearer <base64(api_key)>'
+  schemas:
+    ServerInfo:
+      type: object
+      description: Server info payload emitted by /api/info. Older server versions used integers instead of booleans here.
+      properties:
+        name:
+          type: string
+          description: Name of the instance
+        motd:
+          type: string
+          description: MOTD of the instance
+        version:
+          type: string
+          description: Version of the server
+        version_name:
+          type: string
+          description: Version name
+        version_desc:
+          type: string
+          description: Version description
+        has_password:
+          type: boolean
+          description: Whether the instance is password-protected
+        debug_mode:
+          type: boolean
+          description: Whether the instance has debug mode enabled
+        nofun_mode:
+          type: boolean
+          description: Whether the instance has no-fun mode enabled
+        archives_per_page:
+          type: integer
+          description: How many archives per page the server lists
+        server_resizes_images:
+          type: boolean
+          description: Whether the instance auto-downsizes images before serving them
+        server_tracks_progress:
+          type: boolean
+          description: Whether the instance tracks reading progression server-side
+        authenticated_progress:
+          type: boolean
+          description: Whether the instance requires authentication for server-side progress updates
+        total_pages_read:
+          type: integer
+          description: Total amount of pages read
+        total_archives:
+          type: integer
+          description: Total amount of archives stored on instance
+        cache_last_cleared:
+          type: integer
+          description: Timestamp for last time the search cache was wiped
+        excluded_namespaces:
+          type: array
+          items:
+            type: string
+          description: List of tag namespaces excluded from search suggestions and tag statistics
+      example:
+        archives_per_page: 100
+        cache_last_cleared: 1728852701
+        debug_mode: true
+        has_password: false
+        name: LANraragi
+        motd: aye lads time to read some manga
+        nofun_mode: false
+        server_resizes_images: false
+        server_tracks_progress: true
+        authenticated_progress: false
+        total_archives: 104
+        total_pages_read: 252
+        version: 0.9.30
+        excluded_namespaces:
+          - source
+          - date_added
+        version_desc: I'm under Japanese influence and my honor's at stake!
+        version_name: Law (Earthlings On Fire)
+    PluginInfo:
+      type: object
+      description: Metadata payload for a LRR Plugin.
+      properties:
+        author:
+          type: string
+          description: Author of the plugin
+        description:
+          type: string
+          description: Description of the plugin
+        name: 
+          type: string
+          description: Name of the plugin
+        icon:
+          type: string
+          description: Base64 image of the plugin icon
+        type:
+          type: string
+          description: Type of the plugin
+          enum:
+              - download
+              - login
+              - metadata
+              - script
+        namespace:
+          type: string
+          description: Unique namespace for the plugin
+        parameters:
+          type: array
+          items: 
+            $ref: '#/components/schemas/PluginParameter'
+        version:
+          type: string
+          description: Version of the plugin
+        oneshot_arg:
+          type: string
+          nullable: true
+          description: Description of the manual one-shot argument users can fill in for manual plugin calls
+        url_regex:
+          type: string
+          nullable: true
+          description: For downloader plugins, regex where it should be used
+        login_from:
+          type: string
+          nullable: true
+          description: Namespace of the login plugin this plugin depends on
+      example:
+        author: Difegue
+        description: Searches chaika.moe for tags matching your archive.
+        icon: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFQocjU4r+QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAEZElEQVQ4y42T3WtTdxzGn/M7J+fk5SRpTk7TxMZkXU84tTbVNrUT3YxO7HA4pdtQZDe7cgx2\ns8vBRvEPsOwFYTDYGJUpbDI2wV04cGXCGFLonIu1L2ptmtrmxeb1JDkvv121ZKVze66f74eH7/f5\nMmjRwMCAwrt4/9KDpflMJpPHvyiR2DPcJklJ3TRDDa0xk36cvrm8vDwHAAwAqKrqjjwXecPG205w\nHBuqa9rk77/d/qJYLD7cCht5deQIIczbgiAEKLVAKXWUiqVV06Tf35q8dYVJJBJem2A7Kwi2nQzD\nZig1CG93+PO5/KN6tf5NKpVqbsBUVVVFUUxwHJc1TXNBoxojS7IbhrnLMMx9pVJlBqFQKBKPxwcB\nkJYgjKIo3QCE1nSKoghbfJuKRqN2RVXexMaQzWaLezyeEUEQDjscjk78PxFFUYRkMsltJgGA3t7e\nyMLCwie6rr8iCILVbDbvMgwzYRjGxe0o4XC4s1AoHPP5fMP5/NNOyzLKAO6Ew+HrDADBbre/Ryk9\nnzx81FXJNlEpVpF+OqtpWu2MpmnXWmH9/f2umZmZi4cOHXnLbILLzOchhz1YerJAs9m1GwRAg2GY\nh7GYah488BJYzYW+2BD61AFBlmX/1nSNRqN9//792ujoaIPVRMjOKHoie3DytVGmp2fXCAEAjuMm\nu7u7Umosho6gjL/u/QHeEgvJZHJ2K/D+/fuL4+PjXyvPd5ldkShy1UXcmb4DnjgQj/fd5gDA6/XS\nYCAwTwh9oT3QzrS1+VDVi+vd3Tsy26yQVoFF3dAXJVmK96p9EJ0iLNOwKKU3CQCk0+lSOpP5WLDz\nF9Q9kZqyO0SloOs6gMfbHSU5NLRiUOuax2/HyZPHEOsLw2SbP83eu/fLxrkNp9P554XxCzVa16MC\n7+BPnTk9cfmH74KJE8nmga7Xy5JkZ8VKifGIHpoBb1VX8hNTd3/t/7lQ3OeXfFPvf/jBRw8ezD/a\n7M/aWq91cGgnJaZ2VcgSdnV1XRNNd3vAoBVVYusmnEQS65hfgSG6c+zy3Kre7nF/KrukcMW0Zg8O\nD08DoJutDxxOEb5IPUymwrq8ft1gLKfkFojkkRxemERCAQUACPFWRazYLJcrFGwQhyufbQQ7rFpy\nLMkCwGZC34qPIuwp+XPOjBFwazQ/txrdFS2GGS/Xuj+pUKLGk1Kjvlded3s72lyGW+PLbGVcmrAA\ngN0wTk1NWYODg9XOKltGtpazi5GigzroUnHN5nUHG1ylRsG7rDXHmnEpu4CeEtEKkqNc6QqlLc/M\n8uT5lLH5eq0aGxsju1O7GQB498a5s/0x9dRALPaQEDZnYwnhWJtMCCNrjeb0UP34Z6e/PW22zjPP\n+vwXBwfPvbw38XnXjk7GsiwKAIQQhjAMMrlsam45d+zLH6/8o6vkWcBcrXbVKQhf6bpucCwLjmUB\nSmmhXC419eblrbD/TAgAkUjE987xE0c7ZDmk66ajUCnq+cL63fErl25s5/8baQPaWLhx6goAAAAA\nSUVORK5CYII=
+        name: Chaika.moe
+        namespace: trabant
+        oneshot_arg: Chaika Gallery or Archive URL (Will attach matching tags to your archive)
+        type: metadata
+        version: 2.1
+        parameters: 
+          - desc: ipb_pass_hash cookie
+            type:	string
+          - default_value: 0
+            desc:	Force resampled archive download
+            name:	forceresampled
+            type: bool
+    PluginParameter:
+      type: object
+      description: Parameter for a LRR Plugin.
+      properties:
+        name:
+          type: string
+          description: Name of the parameter
+          nullable: true
+        desc:
+          type: string
+          description: Description of the parameter
+        type:
+          type: string
+          description: Type of the parameter. This isn't really checked server-side and is used to inform the config page for the plugin.
+          enum:
+              - bool
+              - int
+              - string
+        default_value:
+          type: string
+          description: Default value of the parameter
+          nullable: true
+      example:
+        default_value: 0
+        desc:	Force resampled archive download
+        name:	forceresampled
+        type: bool
+    OperationResponse:
+      type: object
+      required:
+        - operation
+        - success
+      properties:
+        operation:
+          type: string
+          description: Name of operation
+        error:
+          type: string
+          description: Error message if any
+        successMessage:
+          type: string
+          description: Success message if any
+        success:
+          type: integer
+          description: Returns 1 if operation was successful, else 0
+          enum:
+            - 0
+            - 1
+    MinionJobResponse:
+      type: object
+      description: JSON object for a queued Minion job.
+      required:
+        - job
+        - operation
+        - success
+      properties:
+        job:
+          type: integer
+          description: Minion job ID
+        operation:
+          type: string
+          description: Name of operation
+        success:
+          type: integer
+          description: Returns 1 if operation was successful, else 0
+          enum: 
+            - 1
+            - 0
+    ArchiveMetadataJson:
+      type: object
+      description: JSON object for archive metadata for most API responses
+      required:
+        - arcid
+        - title
+        - filename
+        - tags
+        - isnew
+        - extension
+        - progress
+        - pagecount
+        - lastreadtime
+        - size
+      properties:
+        arcid:
+          type: string
+          description: Unique identifier for the archive (40-char SHA1) or tankoubon (15-char TANK_* ID)
+          oneOf:
+            - minLength: 40
+              maxLength: 40
+              pattern: "^[0-9a-f]{40}$"
+            - minLength: 15
+              maxLength: 15
+              pattern: "^TANK_[0-9]{10}$"
+        title:
+          type: string
+          description: Title of the archive
+        filename:
+          type: string
+          description: Filename of the archive
+        tags:
+          type: string
+          description: Comma-separated list of tags associated with the archive
+        summary:
+          type: string
+          nullable: true
+          description: Summary description of the archive
+        isnew:
+          oneOf:
+            - type: boolean
+            - type: string
+          nullable: true
+          description: Whether the archive is newly added.
+        extension:
+          type: string
+          description: File extension of the archive
+        progress:
+          type: integer
+          description: Reading progress (page number)
+        pagecount:
+          type: integer
+          description: Total number of pages in the archive
+        lastreadtime:
+          type: integer
+          description: Unix timestamp of when the archive was last read
+        size:
+          type: integer
+          description: Size of the archive in bytes
+        toc:
+          type: array
+          description: Table of contents for the archive
+      example:
+        arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+        isnew: false
+        extension: rar
+        pagecount: 34
+        progress: 3
+        tags: parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color
+        lastreadtime: 1337038281
+        title: Fate GO MEMO
+        filename: Fate GO MEMO
+        summary: null
+        size: 1234567
+        toc: 
+          - name: Chapter 1
+            page: 1
+          - name: Chapter 2
+            page: 13
+          - name: Chapter 3
+            page: 25
+    CategoryMetadataJson:
+      type: object
+      description: >-
+        Category metadata.
+      required:
+        - id
+      properties:
+        archives:
+          type: array
+          description: Array of archive IDs (if this is a static category, empty otherwise)
+          items:
+            type: string
+            minLength: 40
+            maxLength: 40
+        id:
+          type: string
+          description: ID of the category
+          minLength: 14
+          maxLength: 14
+        name:
+          type: string
+          description: Name of the category
+        pinned:
+          type: integer
+          description: Whether this category should be pinned in the UI
+          enum:
+            - 0
+            - 1
+        search:
+          type: string
+          description: Category search filter (if this is a dynamic category, empty otherwise)
+          nullable: true
+      example:
+        id: SET_1613080290
+        name: My great category
+        pinned: 0
+        search: null
+        archives:
+          - 0d50858d727723d856d2ab78564bb8e906e65f14
+          - 7f03b8b1f337e1e42b2c2890533c0de7479d41ca
+    TankoubonMetadataJson:
+      type: object
+      description: Tankoubon metadata
+      required:
+        - tankid
+      properties:
+        archives:
+          type: array
+          description: Array of archive IDs
+          items:
+            type: string
+            minLength: 40
+            maxLength: 40
+        tankid:
+          type: string
+          description: ID of the tankoubon
+        name:
+          type: string
+          description: Name of the tankoubon
+      example:
+        tankid: TANK_1749925516
+        name: sailor moon
+        archives:
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebf
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebg
+    BackupArchiveMetadataJson:
+      type: object
+      description: JSON object for archive metadata in as returned in a backup
+      required:
+        - arcid
+        - title
+        - tags
+        - summary
+        - filename
+      properties:
+        arcid:
+          type: string
+          minLength: 40
+          maxLength: 40
+          description: Unique identifier for the archive
+        title:
+          type: string
+          description: Title of the archive
+        tags:
+          type: string
+          description: Comma-separated list of tags associated with the archive
+        summary:
+          type: string
+          nullable: true
+          description: Summary description of the archive
+        thumbhash:
+          type: string
+          nullable: true
+          minLength: 40
+          maxLength: 40
+          description: Thumbnail hash, or null if not set
+        filename:
+          type: string
+          description: Filename of the archive
+    BackupCategoryMetadataJson:
+      type: object
+      description: >-
+        JSON object for category metadata in as returned in a backup
+      required:
+        - catid
+      properties:
+        archives:
+          type: array
+          description: Array of archive IDs
+          items:
+            type: string
+            minLength: 40
+            maxLength: 40
+        catid:
+          type: string
+          description: ID of the category
+          minLength: 14
+          maxLength: 14
+        name:
+          type: string
+          description: Name of the category
+        search:
+          type: string
+          description: Category search filter
+servers:
+  - url: https://lrr.tvc-16.science/api

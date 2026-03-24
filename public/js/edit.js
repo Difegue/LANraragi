@@ -1,6 +1,7 @@
 /**
  * JS functions meant for use in the Edit page.
  * Mostly dealing with plugins.
+ * @global
  */
 const Edit = {};
 
@@ -14,6 +15,7 @@ Edit.initializeAll = function () {
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
+    $(document).on("click.read-archive", "#read-archive", () => { window.location.href = new LRR.apiURL(`/reader?id=${$("#archiveID").val()}`); });
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
     $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
@@ -57,8 +59,8 @@ Edit.initializeAll = function () {
 // this checks whether the rich-text tag editor is in use (initialized
 // on tagInput); if so, call its method to add the tag; if not, edit
 // the string directly
-Edit.addTag = function (tag) {
-    tag = tag.trim();
+Edit.addTag = function (tagInput) {
+    let tag = tagInput.trim();
     if (Edit.tagInput) {
         Edit.tagInput.add_tag(tag);
     } else {
@@ -76,11 +78,28 @@ Edit.handlePaste = function (event) {
     event.stopPropagation();
     event.preventDefault();
 
+    // Get the pending text already typed in the input field
+    const inputElement = $(".tagger-new").children()[0];
+    const pendingText = inputElement ? inputElement.value : "";
+
     // Get pasted data via clipboard API
     const pastedData = event.originalEvent.clipboardData.getData("Text");
 
     if (pastedData !== "") {
-        pastedData.split(/,\s?/).forEach((tag) => {
+        // Split by comma to handle multiple pasted tags
+        const tags = pastedData.split(/,\s?/);
+
+        // Prepend pending text to the first tag
+        if (pendingText && tags.length > 0) {
+            tags[0] = pendingText + tags[0];
+
+            // Clear the pending text from the input since we're incorporating it
+            if (inputElement) {
+                inputElement.value = "";
+            }
+        }
+
+        tags.forEach((tag) => {
             Edit.addTag(tag);
         });
     }
@@ -201,7 +220,7 @@ Edit.getTags = function () {
                 });
             }
 
-            if (result.data.summary && result.data.summary !=="") {
+            if (result.data.summary && result.data.summary !== "") {
                 $("#summary").val(result.data.summary);
                 LRR.toast({
                     heading: I18N.EditSummaryUpdated,

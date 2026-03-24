@@ -5,7 +5,6 @@ thumb
 npm-debug.log
 dump.rdb
 .vstags
-.gitbook
 *qemu-*-static*
 Dockerfile.*
 .DS_Store

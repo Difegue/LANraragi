@@ -11,7 +11,7 @@ Here are some existing clients:
 ### [Ichaival (Android)](https://github.com/Utazukin/Ichaival)
 
 [Download it here.](https://github.com/Utazukin/Ichaival)\
-![ichaival](<../.screenshots/ichaival.png>)
+![ichaival](<../.gitbook/assets/ichaival (1).png>)
 
 **Features:**
 
@@ -24,12 +24,12 @@ Here are some existing clients:
 ### [LANreader (iOS)](https://github.com/Doraemoe/LANreader)
 
 [Download it on the App Store.](https://github.com/Doraemoe/LANreader)\
-![dureader](../.screenshots/dureader.jpg)
+![dureader](<../.gitbook/assets/dureader (1).jpg>)
 
 ### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)
 
 [Download it here.](https://github.com/Guerra24/LRReader)\
-![lrreader](<https://s3.guerra24.net/projects/lrr/screenshots/01.png>)
+![lrreader](https://s3.guerra24.net/projects/lrr/screenshots/01.png)
 
 **Features:**
 
@@ -42,44 +42,43 @@ Here are some existing clients:
 
 ### Mihon / Tachiyomi (Android)
 
-![Mihon / Tachiyomi](<../.screenshots/tachiyomi.jpg>)
+![Mihon / Tachiyomi](<../.gitbook/assets/tachiyomi (1).jpg>)
 
-[Mihon](https://mihon.app), formerly Tachiyomi, and [its forks](https://mihon.app/forks/) use extensions that provide sources.  
+[Mihon](https://mihon.app), formerly Tachiyomi, and [its forks](https://mihon.app/forks/) use extensions that provide sources.\
 The LANraragi extension is part of the [Keiyoushi](https://github.com/keiyoushi) repository.
 
-For automated updates add the repository by following [these instructions.](https://keiyoushi.github.io/docs/guides/getting-started#adding-the-extension-repo) (recommended)  
+For automated updates add the repository by following [these instructions.](https://keiyoushi.github.io/docs/guides/getting-started#adding-the-extension-repo) (recommended)\
 For manual updates search for LANraragi on Keiyoushi's [Extensions page.](https://keiyoushi.github.io/extensions/)
 
 There may be additional repositories not linked here that provide the extension but support is not guaranteed.
 
 ### LRR React Web
 
-![LRR React-Web](../.screenshots/lrr_react.jpg)
+![LRR React-Web](../.gitbook/assets/lrr_react.jpg)
 
-A React-based frontend PWA making use of the Client API. "Works best on mobile and tablet viewports, but the desktop experience is okay."  
+A React-based frontend PWA making use of the Client API. "Works best on mobile and tablet viewports, but the desktop experience is okay."\
 Check it out [here.](https://github.com/hibikikuze4dan/lanraragi-react-web)
 
 ## Generic OPDS readers
 
-![Example OPDS reader](<../.screenshots/opds.jpg>)
+![Example OPDS reader](<../.gitbook/assets/opds (1).jpg>)
 
-Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.  
-Those programs can't exploit all of LRR's features(Search, Database backup), but they might have reading features you won't find in the current dedicated clients.  
+Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.\
+Those programs can't exploit all of LRR's features(Search, Database backup), but they might have reading features you won't find in the current dedicated clients.
 
-If your OPDS reader supports [Page Streaming Extensions](https://anansi-project.github.io/docs/opds-pse/intro), LANraragi is compatible with it and will serve individual pages.  
+If your OPDS reader supports [Page Streaming Extensions](https://anansi-project.github.io/docs/opds-pse/intro), LANraragi is compatible with it and will serve individual pages.
 
 {% hint style="info" %}
 LRR supports OPDS PSE 1.1, which means that if you have server-side progress tracking enabled, you can pick up where you stopped reading from any OPDS client. Syndication!
 {% endhint %}
 
-The URL for the OPDS Catalog is `[YOUR_LANRARAGI_URL]/api/opds`.  
-You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.  
+The URL for the OPDS Catalog is `[YOUR_LANRARAGI_URL]/api/opds`.\
+You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.\
 Refer to your reader's documentation to figure out where to put this URL.
 
 {% hint style="warning" %}
-If you have No-Fun Mode enabled, remember that you'll need to add the API Key to this URL for the catalog to be available to your reader application.  
+If you have No-Fun Mode enabled, remember that you'll need to add the API Key to this URL for the catalog to be available to your reader application.\
 You can either use the `Bearer` token approach like with regular API calls, or add `?key=[API_KEY]` as a parameter to the URL.
-
 {% endhint %}
 
 The following readers have been tested with the OPDS Catalog:

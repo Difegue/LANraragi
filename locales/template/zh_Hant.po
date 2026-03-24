@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-10-12 06:14+0000\n"
-"Last-Translator: \"HUANG, MING-YU\" <freddy645645@gmail.com>\n"
+"PO-Revision-Date: 2026-01-11 06:01+0000\n"
+"Last-Translator: 炙燒鮭魚讚（benny） <bennyz327@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.15.1\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -375,6 +375,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "清理資料庫"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "清理資料庫會移除不存在於檔案系統中的紀錄。"
 
@@ -608,6 +614,9 @@ msgstr "儲存中繼資料"
 
 msgid "Delete Archive"
 msgstr ""
+
+msgid "Read Archive"
+msgstr "閱讀檔案"
 
 msgid "Return to Library"
 msgstr ""
@@ -1697,3 +1706,18 @@ msgstr "N:切換自動下一頁"
 
 msgid "The maximum value allowed is 4GB."
 msgstr "允許的最大值是 4GB。"
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "可以配合用戶端進度追蹤功能，讓未登入用戶在本地端追蹤進度。"
+
+msgid "Rating"
+msgstr "評分"
+
+msgid "Set Rating"
+msgstr "設定評分"
+
+msgid "Clear Rating"
+msgstr "清除評分"
+
+msgid " -- Select Rating -- "
+msgstr " -- 選擇評分 -- "

@@ -1,5 +1,6 @@
 /**
- * Logs Operations.
+ * Logs Operations
+ * @global
  */
 const Logs = {};
 

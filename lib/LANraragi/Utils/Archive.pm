@@ -23,12 +23,13 @@ use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
 use File::Temp qw(tempdir);
+use POSIX qw(strerror);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
-use LANraragi::Utils::Redis      qw(redis_decode);
-use LANraragi::Utils::Path       qw(create_path);
+use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
+use LANraragi::Utils::Path       qw(get_archive_path);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
@@ -51,9 +52,9 @@ sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
     my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl ? "jxl" : "jpg" );
     if ( defined($resized) ) {
-        open my $fh, '>:raw', $thumb_path or die;
+        open my $fh, '>:raw', $thumb_path or die "Cannot write to '$thumb_path': $!";
         print $fh $resized;
-        close($resized);
+        close($fh);
     } else {
         my $logger = get_logger( "Archive", "lanraragi" );
         $logger->debug("Couldn't create thumbnail!");
@@ -103,10 +104,10 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     make_path("$thumbdir/$subfolder");
 
     my $redis = LANraragi::Model::Config->get_redis;
-    my $file  = $redis->hget( $id, "file" );
+    my $file  = get_archive_path( $redis, $id );
 
     # Get first image from archive using filelist
-    my @filelist        = get_filelist($file);
+    my @filelist        = get_filelist($file, $id);
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
     die "Requested image not found: $id page $page" unless $requested_image;
@@ -152,8 +153,8 @@ sub expand {
     return lc($file);
 }
 
-# Returns a list of all the files contained in the given archive.
-sub get_filelist ($archive) {
+# Returns a list of all the files contained in the given archive with corresponding archive ID.
+sub get_filelist ($archive, $arcid) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -178,8 +179,15 @@ sub get_filelist ($archive) {
 
         my $ret = $r->open_filename( $archive, 10240 );
         if ( $ret != ARCHIVE_OK ) {
-            $logger->error( "Couldn't open archive, libarchive says:" . $r->error_string );
-            die $r->error_string;
+            my $open_filename_errno     = $r->errno;
+            my $open_filename_strerr    = strerror($open_filename_errno);
+            my $archive_exists          = -e $archive ? 'yes' : 'no';
+            my $archive_readable        = -r $archive ? 'yes' : 'no';
+            my $archive_size            = -e $archive ? (-s _) : 'NA';
+            my $open_filename_err   = "Couldn't open archive '$archive' (id:$arcid, exists:$archive_exists; readable:$archive_readable; size:$archive_size)"
+                . "libarchive: " . $r->error_string . " (errno $open_filename_errno: $open_filename_strerr)";
+            $logger->error($open_filename_err);
+            die $open_filename_err;
         }
 
         my $e = Archive::Libarchive::Entry->new;
@@ -194,7 +202,7 @@ sub get_filelist ($archive) {
             }
 
             if ( is_apple_signature_like_path($filename) ) {
-                my $peek = Archive::Libarchive::Peek->new( filename => create_path($archive) );
+                my $peek = Archive::Libarchive::Peek->new( filename => $archive );
                 if ( is_apple_signature( $peek, $filename ) ) {
                     $r->read_data_skip;
                     next;
@@ -288,7 +296,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Libarchive::Peek->new( filename => create_path($archive) );
+    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
     my $found;
     my @files = $peek->files;
 
@@ -356,19 +364,14 @@ sub extract_single_file ( $archive, $filepath ) {
     } else {
 
         my $contents = "";
-        my $peek     = Archive::Libarchive::Peek->new( filename => create_path($archive) );
-        my @files    = $peek->files;
+        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
 
-        for my $name (@files) {
-            my $decoded_name = redis_decode($name);
-
-            # This sub can receive either encoded or raw filenames, so we have to test for both.
-            if ( $decoded_name eq $filepath || $name eq $filepath ) {
-                $logger->debug("Found file $filepath in archive $archive");
-                $contents = $peek->file($name);
-                last;
-            }
+        # This sub can receive either encoded or raw filenames, so we have to test for both.
+        $contents = $peek->file($filepath) // $peek->file(redis_encode($filepath));
+        if (defined($contents)) {
+            $logger->debug("Found file $filepath in archive $archive");
         }
+
         return $contents;
     }
 }

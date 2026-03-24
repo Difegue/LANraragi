@@ -4,7 +4,7 @@ description: This is a by-OS breakdown of how you can install the software on yo
 
 # ❓ Which installation method is best for me?
 
-As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
+As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.\
 However, a lot of work as been done behind the scenes to make it easy!
 
 Look at the methods below for something that fits your OS and usage.
@@ -13,11 +13,11 @@ Look at the methods below for something that fits your OS and usage.
 
 [Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS and Linux without relying on containers or modifying your preinstalled system libaries.
 
-![brew](<../.screenshots/brew.jpg>)
+![brew](<../.gitbook/assets/brew (1).jpg>)
 
 {% content-ref url="macos.md" %}
 [macos.md](macos.md)
-{% endcontent-ref %} 
+{% endcontent-ref %}
 
 {% hint style="info" %}
 While not a part of the main repo, you can check out the [Nix](community.md) package as well if brew isn't to your taste.
@@ -29,7 +29,7 @@ While not a part of the main repo, you can check out the [Nix](community.md) pac
 This method works on **64-bit** editions of Windows 10 only.
 {% endhint %}
 
-![win10](../.screenshots/karen.png)
+![win10](../.gitbook/assets/karen.png)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
@@ -39,7 +39,7 @@ I provide a dedicated installer for Windows machines as of 0.6.0, complete with 
 
 ## Linux/macOS/Windows 10: _Docker_
 
-Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.  
+Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.\
 They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!
 
 {% content-ref url="docker.md" %}
@@ -72,6 +72,6 @@ Similar to installing from source with an altered process for FreeBSD compatabil
 
 ## Windows 7 or 8: don't
 
-![I really hope you guys don't do this](../.screenshots/shiggy.png)
+![I really hope you guys don't do this](<../.gitbook/assets/shiggy (1).png>)
 
-Switch to 10 or Linux.  
+Switch to 10 or Linux.

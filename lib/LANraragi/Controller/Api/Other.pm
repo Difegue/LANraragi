@@ -35,28 +35,32 @@ sub serve_serverinfo {
             server_resizes_images => $self->LRR_CONF->enable_resize ? \1 : \0,
             ,
             server_tracks_progress => $self->LRR_CONF->enable_localprogress ? \0 : \1,
+            authenticated_progress => $self->LRR_CONF->enable_authprogress ? \1 : \0,
             total_pages_read       => $page_stat,
             total_archives         => $arc_stat,
-            cache_last_cleared     => $last_clear
+            cache_last_cleared     => $last_clear,
+            excluded_namespaces    => [
+                split( /\s*,\s*/, $self->LRR_CONF->get_excludednamespaces )
+            ]
         }
     );
 }
 
 # Basic OPDS catalog
 sub serve_opds_catalog {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     $self->render( text => LANraragi::Model::Opds::generate_opds_catalog($self), format => 'xml' );
 }
 
 sub serve_opds_item {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = $self->stash('id');
     $self->render( text => LANraragi::Model::Opds::generate_opds_item( $self, $id ), format => 'xml' );
 }
 
 # OPDS-PSE specific endpoint
 sub serve_opds_page {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = $self->stash('id');
     my $page = $self->req->param('page') || 1;
 
@@ -65,13 +69,13 @@ sub serve_opds_page {
 
 #Remove temp dir.
 sub clean_tempfolder {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
 
     #Run a full clean, errors are dumped into $@ if they occur
     eval { LANraragi::Utils::PageCache::clear(); };
 
     $self->render(
-        json => {
+        openapi => {
             operation => "cleantemp",
             success   => $@ eq "",
             error     => $@,
@@ -82,7 +86,7 @@ sub clean_tempfolder {
 
 # List all plugins of the given type.
 sub list_plugins {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
@@ -97,19 +101,19 @@ sub list_plugins {
         }
     }
 
-    $self->render( json => \@plugins );
+    $self->render( openapi => \@plugins );
 }
 
 # Queue the regen_all_thumbnails Minion job.
 sub regen_thumbnails {
-    my $self     = shift;
+    my $self     = shift->openapi->valid_input or return;
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
     my $force    = ( $self->req->param('force') && $self->req->param('force') ne "false" ) ? 1 : 0;
 
     my $jobid = $self->minion->enqueue( regen_all_thumbnails => [ $thumbdir, $force ] => { priority => 0 } );
 
     $self->render(
-        json => {
+        openapi => {
             operation => "regen_thumbnails",
             success   => 1,
             job       => $jobid
@@ -118,7 +122,7 @@ sub regen_thumbnails {
 }
 
 sub download_url {
-    my ($self) = shift;
+    my ($self) = shift->openapi->valid_input or return;
     my $url    = $self->req->param('url');
     my $catid  = $self->req->param('catid');
 
@@ -128,7 +132,7 @@ sub download_url {
         my $jobid = $self->minion->enqueue( download_url => [ $url, $catid ] => { priority => 1, attempts => 5 } );
 
         $self->render(
-            json => {
+            openapi => {
                 operation => "download_url",
                 url       => $url,
                 category  => $catid,
@@ -145,7 +149,7 @@ sub download_url {
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin_sync {
-    my ($self)   = shift;
+    my ($self)   = shift->openapi->valid_input or return;
     my $id       = $self->req->param('id') || 0;
     my $plugname = $self->req->param('plugin');
     my $input    = $self->req->param('arg');
@@ -154,7 +158,7 @@ sub use_plugin_sync {
 
     #Returns the fetched tags in a JSON response.
     $self->render(
-        json => {
+        openapi => {
             operation => "use_plugin",
             type      => $pluginfo->{type},
             success   => ( exists $plugin_result->{error} ? 0 : 1 ),
@@ -167,7 +171,7 @@ sub use_plugin_sync {
 
 # Queues a plugin execution into Minion.
 sub use_plugin_async {
-    my ($self)   = shift;
+    my ($self)   = shift->openapi->valid_input or return;
     my $id       = $self->req->param('id')       || 0;
     my $priority = $self->req->param('priority') || 0;
     my $plugname = $self->req->param('plugin');
@@ -176,7 +180,7 @@ sub use_plugin_async {
     my $jobid = $self->minion->enqueue( run_plugin => [ $plugname, $id, $input ] => { priority => $priority } );
 
     $self->render(
-        json => {
+        openapi => {
             operation => "queue_plugin_exec",
             success   => 1,
             job       => $jobid

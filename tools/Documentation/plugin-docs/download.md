@@ -6,7 +6,7 @@ Downloader Plugins are used as part of LANraragi's built-in downloading feature.
 
 Only one subroutine needs to be implemented for the module to be recognized: `provide_url`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.
 
-Your plugin also needs an extra field in its metadata: `url_regex`, which contains a Regular Expression that'll be used by LANraragi to know if your Downloader should be used.
+Your plugin also needs an extra field in its metadata: `url_regex`, which contains a Regular Expression that'll be used by LANraragi to know if your Downloader should be used.\
 For example, if your regex is `https?:\/\/example.com.*`, LANraragi will invoke your plugin if the user wants to download an URL that comes from `example.com`.
 
 {% hint style="info" %}
@@ -15,7 +15,7 @@ In case of multiple Downloaders matching the given URL, the server will invoke t
 
 ### Expected Input
 
-The following section deals with writing the `provide_url` subroutine.
+The following section deals with writing the `provide_url` subroutine.\
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:
 
 ```perl
@@ -37,7 +37,7 @@ The `$lrr_info` hash contains three variables you can use in your plugin:
 
 ### Expected Output
 
-LRR expects Downloaders to return a hash containing either a new URL that can be downloaded directly, *or* a path to a file that has already been downloaded.
+LRR expects Downloaders to return a hash containing either a new URL that can be downloaded directly, _or_ a path to a file that has already been downloaded.
 
 For returning a URL to download:
 

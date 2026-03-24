@@ -2,12 +2,13 @@ package LANraragi::Controller::Upload;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use File::Temp qw(tempdir);
-use File::Copy;
+use Encode;
+use File::Temp qw(tempdir tmpnam);
 use File::Find;
 use File::Basename;
 
 use LANraragi::Utils::Generic qw(generate_themes_header is_archive get_bytelength);
+use LANraragi::Utils::Path    qw(move_path);
 
 sub process_upload {
     my $self = shift;
@@ -15,7 +16,7 @@ sub process_upload {
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
     my $catid    = $self->req->param('catid');
-    my $filename = $file->filename;
+    my $filename = encode_utf8( $file->filename );
 
     my $uploadMime = $file->headers->content_type;
 
@@ -37,18 +38,14 @@ sub process_upload {
         $filename = $filename . $ext;
 
         my $tempfile = $tempdir . '/' . $filename;
-        $file->move_to($tempfile) or die "Couldn't move uploaded file.";
 
-        # Update $tempfile to the exact reference created by the host filesystem
-        # This is done by finding the first (and only) file in $tempdir.
-        find(
-            sub {
-                return if -d $_;
-                $tempfile = $File::Find::name;
-                $filename = $_;
-            },
-            $tempdir
-        );
+        # On Windows Mojo will hold an open handle to the upload file preventing us from using the long-path compatible
+        # methods to move it.
+        # Workaround it by using another temp file as a target for Mojo's move_to so that the original handle can be closed.
+        my $mojo_temp = tmpnam();
+        $file->move_to($mojo_temp) or die "Couldn't move uploaded file.";
+
+        move_path( $mojo_temp, $tempfile ) or die "Couldn't move uploaded file."; # Move the file for real this time
 
         # Send a job to Minion to handle the uploaded file.
         my $jobid = $self->minion->enqueue( handle_upload => [ $tempfile, $catid ] => { priority => 2 } );

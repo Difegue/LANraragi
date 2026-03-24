@@ -1,6 +1,9 @@
 package LANraragi::Controller::Api::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
+use feature qw(say signatures);
+no warnings 'experimental::signatures';
+
 use List::Util qw(min);
 
 use LANraragi::Model::Search;
@@ -8,10 +11,9 @@ use LANraragi::Utils::Generic  qw(render_api_response);
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 
 # Undocumented API matching the Datatables spec.
-sub handle_datatables {
+sub handle_datatables ($self) {
 
-    my $self = shift;
-    my $req  = $self->req;
+    my $req = $self->req;
 
     my $draw   = $req->param('draw');
     my $start  = $req->param('start');
@@ -35,7 +37,7 @@ sub handle_datatables {
         if ( $req->param("columns[$i][name]") eq "tags" ) {
             $categoryfilter = $req->param("columns[$i][search][value]");
 
-            # Specific hacks for the buily-in newonly/untagged selectors
+            # Specific hacks for the built-in newonly/untagged selectors
             # Those have hardcoded 'category' IDs
             if ( $categoryfilter eq "NEW_ONLY" ) {
                 $newfilter      = 1;
@@ -63,7 +65,7 @@ sub handle_datatables {
 # Public search API with saner parameters.
 sub handle_api {
 
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $req  = $self->req;
 
     my $filter     = $req->param('filter');
@@ -84,7 +86,20 @@ sub handle_api {
         $grouptanks eq "true"
     );
 
-    $self->render( json => get_datatables_object( 0, $total, $filtered, @ids ) );
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                recordsTotal    => 0,
+                recordsFiltered => 0,
+                data            => []
+            },
+            status => 204
+        );
+    } else {
+        $self->render( openapi => get_api_object( $total, $filtered, @ids ) );
+    }
 }
 
 sub clear_cache {
@@ -95,7 +110,7 @@ sub clear_cache {
 # Pull random archives out of the given search
 sub get_random_archives {
 
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $req  = $self->req;
 
     my $filter       = $req->param('filter');
@@ -124,18 +139,15 @@ sub get_random_archives {
 
     my @data = get_archive_json_multi(@random_ids);
     $self->render(
-        json => {
+        openapi => {
             data         => \@data,
             recordsTotal => $random_count
         }
     );
 }
 
-# get_datatables_object($draw, $total, $totalsearched, @pagedkeys)
 # Creates a Datatables-compatible json from the given data.
-sub get_datatables_object {
-
-    my ( $draw, $total, $filtered, @ids ) = @_;
+sub get_datatables_object ( $draw, $total, $totalsearched, @ids ) {
 
     # Get archive data
     my @data = get_archive_json_multi(@ids);
@@ -144,7 +156,21 @@ sub get_datatables_object {
     return {
         draw            => $draw,
         recordsTotal    => $total,
-        recordsFiltered => $filtered,
+        recordsFiltered => $totalsearched,
+        data            => \@data
+    };
+}
+
+# Creates an API json from the given data.
+sub get_api_object ( $total, $totalsearched, @ids ) {
+
+    # Get archive data
+    my @data = get_archive_json_multi(@ids);
+
+    # Create json object matching the datatables structure
+    return {
+        recordsTotal    => $total,
+        recordsFiltered => $totalsearched,
         data            => \@data
     };
 }

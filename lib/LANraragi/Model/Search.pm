@@ -53,10 +53,11 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
     unless ( $cachehit && $sortkey ne "lastread" ) {
         $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
-        @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
+        my $keyed_count;
+        ( $keyed_count, @filtered ) = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
 
-        # Cache this query in the search database
-        eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered ); };
+        # Cache this query in the search database, prepending the keyed count for partition-aware cache inversion
+        eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze [ $keyed_count, @filtered ] ); };
     }
     $redis->quit();
 
@@ -86,17 +87,25 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
         $logger->debug("Using cache for this query.");
         $cachehit = 1;
 
-        # Thaw cache and use that as the filtered list
         my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
-        @filtered = @{ thaw $frozendata };
+        my @cached = @{ thaw $frozendata };
+        shift @cached; # Discard the keyed count, since they're at the bottom of the list naturally
+        @filtered = @cached;
 
     } elsif ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey_inv ) ) {
         $logger->debug("A cache key exists with the opposite sortorder.");
         $cachehit = 1;
 
-        # Thaw cache, invert the list to match the sortorder and use that as the filtered list
         my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey_inv );
-        @filtered = reverse @{ thaw $frozendata };
+        my @cached = @{ thaw $frozendata };
+        my $keyed_count = shift @cached;
+
+        # Reverse only the keyed prefix; unkeyed archives stay at the back
+        if ( $keyed_count > 0 && $keyed_count < scalar @cached ) {
+            @filtered = ( reverse( @cached[ 0 .. $keyed_count - 1 ] ), @cached[ $keyed_count .. $#cached ] );
+        } else {
+            @filtered = reverse @cached;
+        }
     }
 
     $redis->quit();
@@ -300,17 +309,20 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
         } else {
 
             # For other sorting, we need to get the metadata for each archive and sort it manually.
-            # Just use the old sort algorithm at this point.
-            @filtered = sort_results( $sortkey, $sortorder, @filtered );
+            my $keyed_count;
+            ( $keyed_count, @filtered ) = sort_results( $sortkey, $sortorder, @filtered );
 
-            # We could theoretically use the tag indexes for this by scanning them all
-            # to find the filtered IDs and then ordering on those namespace/ID pairs, but that's a lot of work for little gain.
+            $redis->quit();
+            $redis_db->quit();
+            return ( $keyed_count, @filtered );
         }
     }
 
     $redis->quit();
     $redis_db->quit();
-    return @filtered;
+
+    # Title sort and unfiltered results: all archives are keyed
+    return ( -1, @filtered );
 }
 
 # Transform the search engine syntax into a list of tokens.
@@ -413,7 +425,7 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
 
     # Should there be no IDs requiring sorting, return an empty array directly
     if (scalar @filtered == 0) {
-        return @sorted;
+        return ( 0, @sorted );
     }
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
@@ -505,19 +517,36 @@ LUA
             }
         }
 
+        # Partition: archives with the sort namespace vs those without it
+        my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
+        my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
+
         # Read comments from the bottom up for a better understanding of this sort algorithm.
-        @sorted = map { $_->[0] }                  # Map back to only having the ID
-          sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
-          map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
-          @filtered;                               # List of IDs
+        @sorted = map { $_->[0] }                   # Map back to only having the ID
+          sort { ncmp( $a->[1], $b->[1] ) }         # Sort by the tag
+          map  { [ $_, lc( $tmpfilter{$_} ) ] }     # Map to an array containing the ID and the lowercased tag
+          @keyed_ids;                               # List of keyed archive IDs
+
+        if ($sortorder) {
+            @sorted = reverse @sorted;
+        }
+
+        # Archives missing the sort namespace always go to the back
+        push @sorted, @unkeyed_ids;
+
+        my $total_time = time() - $start_time;
+        $logger->debug("[PERF] sort_results completed in ${total_time}s");
+        return ( scalar @keyed_ids, @sorted );
     }
 
-    if ($sortorder) {
+    if ( $sortkey eq "lastread" && $sortorder ) {
         @sorted = reverse @sorted;
     }
     my $total_time = time() - $start_time;
     $logger->debug("[PERF] sort_results completed in ${total_time}s");
-    return @sorted;
+
+    # lastread: all returned archives are keyed (nil timestamps filtered out)
+    return ( -1, @sorted );
 }
 
 1;

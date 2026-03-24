@@ -127,6 +127,7 @@
 						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' id="save-metadata" value='[% c.lh("Save Metadata") %]' />
 							<input class='stdbtn' type='button' id="delete-archive" value='[% c.lh("Delete Archive") %]' />
+							<input class='stdbtn' type='button' id="read-archive" value='[% c.lh("Read Archive") %]' />
 							<input id='goback' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 							<br />
 						</td>

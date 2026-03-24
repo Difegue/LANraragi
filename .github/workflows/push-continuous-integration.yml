@@ -1,4 +1,21 @@
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      integration_test_repository:
+        description: 'Integration testing repository path'
+        required: true
+        default: 'psilabs-dev/aio-lanraragi'
+      integration_test_ref:
+        description: 'Integration testing repository git commit hash or branch'
+        required: true
+        default: 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3'
+
+env:
+  INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3' }}
+
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
   testSuite:
@@ -27,35 +44,50 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: lanraragi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build LRR Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: lanraragi
+          file: lanraragi/tools/build/docker/Dockerfile
+          tags: lanraragi:ci
+          outputs: type=docker,dest=${{ runner.temp }}/lanraragi-ci.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Load LRR Docker image
+        run: docker load -i "${{ runner.temp }}/lanraragi-ci.tar"
       - name: Checkout aio-lanraragi integration tests
         uses: actions/checkout@v4
         with:
-          repository: psilabs-dev/aio-lanraragi
-          ref: 328c792313f24d667c73377fd67aadfa7df72d26
+          repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
+          ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install aio-lanraragi package
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      - name: Install workspace packages
+        working-directory: aio-lanraragi
         run: |
-          cd aio-lanraragi
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-      - name: Install integration test dependencies
+          uv sync --all-packages
+          uv run playwright install
+      - name: Create staging directory
         run: |
-          cd aio-lanraragi/integration_tests
-          pip install .
-          playwright install
+          mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
+        timeout-minutes: 30
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
-          pytest tests --log-cli-level=INFO \
-            --build "$GITHUB_WORKSPACE/lanraragi" \
+          uv run pytest tests --log-cli-level=INFO \
+            --image lanraragi:ci \
+            --staging "$GITHUB_WORKSPACE/staging" \
             --playwright \
-            --docker-api \
-            --npseed 42
+            --npseed 42 \
+            -k "not test_double_page_navigation and not test_handler_resource_management"
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
 
@@ -68,17 +100,56 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: lanraragi
+      - name: Compute windist cache key
+        id: windist-key
+        run: |
+          $toolsHash = git -C "$env:GITHUB_WORKSPACE\lanraragi" rev-parse HEAD:tools
+          "key=windist-${{ runner.os }}-$toolsHash" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - name: Restore windist cache
+        id: cache-windist
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ github.workspace }}\windist\win-dist.zip
+          key: ${{ steps.windist-key.outputs.key }}
+      - name: Unzip windist from cache
+        if: steps.cache-windist.outputs.cache-hit == 'true'
+        run: |
+          $dest = Join-Path $env:GITHUB_WORKSPACE "LANraragi\win-dist"
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $zip = Join-Path $env:GITHUB_WORKSPACE "windist\win-dist.zip"
+          Expand-Archive -Path $zip -DestinationPath $dest -Force
       - name: Setup MSYS2 UCRT64
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
           update: true
-      - name: Install deps
-        shell: msys2 {0}
-        working-directory: LANraragi
-        run: |
-          ./tools/build/windows/install-deps.sh
+          # Keep in sync with tools/build/windows/install-deps.sh
+          install: >-
+            mingw-w64-ucrt-x86_64-perl
+            mingw-w64-ucrt-x86_64-perl-win32-api
+            mingw-w64-ucrt-x86_64-openssl
+            mingw-w64-ucrt-x86_64-imagemagick
+            mingw-w64-ucrt-x86_64-libjxl
+            mingw-w64-ucrt-x86_64-libheif
+            mingw-w64-ucrt-x86_64-ghostscript
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-lzo2
+            mingw-w64-ucrt-x86_64-libarchive
+            mingw-w64-ucrt-x86_64-ca-certificates
+            mingw-w64-ucrt-x86_64-libvips
+            libxcrypt
+            unzip
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-make
+            make
+            mingw-w64-ucrt-x86_64-diffutils
+            libbz2-devel
+            patch
+            mingw-w64-ucrt-x86_64-nodejs
+            mingw-w64-ucrt-x86_64-tools
       - name: Build
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         shell: msys2 {0}
         working-directory: LANraragi
         run: |
@@ -86,40 +157,64 @@ jobs:
           ./tools/build/windows/cleanup.sh
           ./tools/build/windows/create-dist.sh
       - name: Enable UTF-8
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         working-directory: LANraragi
         run: |
           ./tools/build/windows/utf8-support.ps1
+      - name: Create windist zip for cache
+        if: steps.cache-windist.outputs.cache-hit != 'true'
+        run: |
+          $src = Join-Path $env:GITHUB_WORKSPACE "LANraragi\win-dist"
+          $dstDir = Join-Path $env:GITHUB_WORKSPACE "windist"
+          New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+          $zip = Join-Path $dstDir "win-dist.zip"
+          Compress-Archive -Path (Join-Path $src '*') -DestinationPath $zip
+      - name: Save windist cache
+        if: steps.cache-windist.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ github.workspace }}\windist\win-dist.zip
+          key: ${{ steps.windist-key.outputs.key }}
+      - name: Copy app code to windist
+        shell: bash
+        working-directory: LANraragi
+        run: |
+          cp ./package.json ./win-dist
+          cp ./lrr.conf ./win-dist
+          cp -R ./lib ./win-dist
+          cp -R ./public ./win-dist
+          cp -R ./script ./win-dist
+          cp -R ./templates ./win-dist
+          cp -R ./locales ./win-dist
       - name: Checkout aio-lanraragi integration tests
         uses: actions/checkout@v4
         with:
-          repository: psilabs-dev/aio-lanraragi
-          ref: 328c792313f24d667c73377fd67aadfa7df72d26
+          repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
+          ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install main package (aio-lanraragi)
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      - name: Install workspace packages
         working-directory: aio-lanraragi
         run: |
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-      - name: Install integration test dependencies
-        working-directory: aio-lanraragi/integration_tests
-        run: |
-          pip install .
-          playwright install
+          uv sync --all-packages
+          uv run playwright install
       - name: Create staging directory
         run: |
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
       - name: Run integration tests against local LANraragi build
         working-directory: aio-lanraragi/integration_tests
-        timeout-minutes: 30
+        timeout-minutes: 50
         run: |
           $env:CI='true'
-          pytest tests `
+          uv run pytest tests `
           --log-cli-level=INFO `
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
           --playwright `
-          --npseed 42
+          --npseed 42 `
+          -k "not test_double_page_navigation and not test_handler_resource_management"

@@ -6,11 +6,12 @@ use strict;
 use warnings;
 
 use Redis;
+use Config;
+use Encode;
 use URI::Escape;
 use File::Basename;
 use File::Temp qw(tempdir);
 use File::Find qw(find);
-use File::Copy qw(move);
 
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary add_archive_to_redis add_timestamp_tag add_pagecount add_arcsize);
@@ -18,11 +19,14 @@ use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
+use LANraragi::Utils::Path     qw(create_path get_archive_path rename_path move_path unlink_path);
 
 use LANraragi::Model::Config   qw(get_userdir);
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
 use LANraragi::Model::Archive;
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 # Handle files uploaded by the user, or downloaded from remote endpoints.
 
@@ -52,20 +56,20 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Future home of the file
     my $userdir     = LANraragi::Model::Config->get_userdir;
-    my $output_file = $userdir . '/' . $filename;
+    my $output_file = create_path( $userdir . '/' . $filename );
 
     #Check if the ID is already in the database, and
     #that the file it references still exists on the filesystem
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
     my $replace_dupe = LANraragi::Model::Config->get_replacedupe;
-    my $isdupe       = $redis->exists($id) && -e $redis->hget( $id, "file" );
+    my $isdupe       = $redis->exists($id) && -e get_archive_path( $redis, $id );
 
     # Stop here if file is a dupe and replacement is turned off.
     if ( ( -e $output_file || $isdupe ) && !$replace_dupe ) {
 
         # Trash temporary file
-        unlink $tempfile;
+        unlink_path $tempfile;
 
         # The file already exists
         my $suffix = " Enable replace duplicated archive in config to replace old ones.";
@@ -85,7 +89,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
-    my $name = add_archive_to_redis( $id, $output_file, $redis, $redis_search );
+    my $name = add_archive_to_redis( $id, (IS_UNIX ? encode_utf8( $output_file ) : $output_file), $redis, $redis_search );
 
     # If additional tags were given to the sub, add them now.
     if ($tags) {
@@ -124,11 +128,11 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Move the file to the content folder.
     # Move to a .upload first in case copy to the content folder takes a while...
-    move( $tempfile, $output_file . ".upload" )
+    move_path( $tempfile, $output_file . ".upload" )
       or return ( 500, $id, $name, "The file couldn't be moved to your content folder: $!" );
 
     # Then rename inside the content folder itself to proc Shinobu's filemap update.
-    move( $output_file . ".upload", $output_file )
+    rename_path( $output_file . ".upload", $output_file )
       or return ( 500, $id, $name, "The file couldn't be renamed in your content folder: $!" );
 
     # If the move didn't signal an error, but still doesn't exist, something is quite spooky indeed!

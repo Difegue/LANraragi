@@ -6,21 +6,23 @@ description: Organize your archives in dynamic or static categories.
 
 Categories appear in the archive index as shortcut buttons.
 
-![Example categories](<../.screenshots/favtags.jpg>)
+![Example categories](<../.gitbook/assets/favtags (1).jpg>)
 
 There are two distinct kinds:
 
 * 📁 Static Categories are arbitrary collections of Archives, where you can add as many items as you want.
 * ⚡ Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library.
 
-Toggling a category in the index will restrict all your searches to that category, for as long as it is toggled. If you have a lot of categories, the most recently used will appear first in the list.  
+Toggling a category in the index will restrict all your searches to that category, for as long as it is toggled. If you have a lot of categories, the most recently used will appear first in the list.
+
+\
 **📌Pinned** Categories will always show first.
 
-![filtered](../.screenshots/category\_filtered.png)
+![filtered](../.gitbook/assets/category_filtered.png)
 
 To create categories, you can use the dedicated setting page in the app:
 
-![Category creation page](../.screenshots/categories.png)
+![Category creation page](<../.gitbook/assets/categories (1).png>)
 
 {% hint style="info" %}
 If you have an existing folder hierarchy for your Archives, LRR can automatically create categories from said hierarchy through the dedicated utility Script.
@@ -34,7 +36,7 @@ LANraragi includes a bookmark feature that provides a quick way to add or remove
 
 When enabled, a bookmark icon appears next to all archive thumbnails on the homepage and in the reader interface. Clicking this icon instantly adds or removes the archive from the linked category, making content curation faster and more convenient.
 
-![Bookmark icon](../.screenshots/bookmark\_button.png)
+![Bookmark icon](../.gitbook/assets/bookmark_button.png)
 
 You can link the bookmark feature to any static category of your choice. To change which category is used, navigate to the Category Management page, select the desired static category, and enable the "Store Bookmarks in this Category" toggle.
 
@@ -44,7 +46,7 @@ Only static categories can be linked to the bookmark feature. Dynamic categories
 
 To disable the bookmark feature entirely, simply toggle off the "Store Bookmarks in this Category" option for the currently linked category.
 
-![Bookmark configuration toggle](../.screenshots/bookmark\_config.png)
+![Bookmark configuration toggle](../.gitbook/assets/bookmark_config.png)
 
 {% hint style="info" %}
 If you delete a category that is currently linked to the bookmark feature, the bookmark functionality will be automatically disabled.

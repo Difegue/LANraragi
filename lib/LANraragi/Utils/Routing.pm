@@ -9,48 +9,75 @@ use Encode;
 
 use Mojolicious::Plugin::Minion::Admin;
 
+use LANraragi::Utils::Login      qw(is_logged_in_api);
+use LANraragi::Utils::OpenAPI    qw(apply_openapi_mojo_overrides);
+
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 #Contains all the routes used by the app, and applies them on boot.
 sub apply_routes {
     my $self = shift;
 
+    # Initialize Mojolicious::Plugin::OpenAPI
+    # And the single "/search" API endpoint because datatables
+    my $api         = $self->routes;
+    my $search_api  = $self->routes;
+
+    # The API router outputs CORS headers if the user allows it in the settings.
+    if ( $self->LRR_CONF->enable_cors ) {
+
+        # Private API requests are non-simple due to the Authorization header, so browsers send a preflight request.
+        # Preflight requests are OPTIONS requests, which we need to support explicitly
+        $api        = $api->under('/')->to('login#setup_cors');
+        $search_api = $search_api->under('/')->to('login#setup_cors');
+    }
+    if ( $self->LRR_CONF->enable_nofun ) {
+        $api        = $api->under('/')->to('login#logged_in_api');
+        $search_api = $search_api->under('/')->to('login#logged_in_api');
+    }
+
+    # All "/api/*" endpoints are passed to OpenAPI.
+    $self->plugin(
+        "OpenAPI" => {
+            url    => $self->home->rel_file("tools/openapi.yaml"),
+            route  => $api,
+            security => {
+                api_key => sub {
+                    my ( $c, $definition, $scopes, $cb ) = @_;
+                    if ( is_logged_in_api($c) ) {
+                        return $c->$cb();
+                    }
+                    else {
+                        return $c->$cb('Unauthorized');
+                    }
+                }
+            }
+        }
+    );
+
+    # Apply OpenAPI validation overrides
+    apply_openapi_mojo_overrides($self);
+
     if ( !IS_UNIX ) {
+
         # If the path to /public contains any special characters we need to decode it and pass it back to mojo
-        @{$self->static->paths}[0] = decode_utf8( @{$self->static->paths}[0] );
+        @{ $self->static->paths }[0] = decode_utf8( @{ $self->static->paths }[0] );
     }
 
     # Routers used for all loginless routes
     my $public_routes = $self->routes;
-    my $public_api    = $public_routes;
 
     # Normal route to controller
     $public_routes->get('/login')->to('login#index');
     $public_routes->post('/login')->to('login#check');
     $public_routes->get('/logout')->to('login#logout');
 
-    # The API router outputs CORS headers if the user allows it in the settings.
-    if ( $self->LRR_CONF->enable_cors ) {
-        $public_api = $public_api->under('/')->to('login#setup_cors');
-
-        # Private API requests are non-simple due to the Authorization header, so browsers send a preflight request.
-        # Preflight requests are OPTIONS requests, which we need to support explicitly
-        $public_api->options(
-            '/api/*' => sub {
-                my $self = shift;
-                $self->rendered(200);
-            }
-        );
-    }
-
     # Routers for routes that require auth
-    my $logged_in     = $public_routes->under('/')->to('login#logged_in');
-    my $logged_in_api = $public_api->under('/')->to('login#logged_in_api');
+    my $logged_in = $public_routes->under('/')->to('login#logged_in');
 
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
         $public_routes = $logged_in;
-        $public_api    = $logged_in_api;
     }
 
     $public_routes->get('/')->to('index#index');
@@ -65,6 +92,7 @@ sub apply_routes {
 
     # Mojo Status UI
     if ( $self->mode eq 'development' ) {
+
         # Not supported on Windows
         eval {
             require Mojolicious::Plugin::Status;
@@ -104,84 +132,12 @@ sub apply_routes {
 
     $logged_in->get('/duplicates')->to('duplicates#index');
 
-    # OPDS API
-    $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
-    $public_api->get('/api/opds/:id')->to('api-other#serve_opds_item');
-    $public_api->get('/api/opds/:id/pse')->to('api-other#serve_opds_page');
+    # Metrics API (not part of OpenAPI spec, serves Prometheus format)
+    if ( $self->LRR_CONF->enable_metrics ) {
+        $public_routes->get('/api/info/metrics')->to('api-metrics#serve_metrics');
+    }
 
-    # Miscellaneous API
-    $public_api->get('/api/info')->to('api-other#serve_serverinfo');
-    $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
-    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin_sync');
-    $logged_in_api->post('/api/plugins/queue')->to('api-other#use_plugin_async');
-    $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
-    $logged_in_api->post('/api/download_url')->to('api-other#download_url');
-    $logged_in_api->post('/api/regen_thumbs')->to('api-other#regen_thumbnails');
-
-    # Archive API
-    $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
-    $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
-    $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
-    $public_api->get('/api/archives/:id/download')->to('api-archive#serve_file');
-    $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
-    $public_api->get('/api/archives/:id/files')->to('api-archive#get_file_list');
-    $public_api->post('/api/archives/:id/files/thumbnails')->to('api-archive#generate_page_thumbnails');
-    $public_api->post('/api/archives/:id/extract')->to('api-archive#get_file_list');    # Deprecated
-    $public_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
-    $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
-    $public_api->get('/api/archives/:id')->to('api-archive#serve_metadata');
-    $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
-    $public_api->get('/api/archives/:id/tankoubons')->to('api-tankoubon#get_tankoubons_file');
-    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
-    $logged_in_api->put('/api/archives/upload')->to('api-archive#create_archive');
-    $logged_in_api->put('/api/archives/:id/thumbnail')->to('api-archive#update_thumbnail');
-    $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
-    $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
-
-    # Search API
-    $public_api->get('/search')->to('api-search#handle_datatables');
-    $public_api->get('/api/search')->to('api-search#handle_api');
-    $public_api->get('/api/search/random')->to('api-search#get_random_archives');
-    $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
-
-    # Database API
-    $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
-    $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
-    $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
-    $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
-    $public_api->get('/api/database/stats')->to('api-database#serve_tag_stats');
-
-    # Shinobu API
-    $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
-    $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
-    $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
-    $logged_in_api->post('/api/shinobu/rescan')->to('api-shinobu#reset_filemap');
-
-    # Minion API
-    $public_api->get('/api/minion/:jobid')->to('api-minion#minion_job_status');
-    $logged_in_api->get('/api/minion/:jobid/detail')->to('api-minion#minion_job_detail');
-    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-minion#queue_minion_job');    # unused for now
-
-    # Category API
-    $public_api->get('/api/categories')->to('api-category#get_category_list');
-    $public_api->get('/api/categories/bookmark_link')->to('api-category#get_bookmark_link');
-    $public_api->get('/api/categories/:id')->to('api-category#get_category');
-    $logged_in_api->put('/api/categories/bookmark_link/:id')->to('api-category#update_bookmark_link');
-    $logged_in_api->put('/api/categories')->to('api-category#create_category');
-    $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
-    $logged_in_api->delete('/api/categories/bookmark_link')->to('api-category#remove_bookmark_link');
-    $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
-    $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
-    $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');
-
-    # Tankoubon API
-    $public_api->get('/api/tankoubons')->to('api-tankoubon#get_tankoubon_list');
-    $public_api->get('/api/tankoubons/:id')->to('api-tankoubon#get_tankoubon');
-    $logged_in_api->put('/api/tankoubons')->to('api-tankoubon#create_tankoubon');
-    $logged_in_api->put('/api/tankoubons/:id')->to('api-tankoubon#update_tankoubon');
-    $logged_in_api->delete('/api/tankoubons/:id')->to('api-tankoubon#delete_tankoubon');
-    $logged_in_api->put('/api/tankoubons/:id/:archive')->to('api-tankoubon#add_to_tankoubon');
-    $logged_in_api->delete('/api/tankoubons/:id/:archive')->to('api-tankoubon#remove_from_tankoubon');
+    $search_api->get('/search')->to('api-search#handle_datatables');
 
 }
 

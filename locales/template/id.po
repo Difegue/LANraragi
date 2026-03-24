@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2025-09-24 00:02+0000\n"
+"PO-Revision-Date: 2026-02-04 17:01+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -428,6 +428,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "Bersihkan Pangkalan Data"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
 "Membersihkan pangkalan data akan menghapus entri yang tidak ada di sistem "
@@ -707,13 +713,16 @@ msgstr "Simpan Metadata"
 msgid "Delete Archive"
 msgstr ""
 
+msgid "Read Archive"
+msgstr "Baca Arsip"
+
 msgid "Return to Library"
 msgstr ""
 
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr "Tambah Arsip"
+msgstr "Tambahkan Arsip"
 
 msgid "Batch Operations"
 msgstr "Operasi Tumpak"
@@ -820,7 +829,7 @@ msgid "Delete"
 msgstr "Hapus"
 
 msgid "Add Rating"
-msgstr "Tambahkan Peringkat"
+msgstr "Tambahkan Penilaian"
 
 msgid "Add to Category"
 msgstr "Tambahkan ke Kategori"
@@ -1052,7 +1061,7 @@ msgid "Your keyboard arrows (and the spacebar)"
 msgstr "Tombol panah (dan spasi)"
 
 msgid "Touching the left/right side of the image."
-msgstr "Menyentuh sisi kiri/kanan gambar"
+msgstr "Menyentuh sisi kiri/kanan gambar."
 
 msgid "Other keyboard shortcuts:"
 msgstr "Pintasan tombol lainnya:"
@@ -1061,16 +1070,16 @@ msgid "M: toggle manga mode (right-to-left reading)"
 msgstr "M: beralih ke mode komik (membaca dari kanan ke kiri)"
 
 msgid "O: show advanced reader options."
-msgstr "O: tampilkan pengaturan pembaca lanjutan"
+msgstr "O: tampilkan pengaturan pembaca lanjutan."
 
 msgid "P: toggle double page mode"
 msgstr "P: beralih ke mode halaman ganda"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr "Q: tampilkan indeks keluku dan pengaturan arsip"
+msgstr "Q: tampilkan indeks keluku dan pengaturan arsip."
 
 msgid "R: open a random archive."
-msgstr "R: buka arsip acak"
+msgstr "R: buka arsip acak."
 
 msgid "F: toggle fullscreen mode"
 msgstr "F: beralih ke mode layar penuh"
@@ -1571,7 +1580,7 @@ msgid "No Categories yet..."
 msgstr "Belum ada Kategori ..."
 
 msgid "Remove rating"
-msgstr "Hapus peringkat"
+msgstr "Hapus penilaian"
 
 msgid "Click here to display new archives only."
 msgstr "Klik di sini untuk menampilkan arsip baru saja."
@@ -1872,3 +1881,67 @@ msgstr "Harap atur jeda halaman berikutnya otomatis ke angka positif."
 
 msgid "The maximum value allowed is 4GB."
 msgstr "Nilai maksimum yang diizinkan adalah 4GB."
+
+msgid "Authenticated Progress Tracking"
+msgstr "Pelacakan Kemajuan Terautentikasi"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"Jika diaktifkan, kemajuan sisi peladen hanya akan disimpan jika Anda masuk "
+"dengan kata sandi, dan akan menimpa kemajuan sisi klien. Ini memungkinkan "
+"tamu untuk menjelajah tanpa memengaruhi kemajuan pengguna utama."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"Gabungkan dengan pelacakan kemajuan sisi klien untuk memungkinkan pengguna "
+"yang tidak terautentikasi melacak kemajuan secara lokal."
+
+msgid "Rating"
+msgstr "Penilaian"
+
+msgid "Set Rating"
+msgstr "Atur Penilaian"
+
+msgid "Clear Rating"
+msgstr "Bersihkan Penilaian"
+
+msgid " -- Select Rating -- "
+msgstr " -- Pilih Penilaian -- "
+
+msgid "Language"
+msgstr "Bahasa"
+
+msgid "Automatic (browser default)"
+msgstr "Otomatis (peramban asali)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Pilih bahasa untuk antarmuka pengguna. Atur ke Otomatis untuk menggunakan "
+"preferensi bahasa peramban Anda."
+
+msgid "Chapters"
+msgstr "Bab"
+
+msgid "Add Chapter at this Page"
+msgstr "Tambahkan Bab di Halaman Ini"
+
+msgid "Edit Chapter name"
+msgstr "Sunting nama Bab"
+
+msgid "Delete Chapter"
+msgstr "Hapus Bab"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Apakah Anda yakin ingin menghapus bab/bagian ini?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Masukkan judul untuk bab/bagian ini:"
+
+msgid "Chapter added!"
+msgstr "Bab ditambahkan!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Galat menambah/menghapus bab:"
+
+msgid "Untitled Chapter"
+msgstr "Bab Tanpa Judul"

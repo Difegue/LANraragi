@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-09-30 13:01+0000\n"
+"PO-Revision-Date: 2026-03-23 13:12+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -263,7 +263,7 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr "点击此按钮以触发档案目录的重新扫描，以防丢失文件或某些数据<br>例如总页数。"
 
 msgid "Maximum <br>Cache Size"
-msgstr "最大<br>临时文件夹大小"
+msgstr "最大<br>缓存大小"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr "以MB为单位。临时文件夹包含最近打开的档案，以便更快地进行后续读取。"
@@ -369,6 +369,12 @@ msgstr "重新启动LANraragi后完全生效。"
 
 msgid "Clean Database"
 msgstr "清理数据库"
+
+msgid "Enable Metrics"
+msgstr "启用指标"
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr "启用指标收集，并通过指标端点以 Prometheus 展示格式提供这些指标。"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "清理数据库将删除不在您的文件系统中的条目。"
@@ -602,6 +608,9 @@ msgstr "保存元数据"
 
 msgid "Delete Archive"
 msgstr "删除档案"
+
+msgid "Read Archive"
+msgstr "阅读档案"
 
 msgid "Return to Library"
 msgstr "返回库"
@@ -1702,3 +1711,81 @@ msgstr "请将自动翻页间隔设置为正数。"
 
 msgid "The maximum value allowed is 4GB."
 msgstr "允许的最大值是4GB。"
+
+msgid "Authenticated Progress Tracking"
+msgstr "已认证进度跟踪"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr "启用后，仅当使用密码登录时才会保存服务器端进度，并覆盖客户端进度。这样访客浏"
+"览时就不会影响主用户的进度。"
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "可以配合客户端进度跟踪功能，让未认证用户在本地跟踪进度。"
+
+msgid "Rating"
+msgstr "评分"
+
+msgid "Set Rating"
+msgstr "设置评分"
+
+msgid "Clear Rating"
+msgstr "清除评分"
+
+msgid " -- Select Rating -- "
+msgstr " -- 选择评分 -- "
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Automatic (browser default)"
+msgstr "自动（使用浏览器默认设置）"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr "选择用户界面的语言。设置为自动将使用浏览器的语言偏好设置。"
+
+msgid "Chapters"
+msgstr "章节"
+
+msgid "Add Chapter at this Page"
+msgstr "在此页面添加章节"
+
+msgid "Edit Chapter name"
+msgstr "编辑章节名称"
+
+msgid "Delete Chapter"
+msgstr "删除章节"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "你确定要删除此章节/部分吗？"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "请输入此章节/部分的标题："
+
+msgid "Chapter added!"
+msgstr "章节已添加！"
+
+msgid "Error adding/removing chapter:"
+msgstr "添加/删除章节时出错："
+
+msgid "Untitled Chapter"
+msgstr "未命名章节"
+
+msgid "Disable OpenAPI Validation"
+msgstr "禁用 OpenAPI 验证"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"禁用 OpenAPI API 模式验证。如果您在使用旧版 API 客户端时遇到与验证相关的错误"
+"，请启用此选项。"
+
+msgid "Clear rating"
+msgstr "清除评分"
+
+msgid "Excluded Namespaces"
+msgstr "排除的命名空间"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "以逗号分隔的标签命名空间列表，用于从搜索建议和标签统计中排除。"
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr "客户端将使用此列表从自动完成和标签云中过滤掉干扰标签。"

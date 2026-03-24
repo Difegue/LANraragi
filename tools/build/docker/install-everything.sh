@@ -90,13 +90,13 @@ if [ $(uname -m) == 'x86_64' ]; then
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
   cpanm Sort::Versions 
-  curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
-  cd Alien-FFI-0.25
+  curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.27.tar.gz | tar -xz
+  cd Alien-FFI-0.27
   # Patch build script to disable AVX - and SSE4 for real old CPUs
   # See https://developers.redhat.com/blog/2021/01/05/building-red-hat-enterprise-linux-9-for-the-x86-64-v2-microarchitecture-level
   sed -i 's/--disable-builddir/--disable-builddir --with-gcc-arch=x86-64/' alienfile
   perl Makefile.PL && make install
-  cd ../ && rm -rf Alien-FFI-0.25
+  cd ../ && rm -rf Alien-FFI-0.27
 fi
 
 #Install the LRR dependencies proper

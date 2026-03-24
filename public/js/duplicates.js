@@ -1,5 +1,6 @@
 /**
- * Duplicate Operations.
+ * Duplicate Operations
+ * @global
  */
 const Duplicates = {};
 
@@ -17,19 +18,18 @@ Duplicates.initializeAll = function () {
     $(document).on("click.delete-archive", ".delete-archive", Duplicates.deleteArchive);
     $(document).on("click.delete-selected", ".delete-selected", Duplicates.deleteArchives);
 
-    if (localStorage.hasOwnProperty("dupeMinionJob")) {
+    let dupeMinionJob = localStorage.getItem("dupeMinionJob");
+    if (dupeMinionJob !== null) {
         // If we are searching for duplicates, show the processing message
         $(".find-duplicates").hide();
         $("#processing").show();
 
-        Duplicates.pollMinionJob(localStorage.dupeMinionJob);
-    } 
+        Duplicates.pollMinionJob(dupeMinionJob);
+    }
 
-    if (localStorage.hasOwnProperty("previousDupeJob")) {
-
+    if (localStorage.getItem("previousDupeJob") !== null) {
         // Remove the previous job from localStorage
         localStorage.removeItem("previousDupeJob");
-
         // We had a previous job, show the "no duplicates" message if there's no dupe data on the page
         $("#nodupes").show();
     }
@@ -51,7 +51,7 @@ Duplicates.findDuplicates = function () {
     $(".find-duplicates").hide();
     $("#processing").show();
 
-    Server.callAPIBody(`/api/minion/find_duplicates/queue`, "POST", formData,
+    Server.callAPIBody("/api/minion/find_duplicates/queue", "POST", formData,
         "Queued up a job to find duplicates! Stay tuned for updates or check the Minion console.",
         I18N.MinionSendError,
         (data) => {
@@ -77,7 +77,8 @@ Duplicates.pollMinionJob = function (job) {
             }
             else {
                 // If the job is done, reload the page to show the results.
-                localStorage.previousDupeJob = localStorage.dupeMinionJob;
+                let job = localStorage.getItem("dupeMinionJob");
+                localStorage.setItem("previousDupeJob", job);
                 localStorage.removeItem("dupeMinionJob");
                 window.location.reload();
             }
@@ -92,16 +93,16 @@ Duplicates.pollMinionJob = function (job) {
 Duplicates.drawCallbackDataTable = function (settings) {
     var groupColumn = 0;
     var api = this.api();
-    var rows = api.rows({ page: 'current' }).nodes();
+    var rows = api.rows({ page: "current" }).nodes();
     var lastGroup = null;
 
     // Iterate over the data once to insert group rows at end of each group
-    api.column(groupColumn, { page: 'current' })
+    api.column(groupColumn, { page: "current" })
         .data()
         .each(function (group, i) {
             if (lastGroup && lastGroup !== group) {
                 $(rows).eq(i).before(
-                    '<tr class="separator"><td colspan="10" style="padding: 0px;"></td></tr>'
+                    `<tr class="separator"><td colspan="10" style="padding: 0px;"></td></tr>`
                 );
             }
             lastGroup = group;
@@ -114,21 +115,21 @@ Duplicates.initializeDataTable = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
-    Duplicates.dt = $('#ds').DataTable({
-        dom: '<"table-control-wrapper" <"search-box" f><"length-box" l>><t><p>',
+    Duplicates.dt = $("#ds").DataTable({
+        dom: `<"table-control-wrapper" <"search-box" f><"length-box" l>><t><p>`,
         // avoid sorting columns as it messes with the grouping
         columns: [
-            { title: 'Group-Key', visible: false },
-            { title: '', orderable: false, width:"20px" },
-            { title: 'Title', orderable: false},
-            { title: 'Pages', orderable: false, width:"52px" },
-            { title: 'Filename', orderable: false },
-            { title: 'Filesize', orderable: false },
-            { title: 'Date', orderable: false },
-            { title: 'Tags', orderable: false },
-            { title: 'Action', orderable: false }
+            { title: "Group-Key", visible: false },
+            { title: "", orderable: false, width: "20px" },
+            { title: "Title", orderable: false },
+            { title: "Pages", orderable: false, width: "52px" },
+            { title: "Filename", orderable: false },
+            { title: "Filesize", orderable: false },
+            { title: "Date", orderable: false },
+            { title: "Tags", orderable: false },
+            { title: "Action", orderable: false }
         ],
-        order: [[0, 'asc']],
+        order: [[0, "asc"]],
         autoWidth: false,
         pageLength: 10,
         deferRender: true,
@@ -136,21 +137,21 @@ Duplicates.initializeDataTable = function () {
     });
 };
 
-Duplicates.compareDuplicates = function (rows, field, fieldType, order = 'desc') {
+Duplicates.compareDuplicates = function (rows, field, fieldType, order = "desc") {
     var values = [];
     var rowToExclude = null;
 
     // Determine comparator and starting value based on order
-    var comparator = order === 'asc' ? Math.min : Math.max;
-    var targetValue = order === 'asc' ? Infinity : -Infinity;
+    var comparator = order === "asc" ? Math.min : Math.max;
+    var targetValue = order === "asc" ? Infinity : -Infinity;
 
     // Function to parse the value based on the field type
     function parseValue(value) {
-        if (fieldType === 'integer') {
+        if (fieldType === "integer") {
             return parseInt(value, 10);
-        } else if (fieldType === 'float') {
+        } else if (fieldType === "float") {
             return parseFloat(value);
-        } else if (fieldType === 'date') {
+        } else if (fieldType === "date") {
             return new Date(value).getTime();
         }
         return value;
@@ -175,7 +176,7 @@ Duplicates.compareDuplicates = function (rows, field, fieldType, order = 'desc')
     rows.each(function () {
         var row = $(this);
         if (rowToExclude && row[0] !== rowToExclude[0]) {
-            row.find('.form-check-input').prop('checked', true);
+            row.find(".form-check-input").prop("checked", true);
         }
     });
 }
@@ -184,33 +185,33 @@ Duplicates.conditionChange = function (event) {
     var option = $(event.target).val();
 
     // Clear current selection
-    $('.form-check-input').prop('checked', false);
+    $(".form-check-input").prop("checked", false);
 
     // Early return if none should be selected
-    if (option === 'none') {
+    if (option === "none") {
         return;
     }
 
-    $('.duplicate-group').each((_, group) => {
+    $(".duplicate-group").each((_, group) => {
         // Find all rows of a group
         var groupRow = $(group);
-        var rowsInGroup = groupRow.add(groupRow.nextUntil('.separator'));
+        var rowsInGroup = groupRow.add(groupRow.nextUntil(".separator"));
 
         // Compare rows in group according to selected option
         switch (option) {
-            case 'less-tags':
+            case "less-tags":
                 Duplicates.compareDuplicates(rowsInGroup, "tag-count", "integer");
                 break;
-            case 'less-size':
+            case "less-size":
                 Duplicates.compareDuplicates(rowsInGroup, "file-size", "float");
                 break;
-            case 'less-pages':
+            case "less-pages":
                 Duplicates.compareDuplicates(rowsInGroup, "page-count", "integer");
                 break;
-            case 'not-old':
+            case "not-old":
                 Duplicates.compareDuplicates(rowsInGroup, "date-added", "date");
                 break;
-            case 'not-young':
+            case "not-young":
                 Duplicates.compareDuplicates(rowsInGroup, "date-added", "date", "asc");
                 break;
         };
@@ -228,8 +229,8 @@ Duplicates.deleteArchive = function (event) {
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            archiveid = $(event.currentTarget).attr('data-id');
-            Server.deleteArchive(archiveid, () => { Duplicates.dt.row($(event.currentTarget).parents('tr')).remove().draw()});
+            let archiveId = $(event.currentTarget).attr("data-id");
+            Server.deleteArchive(archiveId, () => { Duplicates.dt.row($(event.currentTarget).parents("tr")).remove().draw() });
         }
     });
 };

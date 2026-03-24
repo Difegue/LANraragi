@@ -5,7 +5,7 @@ use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json);
 
-use LANraragi::Utils::Generic  qw(generate_themes_header);
+use LANraragi::Utils::Generic  qw(generate_themes_header exec_with_lock_pure);
 use LANraragi::Utils::Tags     qw(rewrite_tags build_tag_replace_hash split_tags_to_array restore_CRLF);
 use LANraragi::Utils::Database qw(get_computed_tagrules set_tags set_title set_summary set_isnew invalidate_cache);
 use LANraragi::Utils::Plugins  qw(get_plugins get_plugin get_plugin_parameters);
@@ -179,7 +179,23 @@ sub socket {
             if ( $operation eq "delete" ) {
                 $logger->debug("Deleting $id...");
 
-                my $delStatus = LANraragi::Model::Archive::delete_archive($id);
+                my ( $acquired, $delStatus ) = exec_with_lock_pure(
+                    [ "archive-write:$id" ],
+                    sub { LANraragi::Model::Archive::delete_archive($id) }
+                );
+
+                unless ($acquired) {
+                    $client->send(
+                        {   json => {
+                                id       => $id,
+                                filename => "",
+                                message  => "Locked resource: $id.",
+                                success  => 0
+                            }
+                        }
+                    );
+                    return;
+                }
 
                 $client->send(
                     {   json => {

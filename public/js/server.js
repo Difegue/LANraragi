@@ -1,5 +1,6 @@
 /**
  * Functions for Generic API calls.
+ * @global
  */
 const Server = {};
 
@@ -16,8 +17,8 @@ Server.isScriptRunning = false;
  * @returns The result of the callback, or NULL.
  */
 Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
-    endpoint = new LRR.apiURL(endpoint);
-    return fetch(endpoint, { method })
+    let endpointUrl = new LRR.apiURL(endpoint);
+    return fetch(endpointUrl, { method })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
@@ -44,8 +45,8 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
 };
 
 Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
-    endpoint = new LRR.apiURL(endpoint);
-    return fetch(endpoint, { method, body })
+    let endpointUrl = new LRR.apiURL(endpoint);
+    return fetch(endpointUrl, { method, body })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
@@ -281,12 +282,12 @@ Server.regenerateThumbnails = function (force) {
 
 // Adds an archive to a category. Basic implementation to use everywhere.
 Server.addArchiveToCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId,catId), I18N.CategoryEditError, null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId, catId), I18N.CategoryEditError, null);
 };
 
 // Ditto, but for removing.
 Server.removeArchiveFromCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId,catId), I18N.CategoryEditError, null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId, catId), I18N.CategoryEditError, null);
 };
 
 /**
@@ -343,3 +344,40 @@ Server.loadBookmarkCategoryId = function () {
         return data.category_id;
     });
 }
+
+/**
+ * Update server-side read progression.
+ *
+ * @param {*} id Archive ID
+ * @param {number} currentPage Page the user navigated to
+ */
+Server.updateServerSideProgress = function (id, currentPage) {
+    let endpointUrl = new LRR.apiURL(`/api/archives/${id}/progress/${currentPage}`);
+    return fetch(endpointUrl, { method: "PUT" })
+        .then((response) => (response.ok ? {code: response.status, data: response.json()} : { code: response.status, data: {success: 0, error: I18N.GenericReponseError} }))
+        .then((response) => {
+            const { code, data } = response;
+            if (code === 423) {
+                // Rapid calls to the API endpoint can return a 423 due to a redis lock
+                return;
+            }
+            if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
+                throw new Error(data.error);
+            } else {
+                let message = null;
+                if ("successMessage" in data && data.successMessage) {
+                    message = data.successMessage;
+                }
+                if (message !== null) {
+                    LRR.toast({
+                        heading: message,
+                        icon: "success",
+                        hideAfter: 7000,
+                    });
+                }
+
+                return null;
+            }
+        })
+        .catch((error) => LRR.showErrorToast(I18N.ReaderErrorProgress, error));
+};

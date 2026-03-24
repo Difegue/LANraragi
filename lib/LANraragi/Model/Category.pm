@@ -139,7 +139,7 @@ sub create_category {
         }
 
         # Default values for new category
-        $redis->hset( $cat_id, "archives",  "[]" );
+        $redis->hset( $cat_id, "archives", "[]" );
     }
 
     # Set/update name, pin status and favtag
@@ -171,8 +171,8 @@ sub delete_category {
     }
 
     if ( $redis->exists($cat_id) ) {
-        if ( $redis->hget('LRR_CONFIG', 'bookmark_link') eq $cat_id ) {
-            $redis->hdel('LRR_CONFIG', 'bookmark_link');
+        if ( $redis->hget( 'LRR_CONFIG', 'bookmark_link' ) eq $cat_id ) {
+            $redis->hdel( 'LRR_CONFIG', 'bookmark_link' );
             $logger->info("Removed link from bookmark to category $cat_id.");
         }
         $redis->del($cat_id);
@@ -299,7 +299,7 @@ sub remove_from_category {
 sub get_bookmark_link {
 
     my $redis = LANraragi::Model::Config->get_redis;
-    my $catid = $redis->hget('LRR_CONFIG', 'bookmark_link') || "";
+    my $catid = $redis->hget( 'LRR_CONFIG', 'bookmark_link' ) || "";
     $redis->quit();
     return $catid;
 
@@ -311,30 +311,30 @@ sub get_bookmark_link {
 sub update_bookmark_link {
 
     my $cat_id = shift;
-    unless (defined $cat_id && $cat_id =~ /^SET_\d{10}$/) {
-        return (400, $cat_id, "Input category ID is invalid.");
+    unless ( defined $cat_id && $cat_id =~ /^SET_\d{10}$/ ) {
+        return ( 400, $cat_id, "Input category ID is invalid." );
     }
     my $redis = LANraragi::Model::Config->get_redis;
     unless ( $redis->exists($cat_id) ) {
         $redis->quit();
-        return (404, $cat_id, "Category does not exist!");
+        return ( 404, $cat_id, "Category does not exist!" );
     }
     unless ( $redis->hget( $cat_id, "search" ) eq "" ) {
         $redis->quit();
-        return (400, $cat_id, "Cannot link bookmark to a dynamic category.");
+        return ( 400, $cat_id, "Cannot link bookmark to a dynamic category." );
     }
-    $redis->hset('LRR_CONFIG', 'bookmark_link', $cat_id);
+    $redis->hset( 'LRR_CONFIG', 'bookmark_link', $cat_id );
     $redis->quit();
-    return (200, $cat_id, "success");
+    return ( 200, $cat_id, "success" );
 
 }
 
 # remove_bookmark_link()
 #   Unlinks the bookmark from its current category and returns the category ID.
 sub remove_bookmark_link() {
-    my $redis = LANraragi::Model::Config->get_redis;
-    my $cat_id = $redis->hget('LRR_CONFIG', 'bookmark_link') || "";
-    $redis->hdel('LRR_CONFIG', 'bookmark_link');
+    my $redis  = LANraragi::Model::Config->get_redis;
+    my $cat_id = $redis->hget( 'LRR_CONFIG', 'bookmark_link' ) || "";
+    $redis->hdel( 'LRR_CONFIG', 'bookmark_link' );
     $redis->quit();
     return $cat_id;
 }

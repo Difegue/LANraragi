@@ -21,6 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Redis   qw(redis_decode);
 use LANraragi::Utils::Resizer qw(get_resizer);
+use LANraragi::Utils::Path    qw(get_archive_path);
 
 our $resampler = get_resizer();
 
@@ -46,10 +47,10 @@ sub build_reader_JSON ( $self, $id, $force ) {
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $redis   = LANraragi::Model::Config->get_redis;
-    my $archive = $redis->hget( $id, "file" );
+    my $archive = get_archive_path( $redis, $id );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive);
+    my @images = get_filelist($archive, $id);
 
     $self->LRR_LOGGER->debug( "Files found in archive (encoding might be incorrect): \n " . Dumper @images );
 

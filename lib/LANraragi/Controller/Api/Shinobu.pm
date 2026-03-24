@@ -16,13 +16,13 @@ BEGIN {
 }
 
 sub shinobu_status {
-    my $self    = shift;
+    my $self    = shift->openapi->valid_input or return;
 
     if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         $self->render(
-            json => {
+            openapi => {
                 operation => "shinobu_status",
                 success   => 1,
                 is_alive  => $shinobu->poll(),
@@ -39,11 +39,11 @@ sub shinobu_status {
             Win32::Process::Open($shinobu, $pid, 0);
 
             $self->render(
-                json => {
+                openapi => {
                     operation => "shinobu_status",
                     success   => 1,
-                    is_alive  => $shinobu->GetProcessID() != 0,
-                    pid       => "" . $shinobu->GetProcessID()
+                    is_alive  => ($shinobu->GetProcessID() != 0) ? 1 : 0,
+                    pid       => int($shinobu->GetProcessID())
                 }
             );
         };
@@ -51,7 +51,7 @@ sub shinobu_status {
 }
 
 sub reset_filemap {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
 
     # This is a shinobu endpoint even though we're deleting stuff in redis
     # since we'll have to restart shinobu anyway to proc filemap re-creation.
@@ -77,7 +77,7 @@ sub reset_filemap {
 
     if ( IS_UNIX ) {
         $self->render(
-            json => {
+            openapi => {
                 operation => "shinobu_rescan",
                 success   => $proc->poll(),
                 new_pid   => $proc->pid
@@ -86,10 +86,10 @@ sub reset_filemap {
     } else {
         eval {
             $self->render(
-                json => {
+                openapi => {
                     operation => "shinobu_rescan",
-                    success   => $proc->GetProcessID() != 0,
-                    new_pid   => "" . $proc->GetProcessID()
+                    success   => ($proc->GetProcessID() != 0) ? 1 : 0,
+                    new_pid   => int($proc->GetProcessID())
                 }
             );
         };
@@ -97,7 +97,7 @@ sub reset_filemap {
 }
 
 sub stop_shinobu {
-    my $self    = shift;
+    my $self    = shift->openapi->valid_input or return;
 
     if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
@@ -115,7 +115,7 @@ sub stop_shinobu {
 }
 
 sub restart_shinobu {
-    my $self    = shift;
+    my $self    = shift->openapi->valid_input or return;
 
     if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
@@ -134,7 +134,7 @@ sub restart_shinobu {
 
     if ( IS_UNIX ) {
         $self->render(
-            json => {
+            openapi => {
                 operation => "shinobu_restart",
                 success   => $proc->poll(),
                 new_pid   => $proc->pid
@@ -143,10 +143,10 @@ sub restart_shinobu {
     } else {
         eval {
             $self->render(
-                json => {
+                openapi => {
                     operation => "shinobu_restart",
-                    success   => $proc->GetProcessID() != 0,
-                    new_pid   => "" . $proc->GetProcessID()
+                    success   => ($proc->GetProcessID() != 0) ? 1 : 0,
+                    new_pid   => int($proc->GetProcessID())
                 }
             );
         };

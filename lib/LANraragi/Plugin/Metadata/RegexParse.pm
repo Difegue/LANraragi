@@ -37,8 +37,25 @@ sub plugin_info {
         author      => "Difegue",
         version     => "1.2",
         description => "Derive tags from the filename of the given archive.<br><br>"
-          . "By default it follows the doujinshi naming standard \"(Release) [Artist] TITLE (Series) [Language]\".<br><br>"
-          . "Instead, by activating the plugin settings below, you can extend the capture to the content of each bracket in"
+        . "By default it follows the doujinshi naming standard \"(Event) [Artist] TITLE (Series) [Language]\".<br><br>"
+        . "The default regex is:<br>"
+        .'<code>(\((?&lt;event&gt;[^([]+)\))?\s*(\[(?&lt;artist&gt;[^]]+)\])?\s*(?&lt;title&gt;[^([]+)\s*(\((?&lt;series&gt;[^([)]+)\))?\s*(\[(?&lt;language&gt;[^]]+)\])?(?&lt;tail&gt;.*)?</code><br><br>'
+        .'<code>()?</code> indicates the field is optional<br>'
+        .'<code>(\((?&lt;event&gt;[^([]+)\))?</code> returns the content of (Event). Optional.<br>'
+        .'<code>(\[(?&lt;artist&gt;[^]]+)\])?</code> returns the content of [Artist]. Optional.<br>'
+        .'<code>(?&lt;title&gt;[^([]+)</code> returns the title. Mandatory.<br>'
+        .'<code>(\((?&lt;series&gt;[^([)]+)\))?</code> returns the content of (Series). Optional.<br>'
+        .'<code>(\[(?&lt;language&gt;[^]]+)\])?</code> returns the content of [Language]. Optional.<br>'
+        .'<code>(?&lt;tail&gt;.*)?</code> returns everything that is out of E-Hentai standard for further processing. Optional.<br>'
+        .'<code>\s*</code> indicates zero or more whitespaces.<br><br>'
+          . "You can provide a custom regex using named capture groups. The group name determines the tag namespace:<br>"
+          . "&bull; <code>(?&lt;artist&gt;...)</code> &rarr; <code>artist:</code> (also extracts <code>group:</code> from \"Circle (Artist)\" format)<br>"
+          . "&bull; <code>(?&lt;series&gt;...)</code> &rarr; <code>series:</code><br>"
+          . "&bull; <code>(?&lt;tag&gt;...)</code> &rarr; simple tag (no namespace)<br>"
+          . "&bull; <code>(?&lt;anyname&gt;...)</code> &rarr; <code>anyname:</code><br>"
+          . "Use numbered suffixes for multiple groups of the same type: <code>(?&lt;artist2&gt;...)</code>, <code>(?&lt;tag3&gt;...)</code>, etc.<br>"
+          . "Special groups: <code>title</code> sets the archive title, <code>tail</code> is used for trailing tag processing.<br><br>"
+          . "By activating the plugin settings below, you can extend the capture to the content of each bracket in"
           . " the filename, even if it does not belong to the standard naming format.<br>"
           . "Non-standard tags will be made available to you associated with the \"<i>${PLUGIN_TAG_NS}</i>\" namespace so"
           . " you can manage them as you please by creating your own set of Tag Rules.<br>"
@@ -54,6 +71,11 @@ sub plugin_info {
                 desc =>
                   "Capture everything you find between a pair of parentheses and make it available under the \"${PLUGIN_TAG_NS}\" namespace<BR />"
                   . "(use this in conjunction with Tag Rules)"
+            },
+            {   type => "string",
+                desc =>
+                    "Regex to use for parsing",
+                default_value => '(\((?<event>[^([]+)\))?\s*(\[(?<artist>[^]]+)\])?\s*(?<title>[^([]+)\s*(\((?<series>[^([)]+)\))?\s*(\[(?<language>[^]]+)\])?(?<tail>.*)?'
             }
         ],
     );
@@ -62,7 +84,7 @@ sub plugin_info {
 
 #Mandatory function to be implemented by your plugin
 sub get_tags {
-    my ( undef, $lrr_info, $check_trailing_tags, $keep_all_captures ) = @_;
+    my ( undef, $lrr_info, $check_trailing_tags, $keep_all_captures, $regex_string ) = @_;
 
     # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
     # Run a decode to make sure we can derive tags with the proper encoding.
@@ -72,11 +94,17 @@ sub get_tags {
     my ( $tags, $title ) = parse_filename(
         $filename,
         {   'check_trailing_tags' => $check_trailing_tags,
-            'keep_all_captures'   => $keep_all_captures
+                'keep_all_captures'   => $keep_all_captures,
+                'regex_string' => $regex_string
         }
-    );
-
+        );
     my $logger = get_plugin_logger();
+    if ($tags eq "" && $title eq "") {
+        $logger->info("Regex match failed, no changes");
+        return ( tags => "" );
+    }
+    
+
     $logger->info("Sending the following tags to LRR: $tags");
     $logger->info("Parsed title is $title");
 
@@ -86,21 +114,22 @@ sub get_tags {
 sub parse_filename {
     my ( $filename, $params ) = @_;
 
-    my ( $event, $artist, $title, $series, $language, $trailing_tags, $other_captures );
+    my ( $title, $trailing_tags, $other_captures );
 
     #Replace underscores with spaces
     $filename =~ s/_/ /g;
 
-    #Use the regex on our file, and pipe it to the regexsel sub.
-    $filename =~ &get_regex;
+    my $regex = qr/$params->{'regex_string'}/;
+    if (!($filename =~ $regex)) {
+        return ("", "");
+    }
 
-    #Take variables from the regex selection
-    if ( defined $2 ) { $event    = $2; }
-    if ( defined $4 ) { $artist   = $4; }
-    if ( defined $5 ) { $title    = trim($5); }
-    if ( defined $7 ) { $series   = $7; }
-    if ( defined $9 ) { $language = $9; }
-    my $tail = trim( $+{'tail'} );
+    # Capture all named groups immediately (before any subsequent regex operations overwrite %+)
+    my %captures = %+;
+
+    # Extract special cases
+    $title = trim($captures{'title'}) if defined $captures{'title'};
+    my $tail = defined $captures{'tail'} ? trim($captures{'tail'}) : '';
 
     if ($tail) {
 
@@ -120,10 +149,29 @@ sub parse_filename {
 
     my @tags;
 
-    push @tags, parse_artist_value($artist)                                           if ($artist);
-    push @tags, "event:$event"                                                        if ($event);
-    push @tags, parse_captured_value_for_namespace( $language, 'language:' )          if ($language);
-    push @tags, parse_captured_value_for_namespace( $series, 'series:' )              if ($series);
+    # Process all named capture groups dynamically
+    for my $name (keys %captures) {
+        next if $name eq 'title' || $name eq 'tail';
+
+        my $value = trim($captures{$name});
+        next unless $value;
+
+        # Strip trailing digits to get the namespace (e.g., artist2 -> artist)
+        my $namespace = $name =~ s/\d+$//r;
+
+        if ($namespace eq 'tag') {
+            # Simple tags - no namespace, skip _classify_item
+            push @tags, map { trim($_) } split(/,/, $value);
+        } elsif ($namespace eq 'artist') {
+            push @tags, parse_artist_value($value);
+        } elsif ($namespace eq 'event') {
+            # Direct assignment - no filtering
+            push @tags, "event:$value";
+        } else {
+            push @tags, parse_captured_value_for_namespace($value, "$namespace:");
+        }
+    }
+
     push @tags, parse_captured_value_for_namespace( $other_captures, $PLUGIN_TAG_NS ) if ($other_captures);
     push @tags, parse_captured_value_for_namespace( $trailing_tags, '' )              if ($trailing_tags);
 
@@ -131,7 +179,7 @@ sub parse_filename {
         @tags = grep { !m/^\Q$PLUGIN_TAG_NS/ } @tags;
     }
 
-    return ( join( ", ", sort @tags ), trim($title) );
+    return ( join( ", ", sort @tags ), $title // '' );
 }
 
 sub parse_artist_value {
@@ -143,8 +191,8 @@ sub parse_artist_value {
     #If the string contains parenthesis, what's inside those is the artist name
     #the rest is the circle.
     if ( $artist =~ /(.*) \((.*)\)/ ) {
-        push @tags, "group:$1";    # split group?
-        $artist = $2;
+        push @tags, "group:" . trim($1);
+        $artist = trim($2);
     }
     push @tags, parse_captured_value_for_namespace( $artist, 'artist:' );
 
@@ -166,22 +214,5 @@ sub _classify_item {
     }
     return "${namespace}${item}";
 }
-
-#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
-#Used in parsing.
-#Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
-#Parsing is only done the first time the file is found. The parsed info is then stored into Redis.
-#Change this regex if you wish to use a different parsing for mass-addition of archives.
-
-#()? indicates the field is optional.
-#(\(([^([]+)\))? returns the content of (Release). Optional.
-#(\[([^]]+)\])? returns the content of [Artist]. Optional.
-#([^([]+) returns the title. Mandatory.
-#(\(([^([)]+)\))? returns the content of (Series). Optional.
-#(\[([^]]+)\])? returns the content of [Language]. Optional.
-#(?<tail>.*)? returns everything that is out of E-Hentai standard for further processing. Optional.
-#\s* indicates zero or more whitespaces.
-my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?(?<tail>.*)?/;
-sub get_regex { return $regex }
 
 1;

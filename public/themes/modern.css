@@ -285,6 +285,7 @@ tr.gtr1 {
   margin: 4px 1px 0;
   padding: 2px 7px;
   border-radius: 3px;
+  box-sizing: border-box;
 }
 
 .tagger {

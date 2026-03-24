@@ -1,4 +1,7 @@
-// Scripting for the Upload page.
+/**
+ * Scripting for the Upload page
+ * @global
+*/
 const Upload = {};
 
 let processingArchives = 0;
@@ -22,13 +25,13 @@ Upload.initializeAll = function () {
             let result;
             if (data.result.success === 0) {
                 result = `<tr><td>${data.result.name}</td>
-                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
+                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${data.result.error}</td>
                           </tr>`;
             } else {
                 result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
                                 <a href="#" id="${data.result.job}-name" title="${data.result.name}">${data.result.name}</a>
                               </td>
-                              <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
+                              <td><i id="${data.result.job}-icon" class="fa fa-spinner fa-spin" style="margin-left:20px; margin-right: 10px;"></i>
                                 <a href="#" id="${data.result.job}-link">${I18N.UploadProcessing(data.result.job)}</a>
                               </td>
                           </tr>`;
@@ -52,7 +55,7 @@ Upload.initializeAll = function () {
 
         fail(e, data) {
             const result = `<tr><td>${data.result.name}</td>
-                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.errorThrown}</td>
+                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${data.errorThrown}</td>
                           </tr>`;
             $("#progress .bar").css("width", "0%");
             $("#files").append(result);
@@ -146,7 +149,7 @@ Upload.downloadUrl = function () {
                     const result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
                                     <a href="#" id="${data.job}-name" title="${data.url}">${data.url}</a>
                                 </td>
-                                <td><i id="${data.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
+                                <td><i id="${data.job}-icon" class="fa fa-spinner fa-spin" style="margin-left:20px; margin-right: 10px;"></i>
                                 <a href="#" id="${data.job}-link">${I18N.DownloadProcessing(data.job)}</a>
                                 </td>
                             </tr>`;

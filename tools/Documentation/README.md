@@ -1,13 +1,13 @@
 ---
-cover: ../_screenshots/archive_thumb.png
-coverY: -164.01117318435755
+cover: .gitbook/assets/archive_list.png
+coverY: 398.3528320809505
 ---
 
 # LANraragi Documentation
 
 _I know when to go out_\
-_Know when to stay in_\
-_Get things done_
+&#xNAN;_&#x4B;now when to stay in_\
+&#xNAN;_&#x47;et things done_
 
 Thank you for showing interest in this networked chinese comic reading software.
 

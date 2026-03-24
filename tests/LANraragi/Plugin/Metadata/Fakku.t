@@ -55,8 +55,8 @@ note("testing parsing gallery front page no source tag...");
 
     my ( $tags, $title, $summary ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku("https://url/to/my/page.html");
     cmp_bag( [ split( ', ', $tags ) ], \@tags_list_from_gallery_no_source, "tag check" );
-    is( $title,   'Kairakuten Cover Girl\'s Episode 009: Hamao',     "title check" );
-    is( $summary, 'Bold baby bold. This is a test summary. Hi mom.', "summary check" );
+    is( $title,   'Kairakuten Cover Girl\'s Episode 009: Hamao',             "title check" );
+    is( $summary, 'Bold baby bold. Test\'s This is a test summary. Hi mom.', "summary check" );
 }
 
 note("testing parsing gallery front page with source tag...");
@@ -70,8 +70,8 @@ note("testing parsing gallery front page with source tag...");
     my ( $tags, $title, $summary ) =
       LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku( "https://url/to/my/page.html", "", 1 );
     cmp_bag( [ split( ', ', $tags ) ], \@tags_list_from_gallery_with_source, "tag check" );
-    is( $title,   'Kairakuten Cover Girl\'s Episode 009: Hamao',     "title check" );
-    is( $summary, 'Bold baby bold. This is a test summary. Hi mom.', "summary check" );
+    is( $title,   'Kairakuten Cover Girl\'s Episode 009: Hamao',             "title check" );
+    is( $summary, 'Bold baby bold. Test\'s This is a test summary. Hi mom.', "summary check" );
 }
 
 note("get_tags dies if fakku's cookie doesn't exists");

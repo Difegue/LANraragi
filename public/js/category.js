@@ -1,5 +1,6 @@
 /**
- * Category Operations.
+ * Category Operations
+ * @global
  */
 const Category = {};
 
@@ -68,7 +69,7 @@ Category.loadCategories = function (selectedID) {
             const catCombobox = document.getElementById("category");
             catCombobox.options.length = 0;
             // Add default
-            catCombobox.options[catCombobox.options.length] = new Option("-- "+ I18N.NoCategory + " --", "", true, false);
+            catCombobox.options[catCombobox.options.length] = new Option("-- " + I18N.NoCategory + " --", "", true, false);
 
             // Add categories, select if the ID matches the optional argument
             data.forEach((c) => {
@@ -161,13 +162,13 @@ Category.updateBookmarkLink = function () {
     const categoryID = document.getElementById("category").value;
     const isChecked = document.getElementById("bookmark-link").checked;
     const wasChecked = (localStorage.getItem("bookmarkCategoryId") === categoryID);
-    
+
     if (!categoryID) {
         return;
     }
-    
+
     Category.indicateSaving();
-    
+
     if (isChecked && !wasChecked) {
         Server.callAPI(
             `/api/categories/bookmark_link/${categoryID}`,
@@ -220,9 +221,9 @@ Category.deleteSelectedCategory = function () {
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            Server.callAPI(`/api/categories/${categoryID}`, "DELETE", I18N.CategoryDeleted , I18N.CategoryDeleteError,
+            Server.callAPI(`/api/categories/${categoryID}`, "DELETE", I18N.CategoryDeleted, I18N.CategoryDeleteError,
                 () => {
-                // Reload categories to show the archive list properly
+                    // Reload categories to show the archive list properly
                     Category.loadCategories();
                 },
             );
@@ -231,11 +232,11 @@ Category.deleteSelectedCategory = function () {
 };
 
 Category.indicateSaving = function () {
-    document.getElementById("status").innerHTML = "<i class=\"fas fa-spin fa-2x fa-compact-disc\"></i> Saving your modifications...";
+    document.getElementById("status").innerHTML = `<i class="fas fa-spin fa-2x fa-compact-disc"></i> Saving your modifications...`;
 };
 
 Category.indicateSaved = function () {
-    document.getElementById("status").innerHTML = "<i class=\"fas fa-2x fa-check-circle\"></i> Saved!";
+    document.getElementById("status").innerHTML = `<i class="fas fa-2x fa-check-circle"></i> Saved!`;
 };
 
 Category.predicateHelp = function () {

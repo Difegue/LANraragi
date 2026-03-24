@@ -15,7 +15,7 @@ use LANraragi::Utils::Database;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::String  qw(trim);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
-use LANraragi::Utils::Path    qw(create_path open_path);
+use LANraragi::Utils::Path    qw(create_path open_path_or_die);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -74,8 +74,7 @@ sub get_tags {
     #Open it
     my $stringjson = "";
 
-    open_path( my $fh, '<:encoding(UTF-8)', $filepath )
-      or die "Could not open $filepath!\n";
+    open_path_or_die( my $fh, '<:encoding(UTF-8)', $filepath );
 
     while ( my $row = <$fh> ) {
         chomp $row;

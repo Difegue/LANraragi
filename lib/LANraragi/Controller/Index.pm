@@ -9,7 +9,7 @@ use File::Basename;
 use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Path    qw(create_path);
+use LANraragi::Utils::Path    qw(get_archive_path);
 
 # This endpoint is technically superseded by /api/search/random, but it's still useful in the Reader.
 sub random_archive {
@@ -31,7 +31,7 @@ sub random_archive {
         if (   length($archive) == 40
             && $redis->type($archive) eq "hash"
             && $redis->hexists( $archive, "file" ) ) {
-            my $arclocation = create_path( $redis->hget( $archive, "file" ) );
+            my $arclocation = get_archive_path( $redis, $archive );
             if ( -e $arclocation ) { $archiveexists = 1; }
         }
     }
