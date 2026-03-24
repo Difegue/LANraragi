@@ -301,7 +301,10 @@ Reader.addTocSection = function (page, currentTitle = null) {
         Reader.toggleArchiveOverlay();
         if (result.isConfirmed && result.value.trim() !== "") {
             Server.callAPI(`/api/archives/${Reader.id}/toc?page=${page}&title=${result.value}`, "PUT", "Chapter added!", I18N.ReaderTocError, 
-                () => Reader.loadContentData().then(() => Reader.updateArchiveOverlay(true))
+                () => Reader.loadContentData().then(() => {
+                        Reader.updateArchiveOverlay(true); 
+                        Reader.goToPage(page);
+                      })
             );
         }
     });
