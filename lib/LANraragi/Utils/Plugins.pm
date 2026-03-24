@@ -16,7 +16,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin);
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden use_plugin);
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -177,6 +177,18 @@ sub is_plugin_enabled {
     }
 
     $redis->quit();
+    return 0;
+}
+
+sub is_plugin_hidden {
+
+    my ( $namespace, $redis ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    if ( $redis->hexists( $namerds, "hidden" ) ) {
+        return $redis->hget( $namerds, "hidden" );
+    }
+
     return 0;
 }
 

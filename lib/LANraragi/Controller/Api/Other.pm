@@ -1,13 +1,13 @@
 package LANraragi::Controller::Api::Other;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(encode_json decode_json);
+use Mojo::JSON qw(encode_json decode_json true false);
 use Redis;
 
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
 use LANraragi::Utils::Generic    qw(render_api_response);
-use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugins is_plugin_hidden use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;
@@ -90,6 +90,7 @@ sub list_plugins {
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
+    my $redis   = $self->LRR_CONF->get_redis_config;
 
     foreach my $plugin (@plugins) {
         if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
@@ -99,8 +100,11 @@ sub list_plugins {
             }
             $plugin->{parameters} = \@parameters_array;
         }
+
+        $plugin->{hidden} = is_plugin_hidden( $plugin->{namespace}, $redis ) ? true : false;
     }
 
+    $redis->quit();
     $self->render( openapi => \@plugins );
 }
 

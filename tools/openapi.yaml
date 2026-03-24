@@ -552,6 +552,362 @@ paths:
                   operation: queue_plugin_exec
                   success: 1
   
+  /plugins/registry:
+    get:
+      security:
+        - api_key: []
+      operationId: getRegistry
+      x-mojo-to: api-registry#get_registry
+      summary: 🔑 Get Plugin Registry
+      description: Get the currently configured plugin registry.
+      tags:
+        - plugins
+      responses:
+        '200':
+          description: Current registry configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - get_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  registry:
+                    oneOf:
+                      - $ref: '#/components/schemas/RegistryConfig'
+                      - type: 'null'
+    put:
+      security:
+        - api_key: []
+      operationId: setRegistry
+      x-mojo-to: api-registry#set_registry
+      summary: 🔑 Set Plugin Registry
+      description: Configure a plugin registry source. Accepts either a git URL or a local path.
+      tags:
+        - plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistryConfig'
+      responses:
+        '200':
+          description: Registry set successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - set_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  registry:
+                    $ref: '#/components/schemas/RegistryConfig'
+        '400':
+          description: Invalid registry configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - set_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                  error:
+                    type: string
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteRegistry
+      x-mojo-to: api-registry#delete_registry
+      summary: 🔑 Delete Plugin Registry
+      description: Remove the configured plugin registry. Does not remove installed plugins.
+      tags:
+        - plugins
+      responses:
+        '200':
+          description: Registry removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - delete_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+
+  /plugins/registry/refresh:
+    post:
+      security:
+        - api_key: []
+      operationId: refreshRegistry
+      x-mojo-to: api-registry#refresh_registry
+      summary: 🔑 Refresh Plugin Registry Index
+      description: Fetch registry.json from the configured registry source and cache it.
+      tags:
+        - plugins
+      responses:
+        '200':
+          description: Registry index refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - refresh_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  index:
+                    type: object
+                    nullable: true
+                    description: Parsed registry.json content
+        '400':
+          description: No registry configured or fetch failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - refresh_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                  error:
+                    type: string
+
+  /plugins/install:
+    post:
+      security:
+        - api_key: []
+      operationId: installPlugin
+      x-mojo-to: api-registry#install_plugin
+      summary: 🔑 Install a Plugin
+      description: Install or upgrade a plugin from the configured registry by namespace.
+      tags:
+        - plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - namespace
+              properties:
+                namespace:
+                  type: string
+                  description: Namespace of the plugin to install.
+      responses:
+        '200':
+          description: Plugin installed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - install_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  name:
+                    type: string
+                    nullable: true
+                  namespace:
+                    type: string
+                    nullable: true
+                  version:
+                    type: string
+                    nullable: true
+        '400':
+          description: Install failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - install_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                  error:
+                    type: string
+
+  /plugins/installed/{plugin_namespace}:
+    delete:
+      security:
+        - api_key: []
+      operationId: uninstallPlugin
+      x-mojo-to: api-registry#uninstall_plugin
+      summary: 🔑 Uninstall a Plugin
+      description: Remove an installed plugin from disk and clean up its configuration.
+      tags:
+        - plugins
+      parameters:
+        - name: plugin_namespace
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Namespace of the plugin to uninstall.
+      responses:
+        '200':
+          description: Plugin uninstalled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - uninstall_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+
+  /plugins/installed/{plugin_namespace}/hidden:
+    put:
+      security:
+        - api_key: []
+      operationId: hidePlugin
+      x-mojo-to: api-registry#hide_plugin
+      summary: 🔑 Hide a Plugin
+      description: Hide a plugin from metadata plugin dropdowns. Does not remove the plugin.
+      tags:
+        - plugins
+      parameters:
+        - name: plugin_namespace
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Namespace of the plugin to hide.
+      responses:
+        '200':
+          description: Plugin hidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - hide_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+    delete:
+      security:
+        - api_key: []
+      operationId: unhidePlugin
+      x-mojo-to: api-registry#unhide_plugin
+      summary: 🔑 Unhide a Plugin
+      description: Unhide a previously hidden plugin.
+      tags:
+        - plugins
+      parameters:
+        - name: plugin_namespace
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Namespace of the plugin to unhide.
+      responses:
+        '200':
+          description: Plugin unhidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - unhide_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+
   /tempfolder:
     delete:
       security:
@@ -3494,6 +3850,9 @@ components:
           type: string
           nullable: true
           description: Namespace of the login plugin this plugin depends on
+        hidden:
+          type: boolean
+          description: Whether the plugin is hidden from UI dropdowns
       example:
         author: Difegue
         description: Searches chaika.moe for tags matching your archive.
@@ -3783,5 +4142,26 @@ components:
         search:
           type: string
           description: Category search filter
+    RegistryConfig:
+      type: object
+      description: Plugin registry configuration.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - git
+            - local
+          description: Registry source type.
+        url:
+          type: string
+          description: Git repository URL. Required when type is 'git'.
+        ref:
+          type: string
+          description: Git ref (branch, tag, or commit). Defaults to 'main'. Only used when type is 'git'.
+        path:
+          type: string
+          description: Local filesystem path to the registry. Required when type is 'local'.
 servers:
   - url: https://lrr.tvc-16.science/api
