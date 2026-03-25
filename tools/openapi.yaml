@@ -830,14 +830,14 @@ paths:
                   successMessage:
                     type: string
 
-  /plugins/installed/{plugin_namespace}/hidden:
+  /plugins/installed/{plugin_namespace}/config:
     put:
       security:
         - api_key: []
-      operationId: hidePlugin
-      x-mojo-to: api-registry#hide_plugin
-      summary: 🔑 Hide a Plugin
-      description: Hide a plugin from metadata plugin dropdowns. Does not remove the plugin.
+      operationId: updatePluginConfig
+      x-mojo-to: api-registry#update_plugin_config
+      summary: 🔑 Update Plugin Configuration
+      description: Update per-plugin configuration fields. Only fields present in the request body are modified.
       tags:
         - plugins
       parameters:
@@ -846,10 +846,20 @@ paths:
           required: true
           schema:
             type: string
-          description: Namespace of the plugin to hide.
+          description: Namespace of the plugin to configure.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hidden:
+                  type: boolean
+                  description: Whether to hide the plugin from UI dropdowns.
       responses:
         '200':
-          description: Plugin hidden
+          description: Plugin configuration updated
           content:
             application/json:
               schema:
@@ -858,45 +868,7 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - hide_plugin
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                      - 1
-                  error:
-                    type: string
-                    nullable: true
-                  successMessage:
-                    type: string
-    delete:
-      security:
-        - api_key: []
-      operationId: unhidePlugin
-      x-mojo-to: api-registry#unhide_plugin
-      summary: 🔑 Unhide a Plugin
-      description: Unhide a previously hidden plugin.
-      tags:
-        - plugins
-      parameters:
-        - name: plugin_namespace
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Namespace of the plugin to unhide.
-      responses:
-        '200':
-          description: Plugin unhidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - unhide_plugin
+                      - update_plugin_config
                   success:
                     type: integer
                     enum:

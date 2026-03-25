@@ -243,44 +243,27 @@ sub uninstall_plugin {
     );
 }
 
-sub hide_plugin {
+sub update_plugin_config {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
+    my $body        = $self->req->json;
 
     return unless exec_with_lock(
         $self,
         "plugin-write:$namespace",
-        "hide_plugin",
+        "update_plugin_config",
         $namespace,
         sub {
             my $redis   = $self->LRR_CONF->get_redis_config;
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-            $redis->hset( $namerds, "hidden", "1" );
+            if ( exists $body->{hidden} ) {
+                $redis->hset( $namerds, "hidden", $body->{hidden} ? "1" : "0" );
+            }
+
             $redis->quit();
 
-            render_api_response( $self, "hide_plugin" );
-        }
-    );
-}
-
-sub unhide_plugin {
-    my $self        = shift->openapi->valid_input or return;
-    my $namespace   = $self->stash('plugin_namespace');
-
-    return unless exec_with_lock(
-        $self,
-        "plugin-write:$namespace",
-        "unhide_plugin",
-        $namespace,
-        sub {
-            my $redis   = $self->LRR_CONF->get_redis_config;
-            my $namerds = "LRR_PLUGIN_" . uc($namespace);
-
-            $redis->hset( $namerds, "hidden", "0" );
-            $redis->quit();
-
-            render_api_response( $self, "unhide_plugin" );
+            render_api_response( $self, "update_plugin_config" );
         }
     );
 }
