@@ -344,9 +344,9 @@ sub uninstall_plugin {
         return ( undef, "Plugin '$namespace' has no recorded install path." );
     }
 
-    # Validate the path is under Plugin/Managed/
-    unless ( $install_path =~ m{Plugin/Managed/} ) {
-        return ( undef, "Refusing to delete plugin outside of Managed directory: $install_path" );
+    # Validate the path is under Plugin/
+    unless ( $install_path =~ m{lib/LANraragi/Plugin/} ) {
+        return ( undef, "Refusing to delete plugin outside of Plugin directory: $install_path" );
     }
 
     # Delete the file
@@ -361,6 +361,114 @@ sub uninstall_plugin {
     $redis->del($namerds);
 
     return ( 1, undef );
+}
+
+# Reconcile discovered plugins with Redis state at startup.
+# Ensures every discovered plugin has a Redis key, and cleans up orphaned keys.
+sub scan_plugins {
+    my ($redis) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+    $logger->info("Scanning plugins...");
+
+    # Get all M::P discovered classes
+    my @discovered = LANraragi::Utils::Plugins::plugins();
+
+    # Build namespace -> [class, file_path] map, detect duplicates
+    my %ns_map;
+
+    for my $class (@discovered) {
+        next unless $class->can('plugin_info');
+
+        my %info;
+        eval { %info = $class->plugin_info() };
+        if ($@) {
+            $logger->warn("Plugin $class failed plugin_info(): $@");
+            next;
+        }
+
+        my $ns = $info{namespace};
+        unless ($ns) {
+            $logger->warn("Plugin $class has no namespace, skipping.");
+            next;
+        }
+
+        # Derive file path from class name
+        my $file_path = $class;
+        $file_path =~ s/::/\//g;
+        $file_path = "lib/$file_path.pm";
+
+        push @{ $ns_map{$ns} }, { class => $class, file_path => $file_path };
+    }
+
+    # Warn on namespace duplicates
+    for my $ns ( keys %ns_map ) {
+        if ( @{ $ns_map{$ns} } > 1 ) {
+            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } );
+            $logger->warn("Duplicate namespace '$ns' found in: $paths");
+        }
+    }
+
+    # Warn on uc() collisions
+    my %uc_map;
+    for my $ns ( keys %ns_map ) {
+        push @{ $uc_map{ uc($ns) } }, $ns;
+    }
+    for my $uc_key ( keys %uc_map ) {
+        if ( @{ $uc_map{$uc_key} } > 1 ) {
+            my $nses = join( ", ", @{ $uc_map{$uc_key} } );
+            $logger->warn("Namespace case collision (shared Redis key LRR_PLUGIN_$uc_key): $nses");
+        }
+    }
+
+    # Reconcile each unique namespace with Redis
+    for my $ns ( keys %ns_map ) {
+        next if @{ $ns_map{$ns} } > 1;    # skip duplicates
+
+        my $entry     = $ns_map{$ns}[0];
+        my $file_path = $entry->{file_path};
+        my $namerds   = "LRR_PLUGIN_" . uc($ns);
+
+        if ( $redis->exists($namerds) ) {
+
+            # Redis key exists — reconcile installed_path
+            if ( $redis->hexists( $namerds, "installed_path" ) ) {
+                my $recorded = $redis->hget( $namerds, "installed_path" );
+                if ( $recorded ne $file_path ) {
+                    $logger->warn("Plugin '$ns': installed_path '$recorded' differs from discovered '$file_path', updating.");
+                    $redis->hset( $namerds, "installed_path", $file_path );
+                }
+            } else {
+                $redis->hset( $namerds, "installed_path", $file_path );
+            }
+        } else {
+
+            # No Redis key — register discovered plugin
+            $logger->info("Registering discovered plugin '$ns' at $file_path");
+            $redis->hset( $namerds, "installed_path", $file_path );
+        }
+    }
+
+    # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
+    my @all_keys     = $redis->keys("LRR_PLUGIN_*");
+    my %discovered_uc = map { uc($_) => 1 } keys %ns_map;
+
+    for my $key (@all_keys) {
+        my ($ns_part) = $key =~ /^LRR_PLUGIN_(.+)$/;
+        next unless $ns_part;
+
+        unless ( $discovered_uc{$ns_part} ) {
+            if ( $redis->hexists( $key, "installed_path" ) ) {
+                my $path = $redis->hget( $key, "installed_path" );
+                $logger->warn("Orphaned plugin key '$key' (installed_path: $path) — plugin not discovered. Removing.");
+            } else {
+                $logger->warn("Orphaned plugin key '$key' — plugin not discovered. Removing.");
+            }
+            $redis->del($key);
+        }
+    }
+
+    $logger->info("Plugin scan complete.");
 }
 
 1;
