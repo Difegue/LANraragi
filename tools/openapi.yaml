@@ -867,7 +867,7 @@ paths:
       operationId: installPlugin
       x-mojo-to: api-registry#install_plugin
       summary: 🔑 Install a Plugin
-      description: Install or upgrade a plugin from a registry by namespace. Falls back to sole registry if registry is omitted.
+      description: Install or upgrade a plugin from a registry by namespace.
       tags:
         - plugins
       requestBody:
@@ -878,13 +878,14 @@ paths:
               type: object
               required:
                 - namespace
+                - registry
               properties:
                 namespace:
                   type: string
                   description: Namespace of the plugin to install.
                 registry:
                   type: string
-                  description: Registry ID to install from. Falls back to sole registry if omitted.
+                  description: Registry ID to install from.
                   minLength: 14
                   maxLength: 14
                 force:

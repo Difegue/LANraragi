@@ -275,25 +275,12 @@ sub install_plugin {
         return;
     }
 
-    # Resolve registry: explicit > sole registry
     my $registry_id = $body->{registry};
     my $force       = $body->{force} // 0;
 
     unless ($registry_id) {
-        my $redis = $self->LRR_CONF->get_redis_config;
-        my @registries = $redis->keys("REG_??????????");
-        $redis->quit();
-
-        if ( @registries == 1 ) {
-            $registry_id = $registries[0];
-        } elsif ( @registries == 0 ) {
-            render_api_response( $self, "install_plugin", "No registry configured." );
-            return;
-        } else {
-            # TODO: default registry fallback (pending multi-registry support)
-            render_api_response( $self, "install_plugin", "Multiple registries configured. Specify 'registry' field." );
-            return;
-        }
+        render_api_response( $self, "install_plugin", "Missing required field 'registry'." );
+        return;
     }
 
     return unless exec_with_lock(
