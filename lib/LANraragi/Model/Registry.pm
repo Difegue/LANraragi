@@ -326,9 +326,19 @@ sub find_namespace_conflict {
 sub validate_plugin {
     my ( $content, $namespace, $plugin_meta, $current_install_path ) = @_;
 
+    my $plugin_name  = $plugin_meta->{name};
+    my $plugin_ver   = $plugin_meta->{version};
     my $plugin_path  = $plugin_meta->{path};
     my $plugin_type  = $plugin_meta->{type};
     my $expected_sha = $plugin_meta->{sha256};
+
+    # Required metadata
+    unless ( defined $plugin_name && $plugin_name ne "" ) {
+        return ( undef, "Plugin '$namespace' is missing required field 'name'." );
+    }
+    unless ( defined $plugin_ver && $plugin_ver ne "" ) {
+        return ( undef, "Plugin '$namespace' is missing required field 'version'." );
+    }
 
     # SHA-256 integrity
     if ( $expected_sha && $expected_sha ne "" ) {
@@ -509,7 +519,7 @@ sub install_plugin {
 
     # Store install metadata in Redis (including provenance)
     $redis->hset( $namerds, "installed_path",    $install_path );
-    $redis->hset( $namerds, "installed_version", $plugin_meta->{version} // "" );
+    $redis->hset( $namerds, "installed_version", $plugin_meta->{version} );
     $redis->hset( $namerds, "registry",          $registry_id );
 
     # Load the plugin dynamically
