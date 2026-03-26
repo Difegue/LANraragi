@@ -511,16 +511,22 @@ sub install_plugin {
 
     $logger->info("Installed plugin '$namespace' to $install_path");
 
-    # Verify registry still exists (guards against concurrent deletion during download)
-    unless ( $redis->exists($registry_id) ) {
+    # Atomically verify registry still exists and store provenance.
+    my $provenance_lua = q{
+        if redis.call("EXISTS", KEYS[1]) == 0 then
+            return 0
+        end
+        redis.call("HSET", KEYS[2], "installed_path",    ARGV[1])
+        redis.call("HSET", KEYS[2], "installed_version", ARGV[2])
+        redis.call("HSET", KEYS[2], "registry",          ARGV[3])
+        return 1
+    };
+    my $ok = $redis->eval( $provenance_lua, 2, $registry_id, $namerds,
+        $install_path, $plugin_meta->{version}, $registry_id );
+    unless ($ok) {
         unlink($install_path);
         return ( undef, "Registry '$registry_id' was deleted during install." );
     }
-
-    # Store install metadata in Redis (including provenance)
-    $redis->hset( $namerds, "installed_path",    $install_path );
-    $redis->hset( $namerds, "installed_version", $plugin_meta->{version} );
-    $redis->hset( $namerds, "registry",          $registry_id );
 
     # Load the plugin dynamically
     eval { require $install_path };
