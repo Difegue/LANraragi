@@ -13,6 +13,8 @@ tags:
     description: Endpoints related to Categories.
   - name: tankoubons
     description: Endpoints related to Tankoubons.
+  - name: registries
+    description: Plugin registry management APIs.
   - name: plugins
     description: APIs to list and execute Plugins.
   - name: shinobu
@@ -552,19 +554,131 @@ paths:
                   operation: queue_plugin_exec
                   success: 1
   
-  /plugins/registry:
+  /registries:
+    get:
+      security:
+        - api_key: []
+      operationId: listRegistries
+      x-mojo-to: api-registry#list_registries
+      summary: 🔑 List Registries
+      description: Get all configured registries.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: List of registries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - list_registries
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  registries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RegistryMetadata'
+    post:
+      security:
+        - api_key: []
+      operationId: createRegistry
+      x-mojo-to: api-registry#create_registry
+      summary: 🔑 Create a Registry
+      description: Add a new plugin registry. Currently limited to one registry.
+      tags:
+        - registries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+              properties:
+                name:
+                  type: string
+                  description: User-friendly alias for this registry.
+                type:
+                  type: string
+                  enum:
+                    - git
+                    - local
+                  description: Registry source type.
+                provider:
+                  type: string
+                  enum:
+                    - github
+                    - gitlab
+                    - gitea
+                  description: Git hosting provider. Required when type is 'git'.
+                url:
+                  type: string
+                  description: Git repository URL. Required when type is 'git'.
+                ref:
+                  type: string
+                  description: Git ref (branch, tag, or commit). Defaults to 'main'.
+                path:
+                  type: string
+                  description: Local filesystem path. Required when type is 'local'.
+      responses:
+        '200':
+          description: Registry created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - create_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  id:
+                    type: string
+                    description: Generated registry ID.
+                    minLength: 14
+                    maxLength: 14
+                  registry:
+                    $ref: '#/components/schemas/RegistryMetadata'
+
+  /registries/{id}:
     get:
       security:
         - api_key: []
       operationId: getRegistry
       x-mojo-to: api-registry#get_registry
-      summary: 🔑 Get Plugin Registry
-      description: Get the currently configured plugin registry.
+      summary: 🔑 Get a Registry
+      description: Get configuration for a specific registry.
       tags:
-        - plugins
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
       responses:
         '200':
-          description: Current registry configuration
+          description: Registry configuration
           content:
             application/json:
               schema:
@@ -579,28 +693,62 @@ paths:
                     enum:
                       - 0
                       - 1
+                  error:
+                    type: string
+                    nullable: true
+                  id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
                   registry:
-                    oneOf:
-                      - $ref: '#/components/schemas/RegistryConfig'
-                      - type: 'null'
+                    $ref: '#/components/schemas/RegistryMetadata'
     put:
       security:
         - api_key: []
-      operationId: setRegistry
-      x-mojo-to: api-registry#set_registry
-      summary: 🔑 Set Plugin Registry
-      description: Configure a plugin registry source. Accepts either a git URL or a local path.
+      operationId: updateRegistry
+      x-mojo-to: api-registry#update_registry
+      summary: 🔑 Update a Registry
+      description: Update registry configuration. Only provided fields are changed. Source field changes clear the cached index.
       tags:
-        - plugins
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegistryConfig'
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - git
+                    - local
+                provider:
+                  type: string
+                  enum:
+                    - github
+                    - gitlab
+                    - gitea
+                url:
+                  type: string
+                ref:
+                  type: string
+                path:
+                  type: string
       responses:
         '200':
-          description: Registry set successfully
+          description: Registry updated
           content:
             application/json:
               schema:
@@ -609,7 +757,7 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - set_registry
+                      - update_registry
                   success:
                     type: integer
                     enum:
@@ -618,34 +766,33 @@ paths:
                   error:
                     type: string
                     nullable: true
+                  id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
                   registry:
-                    $ref: '#/components/schemas/RegistryConfig'
-        '400':
-          description: Invalid registry configuration
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - set_registry
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                  error:
-                    type: string
+                    $ref: '#/components/schemas/RegistryMetadata'
+                  index_cleared:
+                    type: boolean
+                    description: Whether the cached index was cleared due to source field changes.
     delete:
       security:
         - api_key: []
       operationId: deleteRegistry
       x-mojo-to: api-registry#delete_registry
-      summary: 🔑 Delete Plugin Registry
-      description: Remove the configured plugin registry. Does not remove installed plugins.
+      summary: 🔑 Delete a Registry
+      description: Remove a registry and its cached index. Does not remove installed plugins.
       tags:
-        - plugins
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
       responses:
         '200':
           description: Registry removed
@@ -669,16 +816,25 @@ paths:
                   successMessage:
                     type: string
 
-  /plugins/registry/refresh:
+  /registries/{id}/refresh:
     post:
       security:
         - api_key: []
       operationId: refreshRegistry
       x-mojo-to: api-registry#refresh_registry
-      summary: 🔑 Refresh Plugin Registry Index
-      description: Fetch registry.json from the configured registry source and cache it.
+      summary: 🔑 Refresh Registry Index
+      description: Fetch registry.json from the configured source and cache it.
       tags:
-        - plugins
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
       responses:
         '200':
           description: Registry index refreshed
@@ -703,23 +859,6 @@ paths:
                     type: object
                     nullable: true
                     description: Parsed registry.json content
-        '400':
-          description: No registry configured or fetch failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - refresh_registry
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                  error:
-                    type: string
 
   /plugins/install:
     post:
@@ -728,7 +867,7 @@ paths:
       operationId: installPlugin
       x-mojo-to: api-registry#install_plugin
       summary: 🔑 Install a Plugin
-      description: Install or upgrade a plugin from the configured registry by namespace.
+      description: Install or upgrade a plugin from a registry by namespace. Falls back to sole registry if registry is omitted.
       tags:
         - plugins
       requestBody:
@@ -743,6 +882,14 @@ paths:
                 namespace:
                   type: string
                   description: Namespace of the plugin to install.
+                registry:
+                  type: string
+                  description: Registry ID to install from. Falls back to sole registry if omitted.
+                  minLength: 14
+                  maxLength: 14
+                force:
+                  type: boolean
+                  description: Force install even if plugin is already installed from a different source.
       responses:
         '200':
           description: Plugin installed
@@ -765,13 +912,13 @@ paths:
                     nullable: true
                   name:
                     type: string
-                    nullable: true
                   namespace:
                     type: string
-                    nullable: true
                   version:
                     type: string
-                    nullable: true
+                  registry:
+                    type: string
+                    description: Registry ID the plugin was installed from.
         '400':
           description: Install failed
           content:
@@ -4114,12 +4261,22 @@ components:
         search:
           type: string
           description: Category search filter
-    RegistryConfig:
+    RegistryMetadata:
       type: object
-      description: Plugin registry configuration.
+      description: Registry configuration with ID.
       required:
+        - id
+        - name
         - type
       properties:
+        id:
+          type: string
+          description: Registry ID.
+          minLength: 14
+          maxLength: 14
+        name:
+          type: string
+          description: User-friendly alias for this registry.
         type:
           type: string
           enum:
@@ -4132,13 +4289,13 @@ components:
             - github
             - gitlab
             - gitea
-          description: Git hosting provider. Required when type is 'git'. Determines how raw file URLs are resolved.
+          description: Git hosting provider. Required when type is 'git'.
         url:
           type: string
           description: Git repository URL. Required when type is 'git'.
         ref:
           type: string
-          description: Git ref (branch, tag, or commit). Defaults to 'main'. Only used when type is 'git'.
+          description: Git ref (branch, tag, or commit). Defaults to 'main'.
         path:
           type: string
           description: Local filesystem path to the registry. Required when type is 'local'.

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Cwd 'abs_path';
+use Cwd qw(abs_path getcwd);
 use Digest::SHA qw(sha256_hex);
 use File::Copy;
 use File::Find;
@@ -14,6 +14,183 @@ use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(resolve_git_raw_url MANAGED_TYPE_DIRS);
+
+# Source fields that, when changed, invalidate the cached index.
+my @SOURCE_FIELDS = qw(type provider url ref path);
+
+# Fields valid per registry type.
+my %TYPE_FIELDS = (
+    git   => [qw(name type provider url ref)],
+    local => [qw(name type path)],
+);
+
+# Fields that must be removed when switching types.
+my %STALE_FIELDS = (
+    git   => [qw(path)],
+    local => [qw(provider url ref)],
+);
+
+#
+# Registry CRUD
+#
+
+# Create a registry entry with a generated REG_{timestamp} ID.
+# Returns ($registry_id, undef) on success, (undef, $error) on failure.
+sub create_registry {
+    my ( $redis, %config ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+
+    # Single-registry enforcement (temporary — remove when multi-registry ships)
+    my @existing = $redis->keys("REG_??????????");
+    if (@existing) {
+        return ( undef, "Only one registry is supported. Remove the existing registry first." );
+    }
+
+    # Generate ID following SET_/TANK_ pattern
+    my $id_ts  = time();
+    my $reg_id = "REG_" . $id_ts;
+    while ( $redis->exists($reg_id) ) {
+        $id_ts++;
+        $reg_id = "REG_" . $id_ts;
+    }
+
+    # Store config fields
+    my $type = $config{type};
+    my @valid_fields = @{ $TYPE_FIELDS{$type} };
+
+    for my $field (@valid_fields) {
+        next unless defined $config{$field};
+        $redis->hset( $reg_id, $field, $config{$field} );
+    }
+
+    $logger->info("Created registry '$reg_id' (name: $config{name}, type: $type)");
+
+    return ( $reg_id, undef );
+}
+
+# Get a registry's config by ID.
+# Returns (%config) with 'id' included, or empty hash if not found.
+sub get_registry {
+    my ( $registry_id, $redis ) = @_;
+
+    return () unless $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id);
+
+    my %config = $redis->hgetall($registry_id);
+    $config{id} = $registry_id;
+
+    return %config;
+}
+
+# List all registries.
+# Returns @registries (array of hashrefs with {id, name, type, ...}).
+sub get_registry_list {
+    my ($redis) = @_;
+
+    my @keys = $redis->keys("REG_??????????");
+    my @result;
+
+    for my $key ( sort @keys ) {
+        my %config = get_registry( $key, $redis );
+        push @result, \%config if %config;
+    }
+
+    return @result;
+}
+
+# Update mutable fields on an existing registry.
+# Clears cached index if source fields change. Removes stale fields on type change.
+# Returns ($index_cleared, undef) on success, (undef, $error) on failure.
+sub update_registry {
+    my ( $registry_id, $redis, %updates ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( undef, "Registry does not exist." );
+    }
+
+    my %current = $redis->hgetall($registry_id);
+
+    # Determine if source fields are changing
+    my $index_cleared = 0;
+    for my $field (@SOURCE_FIELDS) {
+        next unless exists $updates{$field};
+        if ( !defined $current{$field} || $current{$field} ne $updates{$field} ) {
+            $index_cleared = 1;
+            last;
+        }
+    }
+
+    # Validate type enum if changing
+    my $type = $updates{type} // $current{type};
+    unless ( $type eq "git" || $type eq "local" ) {
+        return ( undef, "Invalid registry type '$type'. Must be 'git' or 'local'." );
+    }
+
+    # Validate resulting config has required fields for the target type
+    my %merged = ( %current, %updates );
+
+    if ( $type eq "git" ) {
+        return ( undef, "Git registry requires 'url' field." )      unless $merged{url};
+        return ( undef, "Git registry requires 'provider' field." ) unless $merged{provider};
+    } elsif ( $type eq "local" ) {
+        return ( undef, "Local registry requires 'path' field." ) unless $merged{path};
+    }
+
+    # Handle type change: remove stale fields (after validation passes)
+    if ( exists $updates{type} && $updates{type} ne ( $current{type} // "" ) ) {
+        my @to_remove = @{ $STALE_FIELDS{$type} };
+        for my $field (@to_remove) {
+            $redis->hdel( $registry_id, $field );
+        }
+    }
+
+    # Apply updates
+    my @valid_fields = @{ $TYPE_FIELDS{$type} };
+    my %valid_set    = map { $_ => 1 } @valid_fields;
+
+    for my $field ( keys %updates ) {
+        next unless $valid_set{$field};
+        $redis->hset( $registry_id, $field, $updates{$field} );
+    }
+
+    # Clear cached index if source changed
+    if ($index_cleared) {
+        my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+        my $index_key = "REG_INDEX_$suffix";
+        $redis->del($index_key);
+        $logger->info("Cleared cached index for '$registry_id' due to source field change.");
+    }
+
+    return ( $index_cleared, undef );
+}
+
+# Delete a registry and its cached index.
+# Returns (1, undef) on success, (undef, $error) on failure.
+sub delete_registry {
+    my ( $registry_id, $redis ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( undef, "Registry does not exist." );
+    }
+
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+    my $index_key = "REG_INDEX_$suffix";
+
+    $redis->del($registry_id);
+    $redis->del($index_key);
+
+    $logger->info("Deleted registry '$registry_id'.");
+
+    return ( 1, undef );
+}
+
+#
+# Registry Index
+#
 
 # Fetch registry.json from a configured registry source.
 # Returns (content, undef) on success, (undef, error) on failure.
@@ -69,13 +246,17 @@ sub fetch_registry_index {
     return ( undef, "Unknown registry type: $type" );
 }
 
+#
+# Plugin Validation
+#
+
 # Check if a package name is already declared by an existing plugin file.
 # Scans all .pm files under Plugin/, skipping the file at $skip_path (for upgrades).
 # Returns the conflicting file path, or undef if no conflict.
 sub find_package_conflict {
     my ( $package_name, $skip_path ) = @_;
 
-    my $plugin_dir = "lib/LANraragi/Plugin";
+    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
     my $conflict;
 
     return unless -d $plugin_dir;
@@ -109,7 +290,7 @@ sub find_package_conflict {
 sub find_namespace_conflict {
     my ( $namespace, $skip_path ) = @_;
 
-    my $plugin_dir = "lib/LANraragi/Plugin";
+    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
     my $conflict;
 
     return unless -d $plugin_dir;
@@ -180,7 +361,7 @@ sub validate_plugin {
         return ( undef, "Cannot extract filename from path: $plugin_path" );
     }
 
-    my $install_dir  = "lib/LANraragi/Plugin/Managed/$type_dir";
+    my $install_dir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$type_dir";
     my $install_path = "$install_dir/$filename";
 
     # Package-path consistency
@@ -210,23 +391,33 @@ sub validate_plugin {
     return ( { install_path => $install_path, install_dir => $install_dir, package => $pkg }, undef );
 }
 
-# Install a plugin from the registry.
-# Looks up the namespace in the cached index, downloads the .pm file,
+#
+# Plugin Install/Uninstall
+#
+
+# Install a plugin from a registry.
+# Looks up the namespace in the registry's cached index, downloads the .pm file,
 # validates, and saves to Plugin/Managed/{Type}/.
-# Does not perform cleanup; not responsible for users who `rm` files
-# in managed directories.
 # Returns (plugin_info_hash, undef) on success, (undef, error) on failure.
 sub install_plugin {
-    my ( $namespace, $redis ) = @_;
+    my ( $namespace, $redis, $registry_id ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
+    # Validate registry exists
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( undef, "Registry does not exist." );
+    }
+
     # Get cached index
-    unless ( $redis->exists("LRR_REGISTRY_INDEX") ) {
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+    my $index_key = "REG_INDEX_$suffix";
+
+    unless ( $redis->exists($index_key) ) {
         return ( undef, "No registry index cached. Run refresh first." );
     }
 
-    my $index_json = $redis->get("LRR_REGISTRY_INDEX");
+    my $index_json = $redis->get($index_key);
     my $index      = decode_json($index_json);
     my $plugins    = $index->{plugins};
 
@@ -238,11 +429,15 @@ sub install_plugin {
     my $plugin_path = $plugin_meta->{path};
 
     # Get registry config for download
-    unless ( $redis->exists("LRR_REGISTRY") ) {
-        return ( undef, "No registry configured." );
-    }
-    my %config = $redis->hgetall("LRR_REGISTRY");
+    my %config = $redis->hgetall($registry_id);
     my $type   = $config{type};
+
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+    my $current_install_path;
+
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        $current_install_path = $redis->hget( $namerds, "installed_path" );
+    }
 
     # Fetch the plugin file
     my $content;
@@ -284,13 +479,6 @@ sub install_plugin {
     }
 
     # Validate downloaded content
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
-    my $current_install_path;
-
-    if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $current_install_path = $redis->hget( $namerds, "installed_path" );
-    }
-
     my ( $validated, $error ) = validate_plugin( $content, $namespace, $plugin_meta, $current_install_path );
     if ($error) {
         return ( undef, $error );
@@ -313,9 +501,16 @@ sub install_plugin {
 
     $logger->info("Installed plugin '$namespace' to $install_path");
 
-    # Store install metadata in Redis
-    $redis->hset( $namerds, "installed_path",      $install_path );
-    $redis->hset( $namerds, "installed_version",    $plugin_meta->{version} // "" );
+    # Verify registry still exists (guards against concurrent deletion during download)
+    unless ( $redis->exists($registry_id) ) {
+        unlink($install_path);
+        return ( undef, "Registry '$registry_id' was deleted during install." );
+    }
+
+    # Store install metadata in Redis (including provenance)
+    $redis->hset( $namerds, "installed_path",    $install_path );
+    $redis->hset( $namerds, "installed_version", $plugin_meta->{version} // "" );
+    $redis->hset( $namerds, "registry",          $registry_id );
 
     # Load the plugin dynamically
     eval { require $install_path };
@@ -344,10 +539,13 @@ sub uninstall_plugin {
         return ( undef, "Plugin '$namespace' has no recorded install path." );
     }
 
-    # Validate the path is under Plugin/
-    unless ( $install_path =~ m{lib/LANraragi/Plugin/} ) {
+    # Canonicalize and validate the path is under Plugin/
+    my $canon_path = abs_path($install_path) // $install_path;
+    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin/";
+    unless ( index( $canon_path, $plugin_dir ) == 0 ) {
         return ( undef, "Refusing to delete plugin outside of Plugin directory: $install_path" );
     }
+    $install_path = $canon_path;
 
     # Delete the file
     if ( -e $install_path ) {
@@ -393,10 +591,10 @@ sub scan_plugins {
             next;
         }
 
-        # Derive file path from class name
+        # Derive absolute file path from class name
         my $file_path = $class;
         $file_path =~ s/::/\//g;
-        $file_path = "lib/$file_path.pm";
+        $file_path = getcwd() . "/lib/$file_path.pm";
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $file_path };
     }
@@ -460,6 +658,10 @@ sub scan_plugins {
         unless ( $discovered_uc{$ns_part} ) {
             if ( $redis->hexists( $key, "installed_path" ) ) {
                 my $path = $redis->hget( $key, "installed_path" );
+                if ( -e $path ) {
+                    $logger->warn("Plugin key '$key' (installed_path: $path) not discovered but file exists — skipping removal.");
+                    next;
+                }
                 $logger->warn("Orphaned plugin key '$key' (installed_path: $path) — plugin not discovered. Removing.");
             } else {
                 $logger->warn("Orphaned plugin key '$key' — plugin not discovered. Removing.");

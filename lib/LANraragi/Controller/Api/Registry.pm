@@ -1,97 +1,171 @@
 package LANraragi::Controller::Api::Registry;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON qw(decode_json true false);
 
 use LANraragi::Model::Registry;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
-sub get_registry {
-    my $self    = shift->openapi->valid_input or return;
-    my $redis   = $self->LRR_CONF->get_redis_config;
+#
+# Registry CRUD
+#
 
-    unless ( $redis->exists("LRR_REGISTRY") ) {
-        $redis->quit();
-        $self->render(
-            openapi => {
-                operation   => "get_registry",
-                success     => 1,
-                registry    => undef,
-            }
-        );
-        return;
-    }
+sub list_registries {
+    my $self  = shift->openapi->valid_input or return;
+    my $redis = $self->LRR_CONF->get_redis_config;
 
-    my %registry = $redis->hgetall("LRR_REGISTRY");
+    my @registries = LANraragi::Model::Registry::get_registry_list($redis);
     $redis->quit();
 
     $self->render(
         openapi => {
-            operation   => "get_registry",
-            success     => 1,
-            registry    => \%registry,
+            operation  => "list_registries",
+            success    => 1,
+            registries => \@registries,
         }
     );
 }
 
-sub set_registry {
-    my $self    = shift->openapi->valid_input or return;
-    my $body    = $self->req->json;
-    my $type    = $body->{type};
+sub create_registry {
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+    my $type = $body->{type};
 
     unless ( $type eq "git" || $type eq "local" ) {
-        render_api_response( $self, "set_registry", "Invalid registry type: must be 'git' or 'local'." );
+        render_api_response( $self, "create_registry", "Invalid registry type: must be 'git' or 'local'." );
+        return;
+    }
+
+    unless ( $body->{name} ) {
+        render_api_response( $self, "create_registry", "Missing required field 'name'." );
         return;
     }
 
     if ( $type eq "git" ) {
         unless ( $body->{url} ) {
-            render_api_response( $self, "set_registry", "Missing required field 'url' for git registry." );
+            render_api_response( $self, "create_registry", "Missing required field 'url' for git registry." );
             return;
         }
         my $provider = $body->{provider};
         unless ( $provider && ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) ) {
-            render_api_response( $self, "set_registry", "Missing or invalid 'provider': must be 'github', 'gitlab', or 'gitea'." );
+            render_api_response( $self, "create_registry", "Missing or invalid 'provider': must be 'github', 'gitlab', or 'gitea'." );
             return;
         }
     }
 
     if ( $type eq "local" ) {
         unless ( $body->{path} ) {
-            render_api_response( $self, "set_registry", "Missing required field 'path' for local registry." );
+            render_api_response( $self, "create_registry", "Missing required field 'path' for local registry." );
             return;
         }
     }
 
     return unless exec_with_lock(
         $self,
-        "registry-write",
-        "set_registry",
+        "registry-create",
+        "create_registry",
         "registry",
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            # Clear existing registry config before setting new one
-            $redis->del("LRR_REGISTRY");
-
-            $redis->hset( "LRR_REGISTRY", "type", $type );
+            my %config = ( name => $body->{name}, type => $type );
 
             if ( $type eq "git" ) {
-                $redis->hset( "LRR_REGISTRY", "provider", $body->{provider} );
-                $redis->hset( "LRR_REGISTRY", "url", $body->{url} );
-                $redis->hset( "LRR_REGISTRY", "ref", $body->{ref} // "main" );
+                $config{provider} = $body->{provider};
+                $config{url}      = $body->{url};
+                $config{ref}      = $body->{ref} // "main";
             } elsif ( $type eq "local" ) {
-                $redis->hset( "LRR_REGISTRY", "path", $body->{path} );
+                $config{path} = $body->{path};
             }
 
-            my %registry = $redis->hgetall("LRR_REGISTRY");
+            my ( $reg_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config );
+            $redis->quit();
+
+            if ($error) {
+                render_api_response( $self, "create_registry", $error );
+                return;
+            }
+
+            $self->render(
+                openapi => {
+                    operation => "create_registry",
+                    success   => 1,
+                    error     => "",
+                    id        => $reg_id,
+                    registry  => { id => $reg_id, %config },
+                }
+            );
+        }
+    );
+}
+
+sub get_registry {
+    my $self        = shift->openapi->valid_input or return;
+    my $registry_id = $self->stash('id');
+    my $redis       = $self->LRR_CONF->get_redis_config;
+
+    my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+    $redis->quit();
+
+    unless (%registry) {
+        render_api_response( $self, "get_registry", "Registry does not exist." );
+        return;
+    }
+
+    $self->render(
+        openapi => {
+            operation => "get_registry",
+            success   => 1,
+            error     => "",
+            id        => $registry_id,
+            registry  => \%registry,
+        }
+    );
+}
+
+sub update_registry {
+    my $self        = shift->openapi->valid_input or return;
+    my $registry_id = $self->stash('id');
+    my $body        = $self->req->json;
+
+    return unless exec_with_lock(
+        $self,
+        "registry-write:$registry_id",
+        "update_registry",
+        $registry_id,
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
+
+            my %updates;
+            for my $field (qw(name type provider url ref path)) {
+                $updates{$field} = $body->{$field} if exists $body->{$field};
+            }
+
+            unless (%updates) {
+                $redis->quit();
+                render_api_response( $self, "update_registry", "No recognized fields to update." );
+                return;
+            }
+
+            my ( $index_cleared, $error ) = LANraragi::Model::Registry::update_registry( $registry_id, $redis, %updates );
+
+            if ($error) {
+                $redis->quit();
+                render_api_response( $self, "update_registry", $error );
+                return;
+            }
+
+            my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
             $redis->quit();
 
             $self->render(
                 openapi => {
-                    operation   => "set_registry",
-                    success     => 1,
-                    registry    => \%registry,
+                    operation     => "update_registry",
+                    success       => 1,
+                    error         => "",
+                    id            => $registry_id,
+                    registry      => \%registry,
+                    index_cleared => $index_cleared ? true : false,
                 }
             );
         }
@@ -99,45 +173,55 @@ sub set_registry {
 }
 
 sub delete_registry {
-    my $self    = shift->openapi->valid_input or return;
+    my $self        = shift->openapi->valid_input or return;
+    my $registry_id = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
-        "registry-write",
+        "registry-write:$registry_id",
         "delete_registry",
-        "registry",
+        $registry_id,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            $redis->del("LRR_REGISTRY");
-            $redis->del("LRR_REGISTRY_INDEX");
+            my ( $success, $error ) = LANraragi::Model::Registry::delete_registry( $registry_id, $redis );
             $redis->quit();
+
+            if ($error) {
+                render_api_response( $self, "delete_registry", $error );
+                return;
+            }
 
             render_api_response( $self, "delete_registry" );
         }
     );
 }
 
+#
+# Registry Index
+#
+
 sub refresh_registry {
-    my $self    = shift->openapi->valid_input or return;
+    my $self        = shift->openapi->valid_input or return;
+    my $registry_id = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
-        "registry-write",
+        "registry-write:$registry_id",
         "refresh_registry",
-        "registry",
+        $registry_id,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            unless ( $redis->exists("LRR_REGISTRY") ) {
+            my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+
+            unless (%config) {
                 $redis->quit();
-                render_api_response( $self, "refresh_registry", "No registry configured." );
+                render_api_response( $self, "refresh_registry", "Registry does not exist." );
                 return;
             }
 
-            my %config = $redis->hgetall("LRR_REGISTRY");
-            my $type   = $config{type};
-
+            my $type = $config{type};
             my ( $content, $error ) = LANraragi::Model::Registry::fetch_registry_index( $type, %config );
 
             if ($error) {
@@ -160,29 +244,56 @@ sub refresh_registry {
                 return;
             }
 
-            # Cache the raw JSON
-            $redis->set( "LRR_REGISTRY_INDEX", $content );
+            # Cache the raw JSON under the paired index key
+            my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+            my $index_key = "REG_INDEX_$suffix";
+            $redis->set( $index_key, $content );
             $redis->quit();
 
             $self->render(
                 openapi => {
-                    operation   => "refresh_registry",
-                    success     => 1,
-                    index       => $index,
+                    operation => "refresh_registry",
+                    success   => 1,
+                    index     => $index,
                 }
             );
         }
     );
 }
 
+#
+# Plugin Operations
+#
+
 sub install_plugin {
-    my $self        = shift->openapi->valid_input or return;
-    my $body        = $self->req->json;
-    my $namespace   = $body->{namespace};
+    my $self      = shift->openapi->valid_input or return;
+    my $body      = $self->req->json;
+    my $namespace = $body->{namespace};
 
     unless ($namespace) {
         render_api_response( $self, "install_plugin", "Missing required field 'namespace'." );
         return;
+    }
+
+    # Resolve registry: explicit > sole registry
+    my $registry_id = $body->{registry};
+    my $force       = $body->{force} // 0;
+
+    unless ($registry_id) {
+        my $redis = $self->LRR_CONF->get_redis_config;
+        my @registries = $redis->keys("REG_??????????");
+        $redis->quit();
+
+        if ( @registries == 1 ) {
+            $registry_id = $registries[0];
+        } elsif ( @registries == 0 ) {
+            render_api_response( $self, "install_plugin", "No registry configured." );
+            return;
+        } else {
+            # TODO: default registry fallback (pending multi-registry support)
+            render_api_response( $self, "install_plugin", "Multiple registries configured. Specify 'registry' field." );
+            return;
+        }
     }
 
     return unless exec_with_lock(
@@ -192,7 +303,35 @@ sub install_plugin {
         $namespace,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-            my ( $plugin_meta, $error ) = eval { LANraragi::Model::Registry::install_plugin( $namespace, $redis ) };
+
+            # Check provenance conflict
+            my $namerds = "LRR_PLUGIN_" . uc($namespace);
+            if ( $redis->hexists( $namerds, "installed_path" ) && !$force ) {
+                my $current_registry = $redis->hget( $namerds, "registry" ) // "";
+                my $current_version  = $redis->hget( $namerds, "installed_version" ) // "";
+
+                if ( $current_registry eq "" ) {
+                    # No provenance (legacy/sideloaded) — requires force
+                    $redis->quit();
+                    render_api_response( $self, "install_plugin",
+                        "Plugin '$namespace' is already installed (no provenance). Use force to replace." );
+                    return;
+                }
+
+                if ( $current_registry ne $registry_id ) {
+                    # Different registry — requires force
+                    $redis->quit();
+                    render_api_response( $self, "install_plugin",
+                        "Plugin '$namespace' is already installed from registry '$current_registry' (v$current_version). Use force to replace." );
+                    return;
+                }
+
+                # Same registry — upgrade allowed without force
+            }
+
+            my ( $plugin_meta, $error ) = eval {
+                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id );
+            };
             if ($@) {
                 $redis->quit();
                 render_api_response( $self, "install_plugin", "Internal error: $@" );
@@ -207,11 +346,12 @@ sub install_plugin {
 
             $self->render(
                 openapi => {
-                    operation   => "install_plugin",
-                    success     => 1,
-                    name        => $plugin_meta->{name},
-                    namespace   => $namespace,
-                    version     => $plugin_meta->{version},
+                    operation => "install_plugin",
+                    success   => 1,
+                    name      => $plugin_meta->{name},
+                    namespace => $namespace,
+                    version   => $plugin_meta->{version},
+                    registry  => $registry_id,
                 }
             );
         }
@@ -219,8 +359,8 @@ sub install_plugin {
 }
 
 sub uninstall_plugin {
-    my $self        = shift->openapi->valid_input or return;
-    my $namespace   = $self->stash('plugin_namespace');
+    my $self      = shift->openapi->valid_input or return;
+    my $namespace = $self->stash('plugin_namespace');
 
     return unless exec_with_lock(
         $self,
@@ -244,9 +384,9 @@ sub uninstall_plugin {
 }
 
 sub update_plugin_config {
-    my $self        = shift->openapi->valid_input or return;
-    my $namespace   = $self->stash('plugin_namespace');
-    my $body        = $self->req->json;
+    my $self      = shift->openapi->valid_input or return;
+    my $namespace = $self->stash('plugin_namespace');
+    my $body      = $self->req->json;
 
     return unless exec_with_lock(
         $self,
