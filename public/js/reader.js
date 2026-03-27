@@ -1526,7 +1526,7 @@ Reader.readPreviousArchive = function () {
             sessionStorage.setItem('autoNextPage', 'true');
         }
         const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
-        window.location.href = newUrl;
+        window.location.replace(newUrl);
     } else {
         LRR.toast({"text": "This is the first archive"});
     }
@@ -1561,7 +1561,7 @@ Reader.readNextArchive = function () {
             sessionStorage.setItem('autoNextPage', 'true');
         }
         const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
-        window.location.href = newUrl;
+        window.location.replace(newUrl);
     } else {
         LRR.toast({"text": "This is the last archive"});
     }
