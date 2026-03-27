@@ -301,6 +301,9 @@
 <div class="absolute-options absolute-left">
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Settings') %]"></a>
     <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title="[% c.lh('Help') %]"></a>
+    [% IF userlogged %]
+    <a class="fa fa-circle-plus fa-2x" id="add-stamp" href="#" title="[% c.lh('Add stamp') %]"></a>
+    [% END %]
 </div>
 
 <div class="absolute-options absolute-right">

@@ -61,6 +61,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.add-stamp", "#add-stamp", Reader.addStamp);
     $(document).on("click.toggle-bookmark", ".toggle-bookmark", Reader.toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
@@ -709,6 +710,29 @@ Reader.toggleHelp = function () {
 
     return false;
     // all toggable panes need to return false to avoid scrolling to top
+};
+
+Reader.addStamp = function () {
+    let currentTitle = "wejfnowf";
+    let page = Reader.currentPage;
+    LRR.showPopUp({
+        title: I18N.ReaderTocPrompt,
+        input: "text",
+        inputPlaceholder: currentTitle || I18N.UntitledChapter, 
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed && result.value.trim() !== "") {
+            Server.callAPI(`/api/stamps/${Reader.id}?page=${page}&content=${result.value}`, "PUT", "Stamp added!", I18N.ReaderTocError, 
+                () => Reader.loadContentData().then(() => {
+                        console.log("Success");
+                      })
+            );
+        }
+    });
 };
 
 Reader.toggleBookmark = function (e) {
