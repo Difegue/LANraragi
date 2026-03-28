@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 
-use LANraragi::Model::Config qw(get_redis_config);
+use LANraragi::Model::Config;
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Model::Category;
 
@@ -15,7 +15,7 @@ our @EXPORT_OK = qw(first_install_actions);
 # user settings. On first installation, create default 'Favorites' category link it to the bookmark
 # button. Returns 1 if is first-time installation, else 0.
 sub first_install_actions {
-    my $redis = LANraragi::Model::Config::get_redis_config();
+    my $redis = LANraragi::Model::Config->get_redis_config();
     my $logger = get_logger( "Config", "lanraragi" );
     unless ( $redis->hexists('LRR_CONFIG', 'htmltitle') ) {
         $logger->info("First-time installation detected!");
