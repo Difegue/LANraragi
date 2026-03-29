@@ -112,9 +112,8 @@
 					[% c.lh("A script is running...") %]
 				</span>
 				<input id='save' class='stdbtn' type='button' value='[% c.lh("Save Plugin Configuration") %]' />
-				<span id="plugin-upload" class='stdbtn fileinput-button'
-					style="margin-bottom: -10px; font-weight:normal">
-					<span style="position:absolute; top:5px; left:25%">[% c.lh("Upload Plugin") %]</span>
+				<span id="plugin-upload" class='stdbtn fileinput-button'>
+					<span>[% c.lh("Upload Plugin") %]</span>
 					<input type='file' name='file' multiple id='fileupload'>
 				</span>
 				<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
