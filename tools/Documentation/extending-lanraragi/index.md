@@ -29,6 +29,8 @@ Since Mojolicious and other perl dependencies are not designed to run on Windows
 
 You need to provide a redis-compatible server.
 
+You need Visual Studio 2026 /w *.NET desktop development* and *Desktop development with C++* workloads installed as part of the compatibility code is written in C# and compiled with Native AOT. This is a hard dependency and can't be skipped.
+
 To setup an environment that can be used for development you need to do the following steps:
 
 1. Update the environment with the `pacman -Syu` command.
