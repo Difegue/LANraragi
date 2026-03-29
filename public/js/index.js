@@ -427,11 +427,14 @@ Index.updateCarousel = function (e) {
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
+    const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
+    const category = Index.selectedCategory ? `&category=${Index.selectedCategory}` : "";
+
     switch (localStorage.carouselType) {
         case "random":
             $("#carousel-icon")[0].classList = "fas fa-random";
             $("#carousel-title").text(I18N.CarouselRandom);
-            endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+            endpoint = `/api/search/random?count=15${filter}${category}`;
 
             // Special categories that imply additional query params
             if (Index.selectedCategory === "NEW_ONLY") {
@@ -444,22 +447,22 @@ Index.updateCarousel = function (e) {
         case "inbox":
             $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
             $("#carousel-title").text(I18N.NewArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?newonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
             break;
         case "untagged":
             $("#carousel-icon")[0].classList = "fas fa-edit";
             $("#carousel-title").text(I18N.UntaggedArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?untaggedonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
             break;
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
+            endpoint = `/api/search?sortby=lastread${filter}`;
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
             $("#carousel-title").text("What???");
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
+            endpoint = `/api/search?${filter}${category}`.replace(/\?$/, "");
             break;
     }
 
