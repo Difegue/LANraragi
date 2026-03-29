@@ -19,7 +19,7 @@ done
 
 # Just do everything
 apk add --no-cache tzdata
-apk add --no-cache redis
+apk add --no-cache valkey valkey-cli
 apk add --no-cache perl perl-io-socket-ssl imagemagick-perlmagick
 apk add --no-cache libffi vips vips-jxl vips-heif
 apk add --no-cache ghostscript
