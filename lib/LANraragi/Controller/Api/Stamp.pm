@@ -32,11 +32,6 @@ sub get_stamps_by_page {
 
     my ( $stamps, $err ) = LANraragi::Model::Stamp::get_stamps_by_page($id, $index);
 
-    unless (@$stamps) {
-        render_api_response($self, "get_stamps_by_page", "The given page does not have stamps.");
-        return;
-    }
-
     $self->render( openapi => { result => $stamps } );
 }
 
@@ -94,8 +89,8 @@ sub update_stamp {
     my $self        = shift->openapi->valid_input or return;
     my $id          = $self->stash('id');
     my $stamp_id    = $self->req->param('stamp_id');
-    my $position    = $self->req->param('position');
-    my $content     = $self->req->param('content') || "";
+    my $position    = $self->req->param('position') || undef;
+    my $content     = $self->req->param('content') || undef;
 
     return unless exec_with_lock(
         $self,

@@ -26,6 +26,10 @@ Reader.scrollConfig = {
 Reader.autoNextPage = false;
 Reader.autoNextPageCountdownTaskId = undefined;
 Reader.autoNextPageCountdown = 0;
+Reader.markerMode = false;
+Reader.markersVisible = false;
+Reader.markers = [];
+Reader.overlayFiltered = false;
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
@@ -61,7 +65,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
-    $(document).on("click.add-stamp", "#add-stamp", Reader.addStamp);
+    $(document).on("click.toggle-stamps", "#toggle-stamps", Reader.toggleStamps);
     $(document).on("click.toggle-bookmark", ".toggle-bookmark", Reader.toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
@@ -133,6 +137,68 @@ Reader.initializeAll = function () {
         const pageNumber = +$(e.target).closest("div[page]").attr("page");
         Reader.goToPage(pageNumber);
     });
+
+    $(document).on("click.reader-image", ".reader-image", (e) => {
+        if (!Reader.markerMode) return;
+
+        // Compute marker position
+        // This basically estimates the percentage of the width and legth of the image
+        // where the user clicked, so later from this percentage can be reversed
+        // without being affected by if the image got scaled up or down
+        const img = document.getElementById("img");
+
+        const rect = img.getBoundingClientRect();
+
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        const xPercent = (clickX / rect.width) * 100;
+        const yPercent = (clickY / rect.height) * 100;
+
+        const markerData = {
+            x: xPercent,
+            y: yPercent,
+            name: `Marker`
+        };
+
+        let page = Reader.currentPage;
+        let defaultText = "Default Mark";
+        LRR.showPopUp({
+            title: I18N.ReaderTocPrompt,
+            input: "text",
+            inputPlaceholder: defaultText || I18N.UntitledChapter, 
+            inputAttributes: {
+                autocapitalize: "off",
+            },
+            showCancelButton: true,
+            reverseButtons: true,
+        }).then((result) => {
+            $("#overlay-page").hide();
+            Reader.markerMode = false;
+            Reader.toggleArchiveOverlay();
+            if (result.isConfirmed && result.value.trim() !== "") {
+                Server.callAPI(`/api/stamps/${Reader.id}/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.ReaderTocError, 
+                    () => Reader.loadContentData().then(() => {
+
+                        Reader.markers.push(markerData);
+                        Reader.renderMarkers();
+                    })
+                );
+            }
+        });
+        e.stopPropagation();
+    });
+
+    // Press esc to cancel set stamp operation
+    $(document).on("keydown", (e) => {
+        if (e.key === "Escape" && Reader.markerMode) {
+            Reader.markerMode = false;
+            $("#overlay-page").hide();
+        }
+        e.stopPropagation();
+    });
+    $(document).on("click.set-stamp", "#set-stamp", Reader.addStamp);
+    $(document).on("click.filter-stamped", "#filter-stamped", Reader.filterStampedOverlay);
 
     
     // Apply full-screen utility
@@ -713,27 +779,129 @@ Reader.toggleHelp = function () {
 };
 
 Reader.addStamp = function () {
-    let currentTitle = "wejfnowf";
-    let page = Reader.currentPage;
-    LRR.showPopUp({
-        title: I18N.ReaderTocPrompt,
-        input: "text",
-        inputPlaceholder: currentTitle || I18N.UntitledChapter, 
-        inputAttributes: {
-            autocapitalize: "off",
-        },
-        showCancelButton: true,
-        reverseButtons: true,
-    }).then((result) => {
-        if (result.isConfirmed && result.value.trim() !== "") {
-            Server.callAPI(`/api/stamps/${Reader.id}?page=${page}&content=${result.value}`, "PUT", "Stamp added!", I18N.ReaderTocError, 
-                () => Reader.loadContentData().then(() => {
-                        console.log("Success");
-                      })
-            );
-        }
-    });
+    Reader.markerMode = true;
+    LRR.closeOverlay(); 
+    $("#overlay-page").show();
 };
+
+Reader.createMarkerElement = function (markerData, index) {
+    const img = document.getElementById("img");
+    const display = document.getElementById("display");
+    const container = document.getElementById("i1");
+
+    const marker = document.createElement("div");
+    marker.className = "marker";
+
+    // Compute the px coordinates from the percentage based coordinates
+    const rect = img.getBoundingClientRect();
+    const xPx = (markerData.x / 100) * rect.width;
+    const yPx = (markerData.y / 100) * rect.height;
+
+    const displayRect = display.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    const leftFix = rect.left - containerRect.left;
+    const topFix = rect.top - containerRect.top;
+
+    marker.style.left = `${rect.left + xPx - displayRect.left + leftFix}px`;
+    marker.style.top = `${rect.top + yPx - displayRect.top + topFix}px`;
+
+    marker.title = markerData.name;
+    marker.dataset.index = index;
+
+    // Rename
+    marker.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        LRR.showPopUp({
+            title: I18N.ReaderTocPrompt,
+            input: "text",
+            inputPlaceholder: markerData.name || I18N.UntitledChapter, 
+            inputAttributes: {
+                autocapitalize: "off",
+            },
+            showCancelButton: true,
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed && result.value.trim() !== "") {
+                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}`, "PUT", "Stamp updated!", I18N.ReaderTocError, 
+                    () => {
+                        const i = marker.dataset.index;
+                        const newName = result.value;
+
+                        if (newName !== null && newName.trim() !== "") {
+                            Reader.markers[i].name = newName.trim();
+                            Reader.renderMarkers();
+                        }
+                    }
+                );
+            }
+        });
+    });
+
+    // Delete
+    marker.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}`, "DELETE", "Stamp deleted!", I18N.ReaderTocError, 
+            () => {
+                const i = marker.dataset.index;
+
+                Reader.markers.splice(i, 1);
+                console.log(Reader.markers);
+                Reader.renderMarkers();
+            }
+        );
+    });
+
+    display.appendChild(marker);
+}
+
+Reader.renderMarkers = function () {
+    // Clean markers
+    const existing = document.querySelectorAll(".marker");
+    existing.forEach(el => el.remove());
+
+    if (!Reader.markersVisible) return;
+
+    // Draw markers
+    Reader.markers.forEach((markerData, index) => {
+        Reader.createMarkerElement(markerData, index);
+    });
+}
+
+Reader.toggleStamps = function () {
+    // Show or hide the markers
+    Reader.markersVisible = !Reader.markersVisible;
+    if (Reader.markersVisible) {
+        $("#toggle-stamps").removeClass('fa-eye-slash').addClass('fa-eye');
+    } else {
+        $("#toggle-stamps").removeClass('fa-eye').addClass('fa-eye-slash');
+    }
+    Reader.renderMarkers();
+}
+
+Reader.loadStamps = function (currentPage) {
+    Reader.markers = [];
+    Server.callAPI(`/api/stamps/${Reader.id}/${currentPage}`, "GET", null, I18N.ServerInfoError, 
+        (data) => {
+            let markerData = {};
+
+            for (var i = data.result.length - 1; i >= 0; i--) {
+                markerData = {};
+                let x = data.result[i].position.split(",")[0];
+                let y = data.result[i].position.split(",")[1];
+                markerData.x = x;
+                markerData.y = y;
+                markerData.name = data.result[i].content
+                markerData.id = data.result[i].id
+                Reader.markers.push(markerData);
+            }
+
+            // Render markers
+            Reader.renderMarkers();
+        }
+    );
+}
 
 Reader.toggleBookmark = function (e) {
     e.preventDefault();
@@ -898,6 +1066,7 @@ Reader.goToPage = async function (page) {
             $("#img").attr("src", img);
             $("#img").attr("data-filename", imgFilename);
             Reader.showingSinglePage = true;
+            const stamps = await Reader.loadStamps(Reader.currentPage);
         }
 
         Reader.preloadImages();
@@ -1262,6 +1431,47 @@ Reader.updateArchiveOverlay = function (forceUpdate = false) {
     $("#archivePagesOverlay").attr("loaded", "true");
 };
 
+Reader.filterStampedOverlay = function () {
+    if (Reader.overlayFiltered) {
+        Reader.overlayFiltered = false;
+        Reader.updateArchiveOverlay(true);
+    } else {
+        Server.callAPI(`/api/stamps/pages/${Reader.id}`, "GET", null, I18N.ServerInfoError, 
+            (data) => {
+                $("#extract-spinner").hide();
+                let pages = data.result[0].sort();
+
+                // For each link in the pages array, craft a div and jam it in the overlay.
+                let htmlBlob = "";
+                for (let page = 0; page < pages.length; page++) {
+                    const index = pages[page];
+
+                    const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${parseInt(pages[page])+1}`);
+                    
+                    let thumbnail = `
+                        <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
+                            <span class='page-number'>${I18N.ReaderPage(parseInt(pages[page])+1)}</span>
+                            <img src="${thumbnailUrl}" id="${index}_thumb" loading="lazy" />`;
+
+                    if (Reader.pageThumbnails.includes(index)) thumbnail += 
+                        `</div>`;
+                    else thumbnail += 
+                            `<i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
+                        </div>`;
+
+                    htmlBlob += thumbnail;
+                }
+
+                // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
+                $("#pages-section").html(htmlBlob);
+                $("#archivePagesOverlay").attr("loaded", "true");
+                Reader.overlayFiltered = true;
+            }
+        );
+    }
+}
+
 Reader.generateThumbnails = function () {
 
     // Queue a single minion job for thumbnails and check on its progress regularly
@@ -1370,3 +1580,8 @@ Reader.handlePaginator = function () {
 Reader.getFilename = function(index) {
     return new URLSearchParams(Reader.pages[index].split("?")[1]).get("path");
 }
+
+window.addEventListener("resize", () => {
+    // Reload the markers everytime the image size changes
+    Reader.renderMarkers();
+});

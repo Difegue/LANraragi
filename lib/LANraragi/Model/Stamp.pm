@@ -49,7 +49,7 @@ sub get_stamps_by_page {
     my $data = get_stamps_data($redis, $faves_id, $index);
     my @stamps = convert_stamps_to_object(%$data);
 
-    return ( \@stamps, $err );   # return reference (recommended)
+    return ( \@stamps, $err );
 }
 
 # get_stamped_pages(id)
@@ -118,8 +118,20 @@ sub update_stamp {
     my $err    = "";
     my $faves_id = "FAVES_" . $id;
 
-    $content = remove_separator($content, "|");
-    $position = remove_separator($position, "|");
+    my $current = $redis->hget($faves_id => $key);
+    my @c_content = split(/\|/, $current);
+
+    if ( defined $position ) {
+        $position = remove_separator($position, "|");
+    } else {
+        $position = $c_content[0]
+    }
+
+    if ( defined $content ) {
+        $content = remove_separator($content, "|");
+    } else {
+        $content = $c_content[1]
+    }
 
     if ( $redis->exists($faves_id) ) {
         $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
