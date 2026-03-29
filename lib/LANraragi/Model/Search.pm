@@ -22,9 +22,9 @@ use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
 
-# do_search (filter, category_id, page, key, order, newonly, untaggedonly)
+# do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, hidecompleted)
 # Performs a search on the database.
-sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted = 0 ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -46,15 +46,15 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
-    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks");
-    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
+    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks-$hidecompleted");
+    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks-$hidecompleted");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
     unless ( $cachehit && $sortkey ne "lastread" ) {
         $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
         my $keyed_count;
-        ( $keyed_count, @filtered ) = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
+        ( $keyed_count, @filtered ) = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted );
 
         # Cache this query in the search database, prepending the keyed count for partition-aware cache inversion
         eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze [ $keyed_count, @filtered ] ); };
@@ -113,7 +113,7 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 }
 
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted = 0 ) {
 
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
@@ -160,6 +160,18 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     if ($newonly) {
         my @new = $redis->smembers("LRR_NEW");
         @filtered = intersect_arrays( \@new, \@filtered, 0 );
+    }
+
+    # Hide completed archives (where progress >= pagecount and pagecount > 0)
+    if ($hidecompleted) {
+        @filtered = grep {
+            if ( $_ =~ /^TANK/ ) { 1 }    # Keep tanks (no progress tracking)
+            else {
+                my $progress  = $redis_db->hget( $_, "progress" )  || 0;
+                my $pagecount = $redis_db->hget( $_, "pagecount" ) || 0;
+                !( $pagecount > 0 && $progress >= $pagecount );
+            }
+        } @filtered;
     }
 
     # Iterate through each token and intersect the results with the previous ones.

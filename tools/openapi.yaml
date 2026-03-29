@@ -1938,6 +1938,12 @@ paths:
           description: Limit search to untagged archives only.
           schema:
             type: boolean
+        - name: hidecompleted
+          in: query
+          required: false
+          description: Hide archives where reading progress has reached the end.
+          schema:
+            type: boolean
         - name: groupby_tanks
           in: query
           required: false
@@ -2039,6 +2045,12 @@ paths:
           in: query
           required: false
           description: Limit search to untagged archives only.
+          schema:
+            type: boolean
+        - name: hidecompleted
+          in: query
+          required: false
+          description: Hide archives where reading progress has reached the end.
           schema:
             type: boolean
         - name: groupby_tanks
