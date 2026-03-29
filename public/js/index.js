@@ -457,7 +457,7 @@ Index.updateCarousel = function (e) {
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
-            endpoint = `/api/search?sortby=lastread${filter}`;
+            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}`;
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
