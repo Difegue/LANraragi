@@ -32,12 +32,12 @@ my $search = "";
 my ( $total, $filtered, @ids );
 
 sub do_test_search {
-    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 1 );
+    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 1, 0 );
 }
 
 do_test_search();
 is( $filtered, 9, qq(Empty search(full index)) );
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0, 0 );
 is( $filtered, 9, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
@@ -104,17 +104,17 @@ $search = qq("Saturn Backup Cartridge - *"\$);
 do_test_search();
 is( $filtered, 2, qq(Exact search with quotes and wildcard ($search)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0, 0, 0 );
 is( $filtered, 2, qq(Search in category (SET_1589141306: Segata Sanshiro)) );
 
 $search = qq("character:segata");
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0, 0 );
 ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0, 0 );
 ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
 
 $search = qq(pages:>150);
@@ -130,7 +130,7 @@ do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
 
 $search = "";
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, "lastread", 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, "lastread", 0, 0, 0, 0, 0 );
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Last read time sort) );
 
 $search = qq(medjed);
@@ -141,7 +141,7 @@ do_test_search();
 is( $ids[0],   "TANK_1589141306", qq(Tankoubon grouping search (2/2)) );
 is( $filtered, 2,                 qq(Tankoubon grouping count) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1,                                          qq(No tank grouping count) );
 is( $ids[0],   "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
 
@@ -163,7 +163,7 @@ my %expected_unkeyed = map { $_ => 1 } (
 
 {
     # Sort by artist, ascending: shirow masamune < wada rco < yoshiyuki sadamoto
-    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 0, 0, 0, 0 );
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 0, 0, 0, 0, 0 );
     is( $filtered, 9, 'Artist sort should return all archives' );
 
     # Keyed partition (positions 0-3): boundary positions are deterministic
@@ -181,7 +181,7 @@ my %expected_unkeyed = map { $_ => 1 } (
 
 {
     # Sort by artist, descending — only keyed partition reverses
-    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 1, 0, 0, 0 );
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 1, 0, 0, 0, 0 );
 
     # Keyed partition reversed: boundary positions swap
     is( $ids[0], "be447b58ea66137c415ee306ee2ac44b308ee484",
@@ -194,6 +194,70 @@ my %expected_unkeyed = map { $_ => 1 } (
     # Unkeyed partition still at back
     is_deeply( { map { $_ => 1 } @ids[4..8] }, \%expected_unkeyed,
         'Artist desc should keep all unkeyed archives at positions 5-9' );
+}
+
+note('testing hidecompleted filter...');
+
+# Completed archives in the mock data (progress / pagecount > 0.85):
+#   e69e43e1...ebf: pagecount=2,   progress=10 => 10/2  = 5.00  => completed
+#   4857fd2e...630: pagecount=34,  progress=34 => 34/34 = 1.00  => completed
+#   2810d5e0...eb3: pagecount=34,  progress=34 => 34/34 = 1.00  => completed
+# Not completed: 6 remaining archives
+
+{
+    # Basic hidecompleted test (no tank grouping)
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 0, 0, 1 );
+    is( $filtered, 6, 'hidecompleted should remove 3 completed archives (9 - 3 = 6)' );
+
+    my %returned = map { $_ => 1 } @ids;
+    ok( !exists $returned{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"},
+        'hidecompleted should exclude Saturn Japanese Manual (progress 10, pagecount 2)' );
+    ok( !exists $returned{"4857fd2e7c00db8b0af0337b94055d8445118630"},
+        'hidecompleted should exclude Ghost in the Shell (progress 34, pagecount 34)' );
+    ok( !exists $returned{"2810d5e0a8d027ecefebca6237031a0fa7b91eb3"},
+        'hidecompleted should exclude Fate GO MEMO 2 (progress 34, pagecount 34)' );
+
+    # Verify non-completed archives are kept
+    ok( exists $returned{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"},
+        'hidecompleted should keep Saturn American Manual (progress 34, pagecount 200)' );
+    ok( exists $returned{"e4c422fd10943dc169e3489a38cdbf57101a5f7e"},
+        'hidecompleted should keep Rohan Kishibe (progress 0)' );
+    ok( exists $returned{"28697b96f0ac5858be2614ed10ca47742c9522fd"},
+        'hidecompleted should keep Fate GO MEMO (progress 0)' );
+}
+
+{
+    # hidecompleted combined with a search filter
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "artist:wada rco", "", 0, 0, 0, 0, 0, 0, 1 );
+    is( $filtered, 1, 'hidecompleted + search should filter completed from results' );
+    is( $ids[0], "28697b96f0ac5858be2614ed10ca47742c9522fd",
+        'hidecompleted + artist search should only return the non-completed Fate GO MEMO' );
+}
+
+{
+    # hidecompleted with tank grouping enabled — tanks should be preserved
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 0, 1, 1 );
+    my %returned = map { $_ => 1 } @ids;
+    ok( exists $returned{"TANK_1589141306"}, 'hidecompleted should keep tanks (TANK_1589141306)' );
+    ok( exists $returned{"TANK_1589138380"}, 'hidecompleted should keep tanks (TANK_1589138380)' );
+}
+
+{
+    # hidecompleted combined with newonly
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0, 1 );
+    is( $filtered, 1, 'hidecompleted + newonly should return only new non-completed archives' );
+    is( $ids[0], "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+        'hidecompleted + newonly should return Rohan Kishibe (new and not completed)' );
+}
+
+{
+    # hidecompleted with lastread sort
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0, 0, 1 );
+
+    # Only e69e43..ebg has a non-zero lastreadtime among the non-completed archives
+    is( $filtered, 1, 'hidecompleted + lastread sort should only return read-but-not-completed archives' );
+    is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+        'hidecompleted + lastread should return Saturn American Manual (read but not completed)' );
 }
 
 done_testing();
