@@ -164,19 +164,56 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
         @filtered = intersect_arrays( \@new, \@filtered, 0 );
     }
 
-    # Hide completed archives
+    # Hide completed archives (where progress / pagecount > 0.85)
     if ($hidecompleted) {
-        @filtered = grep {
-            if ( $_ =~ /^TANK/ ) { 1 }    # Keep tanks (no progress tracking for now)
-            else {
-                my $progress  = $redis_db->hget( $_, "progress" )  || 0;
-                my $pagecount = $redis_db->hget( $_, "pagecount" ) || 0;
 
-                # Consider an archive read if progress is past 85% of total
-                my $iscomplete = $pagecount > 0 && ( $progress / $pagecount > 0.85 );
-                !$iscomplete;
+        # Separate tanks (no progress tracking) from regular archives
+        my @tanks     = grep { /^TANK/ } @filtered;
+        my @non_tanks = grep { !/^TANK/ } @filtered;
+
+        if ( scalar @non_tanks > 0 ) {
+
+            # Use a Lua script to check completion status in bulk, avoiding per-ID round-trips
+            my $script = <<'LUA';
+            local result = {}
+            for i = 1, #ARGV do
+                local id = ARGV[i]
+                local progress  = tonumber(redis.call('HGET', id, 'progress')  or "0") or 0
+                local pagecount = tonumber(redis.call('HGET', id, 'pagecount') or "0") or 0
+                if not (pagecount > 0 and (progress / pagecount) > 0.85) then
+                    result[#result + 1] = id
+                end
+            end
+            return cjson.encode(result)
+LUA
+
+            my $sha;
+            eval { $sha = $redis_db->script_load($script); };
+
+            if ($@) {
+                $logger->debug("Lua script not available for hidecompleted filter, falling back to per-ID queries.");
+                @non_tanks = grep {
+                    my $progress  = $redis_db->hget( $_, "progress" )  || 0;
+                    my $pagecount = $redis_db->hget( $_, "pagecount" ) || 0;
+                    !( $pagecount > 0 && ( $progress / $pagecount > 0.85 ) );
+                } @non_tanks;
+            } else {
+                my $result = $redis_db->evalsha( $sha, 0, @non_tanks );
+                my $data   = eval { decode_json($result) };
+                if ($@) {
+                    $logger->error("Failed to decode hidecompleted Lua result: $@");
+                    @non_tanks = grep {
+                        my $progress  = $redis_db->hget( $_, "progress" )  || 0;
+                        my $pagecount = $redis_db->hget( $_, "pagecount" ) || 0;
+                        !( $pagecount > 0 && ( $progress / $pagecount > 0.85 ) );
+                    } @non_tanks;
+                } else {
+                    @non_tanks = @$data;
+                }
             }
-        } @filtered;
+        }
+
+        @filtered = ( @tanks, @non_tanks );
     }
 
     # Iterate through each token and intersect the results with the previous ones.
