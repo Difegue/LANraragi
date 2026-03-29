@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
+import stylistic from "@stylistic/eslint-plugin";
 import globals from "globals";
 
 // Magical typing definition so rule intellisense works https://github.com/microsoft/vscode-eslint/issues/1122
@@ -11,6 +12,7 @@ const config = {
     ignores: ["public/js/vendor/*.js"],
     plugins: {
         js,
+        "@stylistic": stylistic,
     },
     extends: ["js/recommended"],
 
@@ -75,13 +77,10 @@ const config = {
             object: true,
             array: false,
         }],
-        
-        // TODO Deprecated ESLint rules that still work but will be fully removed in ESLint v10
-        "function-call-argument-newline": "off",
-        "function-paren-newline": "off",
-        "indent": ["error", 4, { "SwitchCase": 1 }],
-        "one-var-declaration-per-line": ["error", "initializations"],
-        "quotes": ["error", "double", { "allowTemplateLiterals": true }],
+
+        "@stylistic/indent": ["error", 4, { "SwitchCase": 1 }],
+        "@stylistic/one-var-declaration-per-line": ["error", "initializations"],
+        "@stylistic/quotes": ["error", "double", { "allowTemplateLiterals": true }],
     },
 };
 
