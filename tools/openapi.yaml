@@ -605,7 +605,7 @@ paths:
         - name: url
           in: query
           description: URL to download
-          required: true
+          required: false
           schema:
             type: string
             format: uri
@@ -617,6 +617,25 @@ paths:
             type: string
             minLength: 14
             maxLength: 14
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  description: URL to download
+                  type: string
+                  format: uri
+                catid:
+                  type: string
+                  description: Category ID to add the downloaded URL to.
+                  type: string
+                  minLength: 14
+                  maxLength: 14
       responses:
         '200':
           description: Enqueued job

@@ -10,7 +10,7 @@ use Config;
 use Encode;
 use URI::Escape;
 use File::Basename;
-use File::Temp qw(tempdir);
+use File::Temp qw(tempdir tmpnam);
 use File::Find qw(find);
 
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
@@ -191,8 +191,6 @@ sub download_url ( $url, $ua ) {
     die "Not a proper URL" unless $url;
     $logger->info("Downloading URL $url...This will take some time.");
 
-    my $tempdir = tempdir();
-
     # Download the URL, with 5 maximum redirects and unlimited response size.
     my $filename = "Not_an_archive";
     my ( $tx, $content_disp );
@@ -217,24 +215,25 @@ sub download_url ( $url, $ua ) {
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
-        $filename = $1;
+        $filename = Encode::decode('iso-8859-1', $1 );
     } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
-
         # This is an UTF8 filename as per rfc5987.
         # URL-decode to get the full filename.
-        $filename = uri_unescape($1);
-
+        $filename = Encode::decode('utf8', uri_unescape( $1 ) );
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
-
         # Fallback to the last element of the URL as the filename.
         $logger->debug("No filename found in header, using URL as filename.");
-        $filename = $1;
+        # Also URL/utf8 decode just in case
+        $filename = Encode::decode('utf8', uri_unescape( $1 ) );
     }
 
     $logger->debug("Filename: $filename");
 
     # remove invalid Windows chars
     $filename =~ s@[\\/:"*?<>|]+@@g;
+
+    # Move file to a temp folder (not the default LRR one)
+    my $tempdir = tempdir();
 
     my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
     my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
@@ -246,22 +245,21 @@ sub download_url ( $url, $ua ) {
         $filename = substr( $filename, 0, -1 );
     }
     $filename = $filename . $ext;
-    $logger->debug("Filename post clean: $filename");
-    $tx->result->save_to("$tempdir\/$filename");
 
-    # Update $tempfile to the exact reference created by the host filesystem
-    # This is done by finding the first (and only) file in $tempdir.
-    my $tempfile = "";
-    find(
-        sub {
-            return if -d $_;
-            $tempfile = $File::Find::name;
-            $filename = $_;
-        },
-        $tempdir
-    );
+    my $tempfile = $tempdir . '/' . $filename;
 
-    return "$tempdir\/$filename";
+    # To support long paths use a temp file and then move it to the final location using long-path compatible methods
+    my $mojo_temp = tmpnam();
+    if ( !$tx->result->save_to( $mojo_temp ) ) {
+        die("Could not move uploaded file $filename to $mojo_temp");
+    }
+
+    # Move the file for real this time
+    if ( !move_path( $mojo_temp, $tempfile ) ) {
+        die("Could not move uploaded file $mojo_temp to $tempfile");
+    }
+
+    return $tempfile;
 }
 
 1;

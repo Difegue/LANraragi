@@ -417,6 +417,11 @@ sub add_tasks {
                   LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
                 my $status = $status_code == 200 ? 1 : 0;
 
+                eval {
+                    # Title might or might not be utf8 encoded
+                    $title = decode_utf8( $title );
+                };
+
                 $job->finish(
                     {   success  => $status,
                         url      => $og_url,
