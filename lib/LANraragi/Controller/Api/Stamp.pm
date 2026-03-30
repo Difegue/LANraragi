@@ -40,14 +40,9 @@ sub get_stamped_pages {
     my $self    = shift->openapi->valid_input or return;
     my $id      = $self->stash('id');
 
-    my ( @indexes, $err ) = LANraragi::Model::Stamp::get_stamped_pages( $id );
+    my ( $indexes, $err ) = LANraragi::Model::Stamp::get_stamped_pages( $id );
 
-    unless (@indexes) {
-        render_api_response( $self, "get_stamped_pages", "The given archive does not have stamps." );
-        return;
-    }
-
-    $self->render( openapi => { result => \@indexes } );
+    $self->render( openapi => { result => $indexes } );
 }
 
 sub add_stamp {
@@ -102,7 +97,7 @@ sub update_stamp {
 
             if ($result) {
                 my %stamp      = LANraragi::Model::Stamp::get_stamp( $id, $stamp_id );
-                my $successMessage = "Updated stamp \"$stamp{id}\"!";
+                my $successMessage = "Updated stamp \"$stamp_id\"!";
 
                 render_api_response( $self, "update_stamp", undef, $successMessage );
             } else {

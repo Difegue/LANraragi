@@ -145,7 +145,7 @@ Reader.initializeAll = function () {
         // This basically estimates the percentage of the width and legth of the image
         // where the user clicked, so later from this percentage can be reversed
         // without being affected by if the image got scaled up or down
-        const img = document.getElementById("img");
+        const img = e.currentTarget;
 
         const rect = img.getBoundingClientRect();
 
@@ -158,15 +158,23 @@ Reader.initializeAll = function () {
         const markerData = {
             x: xPercent,
             y: yPercent,
-            name: `Marker`
+            name: `Marker`,
+            left: true,
         };
 
         let page = Reader.currentPage;
-        let defaultText = "Default Mark";
+
+        if (Reader.doublePageMode && Reader.currentPage > 0
+            && Reader.currentPage < Reader.maxPage) {
+            if (img.id == "img_doublepage") {
+                page += 1;
+                markerData.left = false;
+            }   
+        }
         LRR.showPopUp({
-            title: I18N.ReaderTocPrompt,
+            title: I18N.StampName,
             input: "text",
-            inputPlaceholder: defaultText || I18N.UntitledChapter, 
+            inputPlaceholder: I18N.StampPlaceholder,
             inputAttributes: {
                 autocapitalize: "off",
             },
@@ -177,25 +185,28 @@ Reader.initializeAll = function () {
             Reader.markerMode = false;
             Reader.toggleArchiveOverlay();
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${Reader.id}/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.ReaderTocError, 
-                    () => Reader.loadContentData().then(() => {
+                Server.callAPI(`/api/stamps/${Reader.id}/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError, 
+                    (data) => {
+                        markerData.id = data["stamp_id"];
+                        markerData.name = result.value;
 
                         Reader.markers.push(markerData);
                         Reader.renderMarkers();
-                    })
+                    }
                 );
             }
         });
         e.stopPropagation();
     });
 
-    // Press esc to cancel set stamp operation
+    // Press esc to cancel set stamp action
     $(document).on("keydown", (e) => {
-        if (e.key === "Escape" && Reader.markerMode) {
-            Reader.markerMode = false;
-            $("#overlay-page").hide();
-        }
         e.stopPropagation();
+        if (e.key === "Escape" && Reader.markerMode) {
+            $("#overlay-page").hide();
+            Reader.markerMode = false;
+            Reader.toggleArchiveOverlay();
+        }
     });
     $(document).on("click.set-stamp", "#set-stamp", Reader.addStamp);
     $(document).on("click.filter-stamped", "#filter-stamped", Reader.filterStampedOverlay);
@@ -785,7 +796,12 @@ Reader.addStamp = function () {
 };
 
 Reader.createMarkerElement = function (markerData, index) {
-    const img = document.getElementById("img");
+    if (markerData.left) {
+        const img = document.getElementById("img");
+    } else {
+        const img = document.getElementById("img_doublepage");
+    }
+
     const display = document.getElementById("display");
     const container = document.getElementById("i1");
 
@@ -800,8 +816,14 @@ Reader.createMarkerElement = function (markerData, index) {
     const displayRect = display.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
 
-    const leftFix = rect.left - containerRect.left;
-    const topFix = rect.top - containerRect.top;
+    let leftFix = rect.left - containerRect.left;
+    let topFix = rect.top - containerRect.top;
+
+    if (!markerData.left) {
+        // Add the width of the left page plus the left and right margin
+        const img = document.getElementById("img");
+        leftFix += img.width+2;
+    }
 
     marker.style.left = `${rect.left + xPx - displayRect.left + leftFix}px`;
     marker.style.top = `${rect.top + yPx - displayRect.top + topFix}px`;
@@ -813,18 +835,21 @@ Reader.createMarkerElement = function (markerData, index) {
     marker.addEventListener("click", (e) => {
         e.stopPropagation();
 
+        let inputValue = markerData.name;
+
         LRR.showPopUp({
-            title: I18N.ReaderTocPrompt,
+            title: I18N.StampName,
             input: "text",
-            inputPlaceholder: markerData.name || I18N.UntitledChapter, 
+            inputPlaceholder:  I18N.StampPlaceholder, 
             inputAttributes: {
                 autocapitalize: "off",
             },
+            inputValue,
             showCancelButton: true,
             reverseButtons: true,
         }).then((result) => {
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}`, "PUT", "Stamp updated!", I18N.ReaderTocError, 
+                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}`, "PUT", "Stamp updated!", I18N.StampError, 
                     () => {
                         const i = marker.dataset.index;
                         const newName = result.value;
@@ -839,15 +864,92 @@ Reader.createMarkerElement = function (markerData, index) {
         });
     });
 
+    // Leaving this code here in case someone wants to attempt to implement the drag and drop before the merge happens
+    // This logic should replace the previous click event ↑
+    /*
+        let isDragging = false;
+
+        marker.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+            isDragging = true;
+            
+            // So no text gets selected during the D&D
+            document.body.style.userSelect = "none";
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (!isDragging) return;
+
+            const imgRect = img.getBoundingClientRect();
+            const dispRect = display.getBoundingClientRect();
+
+            // Ensure that the stamp remains inside the image
+            let x = e.clientX - imgRect.left + leftFix;
+            let y = e.clientY - imgRect.top + topFix;
+
+            x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
+            y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
+
+            marker.style.left = `${imgRect.left + x - dispRect.left}px`;
+            marker.style.top = `${imgRect.top + y - dispRect.top}px`;
+        });
+
+        document.addEventListener("mouseup", (e) => {
+            e.stopPropagation();
+            // Each marker individually run this event when on mouseup
+            // this ensures that only one of them execute the action
+            // also a good improvement to change this to an attachable event only for dragged marker
+            if (!isDragging) return;
+
+            isDragging = false;
+            document.body.style.userSelect = "auto";
+
+            const imgRect = img.getBoundingClientRect();
+
+            let x = e.clientX - imgRect.left;
+            let y = e.clientY - imgRect.top;
+
+            x = Math.max(0, Math.min(x, imgRect.width));
+            y = Math.max(0, Math.min(y, imgRect.height));
+
+            const xPercent = (x / imgRect.width) * 100;
+            const yPercent = (y / imgRect.height) * 100;
+
+            const i = marker.dataset.index;
+
+            LRR.showPopUp({
+                title: I18N.ReaderTocPrompt,
+                input: "text",
+                inputPlaceholder: markerData.name || I18N.UntitledChapter, 
+                inputAttributes: {
+                    autocapitalize: "off",
+                },
+                showCancelButton: true,
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed && result.value.trim() !== "") {
+                    Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.ReaderTocError, 
+                        () => {
+                            Reader.markers[i].x = xPercent;
+                            Reader.markers[i].y = yPercent;
+                            Reader.markers[i].name = result.value;
+
+                            Reader.renderMarkers();
+                        }
+                    );
+                }
+            });
+        });
+    */
+
     // Delete
     marker.addEventListener("contextmenu", (e) => {
         e.preventDefault();
-        Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}`, "DELETE", "Stamp deleted!", I18N.ReaderTocError, 
+        Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}`, "DELETE", "Stamp deleted!", I18N.StampError, 
             () => {
                 const i = marker.dataset.index;
 
                 Reader.markers.splice(i, 1);
-                console.log(Reader.markers);
                 Reader.renderMarkers();
             }
         );
@@ -882,6 +984,7 @@ Reader.toggleStamps = function () {
 
 Reader.loadStamps = function (currentPage) {
     Reader.markers = [];
+    // Call for the first page
     Server.callAPI(`/api/stamps/${Reader.id}/${currentPage}`, "GET", null, I18N.ServerInfoError, 
         (data) => {
             let markerData = {};
@@ -894,11 +997,38 @@ Reader.loadStamps = function (currentPage) {
                 markerData.y = y;
                 markerData.name = data.result[i].content
                 markerData.id = data.result[i].id
+                markerData.left = true;
                 Reader.markers.push(markerData);
             }
 
-            // Render markers
-            Reader.renderMarkers();
+            if (Reader.doublePageMode && Reader.currentPage > 0
+            && Reader.currentPage < Reader.maxPage) {
+
+                // Call for the second page
+                Server.callAPI(`/api/stamps/${Reader.id}/${currentPage+1}`, "GET", null, I18N.ServerInfoError, 
+                    (data) => {
+                        let markerData = {};
+
+                        for (var i = data.result.length - 1; i >= 0; i--) {
+                            markerData = {};
+                            let x = data.result[i].position.split(",")[0];
+                            let y = data.result[i].position.split(",")[1];
+                            markerData.x = x;
+                            markerData.y = y;
+                            markerData.name = data.result[i].content
+                            markerData.id = data.result[i].id
+                            markerData.left = false;
+                            Reader.markers.push(markerData);
+                        }
+
+                        // Render markers
+                        Reader.renderMarkers();
+                    }
+                );
+            } else {
+                // Render markers
+                Reader.renderMarkers();
+            }
         }
     );
 }
@@ -1066,7 +1196,6 @@ Reader.goToPage = async function (page) {
             $("#img").attr("src", img);
             $("#img").attr("data-filename", imgFilename);
             Reader.showingSinglePage = true;
-            const stamps = await Reader.loadStamps(Reader.currentPage);
         }
 
         Reader.preloadImages();
@@ -1090,6 +1219,10 @@ Reader.goToPage = async function (page) {
 };
 
 Reader.updateProgress = function () {
+    // Clear markers
+    Reader.markers = [];
+    Reader.renderMarkers();
+
     // Send an API request to update progress on the server
     if (Reader.authenticateProgress && LRR.isUserLogged()) {
         Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
@@ -1097,6 +1230,11 @@ Reader.updateProgress = function () {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else if (!Reader.authenticateProgress) {
         Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
+    }
+
+    // Load stamps
+    if (!Reader.infiniteScroll) {
+        const stamps = Reader.loadStamps(Reader.currentPage);
     }
 };
 
@@ -1439,19 +1577,19 @@ Reader.filterStampedOverlay = function () {
         Server.callAPI(`/api/stamps/pages/${Reader.id}`, "GET", null, I18N.ServerInfoError, 
             (data) => {
                 $("#extract-spinner").hide();
-                let pages = data.result[0].sort();
+                let pages = data.result.sort();
 
                 // For each link in the pages array, craft a div and jam it in the overlay.
                 let htmlBlob = "";
                 for (let page = 0; page < pages.length; page++) {
-                    const index = pages[page];
+                    const index = parseInt(pages[page]);
 
                     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${parseInt(pages[page])+1}`);
+                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${index+1}`);
                     
                     let thumbnail = `
                         <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                            <span class='page-number'>${I18N.ReaderPage(parseInt(pages[page])+1)}</span>
+                            <span class='page-number'>${I18N.ReaderPage(index+1)}</span>
                             <img src="${thumbnailUrl}" id="${index}_thumb" loading="lazy" />`;
 
                     if (Reader.pageThumbnails.includes(index)) thumbnail += 

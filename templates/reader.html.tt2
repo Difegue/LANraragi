@@ -115,8 +115,8 @@
 
                     <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
                     <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
-                    <input id="set-stamp" class='stdbtn' type='button' value="Set stamp"/>
-                    <input id="filter-stamped" class='stdbtn' type='button' value="Filter stamped pages"/>
+                    <input id="set-stamp" class='stdbtn' type='button' value="[% c.lh("Set stamp") %]"/>
+                    <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
 
                     <h2>[% c.lh("Categories") %]</h2>
 

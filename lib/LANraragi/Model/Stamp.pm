@@ -68,12 +68,14 @@ sub get_stamped_pages {
     my %indexes;
 
     foreach my $field (@$fields) {
-        # Split on first colon
+        # Extract the page number
         my ($index) = split(/:/, $field, 2);
         $indexes{$index} = 1;
     }
 
-    return ( [ keys %indexes ], $err );
+    my @keys = keys %indexes;
+
+    return ( \@keys, $err );
 }
 
 # add_stamp(id, key, content, position)
@@ -97,7 +99,7 @@ sub add_stamp {
     $content = remove_separator($content, "|");
     $position = remove_separator($position, "|");
 
-    # Doing this with integers because decimals are a pain in Redis
+    # page:timestamp
     my $key = $index . ":" . time();
 
     $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
