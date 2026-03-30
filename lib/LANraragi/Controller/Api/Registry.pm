@@ -5,6 +5,7 @@ use Mojo::JSON qw(decode_json true false);
 
 use LANraragi::Model::Registry;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Logging qw(get_logger);
 
 #
 # Registry CRUD
@@ -320,8 +321,10 @@ sub install_plugin {
                 LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id );
             };
             if ($@) {
+                my $logger = get_logger( "Registry", "lanraragi" );
+                $logger->error("install_plugin failed for '$namespace': $@");
                 $redis->quit();
-                render_api_response( $self, "install_plugin", "Internal error: $@" );
+                render_api_response( $self, "install_plugin", "Plugin installation failed." );
                 return;
             }
             $redis->quit();
