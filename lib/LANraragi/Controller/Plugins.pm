@@ -142,9 +142,9 @@ sub save_config {
 
             } elsif ( ref( $pluginfo->{parameters} ) eq 'HASH' ) {
 
-                # TODO: remove this line (and the ARRAY check above)
-                # after plugins with array parameters are deprecated
-                $redis->del($namerds);
+                # # TODO: remove this line (and the ARRAY check above)
+                # # after plugins with array parameters are deprecated
+                # $redis->del($namerds);
 
                 #Loop through the namespaced request parameters
                 foreach my $key ( keys %{ $pluginfo->{parameters} } ) {
