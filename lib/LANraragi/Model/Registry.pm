@@ -13,6 +13,7 @@ use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url MANAGED_TYPE_DIRS);
 
 # Source fields that, when changed, invalidate the cached index.
