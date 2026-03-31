@@ -347,6 +347,9 @@ sub validate_plugin {
         if ( $actual_sha ne $expected_sha ) {
             return ( undef, "SHA-256 mismatch: expected $expected_sha, got $actual_sha" );
         }
+    } else {
+        my $logger = get_logger( "Registry", "lanraragi" );
+        $logger->warn("Plugin '$namespace' has no SHA-256 checksum in registry — integrity not verified.");
     }
 
     # Extract package declaration
