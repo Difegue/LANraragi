@@ -3371,11 +3371,9 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /stamps/{id}:
     get:
-      security:
-        - api_key: []
       operationId: getStamp
       x-mojo-to: api-stamp#get_stamp
-      summary: 🔑 Get Stamp
+      summary: Get Stamp
       description: Get a stamp from an Archive.
       tags:
         - stamps
@@ -3520,8 +3518,6 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /stamps/{id}/{index}:
     get:
-      security:
-        - api_key: []
       operationId: stampsByPage
       x-mojo-to: api-stamp#get_stamps_by_page
       summary: 🔑 Get the stamps linked to the page
@@ -3621,8 +3617,6 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /stamps/pages/{id}:
     get:
-      security:
-        - api_key: []
       operationId: stampedPages
       x-mojo-to: api-stamp#get_stamped_pages
       summary: 🔑 Get pages that contain at least one stamp in the archive

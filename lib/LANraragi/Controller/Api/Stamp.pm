@@ -16,7 +16,7 @@ sub get_stamp {
 
     my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp($id, $stamp_id);
 
-    unless (%$stamp) {
+    unless ($stamp) {
         render_api_response($self, "get_stamp", "The given stamp does not exist.");
         return;
     }
