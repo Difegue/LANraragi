@@ -10,7 +10,7 @@ use Mojo::JSON qw(encode_json);
 use Cwd;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Model::Registry;
 
@@ -25,17 +25,48 @@ sub index {
     my @scriptplugins   = get_plugins("script");
     my @downloadplugins = get_plugins("download");
 
+    # Enrich all plugins with source and metadata plugins with priority
+    my $redis = $self->LRR_CONF->get_redis_config;
+
+    my $meta_all    = craft_plugin_array(@metaplugins);
+    my $downloaders = craft_plugin_array(@downloadplugins);
+    my $logins      = craft_plugin_array(@loginplugins);
+    my $scripts     = craft_plugin_array(@scriptplugins);
+
+    # Add source and priority to all plugins
+    for my $list ( $meta_all, $downloaders, $logins, $scripts ) {
+        for my $plugin (@$list) {
+            $plugin->{source} = _infer_source( $plugin->{namespace}, $redis );
+        }
+    }
+
+    # Split metadata into enabled (sorted by priority) and disabled
+    my @meta_enabled;
+    my @meta_disabled;
+    for my $plugin (@$meta_all) {
+        $plugin->{priority} = get_plugin_priority( $plugin->{namespace}, $redis );
+        if ( $plugin->{enabled} ) {
+            push @meta_enabled, $plugin;
+        } else {
+            push @meta_disabled, $plugin;
+        }
+    }
+    @meta_enabled = sort { $a->{priority} <=> $b->{priority} } @meta_enabled;
+
+    $redis->quit();
+
     $self->render(
-        template      => "plugins",
-        title         => $self->LRR_CONF->get_htmltitle,
-        descstr       => $self->LRR_DESC,
-        replacetitles => $self->LRR_CONF->can_replacetitles,
-        metadata      => craft_plugin_array(@metaplugins),
-        downloaders   => craft_plugin_array(@downloadplugins),
-        logins        => craft_plugin_array(@loginplugins),
-        scripts       => craft_plugin_array(@scriptplugins),
-        csshead       => generate_themes_header($self),
-        version       => $self->LRR_VERSION
+        template        => "plugins",
+        title           => $self->LRR_CONF->get_htmltitle,
+        descstr         => $self->LRR_DESC,
+        replacetitles   => $self->LRR_CONF->can_replacetitles,
+        meta_enabled    => \@meta_enabled,
+        meta_disabled   => \@meta_disabled,
+        downloaders     => $downloaders,
+        logins          => $logins,
+        scripts         => $scripts,
+        csshead         => generate_themes_header($self),
+        version         => $self->LRR_VERSION
     );
 
 }
@@ -291,6 +322,12 @@ sub process_upload {
         #We can now try to query it for metadata.
         my %pluginfo = $pluginclass->plugin_info();
 
+        # Register installed_path so _infer_source works before next scan_plugins
+        my $namerds = "LRR_PLUGIN_" . uc( $pluginfo{namespace} );
+        my $redis   = $self->LRR_CONF->get_redis_config;
+        $redis->hset( $namerds, "installed_path", $output_file );
+        $redis->quit();
+
         $self->render(
             json => {
                 operation => "upload_plugin",
@@ -310,6 +347,24 @@ sub process_upload {
             }
         );
     }
+}
+
+# Infer plugin source from Redis provenance or install path.
+sub _infer_source {
+    my ( $namespace, $redis ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    if ( $redis->hexists( $namerds, "registry" ) ) {
+        my $reg = $redis->hget( $namerds, "registry" );
+        return "managed" if $reg && $reg ne "";
+    }
+
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        my $path = $redis->hget( $namerds, "installed_path" );
+        return "sideloaded" if $path && $path =~ /Sideloaded/;
+    }
+
+    return "builtin";
 }
 
 1;

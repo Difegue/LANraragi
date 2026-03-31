@@ -446,6 +446,10 @@ sub update_plugin_config {
                 $redis->hset( $namerds, "hidden", $body->{hidden} ? "1" : "0" );
             }
 
+            if ( exists $body->{priority} ) {
+                $redis->hset( $namerds, "priority", $body->{priority} );
+            }
+
             $redis->quit();
 
             render_api_response( $self, "update_plugin_config" );

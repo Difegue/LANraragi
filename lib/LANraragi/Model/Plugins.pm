@@ -36,20 +36,8 @@ sub exec_enabled_plugins_on_file ($id) {
     my $addedtags = 0;
     my $newtitle  = "";
 
+    # Plugins are returned sorted by priority (lower = runs first)
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
-
-    # If the regex plugin is in the list, make sure it's ran first.
-    # TODO: Make plugin exec order configurable
-    foreach my $plugin (@plugins) {
-        if ( $plugin->{namespace} eq "regexplugin" ) {
-            my $regex_plugin = $plugin;
-
-            # Remove element from array
-            @plugins = grep { $_->{namespace} ne "regexplugin" } @plugins;
-            unshift @plugins, $regex_plugin;
-            last;
-        }
-    }
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};

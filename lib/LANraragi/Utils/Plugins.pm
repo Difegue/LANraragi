@@ -16,7 +16,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden use_plugin);
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden get_plugin_priority use_plugin);
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -67,14 +67,22 @@ sub get_enabled_plugins {
 
     my $type    = shift;
     my @plugins = get_plugins($type);
+    my $redis   = LANraragi::Model::Config->get_redis_config;
     my @enabled;
 
     foreach my $pluginfo (@plugins) {
 
         if ( is_plugin_enabled( $pluginfo->{namespace} ) ) {
+            $pluginfo->{priority} = get_plugin_priority( $pluginfo->{namespace}, $redis );
             push( @enabled, $pluginfo );
         }
     }
+
+    $redis->quit();
+
+    # Sort by priority (lower = runs first), stable sort preserves discovery order for ties
+    @enabled = sort { $a->{priority} <=> $b->{priority} } @enabled;
+
     return @enabled;
 }
 
@@ -172,12 +180,13 @@ sub is_plugin_enabled {
     my $redis     = LANraragi::Model::Config->get_redis_config;
     my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
+    my $enabled = 0;
     if ( $redis->hexists( $namerds, "enabled" ) ) {
-        return ( $redis->hget( $namerds, "enabled" ) );
+        $enabled = $redis->hget( $namerds, "enabled" );
     }
 
     $redis->quit();
-    return 0;
+    return $enabled;
 }
 
 sub is_plugin_hidden {
@@ -187,6 +196,18 @@ sub is_plugin_hidden {
 
     if ( $redis->hexists( $namerds, "hidden" ) ) {
         return $redis->hget( $namerds, "hidden" );
+    }
+
+    return 0;
+}
+
+sub get_plugin_priority {
+
+    my ( $namespace, $redis ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    if ( $redis->hexists( $namerds, "priority" ) ) {
+        return int( $redis->hget( $namerds, "priority" ) );
     }
 
     return 0;
