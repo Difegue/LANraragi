@@ -387,6 +387,19 @@ sub update_plugin_config {
             my $redis   = $self->LRR_CONF->get_redis_config;
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
+            unless ( $redis->exists($namerds) ) {
+                $redis->quit();
+                $self->render(
+                    openapi => {
+                        operation   => "update_plugin_config",
+                        error       => "Plugin '$namespace' not found.",
+                        success     => 0,
+                    },
+                    status => 404
+                );
+                return;
+            }
+
             if ( exists $body->{hidden} ) {
                 $redis->hset( $namerds, "hidden", $body->{hidden} ? "1" : "0" );
             }
