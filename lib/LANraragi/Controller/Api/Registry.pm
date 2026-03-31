@@ -109,7 +109,14 @@ sub get_registry {
     $redis->quit();
 
     unless (%registry) {
-        render_api_response( $self, "get_registry", "Registry does not exist." );
+        $self->render(
+            openapi => {
+                operation => "get_registry",
+                error     => "Registry does not exist.",
+                success   => 0,
+            },
+            status => 404
+        );
         return;
     }
 
@@ -136,6 +143,20 @@ sub update_registry {
         $registry_id,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
+
+            my %existing = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            unless (%existing) {
+                $redis->quit();
+                $self->render(
+                    openapi => {
+                        operation => "update_registry",
+                        error     => "Registry does not exist.",
+                        success   => 0,
+                    },
+                    status => 404
+                );
+                return;
+            }
 
             my %updates;
             for my $field (qw(name type provider url ref path)) {
@@ -185,6 +206,20 @@ sub delete_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
+            my %existing = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            unless (%existing) {
+                $redis->quit();
+                $self->render(
+                    openapi => {
+                        operation => "delete_registry",
+                        error     => "Registry does not exist.",
+                        success   => 0,
+                    },
+                    status => 404
+                );
+                return;
+            }
+
             my ( $success, $error ) = LANraragi::Model::Registry::delete_registry( $registry_id, $redis );
             $redis->quit();
 
@@ -218,7 +253,14 @@ sub refresh_registry {
 
             unless (%config) {
                 $redis->quit();
-                render_api_response( $self, "refresh_registry", "Registry does not exist." );
+                $self->render(
+                    openapi => {
+                        operation => "refresh_registry",
+                        error     => "Registry does not exist.",
+                        success   => 0,
+                    },
+                    status => 404
+                );
                 return;
             }
 

@@ -702,6 +702,12 @@ paths:
                     maxLength: 14
                   registry:
                     $ref: '#/components/schemas/RegistryMetadata'
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
     put:
       security:
         - api_key: []
@@ -775,6 +781,12 @@ paths:
                   index_cleared:
                     type: boolean
                     description: Whether the cached index was cleared due to source field changes.
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
     delete:
       security:
         - api_key: []
@@ -815,6 +827,12 @@ paths:
                     nullable: true
                   successMessage:
                     type: string
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /registries/{id}/refresh:
     post:
@@ -859,6 +877,12 @@ paths:
                     type: object
                     nullable: true
                     description: Parsed registry.json content
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /plugins/install:
     post:
