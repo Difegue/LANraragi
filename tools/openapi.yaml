@@ -3990,6 +3990,10 @@ components:
         hidden:
           type: boolean
           description: Whether the plugin is hidden from UI dropdowns
+        registry:
+          type: string
+          nullable: true
+          description: Registry ID the plugin was installed from, or null if not registry-managed
       example:
         author: Difegue
         description: Searches chaika.moe for tags matching your archive.
