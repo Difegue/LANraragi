@@ -1,0 +1,25 @@
+{
+    "result": [
+        {
+            "id": 52249,
+            "media_id": "290274",
+            "thumbnail": "galleries/290274/thumb.jpg",
+            "thumbnail_width": 250,
+            "thumbnail_height": 404,
+            "english_title": "[Masamune Shirow] Pieces 1",
+            "japanese_title": "",
+            "num_pages": 70,
+            "tag_ids": [
+                6346,
+                7567,
+                20905,
+                23225,
+                27378,
+                33173
+            ]
+        }
+    ],
+    "num_pages": 1,
+    "per_page": 25,
+    "total": 1
+}

@@ -78,7 +78,7 @@ sub get_tags {
 
     $logger->debug("Detected nHentai gallery ID is $galleryID");
 
-    my %hashdata = get_tags_from_NH( $galleryID, $ua, $add_uploaded );
+    my %hashdata = get_tags_from_nh( $galleryID, $ua, $add_uploaded );
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -91,17 +91,11 @@ sub get_tags {
 ######
 
 #Uses the website's search to find a gallery and returns its content.
-sub get_gallery_id_from_title {
+sub get_search_json {
 
-    my ( $file, $ua ) = @_;
-    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+    my ( $title, $ua ) = @_;
 
     my $logger = get_plugin_logger();
-
-    if ( $title =~ /\{(\d*)\}.*$/gm ) {
-        $logger->debug("Got $1 from file.");
-        return $1;
-    }
 
     my $URL = "https://nhentai.net/api/v2/search?query=" . uri_escape_utf8($title);
 
@@ -114,7 +108,22 @@ sub get_gallery_id_from_title {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    my $json = decode_json $res->body;
+    return decode_json $res->body;
+}
+
+sub get_gallery_id_from_title {
+
+    my ( $file, $ua ) = @_;
+    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+
+    my $logger = get_plugin_logger();
+
+    if ( $title =~ /\{(\d*)\}.*$/gm ) {
+        $logger->debug("Got $1 from file.");
+        return $1;
+    }
+
+    my $json = get_search_json( $title, $ua );
 
     my @results = @{ $json->{"result"} };
 
@@ -126,7 +135,7 @@ sub get_gallery_id_from_title {
 }
 
 # retrieves html page from NH
-sub get_json_from_NH {
+sub get_json_from_nh {
 
     my ( $gID, $ua ) = @_;
 
@@ -143,9 +152,7 @@ sub get_json_from_NH {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    my $json = decode_json $res->body;
-
-    return $json;
+    return decode_json $res->body;
 }
 
 sub get_tags_from_json {
@@ -180,13 +187,13 @@ sub get_upload_from_json {
     return $json->{"upload_date"};
 }
 
-sub get_tags_from_NH {
+sub get_tags_from_nh {
 
     my ( $gID, $ua, $add_uploaded ) = @_;
 
     my %hashdata = ( tags => "" );
 
-    my $json = get_json_from_NH( $gID, $ua );
+    my $json = get_json_from_nh( $gID, $ua );
 
     if ($json) {
         my @tags = get_tags_from_json($json);
