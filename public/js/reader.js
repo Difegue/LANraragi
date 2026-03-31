@@ -30,6 +30,7 @@ Reader.markerMode = false;
 Reader.markersVisible = false;
 Reader.markers = [];
 Reader.overlayFiltered = false;
+Reader.pageNaviState = true;
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
@@ -206,6 +207,7 @@ Reader.initializeAll = function () {
             $("#overlay-page").hide();
             Reader.markerMode = false;
             Reader.toggleArchiveOverlay();
+            Reader.pageNaviState = true;
         }
     });
     $(document).on("click.set-stamp", "#set-stamp", Reader.addStamp);
@@ -453,7 +455,7 @@ Reader.loadImages = function () {
                 // when click left or right img area change page
                 $(document).on("click", (event) => {
                     // check click Y position is in img Y area
-                    if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible")) {
+                    if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && Reader.pageNaviState) {
                         // is click X position is left on screen or right
                         if (event.pageX < $(window).width() / 2) {
                             Reader.changePage(-1, true);
@@ -831,10 +833,57 @@ Reader.createMarkerElement = function (markerData, index) {
     marker.title = markerData.name;
     marker.dataset.index = index;
 
-    // Rename
-    marker.addEventListener("click", (e) => {
-        e.stopPropagation();
+    // Edit
+    let isDragging = false;
 
+    marker.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+        isDragging = true;
+        
+        // So no text gets selected during the D&D
+        document.body.style.userSelect = "none";
+        Reader.pageNaviState = false;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        const imgRect = img.getBoundingClientRect();
+        const dispRect = display.getBoundingClientRect();
+
+        // Ensure that the stamp remains inside the image
+        let x = e.clientX - imgRect.left + leftFix;
+        let y = e.clientY - imgRect.top + topFix;
+
+        x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
+        y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
+
+        marker.style.left = `${imgRect.left + x - dispRect.left}px`;
+        marker.style.top = `${imgRect.top + y - dispRect.top}px`;
+    });
+
+    document.addEventListener("mouseup", (e) => {
+        e.stopPropagation();
+        // Each marker individually run this event when on mouseup
+        // this line ensures that only one of them execute the action
+        // also a good improvement would be to change this to an attachable event only for the dragged marker
+        if (!isDragging) return;
+
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+
+        const imgRect = img.getBoundingClientRect();
+
+        let x = e.clientX - imgRect.left;
+        let y = e.clientY - imgRect.top;
+
+        x = Math.max(0, Math.min(x, imgRect.width));
+        y = Math.max(0, Math.min(y, imgRect.height));
+
+        const xPercent = (x / imgRect.width) * 100;
+        const yPercent = (y / imgRect.height) * 100;
+
+        const i = marker.dataset.index;
         let inputValue = markerData.name;
 
         LRR.showPopUp({
@@ -849,98 +898,23 @@ Reader.createMarkerElement = function (markerData, index) {
             reverseButtons: true,
         }).then((result) => {
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}`, "PUT", "Stamp updated!", I18N.StampError, 
+                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError, 
                     () => {
-                        const i = marker.dataset.index;
-                        const newName = result.value;
+                        Reader.markers[i].x = xPercent;
+                        Reader.markers[i].y = yPercent;
+                        Reader.markers[i].name = result.value;
 
-                        if (newName !== null && newName.trim() !== "") {
-                            Reader.markers[i].name = newName.trim();
-                            Reader.renderMarkers();
-                        }
+                        Reader.pageNaviState = true;
+                        Reader.renderMarkers();
                     }
                 );
+            } else {
+                Reader.pageNaviState = true;
+                Reader.renderMarkers();
             }
         });
     });
-
-    // Leaving this code here in case someone wants to attempt to implement the drag and drop before the merge happens
-    // This logic should replace the previous click event ↑
-    /*
-        let isDragging = false;
-
-        marker.addEventListener("mousedown", (e) => {
-            e.stopPropagation();
-            isDragging = true;
-            
-            // So no text gets selected during the D&D
-            document.body.style.userSelect = "none";
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (!isDragging) return;
-
-            const imgRect = img.getBoundingClientRect();
-            const dispRect = display.getBoundingClientRect();
-
-            // Ensure that the stamp remains inside the image
-            let x = e.clientX - imgRect.left + leftFix;
-            let y = e.clientY - imgRect.top + topFix;
-
-            x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
-            y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
-
-            marker.style.left = `${imgRect.left + x - dispRect.left}px`;
-            marker.style.top = `${imgRect.top + y - dispRect.top}px`;
-        });
-
-        document.addEventListener("mouseup", (e) => {
-            e.stopPropagation();
-            // Each marker individually run this event when on mouseup
-            // this ensures that only one of them execute the action
-            // also a good improvement to change this to an attachable event only for dragged marker
-            if (!isDragging) return;
-
-            isDragging = false;
-            document.body.style.userSelect = "auto";
-
-            const imgRect = img.getBoundingClientRect();
-
-            let x = e.clientX - imgRect.left;
-            let y = e.clientY - imgRect.top;
-
-            x = Math.max(0, Math.min(x, imgRect.width));
-            y = Math.max(0, Math.min(y, imgRect.height));
-
-            const xPercent = (x / imgRect.width) * 100;
-            const yPercent = (y / imgRect.height) * 100;
-
-            const i = marker.dataset.index;
-
-            LRR.showPopUp({
-                title: I18N.ReaderTocPrompt,
-                input: "text",
-                inputPlaceholder: markerData.name || I18N.UntitledChapter, 
-                inputAttributes: {
-                    autocapitalize: "off",
-                },
-                showCancelButton: true,
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.isConfirmed && result.value.trim() !== "") {
-                    Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.ReaderTocError, 
-                        () => {
-                            Reader.markers[i].x = xPercent;
-                            Reader.markers[i].y = yPercent;
-                            Reader.markers[i].name = result.value;
-
-                            Reader.renderMarkers();
-                        }
-                    );
-                }
-            });
-        });
-    */
+    
 
     // Delete
     marker.addEventListener("contextmenu", (e) => {
