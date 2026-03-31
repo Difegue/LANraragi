@@ -130,7 +130,14 @@ sub setup_redis_mock {
         "TANK_1589138380":[
             "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ]
+        ],
+        "FAVES_be447b58ea66137c415ee306ee2ac44b308ee484": {
+            "0:1589138380": "0,0|Lorem",
+            "0:1589138381": "0,0|Ipsum",
+            "1:1589138380": "0,0|Dolor",
+            "2:1589138380": "0,0|Sit",
+            "5:1589138380": "0,0|Amet"
+        }
     })
       };
 
@@ -410,6 +417,72 @@ sub setup_redis_mock {
             } else {
                 return @value;
             }
+        }
+    );
+
+    $redis->mock(
+        'hscan',    # $redis->hscan => get all values that match pattern in datamodel
+        sub {
+            # Default values
+            my ($self, $key, $cursor, @args) = @_;
+
+            my $match;
+            my $count;
+
+            # Parse optional args (MATCH, COUNT)
+            while (@args) {
+                my $arg = shift @args;
+                if ($arg eq 'MATCH') {
+                    $match = shift @args;
+                }
+                elsif ($arg eq 'COUNT') {
+                    $count = shift @args;
+                }
+            }
+
+            # Return empty result if key doesn't exist
+            return ('0', []) unless exists $datamodel{$key};
+
+            my $hash = $datamodel{$key};
+
+            # Get all keys
+            my @keys = keys %$hash;
+
+            # Apply MATCH if provided (convert glob → regex)
+            if (defined $match) {
+                my $regex = quotemeta($match);
+                $regex =~ s/\\\*/.*/g;   # * → .*
+                $regex =~ s/\\\?/.?/g;   # ? → .?
+                @keys = grep { $_ =~ /^$regex$/ } @keys;
+            }
+
+            # Apply COUNT (just truncate for simplicity)
+            if (defined $count && $count < @keys) {
+                @keys = @keys[0 .. $count - 1];
+            }
+
+            # Build field-value list
+            my @result;
+            for my $k (@keys) {
+                push @result, $k, $hash->{$k};
+            }
+
+            # Always return cursor 0 (no real iteration in mock)
+            return ('0', \@result);
+        }
+    );
+
+    $redis->mock(
+        'hkeys',    # $redis->hscan => get keys in hash table in datamodel
+        sub {
+            my $self = shift;
+            my $key  = shift;
+
+            unless (exists $datamodel{$key}) {
+                return [] ;
+            }
+            return [ keys %{ $datamodel{$key} } ];
+            
         }
     );
 
