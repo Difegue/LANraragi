@@ -57,26 +57,33 @@ sub add_stamp {
         return render_api_response( $self, "add_stamp", "Archive page." );
     }
 
-    my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
+    return unless exec_with_lock(
+        $self,
+        "stamp-write:$id",
+        "create_stamp",
+        $id,
+        sub {
+            my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
 
-    if ($created_id) {
-        $self->render(
-            openapi => {
-                operation    => "add_stamp",
-                stamp_id => $created_id,
-                success      => 1
+            if ($created_id) {
+                $self->render(
+                    openapi => {
+                        operation    => "add_stamp",
+                        stamp_id => $created_id,
+                        success      => 1
+                    }
+                );
+            } else {
+                $self->render(
+                    openapi => {
+                        operation    => "add_stamp",
+                        stamp_id => $created_id,
+                        success      => 0
+                    }
+                );
             }
-        );
-    } else {
-        $self->render(
-            openapi => {
-                operation    => "add_stamp",
-                stamp_id => $created_id,
-                success      => 0
-            }
-        );
-    }
-
+        }
+    );
 }
 
 sub update_stamp {

@@ -100,7 +100,8 @@ sub add_stamp {
     $position = remove_separator($position, "|");
 
     # page:timestamp
-    my $key = $index . ":" . time();
+    # Not sure if this is the right way to make a timestamp in milliseconds, is the only thing that came to my mind
+    my $key = $index . ":" . int(time() * 1000);
 
     $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
 
