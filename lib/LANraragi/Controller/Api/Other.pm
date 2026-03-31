@@ -102,6 +102,10 @@ sub list_plugins {
         }
 
         $plugin->{hidden} = is_plugin_hidden( $plugin->{namespace}, $redis ) ? true : false;
+
+        my $namerds  = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
+        my $registry = $redis->hget( $namerds, "registry" );
+        $plugin->{registry} = $registry ? $registry : undef;
     }
 
     $redis->quit();
