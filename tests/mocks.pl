@@ -153,7 +153,8 @@ sub setup_redis_mock {
 
             # Replace redis' '*' wildcards with regex '.*'s
             $expr = $expr =~ s/\*/\.\*/gr;
-            return grep { /$expr/ } keys %datamodel;
+
+            return grep { /^$expr$/ } keys %datamodel;
         }
     );
     $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
