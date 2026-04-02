@@ -532,8 +532,13 @@ sub install_plugin {
         return ( undef, "Registry '$registry_id' was deleted during install." );
     }
 
-    # Load the plugin dynamically
-    eval { require $install_path };
+    # Load the plugin dynamically.
+    # Use the relative inc path so %INC key matches what Module::Pluggable
+    # and the stale-cache check in Utils::Plugins::get_plugins expect.
+    my $inc_path = $validated->{package};
+    $inc_path =~ s/::/\//g;
+    $inc_path .= ".pm";
+    eval { require $inc_path };
     if ($@) {
         $logger->warn("Plugin '$namespace' installed but failed to load: $@");
     }
