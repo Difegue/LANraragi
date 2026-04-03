@@ -215,6 +215,12 @@ sub download_url ( $url, $ua ) {
         die( "No valid Content-Disposition header received after 5 attempts, aborting. (Last result: " . $tx->result->body . ")" );
     }
 
+    my $content_length = $tx->result->headers->content_length;
+    my $body_size = $tx->result->body_size;
+    if ( $content_length && $content_length != $body_size ) {
+        die( "Failed to download full body. (Expected $content_length bytes, received $body_size)" );
+    }
+
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
         $filename = $1;
