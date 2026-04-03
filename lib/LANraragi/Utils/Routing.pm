@@ -40,7 +40,7 @@ sub apply_routes {
     # All "/api/*" endpoints are passed to OpenAPI.
     $self->plugin(
         "OpenAPI" => {
-            url    => uri_escape( $self->home->rel_file("tools/openapi.yaml") ),
+            url    => ( IS_UNIX ? $self->home->rel_file("tools/openapi.yaml") : uri_escape( $self->home->rel_file("tools/openapi.yaml") ) ),
             route  => $api,
             security => {
                 api_key => sub {
