@@ -184,6 +184,7 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
                     result[#result + 1] = id
                 end
             end
+            if #result == 0 then return "[]" end
             return cjson.encode(result)
 LUA
 
