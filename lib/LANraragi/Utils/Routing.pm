@@ -6,6 +6,7 @@ use utf8;
 
 use Config;
 use Encode;
+use URI::Escape;
 
 use Mojolicious::Plugin::Minion::Admin;
 
@@ -39,7 +40,7 @@ sub apply_routes {
     # All "/api/*" endpoints are passed to OpenAPI.
     $self->plugin(
         "OpenAPI" => {
-            url    => $self->home->rel_file("tools/openapi.yaml"),
+            url    => ( IS_UNIX ? $self->home->rel_file("tools/openapi.yaml") : uri_escape( $self->home->rel_file("tools/openapi.yaml") ) ),
             route  => $api,
             security => {
                 api_key => sub {
