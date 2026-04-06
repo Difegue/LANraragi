@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-07 13:39+0200\n"
-"PO-Revision-Date: 2026-03-10 10:09+0000\n"
-"Last-Translator: Lele <lele.leopizzi@gmail.com>\n"
+"PO-Revision-Date: 2026-04-07 20:09+0000\n"
+"Last-Translator: Starlit King <starlit-king-grit@duck.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/it/>\n"
 "Language: it\n"
@@ -27,11 +27,11 @@ msgstr ""
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
 "Eseguire un backup ti permette di scaricare un file JSON contenente tutte le "
-"tue categorie, i tuoi ID di archivio e i loro metadati corrispondenti."
+"tue categorie, i tuoi ID archivio e i loro metadati corrispondenti."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
-"Il ripristino da un backup ripristinerà questi metadati, <b>per IDs che "
+"Il ripristino da un backup ripristinerà questi metadati, <b>per ID che "
 "esistono già nel tuo database.</b>"
 
 msgid "(Categories will always be restored)"
@@ -41,7 +41,7 @@ msgid "Backup Database"
 msgstr "Esegui Backup del Database"
 
 msgid "Restore Backup"
-msgstr "Riprostina Backup"
+msgstr "Ripristina Backup"
 
 msgid "Restoring your backup ..."
 msgstr "Ripristinando il tuo backup …"
@@ -55,24 +55,24 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "Qui puoi applicare modifiche ad archivi multipli in una volta."
+msgstr "Qui puoi applicare modifiche ad archivi multipli tutte in una volta."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
-"Seleziona cosa ti piacerebbe fare, controlla gli archivi su cui vuoi "
-"utilizzarlo e inizia!"
+"Seleziona cosa vuoi fare, controlla gli archivi su cui vuoi utilizzarlo e "
+"inizia!"
 
 msgid "Archives with no tags have been pre-checked."
 msgstr "Gli Archivi senza tag sono stati pre-controllati."
 
 msgid "Task :"
-msgstr ""
+msgstr "Task :"
 
 msgid "Use Plugin"
 msgstr "Usa Plugin"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Rimuovi Nuova Flag"
 
 msgid "Apply Tag Rules"
 msgstr "Applica Regole Tag"
@@ -96,16 +96,16 @@ msgstr ""
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
-"Alcuni servizi esterni potrebbero temporaneamente bloccare la tua macchina "
-"per carichi eccessivi se chiami un plugin troppe volte!"
+"Alcuni servizi esterni potrebbero temporaneamente bloccare il tuo "
+"dispositivo per carichi eccessivi se usi un plugin troppe volte!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
 "Assicurati di impostare un <b>timeout</b> adeguato tra gli archivi "
-"utilizzando questo selettore se il plugin che vuoi usare è interessato."
+"utilizzando questo selettore se concerne il plugin che vuoi usare."
 
 msgid "Override Plugin Global Arguments"
-msgstr "Override Argomenti Globali Plugin"
+msgstr "Sovrascrivi Argomenti Globali Plugin"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr "Questo applicherà le seguenti Regole Tag agli Archivi selezionati."
@@ -125,20 +125,21 @@ msgstr "Aggiungi alla Categoria :"
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
 "Questo eliminerà sia i metadati che i file corrispondenti dal tuo sistema! "
-"Per favore, usalo con prudenza."
+"Usalo con prudenza."
 
 msgid "Check/Uncheck all"
 msgstr "Seleziona/Deseleziona tutto"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Inizia Task"
 
 msgid "Cancel"
 msgstr "Annulla"
 
 msgid "Start another job"
-msgstr "Inizia un altro processo"
+msgstr "Inizia un altro lavoro"
 
+#, fuzzy
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr "Elaborato <span id=\"arcs\"></span> di <span id=\"totalarcs\"></span>"
 
@@ -158,7 +159,8 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
-"Le Categorie compaiono in alto nella tua finestra quando navighi la Libreria."
+"Le Categorie compaiono nella parte alta della tua finestra quando navighi la "
+"Libreria."
 
 msgid "There are two distinct kinds:"
 msgstr "Ci sono due tipologie differenti:"
