@@ -795,6 +795,10 @@ div.fullscreen img {
   justify-content: center;
 }
 
+.fullscreen #display {
+    height: 100%;
+}
+
 .fullscreen-infinite {
   overflow-y: scroll;
 }
