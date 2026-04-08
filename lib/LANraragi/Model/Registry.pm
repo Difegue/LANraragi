@@ -321,14 +321,12 @@ sub validate_plugin {
     }
 
     # SHA-256 integrity
-    if ( $expectedsha ne "" ) {
-        my $actual_sha = sha256_hex($content);
-        if ( $actual_sha ne $expectedsha ) {
-            return ( undef, "SHA-256 mismatch: expected $expectedsha, got $actual_sha" );
-        }
-    } else {
-        my $logger = get_logger( "Registry", "lanraragi" );
-        $logger->warn("Plugin '$namespace' has no SHA-256 checksum in registry -- integrity not verified.");
+    unless ( defined $expectedsha && $expectedsha ne "" ) {
+        return ( undef, "Plugin '$namespace' is missing required field 'sha256'." );
+    }
+    my $actual_sha = sha256_hex($content);
+    if ( $actual_sha ne $expectedsha ) {
+        return ( undef, "SHA-256 mismatch: expected $expectedsha, got $actual_sha" );
     }
 
     # Extract package declaration
