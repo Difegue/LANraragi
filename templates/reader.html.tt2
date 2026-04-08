@@ -58,8 +58,6 @@
                 </p>
             </div>
 
-            <div id="overlay-page" class="focus-overlay"></div>
-
             <a id="display">
                 <img id="img" class="reader-image" src="" fetchpriority="high"><img id="img_doublepage" class="reader-image" src="" fetchpriority="high">
             </a>
@@ -114,9 +112,7 @@
                     <h2>[% c.lh("Admin Options") %]</h2>
 
                     <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
-                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
-                    <input id="set-stamp" class='stdbtn' type='button' value="[% c.lh("Set stamp") %]"/>
-                    <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/>
 
                     <h2>[% c.lh("Categories") %]</h2>
 
@@ -305,7 +301,6 @@
 <div class="absolute-options absolute-left">
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Settings') %]"></a>
     <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title="[% c.lh('Help') %]"></a>
-    <a class="fa fa-eye-slash fa-2x" id="toggle-stamps" href="#" title="[% c.lh('Toggle stamps') %]"></a>
 </div>
 
 <div class="absolute-options absolute-right">
