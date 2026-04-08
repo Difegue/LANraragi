@@ -16,30 +16,25 @@ use constant MANAGED_TYPE_DIRS => {
 };
 
 # Resolve a git URL to a raw file URL for a given provider.
-# If $path is provided, resolves to that file; otherwise resolves to registry.json.
 sub resolve_git_raw_url {
     my ( $provider, $url, $ref, $path ) = @_;
 
     $ref  //= "main";
     $path //= "registry.json";
 
-    # Extract scheme, host, owner, repo from HTTPS URL
-    my ( $scheme, $host, $owner, $repo );
-    if ( $url =~ m{^(https?)://([^/]+)/([^/]+)/([^/]+?)(?:\.git)?$} ) {
-        ( $scheme, $host, $owner, $repo ) = ( $1, $2, $3, $4 );
+    # Extract host, owner, repo from HTTPS URL
+    my ( $host, $owner, $repo );
+    if ( $url =~ m{^https?://([^/]+)/([^/]+)/([^/]+?)(?:\.git)?$} ) {
+        ( $host, $owner, $repo ) = ( $1, $2, $3 );
     } else {
         return;
     }
 
     if ( $provider eq "github" ) {
         return "https://raw.githubusercontent.com/$owner/$repo/$ref/$path";
-    }
-
-    if ( $provider eq "gitlab" ) {
+    } elsif ( $provider eq "gitlab" ) {
         return "https://$host/$owner/$repo/-/raw/$ref/$path";
-    }
-
-    if ( $provider eq "gitea" ) {
+    } elsif ( $provider eq "gitea" ) {
         return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=$ref";
     }
 

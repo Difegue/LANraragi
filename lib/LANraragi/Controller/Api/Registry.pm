@@ -7,10 +7,6 @@ use LANraragi::Model::Registry;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging qw(get_logger);
 
-#
-# Registry CRUD
-#
-
 sub list_registries {
     my $self  = shift->openapi->valid_input or return;
     my $redis = $self->LRR_CONF->get_redis_config;
@@ -38,13 +34,13 @@ sub create_registry {
     }
 
     unless ( $body->{name} ) {
-        render_api_response( $self, "create_registry", "Missing required field 'name'." );
+        render_api_response( $self, "create_registry", "Registry name is required." );
         return;
     }
 
     if ( $type eq "git" ) {
         unless ( $body->{url} ) {
-            render_api_response( $self, "create_registry", "Missing required field 'url' for git registry." );
+            render_api_response( $self, "create_registry", "Git registry needs a URL." );
             return;
         }
         unless ( $body->{url} =~ m{^https://} ) {
@@ -53,14 +49,14 @@ sub create_registry {
         }
         my $provider = $body->{provider};
         unless ( $provider && ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) ) {
-            render_api_response( $self, "create_registry", "Missing or invalid 'provider': must be 'github', 'gitlab', or 'gitea'." );
+            render_api_response( $self, "create_registry", "Invalid provider -- must be github, gitlab, or gitea." );
             return;
         }
     }
 
     if ( $type eq "local" ) {
         unless ( $body->{path} ) {
-            render_api_response( $self, "create_registry", "Missing required field 'path' for local registry." );
+            render_api_response( $self, "create_registry", "Local registry needs a path." );
             return;
         }
     }
@@ -105,18 +101,18 @@ sub create_registry {
 }
 
 sub get_registry {
-    my $self        = shift->openapi->valid_input or return;
-    my $registry_id = $self->stash('id');
-    my $redis       = $self->LRR_CONF->get_redis_config;
+    my $self  = shift->openapi->valid_input or return;
+    my $regid = $self->stash('id');
+    my $redis = $self->LRR_CONF->get_redis_config;
 
-    my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+    my %registry = LANraragi::Model::Registry::get_registry( $regid, $redis );
     $redis->quit();
 
     unless (%registry) {
         $self->render(
             openapi => {
                 operation => "get_registry",
-                error     => "Registry does not exist.",
+                error     => "This registry doesn't exist.",
                 success   => 0,
             },
             status => 404
@@ -129,32 +125,32 @@ sub get_registry {
             operation => "get_registry",
             success   => 1,
             error     => "",
-            id        => $registry_id,
+            id        => $regid,
             registry  => \%registry,
         }
     );
 }
 
 sub update_registry {
-    my $self        = shift->openapi->valid_input or return;
-    my $registry_id = $self->stash('id');
-    my $body        = $self->req->json;
+    my $self  = shift->openapi->valid_input or return;
+    my $regid = $self->stash('id');
+    my $body  = $self->req->json;
 
     return unless exec_with_lock(
         $self,
-        "registry-write:$registry_id",
+        "registry-write:$regid",
         "update_registry",
-        $registry_id,
+        $regid,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %existing = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            my %existing = LANraragi::Model::Registry::get_registry( $regid, $redis );
             unless (%existing) {
                 $redis->quit();
                 $self->render(
                     openapi => {
                         operation => "update_registry",
-                        error     => "Registry does not exist.",
+                        error     => "This registry doesn't exist.",
                         success   => 0,
                     },
                     status => 404
@@ -169,20 +165,20 @@ sub update_registry {
 
             unless (%updates) {
                 $redis->quit();
-                render_api_response( $self, "update_registry", "No recognized fields to update." );
+                render_api_response( $self, "update_registry", "Nothing to update." );
                 return;
             }
 
             # Enforce HTTPS for git registry URLs
-            my $merged_type = $updates{type} // $existing{type};
-            my $merged_url  = $updates{url}  // $existing{url};
-            if ( $merged_type eq "git" && $merged_url && $merged_url !~ m{^https://} ) {
+            my $mergedtype = $updates{type} // $existing{type};
+            my $mergedurl  = $updates{url}  // $existing{url};
+            if ( $mergedtype eq "git" && $mergedurl && $mergedurl !~ m{^https://} ) {
                 $redis->quit();
                 render_api_response( $self, "update_registry", "Git registry URL must use HTTPS." );
                 return;
             }
 
-            my ( $index_cleared, $error ) = LANraragi::Model::Registry::update_registry( $registry_id, $redis, %updates );
+            my ( $indexkey, $error ) = LANraragi::Model::Registry::update_registry( $regid, $redis, %updates );
 
             if ($error) {
                 $redis->quit();
@@ -190,7 +186,7 @@ sub update_registry {
                 return;
             }
 
-            my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            my %registry = LANraragi::Model::Registry::get_registry( $regid, $redis );
             $redis->quit();
 
             $self->render(
@@ -198,9 +194,9 @@ sub update_registry {
                     operation     => "update_registry",
                     success       => 1,
                     error         => "",
-                    id            => $registry_id,
+                    id            => $regid,
                     registry      => \%registry,
-                    index_cleared => $index_cleared ? true : false,
+                    index_cleared => $indexkey ? true : false,
                 }
             );
         }
@@ -208,24 +204,24 @@ sub update_registry {
 }
 
 sub delete_registry {
-    my $self        = shift->openapi->valid_input or return;
-    my $registry_id = $self->stash('id');
+    my $self  = shift->openapi->valid_input or return;
+    my $regid = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
-        "registry-write:$registry_id",
+        "registry-write:$regid",
         "delete_registry",
-        $registry_id,
+        $regid,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %existing = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            my %existing = LANraragi::Model::Registry::get_registry( $regid, $redis );
             unless (%existing) {
                 $redis->quit();
                 $self->render(
                     openapi => {
                         operation => "delete_registry",
-                        error     => "Registry does not exist.",
+                        error     => "This registry doesn't exist.",
                         success   => 0,
                     },
                     status => 404
@@ -233,7 +229,7 @@ sub delete_registry {
                 return;
             }
 
-            my ( $success, $error ) = LANraragi::Model::Registry::delete_registry( $registry_id, $redis );
+            my ( $success, $error ) = LANraragi::Model::Registry::delete_registry( $regid, $redis );
             $redis->quit();
 
             if ($error) {
@@ -246,30 +242,26 @@ sub delete_registry {
     );
 }
 
-#
-# Registry Index
-#
-
 sub refresh_registry {
-    my $self        = shift->openapi->valid_input or return;
-    my $registry_id = $self->stash('id');
+    my $self  = shift->openapi->valid_input or return;
+    my $regid = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
-        "registry-write:$registry_id",
+        "registry-write:$regid",
         "refresh_registry",
-        $registry_id,
+        $regid,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            my %config = LANraragi::Model::Registry::get_registry( $regid, $redis );
 
             unless (%config) {
                 $redis->quit();
                 $self->render(
                     openapi => {
                         operation => "refresh_registry",
-                        error     => "Registry does not exist.",
+                        error     => "This registry doesn't exist.",
                         success   => 0,
                     },
                     status => 404
@@ -301,9 +293,9 @@ sub refresh_registry {
             }
 
             # Cache the raw JSON under the paired index key
-            my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-            my $index_key = "REG_INDEX_$suffix";
-            $redis->set( $index_key, $content );
+            my ($suffix) = $regid =~ /^REG_(\d{10})$/;
+            my $indexkey = "REG_INDEX_$suffix";
+            $redis->set( $indexkey, $content );
             $redis->quit();
 
             $self->render(
@@ -317,25 +309,21 @@ sub refresh_registry {
     );
 }
 
-#
-# Plugin Operations
-#
-
 sub install_plugin {
     my $self      = shift->openapi->valid_input or return;
     my $body      = $self->req->json;
     my $namespace = $body->{namespace};
 
     unless ($namespace) {
-        render_api_response( $self, "install_plugin", "Missing required field 'namespace'." );
+        render_api_response( $self, "install_plugin", "No namespace provided." );
         return;
     }
 
-    my $registry_id = $body->{registry};
-    my $force       = $body->{force} // 0;
+    my $regid = $body->{registry};
+    my $force = $body->{force} // 0;
 
-    unless ($registry_id) {
-        render_api_response( $self, "install_plugin", "Missing required field 'registry'." );
+    unless ($regid) {
+        render_api_response( $self, "install_plugin", "No registry ID provided." );
         return;
     }
 
@@ -350,33 +338,33 @@ sub install_plugin {
             # Check provenance conflict
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
             if ( $redis->hexists( $namerds, "installed_path" ) && !$force ) {
-                my $current_registry = $redis->hget( $namerds, "registry" ) // "";
-                my $current_version  = $redis->hget( $namerds, "installed_version" ) // "";
+                my $currentreg = $redis->hget( $namerds, "registry" );
+                my $currentver = $redis->hget( $namerds, "installed_version" );
 
-                if ( $current_registry eq "" ) {
-                    # No provenance (legacy/sideloaded) — requires force
+                unless ($currentreg) {
+                    # No provenance (legacy/sideloaded) -- requires force
                     $redis->quit();
                     render_api_response( $self, "install_plugin",
-                        "Plugin '$namespace' is already installed (no provenance). Use force to replace." );
+                        "Plugin '$namespace' already exists without provenance. Use force to overwrite." );
                     return;
                 }
 
-                if ( $current_registry ne $registry_id ) {
-                    # Different registry — requires force
+                if ( $currentreg ne $regid ) {
+                    # Different registry -- requires force
                     $redis->quit();
                     render_api_response( $self, "install_plugin",
-                        "Plugin '$namespace' is already installed from registry '$current_registry' (v$current_version). Use force to replace." );
+                        "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
                     return;
                 }
 
-                # Same registry — upgrade allowed without force
+                # Same registry -- upgrade allowed without force
             }
 
-            my ( $plugin_meta, $error ) = eval {
-                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id );
+            my $logger = get_logger( "Registry", "lanraragi" );
+            my ( $plugmeta, $error ) = eval {
+                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $regid );
             };
             if ($@) {
-                my $logger = get_logger( "Registry", "lanraragi" );
                 $logger->error("install_plugin failed for '$namespace': $@");
                 $redis->quit();
                 render_api_response( $self, "install_plugin", "Plugin installation failed." );
@@ -393,10 +381,10 @@ sub install_plugin {
                 openapi => {
                     operation => "install_plugin",
                     success   => 1,
-                    name      => $plugin_meta->{name},
+                    name      => $plugmeta->{name},
                     namespace => $namespace,
-                    version   => $plugin_meta->{version},
-                    registry  => $registry_id,
+                    version   => $plugmeta->{version},
+                    registry  => $regid,
                 }
             );
         }
@@ -447,7 +435,7 @@ sub update_plugin_config {
                 $self->render(
                     openapi => {
                         operation   => "update_plugin_config",
-                        error       => "Plugin '$namespace' not found.",
+                        error       => "Plugin '$namespace' doesn't exist on the server.",
                         success     => 0,
                     },
                     status => 404
