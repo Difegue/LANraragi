@@ -36,11 +36,11 @@ sub resolve_git_raw_url {
     }
 
     if ( $provider eq "gitlab" ) {
-        return "$scheme://$host/$owner/$repo/-/raw/$ref/$path";
+        return "https://$host/$owner/$repo/-/raw/$ref/$path";
     }
 
     if ( $provider eq "gitea" ) {
-        return "$scheme://$host/api/v1/repos/$owner/$repo/raw/$path?ref=$ref";
+        return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=$ref";
     }
 
     return;

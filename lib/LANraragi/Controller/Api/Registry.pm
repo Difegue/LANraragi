@@ -47,6 +47,10 @@ sub create_registry {
             render_api_response( $self, "create_registry", "Missing required field 'url' for git registry." );
             return;
         }
+        unless ( $body->{url} =~ m{^https://} ) {
+            render_api_response( $self, "create_registry", "Git registry URL must use HTTPS." );
+            return;
+        }
         my $provider = $body->{provider};
         unless ( $provider && ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) ) {
             render_api_response( $self, "create_registry", "Missing or invalid 'provider': must be 'github', 'gitlab', or 'gitea'." );
@@ -166,6 +170,15 @@ sub update_registry {
             unless (%updates) {
                 $redis->quit();
                 render_api_response( $self, "update_registry", "No recognized fields to update." );
+                return;
+            }
+
+            # Enforce HTTPS for git registry URLs
+            my $merged_type = $updates{type} // $existing{type};
+            my $merged_url  = $updates{url}  // $existing{url};
+            if ( $merged_type eq "git" && $merged_url && $merged_url !~ m{^https://} ) {
+                $redis->quit();
+                render_api_response( $self, "update_registry", "Git registry URL must use HTTPS." );
                 return;
             }
 

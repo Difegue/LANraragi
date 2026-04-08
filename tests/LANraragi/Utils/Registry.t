@@ -61,6 +61,22 @@ note('testing resolve_git_raw_url for gitea...');
     is( $result, "https://git.local/api/v1/repos/owner/repo/raw/Plugin/Scripts/Baz.pm?ref=v1.0", "gitea self-hosted plugin path" );
 }
 
+note('testing resolve_git_raw_url enforces HTTPS for gitlab/gitea...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
+        "gitlab", "http://internal.host/owner/repo.git", "main", "registry.json"
+    );
+    is( $result, "https://internal.host/owner/repo/-/raw/main/registry.json", "gitlab http url upgraded to https" );
+}
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
+        "gitea", "http://git.local/owner/repo", "main", "registry.json"
+    );
+    is( $result, "https://git.local/api/v1/repos/owner/repo/raw/registry.json?ref=main", "gitea http url upgraded to https" );
+}
+
 note('testing resolve_git_raw_url with defaults...');
 
 {
