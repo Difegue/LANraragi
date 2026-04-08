@@ -521,12 +521,10 @@ sub install_plugin {
             $installpath, $plugmeta->{version}, $regid );
     };
     if ($@) {
-        unlink($installpath);
         $logger->error("Redis error during provenance write for '$namespace': $@");
         return ( undef, "Redis error while writing provenance." );
     }
     unless ($ok) {
-        unlink($installpath);
         return ( undef, "Registry was deleted during install." );
     }
 
