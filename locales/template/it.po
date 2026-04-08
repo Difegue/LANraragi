@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-07 13:39+0200\n"
-"PO-Revision-Date: 2026-04-07 20:09+0000\n"
-"Last-Translator: Mattia <mattia.maff03@gmail.com>\n"
+"PO-Revision-Date: 2026-04-08 18:23+0000\n"
+"Last-Translator: David Signori <davidsignori02@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/it/>\n"
 "Language: it\n"
@@ -267,7 +267,7 @@ msgid "Archive Files"
 msgstr ""
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Tag e Miniature"
 
 msgid "Background Workers"
 msgstr ""
@@ -325,7 +325,7 @@ msgid "Clear the cache manually by clicking this button."
 msgstr "Svuota la cache manualmente cliccando questo bottone."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Ripristina cache di ricerca"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
@@ -338,7 +338,7 @@ msgstr ""
 "premendo questo bottone."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "Rimuovi NUOVE flag"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
@@ -544,22 +544,30 @@ msgstr ""
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Cartella Miniature"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Cartella in cui verranno salvate le miniature degli archivi. se non esiste, "
+"verrà creata."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Usa miniature ad alta qualità per le pagine"
 
+#, fuzzy
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi genera miniature in qualità più bassa per le pagine dell'archivio "
+"per ragioni di performance."
 
+#, fuzzy
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"se questa opzione è spuntata, genererà invece miniature delle pagine della "
+"stessa qualità delle miniature di copertina"
 
 msgid "Use JPEG XL for thumbnails"
 msgstr "Usa JPEG XL per le miniature"
@@ -1805,3 +1813,7 @@ msgstr ""
 
 msgid "Untitled Chapter"
 msgstr "Capitolo senza Titolo"
+
+#, fuzzy
+msgid "Automatic (browser default)"
+msgstr "Automatica (predefinita del browser)"
