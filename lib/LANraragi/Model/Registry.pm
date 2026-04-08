@@ -358,7 +358,10 @@ sub validate_plugin {
         return ( undef, "Plugin file does not declare a LANraragi::Plugin:: package." );
     }
 
-    # Registry path traversal
+    # Registry path safety: null bytes, traversal, absolute paths
+    if ( index( $plugin_path, "\0" ) >= 0 ) {
+        return ( undef, "Invalid plugin path: contains null byte." );
+    }
     if ( $plugin_path =~ /\.\./ || $plugin_path =~ m{^/} ) {
         return ( undef, "Invalid plugin path: $plugin_path" );
     }
@@ -369,14 +372,24 @@ sub validate_plugin {
         return ( undef, "Unknown plugin type '$plugin_type'." );
     }
 
-    # Extract filename and compute install path
+    # Extract filename and validate format
     my ($filename) = $plugin_path =~ m{([^/]+)$};
     unless ($filename) {
         return ( undef, "Cannot extract filename from path: $plugin_path" );
     }
+    unless ( $filename =~ /^[A-Za-z0-9_-]+\.pm$/ ) {
+        return ( undef, "Invalid plugin filename: $filename" );
+    }
 
     my $install_dir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$type_dir";
     my $install_path = "$install_dir/$filename";
+
+    # Verify install path resolves under Plugin/Managed/ after canonicalization
+    make_path($install_dir) unless -d $install_dir;
+    my $canon_install_dir = abs_path($install_dir);
+    if ( $canon_install_dir && index( "$canon_install_dir/$filename", abs_path( getcwd() . "/lib/LANraragi/Plugin/Managed" ) ) != 0 ) {
+        return ( undef, "Install path escapes Plugin/Managed/ directory." );
+    }
 
     # Package-path consistency
     my ($stem) = $filename =~ /^(.+)\.pm$/;
@@ -441,6 +454,14 @@ sub install_plugin {
 
     my $plugin_meta = $plugins->{$namespace};
     my $plugin_path = $plugin_meta->{path};
+
+    # Validate plugin path before any file or network access
+    if ( index( $plugin_path, "\0" ) >= 0 ) {
+        return ( undef, "Invalid plugin path: contains null byte." );
+    }
+    if ( $plugin_path =~ /\.\./ || $plugin_path =~ m{^/} ) {
+        return ( undef, "Invalid plugin path: $plugin_path" );
+    }
 
     # Get registry config for download
     my %config = $redis->hgetall($registry_id);
@@ -525,8 +546,15 @@ sub install_plugin {
         redis.call("HSET", KEYS[2], "registry",          ARGV[3])
         return 1
     };
-    my $ok = $redis->eval( $provenance_lua, 2, $registry_id, $namerds,
-        $install_path, $plugin_meta->{version}, $registry_id );
+    my $ok = eval {
+        $redis->eval( $provenance_lua, 2, $registry_id, $namerds,
+            $install_path, $plugin_meta->{version}, $registry_id );
+    };
+    if ($@) {
+        unlink($install_path);
+        $logger->error("Redis error during provenance write for '$namespace': $@");
+        return ( undef, "Redis error during provenance write." );
+    }
     unless ($ok) {
         unlink($install_path);
         return ( undef, "Registry '$registry_id' was deleted during install." );
@@ -565,9 +593,9 @@ sub uninstall_plugin {
     }
 
     # Canonicalize and validate the path is under Plugin/
-    my $canon_path = abs_path($install_path) // $install_path;
-    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin/";
-    unless ( index( $canon_path, $plugin_dir ) == 0 ) {
+    my $canon_path = abs_path($install_path);
+    my $plugin_dir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
+    unless ( $canon_path && $plugin_dir && index( $canon_path, "$plugin_dir/" ) == 0 ) {
         return ( undef, "Refusing to delete plugin outside of Plugin directory: $install_path" );
     }
     $install_path = $canon_path;
