@@ -180,6 +180,9 @@ I18N.ReaderTocError = "[% c.lh("Error adding/removing chapter:") %]";
 I18N.ReaderClearRating = "[% c.lh("Clear Rating") %]";
 I18N.UntitledChapter = "[% c.lh("Untitled Chapter") %]";
 I18N.GoToPage = "[% c.lh("Go to page:") %]";
+I18N.StampName = "[% c.lh("Enter Stamp name:") %]"
+I18N.StampPlaceholder = "[% c.lh("Stamp name") %]"
+I18N.StampError = "[% c.lh("Error setting up the stamp") %]"
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
 I18N.ScriptRunningDesc = "[% c.lh("Please wait for it to finish before starting a new one.") %]";
