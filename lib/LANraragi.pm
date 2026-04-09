@@ -33,6 +33,11 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 sub startup {
     my $self = shift;
 
+    if ( !IS_UNIX ) {
+        # Enable autoflush
+        $| = 1;
+    }
+
     say "";
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";

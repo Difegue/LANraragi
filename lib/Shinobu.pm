@@ -66,6 +66,11 @@ my $inotifysub = sub {
 
 sub initialize_from_new_process {
 
+    if ( !IS_UNIX ) {
+        # Enable autoflush
+        $| = 1;
+    }
+
     my $userdir = LANraragi::Model::Config->get_userdir;
     my $metrics_enabled = LANraragi::Model::Config->enable_metrics;
 
