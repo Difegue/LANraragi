@@ -544,6 +544,14 @@ Reader.handleShortcuts = function (e) {
         case 70: // f
             Reader.toggleFullScreen();
             break;
+
+        case 71: // g
+            let page = parseInt(prompt(I18N.GoToPage), 10);
+            // parseInt returns NaN for non-numbers; normal equality checks don't work to detect NaN
+            if (!Number.isNaN(page)) {
+                Reader.goToPage(page - 1);
+            }
+            break;
         case 72: // h
             Reader.toggleHelp();
             break;

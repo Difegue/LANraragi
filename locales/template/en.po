@@ -1028,6 +1028,9 @@ msgstr "B: toggle bookmark"
 msgid "N: toggle auto next page"
 msgstr "N: toggle auto next page"
 
+msgid "G: go to page number"
+msgstr "G: go to page number"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
 
@@ -1714,6 +1717,9 @@ msgstr "Error while downloading file."
 
 msgid "Error sending job to Minion"
 msgstr "Error sending job to Minion"
+
+msgid "Go to page:"
+msgstr "Go to page:"
 
 # ------End of i18n.html.tt2------
 
