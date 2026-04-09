@@ -238,8 +238,15 @@ sub process_upload {
         my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
         my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
 
+        my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
+        unless ( -e $dir ) {
+            mkdir $dir;
+        }
+
+        my $output_file = $dir . $filename;
+
         if ($pkg) {
-            my $conflict = LANraragi::Model::Registry::find_package_conflict($pkg);
+            my $conflict = LANraragi::Model::Registry::find_package_conflict($pkg, $output_file);
             if ($conflict) {
                 $self->render(
                     json => {
@@ -254,7 +261,7 @@ sub process_upload {
         }
 
         if ($ns) {
-            my $conflict = LANraragi::Model::Registry::find_namespace_conflict($ns);
+            my $conflict = LANraragi::Model::Registry::find_namespace_conflict($ns, $output_file);
             if ($conflict) {
                 $self->render(
                     json => {
@@ -267,13 +274,6 @@ sub process_upload {
                 return;
             }
         }
-
-        my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
-        unless ( -e $dir ) {
-            mkdir $dir;
-        }
-
-        my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");
 
