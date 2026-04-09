@@ -681,11 +681,11 @@ sub scan_plugins {
                     $logger->warn("Plugin key '$key' (installed_path: $path) not discovered but file exists -- skipping removal.");
                     next;
                 }
-                $logger->warn("Orphaned plugin key '$key' (installed_path: $path) -- plugin not discovered. Removing.");
+                $logger->warn("Orphaned plugin key '$key' (installed_path: $path) -- plugin not discovered. Clearing provenance.");
             } else {
-                $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Removing.");
+                $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
             }
-            $redis->del($key);
+            $redis->hdel( $key, "installed_path", "installed_version", "registry" );
         }
     }
 
