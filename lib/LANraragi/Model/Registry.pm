@@ -319,6 +319,12 @@ sub validate_plugin {
     unless ($plugver) {
         return ( undef, "Plugin '$namespace' is missing required field 'version'." );
     }
+    unless ($plugpath) {
+        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
+    }
+    unless ($plugtype) {
+        return ( undef, "Plugin '$namespace' is missing required field 'type'." );
+    }
 
     # SHA-256 integrity
     unless ( defined $expectedsha && $expectedsha ne "" ) {
@@ -426,6 +432,9 @@ sub install_plugin {
     my $plugpath = $plugmeta->{path};
 
     # Validate plugin path before any file or network access
+    unless ($plugpath) {
+        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
+    }
     if ( index( $plugpath, "\0" ) >= 0 ) {
         return ( undef, "Invalid plugin path (null byte)." );
     }
