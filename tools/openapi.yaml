@@ -3386,7 +3386,7 @@ paths:
             type: string
         - name: stamp_id
           in: query
-          required: True
+          required: true
           description: ID of the stamp
           schema:
             type: string
@@ -3440,7 +3440,7 @@ paths:
             type: string
         - name: stamp_id
           in: query
-          required: True
+          required: true
           description: ID of the stamp
           schema:
             type: string
@@ -3493,7 +3493,7 @@ paths:
             type: string
         - name: stamp_id
           in: query
-          required: True
+          required: true
           description: ID of the stamp
           schema:
             type: string

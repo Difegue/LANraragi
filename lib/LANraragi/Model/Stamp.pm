@@ -31,6 +31,8 @@ sub get_stamp {
         return ( \%stamp, $err );
     }
 
+    $redis->quit;
+
     return ();
 }
 
@@ -48,6 +50,8 @@ sub get_stamps_by_page {
 
     my $data = get_stamps_data($redis, $faves_id, $index);
     my @stamps = convert_stamps_to_object(%$data);
+
+    $redis->quit;
 
     return ( \@stamps, $err );
 }
@@ -74,6 +78,8 @@ sub get_stamped_pages {
     }
 
     my @keys = keys %indexes;
+
+    $redis->quit;
 
     return ( \@keys, $err );
 }
@@ -121,22 +127,24 @@ sub update_stamp {
     my $err    = "";
     my $faves_id = "FAVES_" . $id;
 
-    my $current = $redis->hget($faves_id => $key);
-    my @c_content = split(/\|/, $current);
-
-    if ( defined $position ) {
-        $position = remove_separator($position, "|");
-    } else {
-        $position = $c_content[0]
-    }
-
-    if ( defined $content ) {
-        $content = remove_separator($content, "|");
-    } else {
-        $content = $c_content[1]
-    }
-
     if ( $redis->exists($faves_id) ) {
+        # Format inputs
+        my $current = $redis->hget($faves_id => $key);
+        my @c_content = split(/\|/, $current);
+
+        if ( defined $position ) {
+            $position = remove_separator($position, "|");
+        } else {
+            $position = $c_content[0]
+        }
+
+        if ( defined $content ) {
+            $content = remove_separator($content, "|");
+        } else {
+            $content = $c_content[1]
+        }
+
+        # Update stamp
         $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
         $redis->quit;
         return ( 1, $err );
