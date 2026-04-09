@@ -291,7 +291,7 @@ sub find_namespace_conflict {
                 my $content = do { local $/; <$fh> };
                 close $fh;
 
-                if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/ ) {
+                if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/i ) {
                     $conflict = $filepath;
                 }
             },
