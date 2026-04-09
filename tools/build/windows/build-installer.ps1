@@ -13,7 +13,7 @@ Copy-Item -Path "./win-dist" -Destination "./tools/build/windows/Karen/Karen/bin
 
 # Build Karen
 Set-Location "./tools/build/windows/Karen"
-dotnet publish --nologo -r win-x64 -o Karen\bin\win-x64\publish Karen\Karen.csproj
+dotnet publish --nologo -p:PublishProfile=win-x64 Karen\Karen.csproj
 
 # Build Setup
 MSBuild -nologo -v:minimal /p:RestorePackagesConfig=true /t:Restore
