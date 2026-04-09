@@ -11,7 +11,8 @@ use Cwd;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
 use LANraragi::Model::Registry;
 
 # This action will render a template
@@ -246,7 +247,11 @@ sub process_upload {
         my $output_file = $dir . $filename;
 
         if ($pkg) {
+<<<<<<< Updated upstream
             my $conflict = LANraragi::Model::Registry::find_package_conflict($pkg, $output_file);
+=======
+            my $conflict = find_package_conflict($pkg);
+>>>>>>> Stashed changes
             if ($conflict) {
                 $self->render(
                     json => {
@@ -261,7 +266,11 @@ sub process_upload {
         }
 
         if ($ns) {
+<<<<<<< Updated upstream
             my $conflict = LANraragi::Model::Registry::find_namespace_conflict($ns, $output_file);
+=======
+            my $conflict = find_namespace_conflict($ns);
+>>>>>>> Stashed changes
             if ($conflict) {
                 $self->render(
                     json => {

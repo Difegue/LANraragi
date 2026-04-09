@@ -7,14 +7,13 @@ use utf8;
 use Cwd qw(abs_path getcwd);
 use Digest::SHA qw(sha256_hex);
 use File::Copy;
-use File::Find;
 use File::Path qw(make_path);
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Registry qw(resolve_git_raw_url MANAGED_TYPE_DIRS);
+use LANraragi::Utils::Plugins  qw();
+use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
 # Source fields that, when changed, invalidate the cached index.
 my @SOURCE_FIELDS = qw(type provider url ref path);
@@ -232,75 +231,9 @@ sub fetch_registry_index {
     return ( undef, "Unknown registry type: $type" );
 }
 
-# Check if a package name is already declared by an existing plugin file.
-# Scans all .pm files under Plugin/, skipping the file at $skippath (for upgrades).
-# Returns the conflicting file path, or undef if no conflict.
-sub find_package_conflict {
-    my ( $pkgname, $skippath ) = @_;
-
-    my $plugindir = getcwd() . "/lib/LANraragi/Plugin";
-    my $conflict;
-
-    return unless -d $plugindir;
-
-    find(
-        {
-            no_chdir => 1,
-            wanted   => sub {
-                return if $conflict;
-                return unless /\.pm$/;
-
-                my $filepath = $File::Find::name;
-                return if $skippath && $filepath eq $skippath;
-
-                open( my $fh, '<', $filepath ) or return;
-                while ( my $line = <$fh> ) {
-                    if ( $line =~ /^package\s+\Q$pkgname\E\s*;/ ) {
-                        $conflict = $filepath;
-                        last;
-                    }
-                }
-                close $fh;
-            },
-        },
-        $plugindir
-    );
-
-    return $conflict;
-}
-
-sub find_namespace_conflict {
-    my ( $namespace, $skippath ) = @_;
-
-    my $plugindir = getcwd() . "/lib/LANraragi/Plugin";
-    my $conflict;
-
-    return unless -d $plugindir;
-
-    find(
-        {
-            no_chdir => 1,
-            wanted   => sub {
-                return if $conflict;
-                return unless /\.pm$/;
-
-                my $filepath = $File::Find::name;
-                return if $skippath && $filepath eq $skippath;
-
-                open( my $fh, '<', $filepath ) or return;
-                my $content = do { local $/; <$fh> };
-                close $fh;
-
-                if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/i ) {
-                    $conflict = $filepath;
-                }
-            },
-        },
-        $plugindir
-    );
-
-    return $conflict;
-}
+#
+# Plugin Validation
+#
 
 # Validate downloaded plugin content against registry metadata and filesystem state.
 sub validate_plugin {
