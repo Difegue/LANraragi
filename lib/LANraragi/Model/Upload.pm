@@ -21,7 +21,7 @@ use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Path     qw(create_path get_archive_path rename_path move_path unlink_path);
 
-use LANraragi::Model::Config   qw(get_userdir);
+use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
 use LANraragi::Model::Archive;

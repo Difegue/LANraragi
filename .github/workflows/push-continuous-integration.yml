@@ -22,7 +22,7 @@ jobs:
     name: Run Test Suite and Perl Critic
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v6
     - name: Test Docker Build
       run: |
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
@@ -41,7 +41,7 @@ jobs:
     needs: testSuite
     steps:
       - name: Checkout LANraragi repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: lanraragi
       - name: Set up Docker Buildx
@@ -58,13 +58,13 @@ jobs:
       - name: Load LRR Docker image
         run: docker load -i "${{ runner.temp }}/lanraragi-ci.tar"
       - name: Checkout aio-lanraragi integration tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
           ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Set up uv
@@ -97,7 +97,7 @@ jobs:
     needs: testSuite
     steps:
       - name: Checkout LANraragi repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: lanraragi
       - name: Compute windist cache key
@@ -187,13 +187,13 @@ jobs:
           cp -R ./templates ./win-dist
           cp -R ./locales ./win-dist
       - name: Checkout aio-lanraragi integration tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
           ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Set up uv

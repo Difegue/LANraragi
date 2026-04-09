@@ -82,7 +82,6 @@ unless ( @ARGV > 0 ) {
 my $front  = $ARGV[0] eq "install-front";
 my $back   = $ARGV[0] eq "install-back";
 my $full   = $ARGV[0] eq "install-full";
-my $legacy = defined $ARGV[1] && $ARGV[1] eq "legacy";
 
 say( "Working Directory: " . getcwd );
 say("");
@@ -101,13 +100,13 @@ require Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
-#Fails on win even if redis is in the path
+#Fails on win even if valkey or redis are in the path
 if (IS_UNIX) {
 
-    #Check for Redis
-    say("Checking for Redis...");
-    can_run('redis-server')
-      or die 'NOT FOUND! Please install a Redis server before proceeding.';
+    #Check for Redis/Valkey
+    say("Checking for Redis/Valkey...");
+    can_run('valkey-server') || can_run('redis-server')
+      or die 'NOT FOUND! Please install a Redis/Valkey server before proceeding.';
     say("OK!");
 }
 
@@ -179,8 +178,7 @@ if ( $front || $full ) {
 
     say("\r\nObtaining remote Web dependencies...\r\n");
 
-    my $npmcmd = $legacy ? "npm install" : "npm ci";
-    if ( system($npmcmd) != 0 ) {
+    if ( system( "npm ci" ) != 0 ) {
         die "Something went wrong while obtaining node modules - Bailing out.";
     }
 
