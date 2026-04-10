@@ -10,7 +10,7 @@ use Mojo::JSON qw(encode_json);
 use Cwd;
 
 use File::Basename;
-use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
@@ -322,19 +322,29 @@ sub process_upload {
         }
 
         #We can now try to query it for metadata.
-        my %pluginfo = $pluginclass->plugin_info();
+        my %pluginfo  = $pluginclass->plugin_info();
+        my $namespace = $pluginfo{namespace};
+        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
-        # Register installed_path so _infer_source works before next scan_plugins
-        my $namerds = "LRR_PLUGIN_" . uc( $pluginfo{namespace} );
-        my $redis   = $self->LRR_CONF->get_redis_config;
-        $redis->hset( $namerds, "installed_path", $output_file );
-        $redis->quit();
+        # Register installed_path so _infer_source works before next scan_plugins.
+        # Serialize against managed install/uninstall on the same namespace.
+        return unless exec_with_lock(
+            $self,
+            "plugin-write:$namespace",
+            "upload_plugin",
+            $namespace,
+            sub {
+                my $redis = $self->LRR_CONF->get_redis_config;
+                $redis->hset( $namerds, "installed_path", $output_file );
+                $redis->quit();
 
-        $self->render(
-            json => {
-                operation => "upload_plugin",
-                name      => $pluginfo{name},
-                success   => 1
+                $self->render(
+                    json => {
+                        operation => "upload_plugin",
+                        name      => $pluginfo{name},
+                        success   => 1
+                    }
+                );
             }
         );
 
