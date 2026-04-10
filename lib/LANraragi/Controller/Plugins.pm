@@ -9,6 +9,7 @@ use Encode;
 use Mojo::JSON qw(encode_json);
 use Cwd;
 
+use File::Basename;
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -206,7 +207,7 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
-    my $filename = $file->filename;
+    my $filename = basename( $file->filename );
 
     my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
