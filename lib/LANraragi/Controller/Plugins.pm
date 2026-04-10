@@ -247,11 +247,7 @@ sub process_upload {
         my $output_file = $dir . $filename;
 
         if ($pkg) {
-<<<<<<< Updated upstream
-            my $conflict = LANraragi::Model::Registry::find_package_conflict($pkg, $output_file);
-=======
-            my $conflict = find_package_conflict($pkg);
->>>>>>> Stashed changes
+            my $conflict = find_package_conflict($pkg, $output_file);
             if ($conflict) {
                 $self->render(
                     json => {
@@ -266,11 +262,7 @@ sub process_upload {
         }
 
         if ($ns) {
-<<<<<<< Updated upstream
-            my $conflict = LANraragi::Model::Registry::find_namespace_conflict($ns, $output_file);
-=======
-            my $conflict = find_namespace_conflict($ns);
->>>>>>> Stashed changes
+            my $conflict = find_namespace_conflict($ns, $output_file);
             if ($conflict) {
                 $self->render(
                     json => {
