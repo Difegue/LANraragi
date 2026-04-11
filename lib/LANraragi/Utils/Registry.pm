@@ -6,6 +6,7 @@ use utf8;
 
 use Cwd qw(getcwd);
 use File::Find;
+use Mojo::Util qw(url_escape);
 
 use Exporter 'import';
 our @EXPORT_OK = qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
@@ -38,7 +39,7 @@ sub resolve_git_raw_url {
     } elsif ( $provider eq "gitlab" ) {
         return "https://$host/$owner/$repo/-/raw/$ref/$path";
     } elsif ( $provider eq "gitea" ) {
-        return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=$ref";
+        return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=" . url_escape($ref);
     }
 
     return;
