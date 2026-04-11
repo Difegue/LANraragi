@@ -313,19 +313,8 @@ sub install_plugin {
     my $self      = shift->openapi->valid_input or return;
     my $body      = $self->req->json;
     my $namespace = $body->{namespace};
-
-    unless ($namespace) {
-        render_api_response( $self, "install_plugin", "No namespace provided." );
-        return;
-    }
-
-    my $regid = $body->{registry};
-    my $force = $body->{force} // 0;
-
-    unless ($regid) {
-        render_api_response( $self, "install_plugin", "No registry ID provided." );
-        return;
-    }
+    my $regid     = $body->{registry};
+    my $force     = $body->{force} // 0;
 
     return unless exec_with_lock(
         $self,

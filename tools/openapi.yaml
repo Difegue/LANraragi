@@ -906,6 +906,7 @@ paths:
               properties:
                 namespace:
                   type: string
+                  pattern: "^[a-zA-Z0-9_-]+$"
                   description: Namespace of the plugin to install.
                 registry:
                   type: string
@@ -978,6 +979,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[a-zA-Z0-9_-]+$"
           description: Namespace of the plugin to uninstall.
       responses:
         '200':
@@ -1018,6 +1020,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[a-zA-Z0-9_-]+$"
           description: Namespace of the plugin to configure.
       requestBody:
         required: true
