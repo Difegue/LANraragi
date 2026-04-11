@@ -220,12 +220,17 @@ sub download_url ( $url, $ua ) {
     }
 
     $logger->debug("Content-Disposition Header: $content_disp");
-    if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
-        $filename = Encode::decode('iso-8859-1', $1 );
-    } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
+    if ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
         # This is an UTF8 filename as per rfc5987.
         # URL-decode to get the full filename.
         $filename = Encode::decode('utf8', uri_unescape( $1 ) );
+    } elsif ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
+        my $legacy_filename = $1;
+
+        # Some servers put raw UTF-8 bytes in the legacy filename field.
+        # Try UTF-8 first, then fall back to ISO-8859-1 for compatibility.
+        $filename = eval { Encode::decode( 'utf8', $legacy_filename, Encode::FB_CROAK ) };
+        $filename = Encode::decode( 'iso-8859-1', $legacy_filename ) unless defined $filename;
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
         # Fallback to the last element of the URL as the filename.
         $logger->debug("No filename found in header, using URL as filename.");
