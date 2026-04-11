@@ -517,8 +517,8 @@ sub uninstall_plugin {
         $logger->warn("Plugin '$namespace' file not found at $installpath -- cleaning up Redis only.");
     }
 
-    # Clean up Redis unconditionally (matches delete_archive pattern)
-    $redis->del($namerds);
+    # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
+    $redis->hdel( $namerds, "installed_path", "installed_version", "registry" );
 
     return ( 1, undef );
 }
