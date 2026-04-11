@@ -6,14 +6,13 @@ use open ':std', ':encoding(UTF-8)';
 
 use Mojo::Base 'Mojolicious';
 use Mojo::File;
-use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 use Sys::Hostname;
 use Config;
 use URI::Escape;
 use Time::HiRes qw(gettimeofday);
 
-use LANraragi::Utils::Generic    qw(start_shinobu start_minion);
+use LANraragi::Utils::Generic    qw(start_shinobu start_minion get_version);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
 use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
@@ -42,12 +41,11 @@ sub startup {
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
 
-    # Load package.json to get version/vername/description
-    my $packagejson = decode_json( Mojo::File->new('package.json')->slurp );
+    my $version_info = get_version;
 
-    my $version = $packagejson->{version};
-    my $vername = $packagejson->{version_name};
-    my $descstr = $packagejson->{description};
+    my $version = $version_info->{version};
+    my $vername = $version_info->{version_name};
+    my $descstr = $version_info->{description};
 
     my $secret          = "";
     my $secretfile_path = get_temp . "/oshino";
