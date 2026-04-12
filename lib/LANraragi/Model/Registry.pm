@@ -16,9 +16,12 @@ use LANraragi::Utils::Path     qw(open_path unlink_path);
 use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
-# Max file sizes for slurp (OOM guard).
-use constant MAX_REGISTRY_INDEX_SIZE => 10 * 1024 * 1024;    # 10 MB
-use constant MAX_PLUGIN_FILE_SIZE    => 1 * 1024 * 1024;     # 1 MB
+# TODO(REVIEW) Utils/Model-level subs should not have fallbacks. Move fallbacks to Controller.
+# TODO(REVIEW) logging needed (for in-memory state changes)
+
+# Max file sizes for slurp (files will/should never reach this size anyways but stops OOM)
+use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
+use constant MAX_PLUGIN_FILE_SIZE    => 100 * 1024 * 1024;      # 100 MB
 
 # Source fields that, when changed, invalidate the cached index.
 my @SOURCE_FIELDS = qw(type provider url ref path);
@@ -41,6 +44,7 @@ sub create_registry {
     my ( $redis, %config ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
+    # TODO(REVIEW) init info logging needed
 
     # TODO: remove with multi-registry.
     # Single-registry enforcement
@@ -115,6 +119,7 @@ sub update_registry {
     my ( $registry_id, $redis, %updated_registry ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
+    # TODO(REVIEW) init info logging needed
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
@@ -134,6 +139,7 @@ sub update_registry {
     foreach my $field (@SOURCE_FIELDS) {
         next unless exists $updated_registry{$field};
         if ( !defined $current_registry{$field} || $current_registry{$field} ne $updated_registry{$field} ) {
+            # TODO(REVIEW) logging needed
             $indexcleared = 1;
             last;
         }
@@ -154,8 +160,9 @@ sub update_registry {
 
     # Atomic update via Lua: stale field removal, field writes, optional index clear.
     my @fields_to_remove;
-    # type is always set on a valid registry (stored at creation); no fallback needed
+    # type is always set on a valid registry (stored at creation)
     if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) {
+        # TODO(REVIEW) logging needed
         @fields_to_remove = @{ $STALE_FIELDS{$type} };
     }
 
@@ -164,6 +171,7 @@ sub update_registry {
     my @fields_to_set;
     foreach my $field ( keys %updated_registry ) {
         next unless $valid_set{$field};
+        # TODO(REVIEW) logging needed
         push @fields_to_set, $field, $updated_registry{$field};
     }
 
@@ -171,6 +179,7 @@ sub update_registry {
     if ($indexcleared) {
         my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
         $indexkey = "REG_INDEX_$suffix";
+        # TODO(REVIEW) logging needed
     }
 
     my $script = <<'LUA';
@@ -277,7 +286,7 @@ sub fetch_registry_index {
             $logger->error($error);
             return ( 403, undef, $error );
         };
-        my $content = do { local $/; <$fh> };
+        my $content = do { local $/; <$fh> }; # TODO(REVIEW) readability
         close $fh;
 
         return ( 200, $content, undef );
@@ -317,6 +326,7 @@ sub install_plugin {
     my ( $namespace, $redis, $registry_id ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
+    # TODO(REVIEW) init info logging needed
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
@@ -324,6 +334,7 @@ sub install_plugin {
 
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $indexkey = "REG_INDEX_$suffix";
+    # TODO(REVIEW) checkpoint logging
 
     unless ( $redis->exists($indexkey) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
@@ -471,6 +482,7 @@ sub uninstall_plugin {
 
     my $logger  = get_logger( "Registry", "lanraragi" );
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
+    # TODO(REVIEW) init info logging needed
 
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
@@ -515,7 +527,7 @@ sub scan_plugins {
     my %ns_map;
 
     foreach my $class (@discovered) {
-        next unless $class->can('plugin_info');
+        next unless $class->can('plugin_info'); # TODO(REVIEW) info logging/why this check exists?
 
         my %info;
         eval { %info = $class->plugin_info() };
@@ -535,7 +547,9 @@ sub scan_plugins {
         $filepath = File::Spec->catfile( getcwd(), "lib", "$filepath.pm" );
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
+        # TODO(REVIEW) info logging
     }
+    # TODO(REVIEW) log ns_map keys obtained
 
     # Warn on namespace duplicates
     foreach my $ns ( keys %ns_map ) {
@@ -572,8 +586,10 @@ sub scan_plugins {
                     $logger->warn("Plugin '$ns': installed_path '$recorded' differs from discovered '$filepath', updating.");
                     $redis->hset( $namerds, "installed_path", $filepath );
                 }
+                # TODO(REVIEW) info logging for else case
             } else {
                 $redis->hset( $namerds, "installed_path", $filepath );
+                # TODO(REVIEW) info logging
             }
         } else {
 
@@ -585,6 +601,7 @@ sub scan_plugins {
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
     my @all_keys     = $redis->keys("LRR_PLUGIN_*");
     my %discovereduc = map { uc($_) => 1 } keys %ns_map;
+    # TODO(REVIEW) log all_keys and length of discovereduc
 
     foreach my $key (@all_keys) {
         my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;

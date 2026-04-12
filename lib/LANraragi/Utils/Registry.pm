@@ -14,6 +14,9 @@ use LANraragi::Utils::Path qw(open_path find_path);
 use Exporter 'import';
 our @EXPORT_OK = qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
+# TODO(REVIEW) Utils/Model-level subs should not have fallbacks. Move fallbacks to Controller.
+
+# TODO(REVIEW) this also applies to builtin plugins?
 # Maps plugin_info type values to directory names under Plugin/Managed/.
 use constant MANAGED_TYPE_DIRS => {
     metadata => "Metadata",
@@ -26,6 +29,7 @@ use constant MANAGED_TYPE_DIRS => {
 sub resolve_git_raw_url {
     my ( $provider, $url, $ref, $path ) = @_;
 
+    # TODO(REVIEW) is ref/path not guaranteed?
     $ref  //= "main";
     $path //= "registry.json";
 
@@ -34,6 +38,7 @@ sub resolve_git_raw_url {
     if ( $url =~ m{^https?://([^/]+)/([^/]+)/([^/]+?)(?:\.git)?$} ) {
         ( $host, $owner, $repo ) = ( $1, $2, $3 );
     } else {
+        # TODO(REVIEW) log error
         return;
     }
 
@@ -45,9 +50,11 @@ sub resolve_git_raw_url {
         return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=" . url_escape($ref);
     }
 
+    # TODO(REVIEW) log error
     return;
 }
 
+# TODO(REVIEW) is skip_path shape guaranteed (abs/relative) if not undef?
 # Scan Plugin/ directory for a .pm file declaring the given package name.
 # Returns the conflicting filepath, or undef if no conflict.
 # $skip_path: optional filepath to exclude (used for upgrades).
@@ -57,14 +64,15 @@ sub find_package_conflict {
     my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
     my $conflict;
 
-    return unless -d $plugin_dir;
+    return unless -d $plugin_dir; # TODO(REVIEW) is this line necessary?
 
+    # TODO(REVIEW) find_path argument is too large.
     find_path(
         sub {
-            return if $conflict;
-            return unless /\.pm$/;
+            return if $conflict; # TODO(REVIEW) is this line necessary?
+            return unless /\.pm$/; # TODO(REVIEW) readability
 
-            my $filepath = $File::Find::name;
+            my $filepath = $File::Find::name; # TODO(REVIEW) readability
             return if $skip_path && $filepath eq $skip_path;
 
             open_path( my $fh, '<', $filepath ) or return;
@@ -93,6 +101,9 @@ sub find_namespace_conflict {
 
     return unless -d $plugin_dir;
 
+    # TODO(REVIEW) find_path argument is too large.
+    # TODO(REVIEW) should be refactored, has inner duplicates.
+    # Or find_package_conflict/namespace_conflict merged and namespace/package flags.
     find_path(
         sub {
             return if $conflict;
