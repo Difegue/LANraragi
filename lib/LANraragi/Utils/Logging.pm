@@ -7,7 +7,8 @@ use utf8;
 use feature 'say';
 use feature 'isa';
 use POSIX;
-use FindBin;
+use File::Basename;
+use Cwd 'abs_path';
 use Time::HiRes;
 use Config;
 
@@ -31,14 +32,14 @@ our %LOGGER_CACHE;
 # Get the Log folder.
 sub get_logdir {
 
-    my $log_folder = "$FindBin::Bin/../log";
+    my $log_folder = dirname(__FILE__) . "/../../../log";
 
     # Folder location can be overriden by LRR_LOG_DIRECTORY
     if ( $ENV{LRR_LOG_DIRECTORY} ) {
         $log_folder = $ENV{LRR_LOG_DIRECTORY};
     }
     mkdir $log_folder;
-    return $log_folder;
+    return abs_path($log_folder);
 }
 
 # Returns a Mojo::Log object with a custom name and a filename for the log file.
