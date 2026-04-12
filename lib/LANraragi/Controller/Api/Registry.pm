@@ -292,6 +292,12 @@ sub refresh_registry {
                 return;
             }
 
+            unless ( ref $index->{plugins} eq 'HASH' ) {
+                $redis->quit();
+                render_api_response( $self, "refresh_registry", "Invalid registry.json: 'plugins' must be an object." );
+                return;
+            }
+
             # Cache the raw JSON under the paired index key
             my ($suffix) = $regid =~ /^REG_(\d{10})$/;
             my $indexkey = "REG_INDEX_$suffix";
