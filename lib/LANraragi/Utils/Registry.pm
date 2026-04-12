@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 
 use Cwd qw(getcwd);
-use File::Find;
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
@@ -95,12 +94,10 @@ sub _find_conflict {
         sub {
             return if $conflict;
             return unless /\.pm$/;
+            return if $skip_path && $_ eq $skip_path;
 
-            my $filepath = $File::Find::name;
-            return if $skip_path && $filepath eq $skip_path;
-
-            if ( $match_fn->($filepath) ) {
-                $conflict = $filepath;
+            if ( $match_fn->($_) ) {
+                $conflict = $_;
             }
         },
         $plugin_dir
