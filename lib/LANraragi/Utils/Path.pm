@@ -10,12 +10,13 @@ use Encode;
 use Config;
 use File::Find;
 use File::Copy qw(move);
+use File::Spec;
 use POSIX qw(strerror);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_path create_path_or_die open_path open_path_or_die date_modified compat_path unlink_path find_path get_archive_path rename_path move_path);
+our @EXPORT_OK = qw(create_path create_path_or_die open_path open_path_or_die date_modified compat_path unlink_path find_path get_archive_path rename_path move_path package_to_path);
 
 BEGIN {
     if ( !IS_UNIX ) {
@@ -106,6 +107,11 @@ sub find_path( $wanted, $path ) {
 
 sub get_archive_path ( $redis, $id ) {
     return create_path( $redis->hget( $id, "file" ) );
+}
+
+# Convert a Perl package name to a filesystem path (e.g. "LANraragi::Plugin::Foo" -> "LANraragi/Plugin/Foo.pm").
+sub package_to_path( $package ) {
+    return File::Spec->catfile( split( /::/, $package ) ) . ".pm";
 }
 
 # Build the error message for a failed file operation containing details about the file's properties

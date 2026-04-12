@@ -5,8 +5,9 @@ use warnings;
 use utf8;
 
 use Mojo::JSON                 qw(decode_json);
-use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Path     qw(package_to_path);
+use LANraragi::Utils::Redis    qw(redis_decode);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
@@ -27,13 +28,10 @@ sub get_plugins {
     my @validplugins;
     foreach my $plugin (@plugins) {
 
-        # TODO(REVIEW) move to a sub: plugin_to_inc_key, then add unit tests.
         # Skip plugins whose files have been removed (e.g. after uninstall).
         # Module::Pluggable caches discovered classes for the worker lifetime,
         # so a deleted plugin remains in the list until the process restarts.
-        my $inc_key = $plugin;
-        $inc_key =~ s/::/\//g;
-        $inc_key .= ".pm";
+        my $inc_key = package_to_path($plugin);
         if ( exists $INC{$inc_key} && !-e $INC{$inc_key} ) {
             delete $INC{$inc_key};
             next;

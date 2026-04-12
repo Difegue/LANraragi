@@ -13,7 +13,7 @@ use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Path     qw(unlink_path);
+use LANraragi::Utils::Path     qw(unlink_path package_to_path);
 use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
@@ -457,10 +457,7 @@ LUA
         return ( 409, undef, "Registry was deleted during install." );
     }
 
-    # Use relative inc path so %INC key matches Module::Pluggable expectations.
-    my $incpath = $validated->{package};
-    $incpath =~ s/::/\//g;
-    $incpath .= ".pm";
+    my $incpath = package_to_path( $validated->{package} );
     eval { require $incpath };
     if ($@) {
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
@@ -620,6 +617,24 @@ sub scan_plugins {
     }
 
     $logger->info("Plugin scan complete.");
+}
+
+# Infer plugin source from Redis provenance or install path.
+sub infer_plugin_source {
+    my ( $namespace, $redis ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    if ( $redis->hexists( $namerds, "registry" ) ) {
+        my $reg = $redis->hget( $namerds, "registry" );
+        return "managed" if $reg && $reg ne "";
+    }
+
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        my $path = $redis->hget( $namerds, "installed_path" );
+        return "sideloaded" if $path && $path =~ /Sideloaded/;
+    }
+
+    return "builtin";
 }
 
 # Validate downloaded plugin content against registry metadata and filesystem state.

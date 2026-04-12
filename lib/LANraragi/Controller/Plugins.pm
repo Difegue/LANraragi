@@ -10,6 +10,7 @@ use Mojo::JSON qw(encode_json);
 use Cwd;
 
 use File::Basename;
+use File::Spec;
 use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -38,7 +39,7 @@ sub index {
     # Add source and priority to all plugins
     for my $list ( $meta_all, $downloaders, $logins, $scripts ) {
         for my $plugin (@$list) {
-            $plugin->{source} = _infer_source( $plugin->{namespace}, $redis );
+            $plugin->{source} = LANraragi::Model::Registry::infer_plugin_source( $plugin->{namespace}, $redis );
         }
     }
 
@@ -207,7 +208,7 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
-    my $filename = basename( $file->filename ); # TODO(REVIEW) why basename over filename?
+    my $filename = basename( $file->filename );
 
     my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
@@ -237,18 +238,15 @@ sub process_upload {
         }
 
         # Extract package name for conflict checks
-        # TODO(REVIEW) why wrapped in ()
-        # TODO(REVIEW) path compliance?
         my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
         my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
 
-        # TODO(REVIEW) path compliance?
-        my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
+        my $dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin", "Sideloaded" );
         unless ( -e $dir ) {
             mkdir $dir;
         }
 
-        my $output_file = $dir . $filename;
+        my $output_file = File::Spec->catfile( $dir, $filename );
 
         if ($pkg) {
             my $conflict = find_package_conflict($pkg, $output_file);
@@ -329,7 +327,7 @@ sub process_upload {
         my $namespace = $pluginfo{namespace};
         my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
-        # Register installed_path so _infer_source works before next scan_plugins.
+        # Register installed_path so infer_plugin_source works before next scan_plugins.
         # Serialize against managed install/uninstall on the same namespace.
         return unless exec_with_lock(
             $self,
@@ -362,25 +360,6 @@ sub process_upload {
             }
         );
     }
-}
-
-# TODO(REVIEW) why at the controller level?
-# Infer plugin source from Redis provenance or install path.
-sub _infer_source {
-    my ( $namespace, $redis ) = @_;
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
-
-    if ( $redis->hexists( $namerds, "registry" ) ) {
-        my $reg = $redis->hget( $namerds, "registry" );
-        return "managed" if $reg && $reg ne "";
-    }
-
-    if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        my $path = $redis->hget( $namerds, "installed_path" );
-        return "sideloaded" if $path && $path =~ /Sideloaded/;
-    }
-
-    return "builtin";
 }
 
 1;
