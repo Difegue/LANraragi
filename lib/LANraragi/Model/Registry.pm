@@ -15,6 +15,11 @@ use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
+# TODO(REVIEW) response signature should be similar to update_bookmark_link: ( status code, reg_id, message )
+# TODO(REVIEW) rename regid -> registry_id.
+# TODO(REVIEW) all paths should be Linux/MacOS/Windows-compatible.
+# TODO(REVIEW) if a write is involved, consider what happens if redis goes down temporarily or permanently (mid-call).
+
 # Source fields that, when changed, invalidate the cached index.
 my @SOURCE_FIELDS = qw(type provider url ref path);
 
@@ -74,6 +79,7 @@ sub create_registry {
 sub get_registry {
     my ( $regid, $redis ) = @_;
 
+    # TODO(REVIEW) readability
     return () unless $regid =~ /^REG_\d{10}$/ && $redis->exists($regid);
 
     my %config = $redis->hgetall($regid);
@@ -86,27 +92,32 @@ sub get_registry {
 sub get_registry_list {
     my ($redis) = @_;
 
+    # TODO(REVIEW) keys -> reg_ids
     my @keys = $redis->keys("REG_??????????");
-    my @result;
 
+    my @result;
+    # TODO(REVIEW) why sort?
     foreach my $key ( sort @keys ) {
         my %config = get_registry( $key, $redis );
-        push @result, \%config if %config;
+        push @result, \%config if %config; # TODO(REVIEW) why "if"?
     }
 
     return @result;
 }
 
 # Update mutable fields on an existing registry.
+# TODO(REVIEW) rename updates -> updated_registry (is it a registry?)
+# TODO(REVIEW) updates shape?
 sub update_registry {
     my ( $regid, $redis, %updates ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
     unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
-        return ( undef, "This registry doesn't exist." );
+        return ( undef, "This registry doesn't exist." ); # TODO(REVIEW) status code 404
     }
 
+    # TODO(REVIEW) rename current -> current_registry
     my %current = $redis->hgetall($regid);
 
     # Determine if source fields are changing
@@ -120,14 +131,17 @@ sub update_registry {
     }
 
     # Validate type enum if changing
+    # TODO(REVIEW) is this not already validated by OpenAPI
     my $type = $updates{type} // $current{type};
     unless ( $type eq "git" || $type eq "local" ) {
+        # TODO(REVIEW) 400
         return ( undef, "Invalid type '$type' -- must be git or local." );
     }
 
     # Validate resulting config has required fields for the target type
     my %merged = ( %current, %updates );
 
+    # TODO(REVIEW) 400
     if ( $type eq "git" ) {
         return ( undef, "Git registry needs a URL." )      unless $merged{url};
         return ( undef, "Git registry needs a provider." ) unless $merged{provider};
@@ -136,6 +150,8 @@ sub update_registry {
     }
 
     # Handle type change: remove stale fields (after validation passes)
+    # TODO(REVIEW) why `current{type}` fallback exists? Check guarantees.
+    # TODO(REVIEW) more generally, why validate updates? Does OpenAPI not validate?
     if ( exists $updates{type} && $updates{type} ne ( $current{type} // "" ) ) {
         my @to_remove = @{ $STALE_FIELDS{$type} };
         foreach my $field (@to_remove) {
@@ -160,6 +176,7 @@ sub update_registry {
         $logger->info("Cleared cached index for '$regid' due to source field change.");
     }
 
+    # TODO(REVIEW) 200
     return ( $indexcleared, undef );
 }
 
@@ -170,6 +187,9 @@ sub delete_registry {
     my $logger = get_logger( "Registry", "lanraragi" );
 
     unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
+
+        # TODO(REVIEW) message: "$regid is not a registry ID, doing nothing."
+        # TODO(REVIEW) 404
         return ( undef, "This registry doesn't exist." );
     }
 
@@ -181,10 +201,12 @@ sub delete_registry {
 
     $logger->info("Deleted registry '$regid'.");
 
+    # TODO(REVIEW) 200
     return ( 1, undef );
 }
 
 # Fetch registry.json from a configured registry source.
+# TODO(REVIEW) type/config shapes?
 sub fetch_registry_index {
     my ( $type, %config ) = @_;
 
@@ -192,22 +214,27 @@ sub fetch_registry_index {
 
     if ( $type eq "local" ) {
         my $path = $config{path};
-        my $file = "$path/registry.json";
+        my $file = "$path/registry.json"; # TODO(REVIEW) sanitized?
 
         unless ( -e $file ) {
             my $error = "Registry file not found: $file";
             $logger->error($error);
+            # TODO(REVIEW) 404
             return ( undef, $error );
         }
 
+        # TODO(REVIEW) what if file is too large/OOM?
+        # TODO(REVIEW) what if file is empty?
         open( my $fh, '<:raw', $file ) or do {
             my $error = "Cannot read registry file: $!";
             $logger->error($error);
+            # TODO(REVIEW) 403, maybe?
             return ( undef, $error );
         };
-        my $content = do { local $/; <$fh> };
+        my $content = do { local $/; <$fh> }; # TODO(REVIEW) is this how it's read elsewhere?
         close $fh;
 
+        # TODO(REVIEW) 200
         return ( $content, undef );
     }
 
@@ -215,6 +242,7 @@ sub fetch_registry_index {
         my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref} );
 
         unless ($rawurl) {
+            # TODO(REVIEW) 400? What does resolve_git_raw_url throw
             my $error = "Cannot resolve git URL: $config{url}";
             $logger->error($error);
             return ( undef, $error );
@@ -222,18 +250,23 @@ sub fetch_registry_index {
 
         $logger->info("Fetching registry index from $rawurl");
 
+        # TODO(REVIEW) check if we need to close.
+        # TODO(REVIEW) what if payload is too large/OOM?
         my $ua  = Mojo::UserAgent->new;
         my $res = $ua->get($rawurl)->result;
 
         unless ( $res->is_success ) {
+            # TODO(REVIEW) what status code?
             my $error = "Failed to fetch registry index: HTTP " . $res->code;
             $logger->error($error);
             return ( undef, $error );
         }
 
+        # TODO(REVIEW) 200
         return ( $res->body, undef );
     }
 
+    # TODO(REVIEW) 400
     return ( undef, "Unknown registry type: $type" );
 }
 
@@ -241,15 +274,18 @@ sub fetch_registry_index {
 # Plugin Validation
 #
 
+# TODO(REVIEW) move dependency subs to bottom.
+# TODO(REVIEW) does this only cover managed plugins?
+# TODO(REVIEW) confirm this is RO.
 # Validate downloaded plugin content against registry metadata and filesystem state.
 sub validate_plugin {
     my ( $content, $namespace, $plugmeta, $currentpath ) = @_;
 
-    my $plugname  = $plugmeta->{name};
-    my $plugver   = $plugmeta->{version};
-    my $plugpath  = $plugmeta->{path};
-    my $plugtype  = $plugmeta->{type};
-    my $expectedsha  = $plugmeta->{sha256};
+    my $plugname    = $plugmeta->{name};
+    my $plugver     = $plugmeta->{version};
+    my $plugpath    = $plugmeta->{path};
+    my $plugtype    = $plugmeta->{type};
+    my $expectedsha = $plugmeta->{sha256};
 
     # Required metadata
     unless ($plugname) {
@@ -266,6 +302,7 @@ sub validate_plugin {
     }
 
     # SHA-256 integrity
+    # TODO(REVIEW) rename to actual_checksum/expected_checksum.
     unless ( defined $expectedsha && $expectedsha ne "" ) {
         return ( undef, "Plugin '$namespace' is missing required field 'sha256'." );
     }
@@ -275,6 +312,7 @@ sub validate_plugin {
     }
 
     # Extract package declaration
+    # TODO: this doesn't cover scenarios where the plugin has package name but is invalid in other ways.
     my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
     unless ($pkg) {
         return ( undef, "Plugin file doesn't declare a LANraragi::Plugin:: package." );
@@ -295,7 +333,7 @@ sub validate_plugin {
     }
 
     # Extract filename and validate format
-    my ($filename) = $plugpath =~ m{([^/]+)$};
+    my ($filename) = $plugpath =~ m{([^/]+)$}; # TODO(REVIEW) is this standard?
     unless ($filename) {
         return ( undef, "Can't extract filename from path: $plugpath" );
     }
@@ -303,7 +341,7 @@ sub validate_plugin {
         return ( undef, "Invalid plugin filename: $filename" );
     }
 
-    my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
+    my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir"; # TODO(REVIEW) will this work in Windows?
     my $installpath = "$installdir/$filename";
 
     # Package-path consistency
@@ -341,6 +379,7 @@ sub install_plugin {
 
     # Validate registry exists
     unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
+        # TODO(REVIEW) 404
         return ( undef, "This registry doesn't exist." );
     }
 
@@ -349,6 +388,7 @@ sub install_plugin {
     my $indexkey = "REG_INDEX_$suffix";
 
     unless ( $redis->exists($indexkey) ) {
+        # TODO(REVIEW) status code?
         return ( undef, "No registry index cached. Run refresh first." );
     }
 
@@ -357,6 +397,7 @@ sub install_plugin {
     my $plugins  = $index->{plugins};
 
     unless ( $plugins->{$namespace} ) {
+        # TODO(REVIEW) 404
         return ( undef, "Plugin '$namespace' not found in registry." );
     }
 
@@ -365,12 +406,15 @@ sub install_plugin {
 
     # Validate plugin path before any file or network access
     unless ($plugpath) {
+        # TODO(REVIEW) 400
         return ( undef, "Plugin '$namespace' is missing required field 'path'." );
     }
     if ( index( $plugpath, "\0" ) >= 0 ) {
+        # TODO(REVIEW) 400
         return ( undef, "Invalid plugin path (null byte)." );
     }
     if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
+        # TODO(REVIEW) 400
         return ( undef, "Invalid plugin path: $plugpath" );
     }
 
@@ -392,10 +436,12 @@ sub install_plugin {
         my $file = "$config{path}/$plugpath";
 
         unless ( -e $file ) {
+            # TODO(REVIEW) 404
             return ( undef, "Plugin file not found: $file" );
         }
 
         open( my $fh, '<:raw', $file ) or do {
+            # TODO(REVIEW) 500 (or some other status code)
             return ( undef, "Cannot read plugin file: $!" );
         };
         $content = do { local $/; <$fh> };
@@ -405,6 +451,7 @@ sub install_plugin {
         my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, $plugpath );
 
         unless ($rawurl) {
+            # TODO(REVIEW) status code?
             return ( undef, "Can't resolve download URL for $plugpath" );
         }
 
@@ -416,17 +463,21 @@ sub install_plugin {
         unless ( $res->is_success ) {
             my $error = "Download failed: HTTP " . $res->code;
             $logger->error($error);
+            # TODO(REVIEW) status code?
             return ( undef, $error );
         }
 
         $content = $res->body;
     } else {
+        # TODO(REVIEW) 400
+        # TODO(REVIEW) no control over type at OpenAPI level?
         return ( undef, "Unknown registry type: $type" );
     }
 
     # Validate downloaded content
     my ( $validated, $error ) = validate_plugin( $content, $namespace, $plugmeta, $currentpath );
     if ($error) {
+        # TODO(REVIEW) status code for validation failure
         return ( undef, $error );
     }
 
@@ -440,13 +491,16 @@ sub install_plugin {
     open( my $fh, '>:raw', $installpath ) or do {
         my $error = "Cannot write plugin file: $!";
         $logger->error($error);
+        # TODO(REVIEW) see status code reqs
         return ( undef, $error );
     };
-    print $fh $content;
+    print $fh $content; # TODO(REVIEW) why use print? Check consistency
     close $fh;
 
     $logger->info("Installed plugin '$namespace' to $installpath");
 
+    # TODO(REVIEW) use Lua syntax from search_uncached.
+    # TODO(REVIEW): rename provenancelua -> script
     # Atomically verify registry still exists and store provenance.
     my $provenancelua = q{
         if redis.call("EXISTS", KEYS[1]) == 0 then
@@ -457,15 +511,19 @@ sub install_plugin {
         redis.call("HSET", KEYS[2], "registry",          ARGV[3])
         return 1
     };
+
+    # TODO(REVIEW) see historical maintainer comments regarding use of `my $ok`.
     my $ok = eval {
         $redis->eval( $provenancelua, 2, $regid, $namerds,
             $installpath, $plugmeta->{version}, $regid );
     };
     if ($@) {
         $logger->error("Redis error during provenance write for '$namespace': $@");
+        # TODO(REVIEW) 500
         return ( undef, "Redis error while writing provenance." );
     }
     unless ($ok) {
+        # TODO(REVIEW) status code?
         return ( undef, "Registry was deleted during install." );
     }
 
@@ -480,6 +538,7 @@ sub install_plugin {
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
     }
 
+    # TODO(REVIEW) 200
     return ( $plugmeta, undef );
 }
 
@@ -497,6 +556,7 @@ sub uninstall_plugin {
     }
 
     unless ($installpath) {
+        # TODO(REVIEW) 500/404?
         return ( undef, "Plugin '$namespace' has no install path recorded." );
     }
 
@@ -505,10 +565,12 @@ sub uninstall_plugin {
         my $canonpath = abs_path($installpath);
         my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
         unless ( $canonpath && $plugindir && index( $canonpath, "$plugindir/" ) == 0 ) {
+            # TODO(REVIEW) 500/403
             return ( undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
         }
 
         unlink($canonpath) or do {
+            # TODO(REVIEW) 500/403
             return ( undef, "Couldn't delete plugin file: $!" );
         };
         $logger->info("Deleted plugin file: $canonpath");
@@ -519,6 +581,7 @@ sub uninstall_plugin {
     # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
     $redis->hdel( $namerds, "installed_path", "installed_version", "registry" );
 
+    # TODO(REVIEW) 200
     return ( 1, undef );
 }
 
@@ -529,6 +592,7 @@ sub scan_plugins {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Scanning plugins...");
 
+    # TODO(REVIEW) what is M::P?
     # Get all M::P discovered classes
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
@@ -562,7 +626,7 @@ sub scan_plugins {
     # Warn on namespace duplicates
     foreach my $ns ( keys %ns_map ) {
         if ( @{ $ns_map{$ns} } > 1 ) {
-            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } );
+            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } ); # TODO(REVIEW) style consistency?
             $logger->warn("Duplicate namespace '$ns' found in: $paths");
         }
     }
@@ -574,7 +638,7 @@ sub scan_plugins {
     }
     foreach my $uc_key ( keys %uc_map ) {
         if ( @{ $uc_map{$uc_key} } > 1 ) {
-            my $nses = join( ", ", @{ $uc_map{$uc_key} } );
+            my $nses = join( ", ", @{ $uc_map{$uc_key} } ); # TODO(REVIEW) nses rename to namespaces or something clearer.
             $logger->warn("Namespace case collision (shared Redis key LRR_PLUGIN_$uc_key): $nses");
         }
     }
@@ -583,9 +647,9 @@ sub scan_plugins {
     foreach my $ns ( keys %ns_map ) {
         next if @{ $ns_map{$ns} } > 1;    # skip duplicates
 
-        my $entry    = $ns_map{$ns}[0];
-        my $filepath = $entry->{file_path};
-        my $namerds  = "LRR_PLUGIN_" . uc($ns);
+        my $entry       = $ns_map{$ns}[0];
+        my $filepath    = $entry->{file_path};
+        my $namerds     = "LRR_PLUGIN_" . uc($ns);
 
         if ( $redis->exists($namerds) ) {
 
@@ -608,12 +672,12 @@ sub scan_plugins {
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
-    my @all_keys     = $redis->keys("LRR_PLUGIN_*");
-    my %discovereduc = map { uc($_) => 1 } keys %ns_map;
+    my @all_keys        = $redis->keys("LRR_PLUGIN_*");
+    my %discovereduc    = map { uc($_) => 1 } keys %ns_map;
 
     foreach my $key (@all_keys) {
         my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;
-        next unless $nspart;
+        next unless $nspart; # TODO(REVIEW) when would nspart ever be empty? If never, throw warning/error.
 
         unless ( $discovereduc{$nspart} ) {
             if ( $redis->hexists( $key, "installed_path" ) ) {
