@@ -11,6 +11,7 @@ use Redis;
 
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Redis      qw(redis_encode);
+use LANraragi::Utils::String     qw(remove_separator);
 
 
 # get_stamp(id, stamp_id)
@@ -21,7 +22,7 @@ sub get_stamp {
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
     my $err     = "";
 
     if ( $redis->hexists($faves_id => $stamp_id) ) {
@@ -45,7 +46,7 @@ sub get_stamps_by_page {
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
     my $err     = "";
 
     my $data = get_stamps_data($redis, $faves_id, $index);
@@ -64,7 +65,7 @@ sub get_stamped_pages {
 
 	my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
     my $err    = "";
 
     my $fields = $redis->hkeys($faves_id);
@@ -92,7 +93,7 @@ sub add_stamp {
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
     my $err    = "";
 
     unless ( $redis->exists($id) ) {
@@ -125,7 +126,7 @@ sub update_stamp {
     my $logger = get_logger( "Stamps", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
 
     if ( $redis->exists($faves_id) ) {
         # Format inputs
@@ -165,7 +166,7 @@ sub remove_stamp {
     my $logger = get_logger( "Stamps", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
-    my $faves_id = "FAVES_" . $id;
+    my $faves_id = "STAMPS_" . $id;
 
     if ( $redis->exists($faves_id) ) {
         $redis->hdel($faves_id, $key);
@@ -177,19 +178,6 @@ sub remove_stamp {
     $logger->warn($err);
     $redis->quit;
     return ( 0, $err );
-}
-
-# Replaces | for " " in the given string
-sub remove_separator {
-    my ($string, $char) = @_;
-    
-    # Escape special regex characters in $char
-    my $escaped_char = quotemeta($char);
-    
-    # Replace all occurrences with a space
-    $string =~ s/$escaped_char/ /g;
-    
-    return $string;
 }
 
 # Extracts the stamps related to a page using HSCAN

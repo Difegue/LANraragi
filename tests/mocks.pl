@@ -131,7 +131,7 @@ sub setup_redis_mock {
             "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ],
-        "FAVES_be447b58ea66137c415ee306ee2ac44b308ee484": {
+        "STAMPS_be447b58ea66137c415ee306ee2ac44b308ee484": {
             "0:1589138380": "0,0|Lorem",
             "0:1589138381": "0,0|Ipsum",
             "1:1589138380": "0,0|Dolor",

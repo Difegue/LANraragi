@@ -57,33 +57,26 @@ sub add_stamp {
         return render_api_response( $self, "add_stamp", "Archive page." );
     }
 
-    return unless exec_with_lock(
-        $self,
-        "stamp-write:$id",
-        "create_stamp",
-        $id,
-        sub {
-            my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
+    my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
 
-            if ($created_id) {
-                $self->render(
-                    openapi => {
-                        operation    => "add_stamp",
-                        stamp_id => $created_id,
-                        success      => 1
-                    }
-                );
-            } else {
-                $self->render(
-                    openapi => {
-                        operation    => "add_stamp",
-                        stamp_id => $created_id,
-                        success      => 0
-                    }
-                );
+    if ($created_id) {
+        $self->render(
+            openapi => {
+                operation   => "add_stamp",
+                stamp_id    => $created_id,
+                success     => 1
             }
-        }
-    );
+        );
+    } else {
+        $self->render(
+            openapi => {
+                operation   => "add_stamp",
+                stamp_id    => $created_id,
+                success     => 0,
+                error       => $err
+            }
+        );
+    }
 }
 
 sub update_stamp {
@@ -132,7 +125,7 @@ sub delete_stamp {
             if ($result) {
                 render_api_response( $self, "delete_stamp" );
             } else {
-                render_api_response( $self, "delete_stamp", "The given stamp does not exist." );
+                render_api_response( $self, "delete_stamp", $err );
             }
         }
     );

@@ -1853,6 +1853,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps:
+    get:
+      operationId: stampedPages
+      x-mojo-to: api-stamp#get_stamped_pages
+      summary: 🔑 Get pages that contain at least one stamp in the archive
+      description: Get pages that contain at least one stamp in the archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /search:
     get:
@@ -3561,7 +3594,7 @@ paths:
       operationId: addStamp
       x-mojo-to: api-stamp#add_stamp
       summary: 🔑 Add a stamp annotation
-      description: Add a new annotation to the page as a page sticky.
+      description: Add a new Stamp to the page at the given coordinates.
       tags:
         - stamps
       parameters:
@@ -3609,39 +3642,6 @@ paths:
                     enum:
                       - 0
                       - 1
-        '400':
-          description: Error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-  /stamps/pages/{id}:
-    get:
-      operationId: stampedPages
-      x-mojo-to: api-stamp#get_stamped_pages
-      summary: 🔑 Get pages that contain at least one stamp in the archive
-      description: Get pages that contain at least one stamp in the archive.
-      tags:
-        - stamps
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the archive.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      type: string
         '400':
           description: Error response
           content:
@@ -4076,7 +4076,7 @@ components:
           description: ID of the stamp
         position:
           type: string
-          description: Position of the stamp in the page
+          description: Position of the stamp in the page in pixel coordinates
         content:
           type: string
           description: Text of the stamp
