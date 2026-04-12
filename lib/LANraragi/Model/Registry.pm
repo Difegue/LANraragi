@@ -31,23 +31,29 @@ my %STALE_FIELDS = (
 );
 
 # Create a registry entry with a generated REG_{timestamp} ID.
+# Returns ( $regid, undef ) or ( undef, $error_message ).
 sub create_registry {
     my ( $redis, %config ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    # Single-registry enforcement (temporary -- remove when multi-registry ships)
+    # TODO: remove with multi-registry.
+    # Single-registry enforcement
     my @existing = $redis->keys("REG_??????????");
     if (@existing) {
         return ( undef, "Only one registry is supported -- remove the existing one first." );
     }
 
-    # Generate ID following SET_/TANK_ pattern
-    my $idts  = time();
-    my $regid = "REG_" . $idts;
-    while ( $redis->exists($regid) ) {
-        $idts++;
-        $regid = "REG_" . $idts;
+    my $regid = "REG_" . time();
+    my $isnewkey = 0;
+    until ($isnewkey) {
+
+        # Check if the registry ID exists, move timestamp further if it does
+        if ( $redis->exists($regid) ) {
+            $regid = "REG_" . ( time() + 1 );
+        } else {
+            $isnewkey = 1;
+        }
     }
 
     # Store config fields
