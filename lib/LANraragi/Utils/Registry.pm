@@ -9,14 +9,14 @@ use File::Find;
 use File::Spec;
 use Mojo::Util qw(url_escape);
 
-use LANraragi::Utils::Path qw(open_path find_path);
+use Mojo::File;
+
+use LANraragi::Utils::Path    qw(find_path);
+use LANraragi::Utils::Logging qw(get_logger);
 
 use Exporter 'import';
 our @EXPORT_OK = qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
-# TODO(REVIEW) Utils/Model-level subs should not have fallbacks. Move fallbacks to Controller.
-
-# TODO(REVIEW) this also applies to builtin plugins?
 # Maps plugin_info type values to directory names under Plugin/Managed/.
 use constant MANAGED_TYPE_DIRS => {
     metadata => "Metadata",
@@ -25,20 +25,18 @@ use constant MANAGED_TYPE_DIRS => {
     script   => "Scripts",
 };
 
-# Resolve a git URL to a raw file URL for a given provider.
+# Resolve a git URL to a raw file URL for a given provider
+# Supports github, gitlab, and gitea/codeberg providers.
 sub resolve_git_raw_url {
     my ( $provider, $url, $ref, $path ) = @_;
 
-    # TODO(REVIEW) is ref/path not guaranteed?
-    $ref  //= "main";
-    $path //= "registry.json";
+    my $logger = get_logger( "Registry", "lanraragi" );
 
-    # Extract host, owner, repo from HTTPS URL
     my ( $host, $owner, $repo );
     if ( $url =~ m{^https?://([^/]+)/([^/]+)/([^/]+?)(?:\.git)?$} ) {
         ( $host, $owner, $repo ) = ( $1, $2, $3 );
     } else {
-        # TODO(REVIEW) log error
+        $logger->error("Cannot parse git URL: $url");
         return;
     }
 
@@ -50,60 +48,50 @@ sub resolve_git_raw_url {
         return "https://$host/api/v1/repos/$owner/$repo/raw/$path?ref=" . url_escape($ref);
     }
 
-    # TODO(REVIEW) log error
+    $logger->error("Unknown provider '$provider' for URL: $url");
     return;
 }
 
-# TODO(REVIEW) is skip_path shape guaranteed (abs/relative) if not undef?
-# Scan Plugin/ directory for a .pm file declaring the given package name.
-# Returns the conflicting filepath, or undef if no conflict.
-# $skip_path: optional filepath to exclude (used for upgrades).
+# Scan Plugin/ for a .pm file declaring the given package name
 sub find_package_conflict {
     my ( $package_name, $skip_path ) = @_;
 
-    my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
-    my $conflict;
-
-    return unless -d $plugin_dir; # TODO(REVIEW) is this line necessary?
-
-    # TODO(REVIEW) find_path argument is too large.
-    find_path(
+    return _find_conflict(
+        $skip_path,
         sub {
-            return if $conflict; # TODO(REVIEW) is this line necessary?
-            return unless /\.pm$/; # TODO(REVIEW) readability
-
-            my $filepath = $File::Find::name; # TODO(REVIEW) readability
-            return if $skip_path && $filepath eq $skip_path;
-
-            open_path( my $fh, '<', $filepath ) or return;
-            while ( my $line = <$fh> ) {
-                if ( $line =~ /^package\s+\Q$package_name\E\s*;/ ) {
-                    $conflict = $filepath;
-                    last;
-                }
-            }
-            close $fh;
-        },
-        $plugin_dir
+            my ($filepath) = @_;
+            my $content = eval { Mojo::File->new($filepath)->slurp } or return;
+            return $content =~ /^package\s+\Q$package_name\E\s*;/m;
+        }
     );
-
-    return $conflict;
 }
 
-# Scan Plugin/ directory for a .pm file declaring the given namespace.
-# Returns the conflicting filepath, or undef if no conflict.
-# $skip_path: optional filepath to exclude (used for upgrades).
+# Scan Plugin/ for a .pm file declaring the given namespace
 sub find_namespace_conflict {
     my ( $namespace, $skip_path ) = @_;
+
+    return _find_conflict(
+        $skip_path,
+        sub {
+            my ($filepath) = @_;
+            my $content = eval { Mojo::File->new($filepath)->slurp } or return;
+            return $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/;
+        }
+    );
+}
+
+
+# Scan Plugin/ directory for a .pm file matching the given criteria.
+# $skip_path: optional absolute filepath to exclude
+# $match_fn: coderef($filepath, $fh) -> bool; return true if filepath conflicts.
+sub _find_conflict {
+    my ( $skip_path, $match_fn ) = @_;
 
     my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
     my $conflict;
 
     return unless -d $plugin_dir;
 
-    # TODO(REVIEW) find_path argument is too large.
-    # TODO(REVIEW) should be refactored, has inner duplicates.
-    # Or find_package_conflict/namespace_conflict merged and namespace/package flags.
     find_path(
         sub {
             return if $conflict;
@@ -112,11 +100,7 @@ sub find_namespace_conflict {
             my $filepath = $File::Find::name;
             return if $skip_path && $filepath eq $skip_path;
 
-            open_path( my $fh, '<', $filepath ) or return;
-            my $content = do { local $/; <$fh> };
-            close $fh;
-
-            if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/ ) {
+            if ( $match_fn->($filepath) ) {
                 $conflict = $filepath;
             }
         },

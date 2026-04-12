@@ -253,7 +253,7 @@ sub refresh_registry {
             }
 
             # Cache the raw JSON under the paired index key
-            my ($suffix) = $regid =~ /^REG_(\d{10})$/;
+            my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
             my $indexkey = "REG_INDEX_$suffix";
             $redis->set( $indexkey, $content );
             $redis->quit();

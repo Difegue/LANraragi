@@ -8,16 +8,14 @@ use Cwd qw(abs_path getcwd);
 use Digest::SHA qw(sha256_hex);
 use File::Path qw(make_path);
 use File::Spec;
+use Mojo::File;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Path     qw(open_path unlink_path);
+use LANraragi::Utils::Path     qw(unlink_path);
 use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
-
-# TODO(REVIEW) Utils/Model-level subs should not have fallbacks. Move fallbacks to Controller.
-# TODO(REVIEW) logging needed (for in-memory state changes)
 
 # Max file sizes for slurp (files will/should never reach this size anyways but stops OOM)
 use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
@@ -44,7 +42,7 @@ sub create_registry {
     my ( $redis, %config ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    # TODO(REVIEW) init info logging needed
+    $logger->info("Creating registry (type: $config{type})");
 
     # TODO: remove with multi-registry.
     # Single-registry enforcement
@@ -119,7 +117,7 @@ sub update_registry {
     my ( $registry_id, $redis, %updated_registry ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    # TODO(REVIEW) init info logging needed
+    $logger->info("Updating registry '$registry_id'");
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
@@ -139,7 +137,7 @@ sub update_registry {
     foreach my $field (@SOURCE_FIELDS) {
         next unless exists $updated_registry{$field};
         if ( !defined $current_registry{$field} || $current_registry{$field} ne $updated_registry{$field} ) {
-            # TODO(REVIEW) logging needed
+            $logger->info("Source field '$field' changed on '$registry_id'; will clear cached index.");
             $indexcleared = 1;
             last;
         }
@@ -162,7 +160,7 @@ sub update_registry {
     my @fields_to_remove;
     # type is always set on a valid registry (stored at creation)
     if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) {
-        # TODO(REVIEW) logging needed
+        $logger->info("Type change on '$registry_id': '$current_registry{type}' -> '$type'; removing stale fields.");
         @fields_to_remove = @{ $STALE_FIELDS{$type} };
     }
 
@@ -171,7 +169,7 @@ sub update_registry {
     my @fields_to_set;
     foreach my $field ( keys %updated_registry ) {
         next unless $valid_set{$field};
-        # TODO(REVIEW) logging needed
+        $logger->debug("Setting field '$field' on '$registry_id'");
         push @fields_to_set, $field, $updated_registry{$field};
     }
 
@@ -179,7 +177,6 @@ sub update_registry {
     if ($indexcleared) {
         my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
         $indexkey = "REG_INDEX_$suffix";
-        # TODO(REVIEW) logging needed
     }
 
     my $script = <<'LUA';
@@ -281,13 +278,12 @@ sub fetch_registry_index {
             return ( 400, undef, $error );
         }
 
-        open_path( my $fh, '<:raw', $file ) or do {
-            my $error = "Cannot read registry file: $!";
+        my $content = eval { Mojo::File->new($file)->slurp };
+        unless ( defined $content ) {
+            my $error = "Cannot read registry file: $@";
             $logger->error($error);
             return ( 403, undef, $error );
-        };
-        my $content = do { local $/; <$fh> }; # TODO(REVIEW) readability
-        close $fh;
+        }
 
         return ( 200, $content, undef );
     }
@@ -295,7 +291,7 @@ sub fetch_registry_index {
     if ( $type eq "git" ) {
 
         # resolve_git_raw_url returns undef when the URL format or provider is unrecognized
-        my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref} );
+        my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, "registry.json" );
 
         unless ($rawurl) {
             my $error = "Cannot resolve git URL: $config{url}";
@@ -326,7 +322,7 @@ sub install_plugin {
     my ( $namespace, $redis, $registry_id ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    # TODO(REVIEW) init info logging needed
+    $logger->info("Installing plugin '$namespace' from registry '$registry_id'");
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
@@ -334,7 +330,6 @@ sub install_plugin {
 
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $indexkey = "REG_INDEX_$suffix";
-    # TODO(REVIEW) checkpoint logging
 
     unless ( $redis->exists($indexkey) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
@@ -386,11 +381,10 @@ sub install_plugin {
             return ( 400, undef, "Plugin file too large: $file ($filesize bytes)" );
         }
 
-        open_path( my $fh, '<:raw', $file ) or do {
-            return ( 500, undef, "Cannot read plugin file: $!" );
-        };
-        $content = do { local $/; <$fh> };
-        close $fh;
+        $content = eval { Mojo::File->new($file)->slurp };
+        unless ( defined $content ) {
+            return ( 500, undef, "Cannot read plugin file: $@" );
+        }
 
     } elsif ( $type eq "git" ) {
         my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, $plugpath );
@@ -427,13 +421,12 @@ sub install_plugin {
 
     make_path($installdir) unless -d $installdir;
 
-    open_path( my $fh, '>:raw', $installpath ) or do {
-        my $error = "Cannot write plugin file: $!";
+    eval { Mojo::File->new($installpath)->spew($content) };
+    if ($@) {
+        my $error = "Cannot write plugin file: $@";
         $logger->error($error);
         return ( 500, undef, $error );
-    };
-    print $fh $content;
-    close $fh;
+    }
 
     $logger->info("Installed plugin '$namespace' to $installpath");
 
@@ -482,7 +475,7 @@ sub uninstall_plugin {
 
     my $logger  = get_logger( "Registry", "lanraragi" );
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
-    # TODO(REVIEW) init info logging needed
+    $logger->info("Uninstalling plugin '$namespace'");
 
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
@@ -527,7 +520,8 @@ sub scan_plugins {
     my %ns_map;
 
     foreach my $class (@discovered) {
-        next unless $class->can('plugin_info'); # TODO(REVIEW) info logging/why this check exists?
+        # Module::Pluggable may discover non-plugin classes; skip those
+        next unless $class->can('plugin_info');
 
         my %info;
         eval { %info = $class->plugin_info() };
@@ -547,9 +541,9 @@ sub scan_plugins {
         $filepath = File::Spec->catfile( getcwd(), "lib", "$filepath.pm" );
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
-        # TODO(REVIEW) info logging
     }
-    # TODO(REVIEW) log ns_map keys obtained
+
+    $logger->info("Discovered " . scalar( keys %ns_map ) . " plugin namespace(s).");
 
     # Warn on namespace duplicates
     foreach my $ns ( keys %ns_map ) {
@@ -586,10 +580,9 @@ sub scan_plugins {
                     $logger->warn("Plugin '$ns': installed_path '$recorded' differs from discovered '$filepath', updating.");
                     $redis->hset( $namerds, "installed_path", $filepath );
                 }
-                # TODO(REVIEW) info logging for else case
             } else {
+                $logger->info("Plugin '$ns': setting installed_path to '$filepath'.");
                 $redis->hset( $namerds, "installed_path", $filepath );
-                # TODO(REVIEW) info logging
             }
         } else {
 
@@ -601,7 +594,7 @@ sub scan_plugins {
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
     my @all_keys     = $redis->keys("LRR_PLUGIN_*");
     my %discovereduc = map { uc($_) => 1 } keys %ns_map;
-    # TODO(REVIEW) log all_keys and length of discovereduc
+    $logger->info("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
 
     foreach my $key (@all_keys) {
         my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;
