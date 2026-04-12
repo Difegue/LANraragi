@@ -2,7 +2,12 @@ use strict;
 use warnings;
 use utf8;
 
+use Cwd qw(getcwd);
 use Test::More;
+
+my $cwd = getcwd();
+require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 
 BEGIN { use_ok('LANraragi::Utils::Registry'); }
 
