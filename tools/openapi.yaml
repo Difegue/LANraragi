@@ -606,6 +606,7 @@ paths:
               properties:
                 name:
                   type: string
+                  minLength: 1
                   description: User-friendly alias for this registry.
                 type:
                   type: string
@@ -622,13 +623,27 @@ paths:
                   description: Git hosting provider. Required when type is 'git'.
                 url:
                   type: string
-                  description: Git repository URL. Required when type is 'git'.
+                  format: uri
+                  pattern: "^https://"
+                  description: Git repository HTTPS URL. Required when type is 'git'.
                 ref:
                   type: string
                   description: Git ref (branch, tag, or commit). Defaults to 'main'.
                 path:
                   type: string
+                  minLength: 1
                   description: Local filesystem path. Required when type is 'local'.
+              if:
+                properties:
+                  type:
+                    const: git
+              then:
+                required:
+                  - url
+                  - provider
+              else:
+                required:
+                  - path
       responses:
         '200':
           description: Registry created

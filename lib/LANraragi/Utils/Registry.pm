@@ -6,7 +6,10 @@ use utf8;
 
 use Cwd qw(getcwd);
 use File::Find;
+use File::Spec;
 use Mojo::Util qw(url_escape);
+
+use LANraragi::Utils::Path qw(open_path find_path);
 
 use Exporter 'import';
 our @EXPORT_OK = qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
@@ -51,30 +54,27 @@ sub resolve_git_raw_url {
 sub find_package_conflict {
     my ( $package_name, $skip_path ) = @_;
 
-    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
+    my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
     my $conflict;
 
     return unless -d $plugin_dir;
 
-    find(
-        {
-            no_chdir => 1,
-            wanted   => sub {
-                return if $conflict;
-                return unless /\.pm$/;
+    find_path(
+        sub {
+            return if $conflict;
+            return unless /\.pm$/;
 
-                my $filepath = $File::Find::name;
-                return if $skip_path && $filepath eq $skip_path;
+            my $filepath = $File::Find::name;
+            return if $skip_path && $filepath eq $skip_path;
 
-                open( my $fh, '<', $filepath ) or return;
-                while ( my $line = <$fh> ) {
-                    if ( $line =~ /^package\s+\Q$package_name\E\s*;/ ) {
-                        $conflict = $filepath;
-                        last;
-                    }
+            open_path( my $fh, '<', $filepath ) or return;
+            while ( my $line = <$fh> ) {
+                if ( $line =~ /^package\s+\Q$package_name\E\s*;/ ) {
+                    $conflict = $filepath;
+                    last;
                 }
-                close $fh;
-            },
+            }
+            close $fh;
         },
         $plugin_dir
     );
@@ -88,29 +88,26 @@ sub find_package_conflict {
 sub find_namespace_conflict {
     my ( $namespace, $skip_path ) = @_;
 
-    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
+    my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
     my $conflict;
 
     return unless -d $plugin_dir;
 
-    find(
-        {
-            no_chdir => 1,
-            wanted   => sub {
-                return if $conflict;
-                return unless /\.pm$/;
+    find_path(
+        sub {
+            return if $conflict;
+            return unless /\.pm$/;
 
-                my $filepath = $File::Find::name;
-                return if $skip_path && $filepath eq $skip_path;
+            my $filepath = $File::Find::name;
+            return if $skip_path && $filepath eq $skip_path;
 
-                open( my $fh, '<', $filepath ) or return;
-                my $content = do { local $/; <$fh> };
-                close $fh;
+            open_path( my $fh, '<', $filepath ) or return;
+            my $content = do { local $/; <$fh> };
+            close $fh;
 
-                if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/ ) {
-                    $conflict = $filepath;
-                }
-            },
+            if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/ ) {
+                $conflict = $filepath;
+            }
         },
         $plugin_dir
     );

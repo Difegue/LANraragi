@@ -6,19 +6,19 @@ use utf8;
 
 use Cwd qw(abs_path getcwd);
 use Digest::SHA qw(sha256_hex);
-use File::Copy;
 use File::Path qw(make_path);
+use File::Spec;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Path     qw(open_path unlink_path);
 use LANraragi::Utils::Plugins  qw();
 use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
 
-# TODO(REVIEW) response signature should be similar to update_bookmark_link: ( status code, reg_id, message )
-# TODO(REVIEW) rename regid -> registry_id.
-# TODO(REVIEW) all paths should be Linux/MacOS/Windows-compatible.
-# TODO(REVIEW) if a write is involved, consider what happens if redis goes down temporarily or permanently (mid-call).
+# Max file sizes for slurp (OOM guard).
+use constant MAX_REGISTRY_INDEX_SIZE => 10 * 1024 * 1024;    # 10 MB
+use constant MAX_PLUGIN_FILE_SIZE    => 1 * 1024 * 1024;     # 1 MB
 
 # Source fields that, when changed, invalidate the cached index.
 my @SOURCE_FIELDS = qw(type provider url ref path);
@@ -36,7 +36,7 @@ my %STALE_FIELDS = (
 );
 
 # Create a registry entry with a generated REG_{timestamp} ID.
-# Returns ( $regid, undef ) or ( undef, $error_message ).
+# Returns ( $registry_id, undef ) or ( undef, $error_message ).
 sub create_registry {
     my ( $redis, %config ) = @_;
 
@@ -49,41 +49,45 @@ sub create_registry {
         return ( undef, "Only one registry is supported -- remove the existing one first." );
     }
 
-    my $regid = "REG_" . time();
-    my $isnewkey = 0;
-    until ($isnewkey) {
+    # Sanitize local registry path
+    if ( $config{type} eq "local" && defined $config{path} ) {
+        if ( index( $config{path}, "\0" ) >= 0 || $config{path} =~ /\.\./ ) {
+            return ( undef, "Invalid registry path." );
+        }
+    }
 
-        # Check if the registry ID exists, move timestamp further if it does
-        if ( $redis->exists($regid) ) {
-            $regid = "REG_" . ( time() + 1 );
+    my $registry_id = "REG_" . time();
+    my $isnewkey    = 0;
+    until ($isnewkey) {
+        if ( $redis->exists($registry_id) ) {
+            $registry_id = "REG_" . ( time() + 1 );
         } else {
             $isnewkey = 1;
         }
     }
 
     # Store config fields
-    my $type = $config{type};
+    my $type         = $config{type};
     my @valid_fields = @{ $TYPE_FIELDS{$type} };
 
     foreach my $field (@valid_fields) {
         next unless defined $config{$field};
-        $redis->hset( $regid, $field, $config{$field} );
+        $redis->hset( $registry_id, $field, $config{$field} );
     }
 
-    $logger->info("Created registry '$regid' (name: $config{name}, type: $type)");
+    $logger->info("Created registry '$registry_id' (name: $config{name}, type: $type)");
 
-    return ( $regid, undef );
+    return ( $registry_id, undef );
 }
 
 # Get a registry's config by ID.
 sub get_registry {
-    my ( $regid, $redis ) = @_;
+    my ( $registry_id, $redis ) = @_;
 
-    # TODO(REVIEW) readability
-    return () unless $regid =~ /^REG_\d{10}$/ && $redis->exists($regid);
+    return () unless $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id);
 
-    my %config = $redis->hgetall($regid);
-    $config{id} = $regid;
+    my %config = $redis->hgetall($registry_id);
+    $config{id} = $registry_id;
 
     return %config;
 }
@@ -92,121 +96,148 @@ sub get_registry {
 sub get_registry_list {
     my ($redis) = @_;
 
-    # TODO(REVIEW) keys -> reg_ids
-    my @keys = $redis->keys("REG_??????????");
+    my @reg_ids = $redis->keys("REG_??????????");
 
     my @result;
-    # TODO(REVIEW) why sort?
-    foreach my $key ( sort @keys ) {
+
+    # Sort by timestamp
+    # not used now, but will be when multi-registry hits
+    foreach my $key ( sort @reg_ids ) {
         my %config = get_registry( $key, $redis );
-        push @result, \%config if %config; # TODO(REVIEW) why "if"?
+        push @result, \%config if %config;    # skip if deleted between keys() and hgetall
     }
 
     return @result;
 }
 
 # Update mutable fields on an existing registry.
-# TODO(REVIEW) rename updates -> updated_registry (is it a registry?)
-# TODO(REVIEW) updates shape?
 sub update_registry {
-    my ( $regid, $redis, %updates ) = @_;
+    my ( $registry_id, $redis, %updated_registry ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
-        return ( undef, "This registry doesn't exist." ); # TODO(REVIEW) status code 404
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( 404, undef, "This registry doesn't exist." );
     }
 
-    # TODO(REVIEW) rename current -> current_registry
-    my %current = $redis->hgetall($regid);
+    # Sanitize local registry path if provided
+    if ( defined $updated_registry{path} ) {
+        if ( index( $updated_registry{path}, "\0" ) >= 0 || $updated_registry{path} =~ /\.\./ ) {
+            return ( 400, undef, "Invalid registry path." );
+        }
+    }
+
+    my %current_registry = $redis->hgetall($registry_id);
 
     # Determine if source fields are changing
     my $indexcleared = 0;
     foreach my $field (@SOURCE_FIELDS) {
-        next unless exists $updates{$field};
-        if ( !defined $current{$field} || $current{$field} ne $updates{$field} ) {
+        next unless exists $updated_registry{$field};
+        if ( !defined $current_registry{$field} || $current_registry{$field} ne $updated_registry{$field} ) {
             $indexcleared = 1;
             last;
         }
     }
 
-    # Validate type enum if changing
-    # TODO(REVIEW) is this not already validated by OpenAPI
-    my $type = $updates{type} // $current{type};
-    unless ( $type eq "git" || $type eq "local" ) {
-        # TODO(REVIEW) 400
-        return ( undef, "Invalid type '$type' -- must be git or local." );
-    }
+    # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
+    my $type = $updated_registry{type} // $current_registry{type};
 
-    # Validate resulting config has required fields for the target type
-    my %merged = ( %current, %updates );
+    # Partial updates may omit fields already stored; merge before validating.
+    my %merged = ( %current_registry, %updated_registry );
 
-    # TODO(REVIEW) 400
     if ( $type eq "git" ) {
-        return ( undef, "Git registry needs a URL." )      unless $merged{url};
-        return ( undef, "Git registry needs a provider." ) unless $merged{provider};
+        return ( 400, undef, "Git registry needs a URL." )      unless $merged{url};
+        return ( 400, undef, "Git registry needs a provider." ) unless $merged{provider};
     } elsif ( $type eq "local" ) {
-        return ( undef, "Local registry needs a path." ) unless $merged{path};
+        return ( 400, undef, "Local registry needs a path." ) unless $merged{path};
     }
 
-    # Handle type change: remove stale fields (after validation passes)
-    # TODO(REVIEW) why `current{type}` fallback exists? Check guarantees.
-    # TODO(REVIEW) more generally, why validate updates? Does OpenAPI not validate?
-    if ( exists $updates{type} && $updates{type} ne ( $current{type} // "" ) ) {
-        my @to_remove = @{ $STALE_FIELDS{$type} };
-        foreach my $field (@to_remove) {
-            $redis->hdel( $regid, $field );
-        }
+    # Atomic update via Lua: stale field removal, field writes, optional index clear.
+    my @fields_to_remove;
+    # type is always set on a valid registry (stored at creation); no fallback needed
+    if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) {
+        @fields_to_remove = @{ $STALE_FIELDS{$type} };
     }
 
-    # Apply updates
     my @valid_fields = @{ $TYPE_FIELDS{$type} };
     my %valid_set    = map { $_ => 1 } @valid_fields;
-
-    foreach my $field ( keys %updates ) {
+    my @fields_to_set;
+    foreach my $field ( keys %updated_registry ) {
         next unless $valid_set{$field};
-        $redis->hset( $regid, $field, $updates{$field} );
+        push @fields_to_set, $field, $updated_registry{$field};
     }
 
-    # Clear cached index if source changed
+    my $indexkey = "";
     if ($indexcleared) {
-        my ($suffix) = $regid =~ /^REG_(\d{10})$/;
-        my $indexkey = "REG_INDEX_$suffix";
-        $redis->del($indexkey);
-        $logger->info("Cleared cached index for '$regid' due to source field change.");
+        my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+        $indexkey = "REG_INDEX_$suffix";
     }
 
-    # TODO(REVIEW) 200
-    return ( $indexcleared, undef );
+    my $script = <<'LUA';
+    local ndel = tonumber(ARGV[1])
+    local idx = 2
+    for _ = 1, ndel do
+        redis.call("HDEL", KEYS[1], ARGV[idx])
+        idx = idx + 1
+    end
+    while idx + 1 <= #ARGV do
+        redis.call("HSET", KEYS[1], ARGV[idx], ARGV[idx + 1])
+        idx = idx + 2
+    end
+    if KEYS[2] ~= "" then
+        redis.call("DEL", KEYS[2])
+    end
+    return 1
+LUA
+
+    eval {
+        $redis->eval( $script, 2, $registry_id, $indexkey,
+            scalar @fields_to_remove, @fields_to_remove, @fields_to_set );
+    };
+    if ($@) {
+        $logger->error("Redis error during registry update for '$registry_id': $@");
+        return ( 500, undef, "Redis error while updating registry." );
+    }
+
+    if ($indexcleared) {
+        $logger->info("Cleared cached index for '$registry_id' due to source field change.");
+    }
+
+    return ( 200, $indexcleared, undef );
 }
 
 # Delete a registry and its cached index.
 sub delete_registry {
-    my ( $regid, $redis ) = @_;
+    my ( $registry_id, $redis ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
-
-        # TODO(REVIEW) message: "$regid is not a registry ID, doing nothing."
-        # TODO(REVIEW) 404
-        return ( undef, "This registry doesn't exist." );
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( 404, undef, "$registry_id is not a registry ID, doing nothing." );
     }
 
-    my ($suffix) = $regid =~ /^REG_(\d{10})$/;
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $indexkey = "REG_INDEX_$suffix";
 
-    $redis->del($regid);
-    $redis->del($indexkey);
+    # Atomic delete of registry + index key
+    my $script = <<'LUA';
+    redis.call("DEL", KEYS[1])
+    redis.call("DEL", KEYS[2])
+    return 1
+LUA
 
-    $logger->info("Deleted registry '$regid'.");
+    eval { $redis->eval( $script, 2, $registry_id, $indexkey ) };
+    if ($@) {
+        $logger->error("Redis error during registry delete for '$registry_id': $@");
+        return ( 500, undef, "Redis error while deleting registry." );
+    }
 
-    # TODO(REVIEW) 200
-    return ( 1, undef );
+    $logger->info("Deleted registry '$registry_id'.");
+
+    return ( 200, 1, undef );
 }
 
 # Fetch registry.json from a configured registry source.
-# TODO(REVIEW) type/config shapes?
 sub fetch_registry_index {
     my ( $type, %config ) = @_;
 
@@ -214,182 +245,88 @@ sub fetch_registry_index {
 
     if ( $type eq "local" ) {
         my $path = $config{path};
-        my $file = "$path/registry.json"; # TODO(REVIEW) sanitized?
+
+        if ( index( $path, "\0" ) >= 0 || $path =~ /\.\./ ) {
+            my $error = "Invalid registry path (null byte or traversal).";
+            $logger->error($error);
+            return ( 400, undef, $error );
+        }
+
+        my $file = File::Spec->catfile( $path, "registry.json" );
 
         unless ( -e $file ) {
             my $error = "Registry file not found: $file";
             $logger->error($error);
-            # TODO(REVIEW) 404
-            return ( undef, $error );
+            return ( 404, undef, $error );
         }
 
-        # TODO(REVIEW) what if file is too large/OOM?
-        # TODO(REVIEW) what if file is empty?
-        open( my $fh, '<:raw', $file ) or do {
+        my $filesize = -s $file;
+        if ( $filesize == 0 ) {
+            my $error = "Registry file is empty: $file";
+            $logger->error($error);
+            return ( 400, undef, $error );
+        }
+        if ( $filesize > MAX_REGISTRY_INDEX_SIZE ) {
+            my $error = "Registry file too large: $file ($filesize bytes, max " . MAX_REGISTRY_INDEX_SIZE . ")";
+            $logger->error($error);
+            return ( 400, undef, $error );
+        }
+
+        open_path( my $fh, '<:raw', $file ) or do {
             my $error = "Cannot read registry file: $!";
             $logger->error($error);
-            # TODO(REVIEW) 403, maybe?
-            return ( undef, $error );
+            return ( 403, undef, $error );
         };
-        my $content = do { local $/; <$fh> }; # TODO(REVIEW) is this how it's read elsewhere?
+        my $content = do { local $/; <$fh> };
         close $fh;
 
-        # TODO(REVIEW) 200
-        return ( $content, undef );
+        return ( 200, $content, undef );
     }
 
     if ( $type eq "git" ) {
+
+        # resolve_git_raw_url returns undef when the URL format or provider is unrecognized
         my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref} );
 
         unless ($rawurl) {
-            # TODO(REVIEW) 400? What does resolve_git_raw_url throw
             my $error = "Cannot resolve git URL: $config{url}";
             $logger->error($error);
-            return ( undef, $error );
+            return ( 400, undef, $error );
         }
 
         $logger->info("Fetching registry index from $rawurl");
 
-        # TODO(REVIEW) check if we need to close.
-        # TODO(REVIEW) what if payload is too large/OOM?
-        my $ua  = Mojo::UserAgent->new;
+        my $ua = Mojo::UserAgent->new;
+        $ua->max_response_size(MAX_REGISTRY_INDEX_SIZE);
         my $res = $ua->get($rawurl)->result;
 
         unless ( $res->is_success ) {
-            # TODO(REVIEW) what status code?
             my $error = "Failed to fetch registry index: HTTP " . $res->code;
             $logger->error($error);
-            return ( undef, $error );
+            return ( 502, undef, $error );
         }
 
-        # TODO(REVIEW) 200
-        return ( $res->body, undef );
+        return ( 200, $res->body, undef );
     }
 
-    # TODO(REVIEW) 400
-    return ( undef, "Unknown registry type: $type" );
-}
-
-#
-# Plugin Validation
-#
-
-# TODO(REVIEW) move dependency subs to bottom.
-# TODO(REVIEW) does this only cover managed plugins?
-# TODO(REVIEW) confirm this is RO.
-# Validate downloaded plugin content against registry metadata and filesystem state.
-sub validate_plugin {
-    my ( $content, $namespace, $plugmeta, $currentpath ) = @_;
-
-    my $plugname    = $plugmeta->{name};
-    my $plugver     = $plugmeta->{version};
-    my $plugpath    = $plugmeta->{path};
-    my $plugtype    = $plugmeta->{type};
-    my $expectedsha = $plugmeta->{sha256};
-
-    # Required metadata
-    unless ($plugname) {
-        return ( undef, "Plugin '$namespace' is missing required field 'name'." );
-    }
-    unless ($plugver) {
-        return ( undef, "Plugin '$namespace' is missing required field 'version'." );
-    }
-    unless ($plugpath) {
-        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
-    }
-    unless ($plugtype) {
-        return ( undef, "Plugin '$namespace' is missing required field 'type'." );
-    }
-
-    # SHA-256 integrity
-    # TODO(REVIEW) rename to actual_checksum/expected_checksum.
-    unless ( defined $expectedsha && $expectedsha ne "" ) {
-        return ( undef, "Plugin '$namespace' is missing required field 'sha256'." );
-    }
-    my $actual_sha = sha256_hex($content);
-    if ( $actual_sha ne $expectedsha ) {
-        return ( undef, "SHA-256 mismatch: expected $expectedsha, got $actual_sha" );
-    }
-
-    # Extract package declaration
-    # TODO: this doesn't cover scenarios where the plugin has package name but is invalid in other ways.
-    my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
-    unless ($pkg) {
-        return ( undef, "Plugin file doesn't declare a LANraragi::Plugin:: package." );
-    }
-
-    # Registry path safety: null bytes, traversal, absolute paths
-    if ( index( $plugpath, "\0" ) >= 0 ) {
-        return ( undef, "Invalid plugin path (null byte)." );
-    }
-    if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
-        return ( undef, "Invalid plugin path: $plugpath" );
-    }
-
-    # Type mapping
-    my $typedir = MANAGED_TYPE_DIRS->{$plugtype};
-    unless ($typedir) {
-        return ( undef, "Unknown plugin type '$plugtype'." );
-    }
-
-    # Extract filename and validate format
-    my ($filename) = $plugpath =~ m{([^/]+)$}; # TODO(REVIEW) is this standard?
-    unless ($filename) {
-        return ( undef, "Can't extract filename from path: $plugpath" );
-    }
-    unless ( $filename =~ /^[A-Za-z0-9_-]+\.pm$/ ) {
-        return ( undef, "Invalid plugin filename: $filename" );
-    }
-
-    my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir"; # TODO(REVIEW) will this work in Windows?
-    my $installpath = "$installdir/$filename";
-
-    # Package-path consistency
-    my ($stem) = $filename =~ /^(.+)\.pm$/;
-    my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";
-    if ( $pkg ne $expectedpkg ) {
-        return ( undef, "Package mismatch -- declared '$pkg' but expected '$expectedpkg'." );
-    }
-
-    # Package conflict (filesystem scan, skips install_path for upgrades)
-    my $conflict = find_package_conflict( $pkg, $installpath );
-    if ($conflict) {
-        return ( undef, "Package '$pkg' already exists in $conflict." );
-    }
-
-    # Namespace conflict (filesystem scan)
-    my $nsconflict = find_namespace_conflict( $namespace, $installpath );
-    if ($nsconflict) {
-        return ( undef, "Namespace '$namespace' already exists in $nsconflict." );
-    }
-
-    # Install path occupancy
-    if ( -e $installpath && ( !defined $currentpath || $currentpath ne $installpath ) ) {
-        return ( undef, "Install path is already occupied: $installpath" );
-    }
-
-    return ( { install_path => $installpath, install_dir => $installdir, package => $pkg }, undef );
+    return ( 400, undef, "Unknown registry type: $type" );
 }
 
 # Install a plugin from a registry.
 sub install_plugin {
-    my ( $namespace, $redis, $regid ) = @_;
+    my ( $namespace, $redis, $registry_id ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    # Validate registry exists
-    unless ( $regid =~ /^REG_\d{10}$/ && $redis->exists($regid) ) {
-        # TODO(REVIEW) 404
-        return ( undef, "This registry doesn't exist." );
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ( 404, undef, "This registry doesn't exist." );
     }
 
-    # Get cached index
-    my ($suffix) = $regid =~ /^REG_(\d{10})$/;
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $indexkey = "REG_INDEX_$suffix";
 
     unless ( $redis->exists($indexkey) ) {
-        # TODO(REVIEW) status code?
-        return ( undef, "No registry index cached. Run refresh first." );
+        return ( 409, undef, "No registry index cached. Run refresh first." );
     }
 
     my $indexjson = $redis->get($indexkey);
@@ -397,8 +334,7 @@ sub install_plugin {
     my $plugins  = $index->{plugins};
 
     unless ( $plugins->{$namespace} ) {
-        # TODO(REVIEW) 404
-        return ( undef, "Plugin '$namespace' not found in registry." );
+        return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
 
     my $plugmeta = $plugins->{$namespace};
@@ -406,20 +342,16 @@ sub install_plugin {
 
     # Validate plugin path before any file or network access
     unless ($plugpath) {
-        # TODO(REVIEW) 400
-        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
+        return ( 400, undef, "Plugin '$namespace' is missing required field 'path'." );
     }
     if ( index( $plugpath, "\0" ) >= 0 ) {
-        # TODO(REVIEW) 400
-        return ( undef, "Invalid plugin path (null byte)." );
+        return ( 400, undef, "Invalid plugin path (null byte)." );
     }
     if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
-        # TODO(REVIEW) 400
-        return ( undef, "Invalid plugin path: $plugpath" );
+        return ( 400, undef, "Invalid plugin path: $plugpath" );
     }
 
-    # Get registry config for download
-    my %config = $redis->hgetall($regid);
+    my %config = $redis->hgetall($registry_id);
     my $type   = $config{type};
 
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
@@ -429,20 +361,22 @@ sub install_plugin {
         $currentpath = $redis->hget( $namerds, "installed_path" );
     }
 
-    # Fetch the plugin file
     my $content;
 
     if ( $type eq "local" ) {
-        my $file = "$config{path}/$plugpath";
+        my $file = File::Spec->catfile( $config{path}, $plugpath );
 
         unless ( -e $file ) {
-            # TODO(REVIEW) 404
-            return ( undef, "Plugin file not found: $file" );
+            return ( 404, undef, "Plugin file not found: $file" );
         }
 
-        open( my $fh, '<:raw', $file ) or do {
-            # TODO(REVIEW) 500 (or some other status code)
-            return ( undef, "Cannot read plugin file: $!" );
+        my $filesize = -s $file;
+        if ( $filesize > MAX_PLUGIN_FILE_SIZE ) {
+            return ( 400, undef, "Plugin file too large: $file ($filesize bytes)" );
+        }
+
+        open_path( my $fh, '<:raw', $file ) or do {
+            return ( 500, undef, "Cannot read plugin file: $!" );
         };
         $content = do { local $/; <$fh> };
         close $fh;
@@ -451,85 +385,75 @@ sub install_plugin {
         my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, $plugpath );
 
         unless ($rawurl) {
-            # TODO(REVIEW) status code?
-            return ( undef, "Can't resolve download URL for $plugpath" );
+            return ( 400, undef, "Can't resolve download URL for $plugpath" );
         }
 
         $logger->info("Downloading plugin from $rawurl");
 
-        my $ua  = Mojo::UserAgent->new;
+        my $ua = Mojo::UserAgent->new;
+        $ua->max_response_size(MAX_PLUGIN_FILE_SIZE);
         my $res = $ua->get($rawurl)->result;
 
         unless ( $res->is_success ) {
             my $error = "Download failed: HTTP " . $res->code;
             $logger->error($error);
-            # TODO(REVIEW) status code?
-            return ( undef, $error );
+            return ( 502, undef, $error );
         }
 
         $content = $res->body;
     } else {
-        # TODO(REVIEW) 400
-        # TODO(REVIEW) no control over type at OpenAPI level?
-        return ( undef, "Unknown registry type: $type" );
+        # check against type just in case
+        return ( 400, undef, "Unknown registry type: $type" );
     }
 
-    # Validate downloaded content
-    my ( $validated, $error ) = validate_plugin( $content, $namespace, $plugmeta, $currentpath );
+    my ( $validated, $error ) = validate_managed_plugin( $content, $namespace, $plugmeta, $currentpath );
     if ($error) {
-        # TODO(REVIEW) status code for validation failure
-        return ( undef, $error );
+        return ( 422, undef, $error );
     }
 
     my $installdir  = $validated->{install_dir};
     my $installpath = $validated->{install_path};
 
-    # Create directory if needed
     make_path($installdir) unless -d $installdir;
 
-    # Write the plugin file
-    open( my $fh, '>:raw', $installpath ) or do {
+    open_path( my $fh, '>:raw', $installpath ) or do {
         my $error = "Cannot write plugin file: $!";
         $logger->error($error);
-        # TODO(REVIEW) see status code reqs
-        return ( undef, $error );
+        return ( 500, undef, $error );
     };
-    print $fh $content; # TODO(REVIEW) why use print? Check consistency
+    print $fh $content;
     close $fh;
 
     $logger->info("Installed plugin '$namespace' to $installpath");
 
-    # TODO(REVIEW) use Lua syntax from search_uncached.
-    # TODO(REVIEW): rename provenancelua -> script
     # Atomically verify registry still exists and store provenance.
-    my $provenancelua = q{
-        if redis.call("EXISTS", KEYS[1]) == 0 then
-            return 0
-        end
-        redis.call("HSET", KEYS[2], "installed_path",    ARGV[1])
-        redis.call("HSET", KEYS[2], "installed_version", ARGV[2])
-        redis.call("HSET", KEYS[2], "registry",          ARGV[3])
-        return 1
-    };
+    my $script = <<'LUA';
+    if redis.call("EXISTS", KEYS[1]) == 0 then
+        return 0
+    end
+    redis.call("HSET", KEYS[2], "installed_path",    ARGV[1])
+    redis.call("HSET", KEYS[2], "installed_version", ARGV[2])
+    redis.call("HSET", KEYS[2], "registry",          ARGV[3])
+    return 1
+LUA
 
-    # TODO(REVIEW) see historical maintainer comments regarding use of `my $ok`.
-    my $ok = eval {
-        $redis->eval( $provenancelua, 2, $regid, $namerds,
-            $installpath, $plugmeta->{version}, $regid );
+    my $provenance_written = eval {
+        $redis->eval( $script, 2, $registry_id, $namerds,
+            $installpath, $plugmeta->{version}, $registry_id );
     };
     if ($@) {
         $logger->error("Redis error during provenance write for '$namespace': $@");
-        # TODO(REVIEW) 500
-        return ( undef, "Redis error while writing provenance." );
+        # Clean up the written file since provenance was not recorded
+        unlink_path($installpath);
+        return ( 500, undef, "Redis error while writing provenance." );
     }
-    unless ($ok) {
-        # TODO(REVIEW) status code?
-        return ( undef, "Registry was deleted during install." );
+    unless ($provenance_written) {
+        # Registry was deleted between our existence check and the Lua script
+        unlink_path($installpath);
+        return ( 409, undef, "Registry was deleted during install." );
     }
 
-    # Load the plugin dynamically.
-    # Use the relative inc path so %INC key matches what Module::Pluggable
-    # and the stale-cache check in Utils::Plugins::get_plugins expect.
+    # Use relative inc path so %INC key matches Module::Pluggable expectations.
     my $incpath = $validated->{package};
     $incpath =~ s/::/\//g;
     $incpath .= ".pm";
@@ -538,8 +462,7 @@ sub install_plugin {
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
     }
 
-    # TODO(REVIEW) 200
-    return ( $plugmeta, undef );
+    return ( 200, $plugmeta, undef );
 }
 
 # Uninstall a plugin by deleting it from disk and cleaning up Redis.
@@ -549,29 +472,24 @@ sub uninstall_plugin {
     my $logger  = get_logger( "Registry", "lanraragi" );
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    # Check if plugin has an installed path
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
         $installpath = $redis->hget( $namerds, "installed_path" );
     }
 
     unless ($installpath) {
-        # TODO(REVIEW) 500/404?
-        return ( undef, "Plugin '$namespace' has no install path recorded." );
+        return ( 404, undef, "Plugin '$namespace' has no install path recorded." );
     }
 
-    # Delete the file if it exists and is under Plugin/
     if ( -e $installpath ) {
         my $canonpath = abs_path($installpath);
-        my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
+        my $plugindir = abs_path( File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" ) );
         unless ( $canonpath && $plugindir && index( $canonpath, "$plugindir/" ) == 0 ) {
-            # TODO(REVIEW) 500/403
-            return ( undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
+            return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
         }
 
-        unlink($canonpath) or do {
-            # TODO(REVIEW) 500/403
-            return ( undef, "Couldn't delete plugin file: $!" );
+        unlink_path($canonpath) or do {
+            return ( 500, undef, "Couldn't delete plugin file: $!" );
         };
         $logger->info("Deleted plugin file: $canonpath");
     } else {
@@ -581,8 +499,7 @@ sub uninstall_plugin {
     # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
     $redis->hdel( $namerds, "installed_path", "installed_version", "registry" );
 
-    # TODO(REVIEW) 200
-    return ( 1, undef );
+    return ( 200, 1, undef );
 }
 
 # Reconcile discovered plugins with Redis state at startup.
@@ -592,8 +509,6 @@ sub scan_plugins {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Scanning plugins...");
 
-    # TODO(REVIEW) what is M::P?
-    # Get all M::P discovered classes
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
     # Build namespace -> [class, file_path] map, detect duplicates
@@ -615,10 +530,9 @@ sub scan_plugins {
             next;
         }
 
-        # Derive absolute file path from class name
         my $filepath = $class;
         $filepath =~ s/::/\//g;
-        $filepath = getcwd() . "/lib/$filepath.pm";
+        $filepath = File::Spec->catfile( getcwd(), "lib", "$filepath.pm" );
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
     }
@@ -626,34 +540,32 @@ sub scan_plugins {
     # Warn on namespace duplicates
     foreach my $ns ( keys %ns_map ) {
         if ( @{ $ns_map{$ns} } > 1 ) {
-            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } ); # TODO(REVIEW) style consistency?
+            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } );
             $logger->warn("Duplicate namespace '$ns' found in: $paths");
         }
     }
 
-    # Warn on uc() collisions
+    # Warn on case collisions (Redis keys are case-insensitive by convention)
     my %uc_map;
     foreach my $ns ( keys %ns_map ) {
         push @{ $uc_map{ uc($ns) } }, $ns;
     }
     foreach my $uc_key ( keys %uc_map ) {
         if ( @{ $uc_map{$uc_key} } > 1 ) {
-            my $nses = join( ", ", @{ $uc_map{$uc_key} } ); # TODO(REVIEW) nses rename to namespaces or something clearer.
-            $logger->warn("Namespace case collision (shared Redis key LRR_PLUGIN_$uc_key): $nses");
+            my $namespaces = join( ", ", @{ $uc_map{$uc_key} } );
+            $logger->warn("Namespace case collision (shared Redis key LRR_PLUGIN_$uc_key): $namespaces");
         }
     }
 
-    # Reconcile each unique namespace with Redis
     foreach my $ns ( keys %ns_map ) {
         next if @{ $ns_map{$ns} } > 1;    # skip duplicates
 
-        my $entry       = $ns_map{$ns}[0];
-        my $filepath    = $entry->{file_path};
-        my $namerds     = "LRR_PLUGIN_" . uc($ns);
+        my $entry    = $ns_map{$ns}[0];
+        my $filepath = $entry->{file_path};
+        my $namerds  = "LRR_PLUGIN_" . uc($ns);
 
         if ( $redis->exists($namerds) ) {
 
-            # Redis key exists -- reconcile installed_path
             if ( $redis->hexists( $namerds, "installed_path" ) ) {
                 my $recorded = $redis->hget( $namerds, "installed_path" );
                 if ( $recorded ne $filepath ) {
@@ -665,19 +577,22 @@ sub scan_plugins {
             }
         } else {
 
-            # No Redis key -- register discovered plugin
             $logger->info("Registering discovered plugin '$ns' at $filepath");
             $redis->hset( $namerds, "installed_path", $filepath );
         }
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
-    my @all_keys        = $redis->keys("LRR_PLUGIN_*");
-    my %discovereduc    = map { uc($_) => 1 } keys %ns_map;
+    my @all_keys     = $redis->keys("LRR_PLUGIN_*");
+    my %discovereduc = map { uc($_) => 1 } keys %ns_map;
 
     foreach my $key (@all_keys) {
         my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;
-        next unless $nspart; # TODO(REVIEW) when would nspart ever be empty? If never, throw warning/error.
+        # keys("LRR_PLUGIN_*") guarantees at least one char after prefix; warn if violated
+        unless ($nspart) {
+            $logger->warn("Unexpected Redis key format: '$key', skipping.");
+            next;
+        }
 
         unless ( $discovereduc{$nspart} ) {
             if ( $redis->hexists( $key, "installed_path" ) ) {
@@ -695,6 +610,95 @@ sub scan_plugins {
     }
 
     $logger->info("Plugin scan complete.");
+}
+
+# Validate downloaded plugin content against registry metadata and filesystem state.
+# Covers managed plugins only (installed via registry into Plugin/Managed/).
+# Read-only
+sub validate_managed_plugin {
+    my ( $content, $namespace, $plugmeta, $currentpath ) = @_;
+
+    my $plugname          = $plugmeta->{name};
+    my $plugver           = $plugmeta->{version};
+    my $plugpath          = $plugmeta->{path};
+    my $plugtype          = $plugmeta->{type};
+    my $expected_checksum = $plugmeta->{sha256};
+
+    unless ($plugname) {
+        return ( undef, "Plugin '$namespace' is missing required field 'name'." );
+    }
+    unless ($plugver) {
+        return ( undef, "Plugin '$namespace' is missing required field 'version'." );
+    }
+    unless ($plugpath) {
+        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
+    }
+    unless ($plugtype) {
+        return ( undef, "Plugin '$namespace' is missing required field 'type'." );
+    }
+
+    unless ( defined $expected_checksum && $expected_checksum ne "" ) {
+        return ( undef, "Plugin '$namespace' is missing required field 'sha256'." );
+    }
+    my $actual_checksum = sha256_hex($content);
+    if ( $actual_checksum ne $expected_checksum ) {
+        return ( undef, "SHA-256 mismatch: expected $expected_checksum, got $actual_checksum" );
+    }
+
+    # A valid package name does not guarantee valid syntax;
+    # post-install require (in install_plugin) catches that at load time.
+    my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
+    unless ($pkg) {
+        return ( undef, "Plugin file doesn't declare a LANraragi::Plugin:: package." );
+    }
+
+    # Path safety: reject null bytes, traversal, and absolute paths.
+    if ( index( $plugpath, "\0" ) >= 0 ) {
+        return ( undef, "Invalid plugin path (null byte)." );
+    }
+    if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
+        return ( undef, "Invalid plugin path: $plugpath" );
+    }
+
+    my $typedir = MANAGED_TYPE_DIRS->{$plugtype};
+    unless ($typedir) {
+        return ( undef, "Unknown plugin type '$plugtype'." );
+    }
+
+    # Extract filename (basename via regex; File::Basename not imported here).
+    my ($filename) = $plugpath =~ m{([^/]+)$};
+    unless ($filename) {
+        return ( undef, "Can't extract filename from path: $plugpath" );
+    }
+    unless ( $filename =~ /^[A-Za-z0-9_-]+\.pm$/ ) {
+        return ( undef, "Invalid plugin filename: $filename" );
+    }
+
+    my $installdir  = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin", "Managed", $typedir );
+    my $installpath = File::Spec->catfile( $installdir, $filename );
+
+    my ($stem) = $filename =~ /^(.+)\.pm$/;
+    my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";
+    if ( $pkg ne $expectedpkg ) {
+        return ( undef, "Package mismatch -- declared '$pkg' but expected '$expectedpkg'." );
+    }
+
+    # Skip install_path itself so upgrades don't self-conflict.
+    my $conflict = find_package_conflict( $pkg, $installpath );
+    if ($conflict) {
+        return ( undef, "Package '$pkg' already exists in $conflict." );
+    }
+
+    my $nsconflict = find_namespace_conflict( $namespace, $installpath );
+    if ($nsconflict) {
+        return ( undef, "Namespace '$namespace' already exists in $nsconflict." );
+    }
+
+    if ( -e $installpath && ( !defined $currentpath || $currentpath ne $installpath ) ) {
+        return ( undef, "Install path is already occupied: $installpath" );
+    }
+
+    return ( { install_path => $installpath, install_dir => $installdir, package => $pkg }, undef );
 }
 
 1;
