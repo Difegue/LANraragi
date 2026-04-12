@@ -300,13 +300,6 @@ sub validate_plugin {
     my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
     my $installpath = "$installdir/$filename";
 
-    # Verify install path resolves under Plugin/Managed/ after canonicalization
-    make_path($installdir) unless -d $installdir;
-    my $canoninstalldir = abs_path($installdir);
-    if ( $canoninstalldir && index( "$canoninstalldir/$filename", abs_path( getcwd() . "/lib/LANraragi/Plugin/Managed" ) ) != 0 ) {
-        return ( undef, "Install path is outside Plugin/Managed/ directory." );
-    }
-
     # Package-path consistency
     my ($stem) = $filename =~ /^(.+)\.pm$/;
     my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";
