@@ -82,11 +82,11 @@ note('testing resolve_git_raw_url enforces HTTPS for gitlab/gitea...');
     is( $result, "https://git.local/api/v1/repos/owner/repo/raw/registry.json?ref=main", "gitea http url upgraded to https" );
 }
 
-note('testing resolve_git_raw_url with defaults...');
+note('testing resolve_git_raw_url with all arguments...');
 
 {
-    my $result = LANraragi::Utils::Registry::resolve_git_raw_url( "github", "https://github.com/owner/repo.git" );
-    is( $result, "https://raw.githubusercontent.com/owner/repo/main/registry.json", "github with default ref and path" );
+    my $result = LANraragi::Utils::Registry::resolve_git_raw_url( "github", "https://github.com/owner/repo.git", "main", "registry.json" );
+    is( $result, "https://raw.githubusercontent.com/owner/repo/main/registry.json", "github with explicit ref and path" );
 }
 
 note('testing resolve_git_raw_url with invalid input...');
