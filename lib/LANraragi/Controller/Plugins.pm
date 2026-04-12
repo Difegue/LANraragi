@@ -10,7 +10,6 @@ use Mojo::JSON qw(encode_json);
 use Cwd;
 
 use File::Basename;
-use File::Spec;
 use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -241,12 +240,12 @@ sub process_upload {
         my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
         my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
 
-        my $dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin", "Sideloaded" );
+        my $dir = getcwd() . "/lib/LANraragi/Plugin/Sideloaded/";
         unless ( -e $dir ) {
             mkdir $dir;
         }
 
-        my $output_file = File::Spec->catfile( $dir, $filename );
+        my $output_file = $dir . $filename;
 
         if ($pkg) {
             my $conflict = find_package_conflict($pkg, $output_file);

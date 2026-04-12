@@ -7,7 +7,6 @@ use utf8;
 use Cwd qw(abs_path getcwd);
 use Digest::SHA qw(sha256_hex);
 use File::Path qw(make_path);
-use File::Spec;
 use Mojo::File;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
@@ -258,7 +257,7 @@ sub fetch_registry_index {
             return ( 400, undef, $error );
         }
 
-        my $file = File::Spec->catfile( $path, "registry.json" );
+        my $file = "$path/registry.json";
 
         unless ( -e $file ) {
             my $error = "Registry file not found: $file";
@@ -370,7 +369,7 @@ sub install_plugin {
     my $content;
 
     if ( $type eq "local" ) {
-        my $file = File::Spec->catfile( $config{path}, $plugpath );
+        my $file = "$config{path}/$plugpath";
 
         unless ( -e $file ) {
             return ( 404, undef, "Plugin file not found: $file" );
@@ -485,7 +484,7 @@ sub uninstall_plugin {
 
     if ( -e $installpath ) {
         my $canonpath = abs_path($installpath);
-        my $plugindir = abs_path( File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" ) );
+        my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
         unless ( $canonpath && $plugindir && index( $canonpath, "$plugindir/" ) == 0 ) {
             return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
         }
@@ -535,7 +534,7 @@ sub scan_plugins {
 
         my $filepath = $class;
         $filepath =~ s/::/\//g;
-        $filepath = File::Spec->catfile( getcwd(), "lib", "$filepath.pm" );
+        $filepath = getcwd() . "/lib/$filepath.pm";
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
     }
@@ -699,8 +698,8 @@ sub validate_managed_plugin {
         return ( undef, "Invalid plugin filename: $filename" );
     }
 
-    my $installdir  = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin", "Managed", $typedir );
-    my $installpath = File::Spec->catfile( $installdir, $filename );
+    my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
+    my $installpath = "$installdir/$filename";
 
     my ($stem) = $filename =~ /^(.+)\.pm$/;
     my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";

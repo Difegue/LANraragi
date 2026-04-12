@@ -6,7 +6,6 @@ use utf8;
 
 use Cwd qw(getcwd);
 use File::Find;
-use File::Spec;
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
@@ -87,7 +86,7 @@ sub find_namespace_conflict {
 sub _find_conflict {
     my ( $skip_path, $match_fn ) = @_;
 
-    my $plugin_dir = File::Spec->catdir( getcwd(), "lib", "LANraragi", "Plugin" );
+    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
     my $conflict;
 
     return unless -d $plugin_dir;

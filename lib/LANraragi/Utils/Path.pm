@@ -10,7 +10,6 @@ use Encode;
 use Config;
 use File::Find;
 use File::Copy qw(move);
-use File::Spec;
 use POSIX qw(strerror);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
@@ -111,7 +110,7 @@ sub get_archive_path ( $redis, $id ) {
 
 # Convert a Perl package name to a filesystem path (e.g. "LANraragi::Plugin::Foo" -> "LANraragi/Plugin/Foo.pm").
 sub package_to_path( $package ) {
-    return File::Spec->catfile( split( /::/, $package ) ) . ".pm";
+    return join( "/", split( /::/, $package ) ) . ".pm";
 }
 
 # Build the error message for a failed file operation containing details about the file's properties
