@@ -207,7 +207,7 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
-    my $filename = basename( $file->filename );
+    my $filename = basename( $file->filename ); # TODO(REVIEW) why basename over filename?
 
     my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
@@ -237,9 +237,12 @@ sub process_upload {
         }
 
         # Extract package name for conflict checks
+        # TODO(REVIEW) why wrapped in ()
+        # TODO(REVIEW) path compliance?
         my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
         my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
 
+        # TODO(REVIEW) path compliance?
         my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
         unless ( -e $dir ) {
             mkdir $dir;
@@ -361,6 +364,7 @@ sub process_upload {
     }
 }
 
+# TODO(REVIEW) why at the controller level?
 # Infer plugin source from Redis provenance or install path.
 sub _infer_source {
     my ( $namespace, $redis ) = @_;

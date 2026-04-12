@@ -27,6 +27,7 @@ sub get_plugins {
     my @validplugins;
     foreach my $plugin (@plugins) {
 
+        # TODO(REVIEW) move to a sub: plugin_to_inc_key, then add unit tests.
         # Skip plugins whose files have been removed (e.g. after uninstall).
         # Module::Pluggable caches discovered classes for the worker lifetime,
         # so a deleted plugin remains in the list until the process restarts.
@@ -44,7 +45,7 @@ sub get_plugins {
             eval { %pluginfo = $plugin->plugin_info() };
             next if $@;
 
-            # Redis is the authoritative membership list (see module header).
+            # Redis has final say in plugin memberships
             next unless $redis->exists( "LRR_PLUGIN_" . uc( $pluginfo{namespace} ) );
 
             if    ( $type eq 'script' )   { next if ( !$plugin->can('run_script') ); }
