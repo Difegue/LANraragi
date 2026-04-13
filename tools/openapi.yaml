@@ -671,6 +671,12 @@ paths:
                     maxLength: 14
                   registry:
                     $ref: '#/components/schemas/RegistryMetadata'
+        '400':
+          description: Registry creation failed (single-registry limit, invalid path)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /registries/{id}:
     get:
@@ -796,8 +802,20 @@ paths:
                   index_cleared:
                     type: boolean
                     description: Whether the cached index was cleared due to source field changes.
+        '400':
+          description: Update failed (missing required fields, invalid path)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '404':
           description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during update
           content:
             application/json:
               schema:
@@ -892,8 +910,26 @@ paths:
                     type: object
                     nullable: true
                     description: Parsed registry.json content
+        '400':
+          description: Refresh failed (invalid registry.json, missing version/plugins)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '403':
+          description: Cannot read registry file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '404':
-          description: Registry not found
+          description: Registry not found or registry file not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '502':
+          description: Failed to fetch registry index from git
           content:
             application/json:
               schema:
@@ -961,22 +997,41 @@ paths:
                     type: string
                     description: Registry ID the plugin was installed from.
         '400':
-          description: Install failed
+          description: Install failed (validation, bad path, unknown type)
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - install_plugin
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                  error:
-                    type: string
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Registry or plugin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '409':
+          description: No cached index (refresh first) or registry deleted during install
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '422':
+          description: Plugin validation failed (checksum, package, conflict)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Server error (file write or Redis failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '502':
+          description: Failed to download plugin from git registry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /plugins/installed/{plugin_namespace}:
     delete:
@@ -1023,18 +1078,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - uninstall_plugin
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                  error:
-                    type: string
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Plugin has no install path recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Server error (file deletion failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /plugins/installed/{plugin_namespace}/config:
     put:
