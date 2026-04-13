@@ -636,6 +636,7 @@ sub infer_plugin_source {
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
         my $path = $redis->hget( $namerds, "installed_path" );
         return "sideloaded" if $path && $path =~ /Sideloaded/;
+        return "managed"    if $path && $path =~ m{Plugin/Managed/};
     }
 
     return "builtin";
