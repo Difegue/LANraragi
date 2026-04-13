@@ -482,6 +482,11 @@ sub uninstall_plugin {
         return ( 404, undef, "Plugin '$namespace' has no install path recorded." );
     }
 
+    my $source = infer_plugin_source( $namespace, $redis );
+    if ( $source eq "builtin" ) {
+        return ( 403, undef, "Cannot uninstall built-in plugin '$namespace'." );
+    }
+
     if ( -e $installpath ) {
         my $canonpath = abs_path($installpath);
         my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );

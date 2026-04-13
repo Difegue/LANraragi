@@ -1018,6 +1018,23 @@ paths:
                     nullable: true
                   successMessage:
                     type: string
+        '403':
+          description: Plugin cannot be uninstalled (built-in plugin)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - uninstall_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                  error:
+                    type: string
 
   /plugins/installed/{plugin_namespace}/config:
     put:
