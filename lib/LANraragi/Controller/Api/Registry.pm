@@ -135,8 +135,9 @@ sub update_registry {
                 }
             }
 
-            my ( $status, $indexcleared, $message ) =
-                LANraragi::Model::Registry::update_registry( $registry_id, $redis, %updated_registry );
+            my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
+                $registry_id, $redis, %updated_registry
+            );
 
             unless ( $status == 200 ) {
                 $redis->quit();
@@ -176,8 +177,9 @@ sub delete_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my ( $status, $success, $message ) =
-                LANraragi::Model::Registry::delete_registry( $registry_id, $redis );
+            my ( $status, $success, $message ) = LANraragi::Model::Registry::delete_registry(
+                $registry_id, $redis
+            );
             $redis->quit();
 
             unless ( $status == 200 ) {
@@ -221,8 +223,9 @@ sub refresh_registry {
             }
 
             my $type = $config{type};
-            my ( $status, $content, $message ) =
-                LANraragi::Model::Registry::fetch_registry_index( $type, %config );
+            my ( $status, $content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
+                $type, %config
+            );
 
             unless ( $status == 200 ) {
                 $redis->quit();
@@ -353,8 +356,9 @@ sub uninstall_plugin {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my ( $status, $success, $message ) =
-                LANraragi::Model::Registry::uninstall_plugin( $namespace, $redis );
+            my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
+                $namespace, $redis
+            );
             $redis->quit();
 
             unless ( $status == 200 ) {
