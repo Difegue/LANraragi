@@ -193,13 +193,14 @@ sub download_url ( $url, $ua ) {
 
     # Download the URL, with 5 maximum redirects and unlimited response size.
     my $filename = "Not_an_archive";
-    my ( $tx, $content_disp );
+    my ( $tx, $content_disp, $content_type );
 
     my $attempts = 0;
 
     while ( !$content_disp && $attempts < 5 ) {
         $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
         $content_disp = $tx->result->headers->content_disposition;
+        $content_type = $tx->result->headers->content_type;
 
         unless ($content_disp) {
             $logger->warn("No valid Content-Disposition header received, waiting and retrying... (attempt $attempts / 5)");
@@ -220,17 +221,25 @@ sub download_url ( $url, $ua ) {
     }
 
     $logger->debug("Content-Disposition Header: $content_disp");
+    $logger->debug("Content-Type Header: $content_type");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
-        $filename = Encode::decode('iso-8859-1', $1 );
+        my $temp = $1;
+        # This field should be Latin1 but sometimes it is not so use Content-Type
+        # as a hint on what to do
+        if ( $content_type =~ /.*charset=UTF-8.*/gim ) {
+            $filename = Encode::decode( "utf-8", $temp );
+        } else {
+            $filename = Encode::decode( "iso-8859-1", $temp );
+        }
     } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
         # This is an UTF8 filename as per rfc5987.
         # URL-decode to get the full filename.
-        $filename = Encode::decode('utf8', uri_unescape( $1 ) );
+        $filename = Encode::decode( "utf-8", uri_unescape( $1 ) );
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
         # Fallback to the last element of the URL as the filename.
         $logger->debug("No filename found in header, using URL as filename.");
         # Also URL/utf8 decode just in case
-        $filename = Encode::decode('utf8', uri_unescape( $1 ) );
+        $filename = Encode::decode( "utf-8", uri_unescape( $1 ) );
     }
 
     $logger->debug("Filename: $filename");
