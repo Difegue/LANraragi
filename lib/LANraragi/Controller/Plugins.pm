@@ -245,7 +245,8 @@ sub process_upload {
             mkdir $dir;
         }
 
-        my $output_file = $dir . $filename;
+        my $output_file       = $dir . $filename;
+        my $install_relpath   = "LANraragi/Plugin/Sideloaded/$filename";
 
         if ($pkg) {
             my $conflict = find_package_conflict($pkg, $output_file);
@@ -335,7 +336,7 @@ sub process_upload {
             $namespace,
             sub {
                 my $redis = $self->LRR_CONF->get_redis_config;
-                $redis->hset( $namerds, "installed_path", $output_file );
+                $redis->hset( $namerds, "installed_path", $install_relpath );
                 $redis->quit();
 
                 $self->render(

@@ -363,7 +363,7 @@ sub install_plugin {
     my $currentpath;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $currentpath = $redis->hget( $namerds, "installed_path" );
+        $currentpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
     }
 
     my $content;
@@ -415,8 +415,9 @@ sub install_plugin {
         return ( 422, undef, $error );
     }
 
-    my $installdir  = $validated->{install_dir};
-    my $installpath = $validated->{install_path};
+    my $installdir      = $validated->{install_dir};
+    my $installpath     = $validated->{install_path};
+    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) );
 
     make_path($installdir) unless -d $installdir;
 
@@ -442,7 +443,7 @@ LUA
 
     my $provenance_written = eval {
         $redis->eval( $script, 2, $registry_id, $namerds,
-            $installpath, $plugmeta->{version}, $registry_id );
+            $install_relpath, $plugmeta->{version}, $registry_id );
     };
     if ($@) {
         $logger->error("Redis error during provenance write for '$namespace': $@");
@@ -475,7 +476,7 @@ sub uninstall_plugin {
 
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $installpath = $redis->hget( $namerds, "installed_path" );
+        $installpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
     }
 
     unless ($installpath) {
@@ -515,6 +516,17 @@ sub scan_plugins {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Scanning plugins...");
 
+    # Convert absolute installed_path values to lib/-relative form.
+    my $lib_prefix = getcwd() . "/lib/";
+    foreach my $key ( $redis->keys("LRR_PLUGIN_*") ) {
+        next unless $redis->hexists( $key, "installed_path" );
+        my $recorded = $redis->hget( $key, "installed_path" );
+        next unless index( $recorded, $lib_prefix ) == 0;
+        my $relative = substr( $recorded, length($lib_prefix) );
+        $logger->info("Migrating $key installed_path to relative form: '$relative'");
+        $redis->hset( $key, "installed_path", $relative );
+    }
+
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
     # Build namespace -> [class, file_path] map, detect duplicates
@@ -537,9 +549,7 @@ sub scan_plugins {
             next;
         }
 
-        my $filepath = $class;
-        $filepath =~ s/::/\//g;
-        $filepath = getcwd() . "/lib/$filepath.pm";
+        my $filepath = package_to_path($class);
 
         push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
     }
@@ -574,19 +584,10 @@ sub scan_plugins {
         my $namerds  = "LRR_PLUGIN_" . uc($ns);
 
         if ( $redis->exists($namerds) ) {
-
-            if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                my $recorded = $redis->hget( $namerds, "installed_path" );
-                if ( $recorded ne $filepath ) {
-                    $logger->warn("Plugin '$ns': installed_path '$recorded' differs from discovered '$filepath', updating.");
-                    $redis->hset( $namerds, "installed_path", $filepath );
-                }
-            } else {
-                $logger->info("Plugin '$ns': setting installed_path to '$filepath'.");
-                $redis->hset( $namerds, "installed_path", $filepath );
-            }
+            next if $redis->hexists( $namerds, "installed_path" );
+            $logger->info("Plugin '$ns': setting installed_path to '$filepath'.");
+            $redis->hset( $namerds, "installed_path", $filepath );
         } else {
-
             $logger->info("Registering discovered plugin '$ns' at $filepath");
             $redis->hset( $namerds, "installed_path", $filepath );
         }
@@ -608,7 +609,7 @@ sub scan_plugins {
         unless ( $discovereduc{$nspart} ) {
             if ( $redis->hexists( $key, "installed_path" ) ) {
                 my $path = $redis->hget( $key, "installed_path" );
-                if ( -e $path ) {
+                if ( -e $lib_prefix . $path ) {
                     $logger->warn("Plugin key '$key' (installed_path: $path) not discovered but file exists -- skipping removal.");
                     next;
                 }
