@@ -10,7 +10,7 @@ sub update_plugin_config {
 
     return unless exec_with_lock(
         $self,
-        "plugin-write:$namespace",
+        "plugin-write:" . uc($namespace),
         "update_plugin_config",
         $namespace,
         sub {

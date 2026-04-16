@@ -281,7 +281,7 @@ sub install_plugin {
 
     return unless exec_with_lock(
         $self,
-        "plugin-write:$namespace",
+        "plugin-write:" . uc($namespace),
         "install_plugin",
         $namespace,
         sub {
@@ -350,7 +350,7 @@ sub uninstall_plugin {
 
     return unless exec_with_lock(
         $self,
-        "plugin-write:$namespace",
+        "plugin-write:" . uc($namespace),
         "uninstall_plugin",
         $namespace,
         sub {
