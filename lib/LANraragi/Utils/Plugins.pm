@@ -26,16 +26,8 @@ sub get_plugins {
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my @plugins = plugins;
     my @validplugins;
+    my %seen_ns;
     foreach my $plugin (@plugins) {
-
-        # Skip plugins whose files have been removed (e.g. after uninstall).
-        # Module::Pluggable caches discovered classes for the worker lifetime,
-        # so a deleted plugin remains in the list until the process restarts.
-        my $inc_key = package_to_path($plugin);
-        if ( exists $INC{$inc_key} && !-e $INC{$inc_key} ) {
-            delete $INC{$inc_key};
-            next;
-        }
 
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
@@ -43,8 +35,11 @@ sub get_plugins {
             eval { %pluginfo = $plugin->plugin_info() };
             next if $@;
 
-            # Redis has final say in plugin memberships
-            next unless $redis->exists( "LRR_PLUGIN_" . uc( $pluginfo{namespace} ) );
+            # Redis is the sole authority on plugin availability.
+            # One Redis key per namespace; one entry per namespace in the result.
+            my $ns = $pluginfo{namespace};
+            next unless $redis->hexists( "LRR_PLUGIN_" . uc($ns), "installed_path" );
+            next if $seen_ns{$ns}++;
 
             if    ( $type eq 'script' )   { next if ( !$plugin->can('run_script') ); }
             elsif ( $type eq 'metadata' ) { next if ( !$plugin->can('get_tags') ); }
