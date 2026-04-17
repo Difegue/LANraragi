@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-07 13:39+0200\n"
-"PO-Revision-Date: 2026-03-10 10:09+0000\n"
-"Last-Translator: Lele <lele.leopizzi@gmail.com>\n"
+"PO-Revision-Date: 2026-04-08 18:23+0000\n"
+"Last-Translator: David Signori <davidsignori02@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/it/>\n"
 "Language: it\n"
@@ -27,11 +27,11 @@ msgstr ""
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
 "Eseguire un backup ti permette di scaricare un file JSON contenente tutte le "
-"tue categorie, i tuoi ID di archivio e i loro metadati corrispondenti."
+"tue categorie, i tuoi ID archivio e i loro metadati corrispondenti."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
-"Il ripristino da un backup ripristinerà questi metadati, <b>per IDs che "
+"Il ripristino da un backup ripristinerà questi metadati, <b>per ID che "
 "esistono già nel tuo database.</b>"
 
 msgid "(Categories will always be restored)"
@@ -41,7 +41,7 @@ msgid "Backup Database"
 msgstr "Esegui Backup del Database"
 
 msgid "Restore Backup"
-msgstr "Riprostina Backup"
+msgstr "Ripristina Backup"
 
 msgid "Restoring your backup ..."
 msgstr "Ripristinando il tuo backup …"
@@ -55,24 +55,24 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "Qui puoi applicare modifiche ad archivi multipli in una volta."
+msgstr "Qui puoi applicare modifiche ad archivi multipli tutte in una volta."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
-"Seleziona cosa ti piacerebbe fare, controlla gli archivi su cui vuoi "
-"utilizzarlo e inizia!"
+"Seleziona cosa vuoi fare, controlla gli archivi su cui vuoi utilizzarlo e "
+"inizia!"
 
 msgid "Archives with no tags have been pre-checked."
 msgstr "Gli Archivi senza tag sono stati pre-controllati."
 
 msgid "Task :"
-msgstr ""
+msgstr "Task :"
 
 msgid "Use Plugin"
 msgstr "Usa Plugin"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Rimuovi Nuova Flag"
 
 msgid "Apply Tag Rules"
 msgstr "Applica Regole Tag"
@@ -87,7 +87,7 @@ msgid "Use plugin :"
 msgstr "Usa plugin :"
 
 msgid "Timeout (max 20s):"
-msgstr "Timeout (massimo 20s):"
+msgstr "Timeout (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
@@ -96,16 +96,16 @@ msgstr ""
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
-"Alcuni servizi esterni potrebbero temporaneamente bloccare la tua macchina "
-"per carichi eccessivi se chiami un plugin troppe volte!"
+"Alcuni servizi esterni potrebbero temporaneamente bloccare il tuo "
+"dispositivo per carichi eccessivi se usi un plugin troppe volte!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
 "Assicurati di impostare un <b>timeout</b> adeguato tra gli archivi "
-"utilizzando questo selettore se il plugin che vuoi usare è interessato."
+"utilizzando questo selettore se concerne il plugin che vuoi usare."
 
 msgid "Override Plugin Global Arguments"
-msgstr "Override Argomenti Globali Plugin"
+msgstr "Sovrascrivi Argomenti Globali Plugin"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr "Questo applicherà le seguenti Regole Tag agli Archivi selezionati."
@@ -125,20 +125,21 @@ msgstr "Aggiungi alla Categoria :"
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
 "Questo eliminerà sia i metadati che i file corrispondenti dal tuo sistema! "
-"Per favore, usalo con prudenza."
+"Usalo con prudenza."
 
 msgid "Check/Uncheck all"
 msgstr "Seleziona/Deseleziona tutto"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Inizia Task"
 
 msgid "Cancel"
 msgstr "Annulla"
 
 msgid "Start another job"
-msgstr "Inizia un altro processo"
+msgstr "Inizia un altro lavoro"
 
+#, fuzzy
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr "Elaborato <span id=\"arcs\"></span> di <span id=\"totalarcs\"></span>"
 
@@ -158,7 +159,8 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
-"Le Categorie compaiono in alto nella tua finestra quando navighi la Libreria."
+"Le Categorie compaiono nella parte alta della tua finestra quando navighi la "
+"Libreria."
 
 msgid "There are two distinct kinds:"
 msgstr "Ci sono due tipologie differenti:"
@@ -265,7 +267,7 @@ msgid "Archive Files"
 msgstr ""
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Tag e Miniature"
 
 msgid "Background Workers"
 msgstr ""
@@ -323,7 +325,7 @@ msgid "Clear the cache manually by clicking this button."
 msgstr "Svuota la cache manualmente cliccando questo bottone."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Ripristina cache di ricerca"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
@@ -336,7 +338,7 @@ msgstr ""
 "premendo questo bottone."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "Rimuovi NUOVE flag"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
@@ -542,22 +544,30 @@ msgstr ""
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Cartella Miniature"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Cartella in cui verranno salvate le miniature degli archivi. se non esiste, "
+"verrà creata."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Usa miniature ad alta qualità per le pagine"
 
+#, fuzzy
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi genera miniature in qualità più bassa per le pagine dell'archivio "
+"per ragioni di performance."
 
+#, fuzzy
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"se questa opzione è spuntata, genererà invece miniature delle pagine della "
+"stessa qualità delle miniature di copertina"
 
 msgid "Use JPEG XL for thumbnails"
 msgstr "Usa JPEG XL per le miniature"
@@ -685,7 +695,7 @@ msgid "Add Archives"
 msgstr ""
 
 msgid "Batch Operations"
-msgstr "Operazioni Multiple"
+msgstr "Operazioni Batch"
 
 msgid "Settings"
 msgstr ""
@@ -1803,3 +1813,7 @@ msgstr ""
 
 msgid "Untitled Chapter"
 msgstr "Capitolo senza Titolo"
+
+#, fuzzy
+msgid "Automatic (browser default)"
+msgstr "Automatica (predefinita del browser)"
