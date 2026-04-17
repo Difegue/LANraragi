@@ -242,6 +242,10 @@ sub download_url ( $url, $ua ) {
         $filename = Encode::decode( "utf-8", uri_unescape( $1 ) );
     }
 
+    if ( !IS_UNIX ) {
+        $filename = encode_utf8( $filename );
+    }
+
     $logger->debug("Filename: $filename");
 
     # remove invalid Windows chars
