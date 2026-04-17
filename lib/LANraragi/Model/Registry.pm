@@ -458,6 +458,7 @@ LUA
     }
 
     my $incpath = package_to_path( $validated->{package} );
+    delete $INC{$incpath};
     eval { require $incpath };
     if ($@) {
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
