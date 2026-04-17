@@ -17,7 +17,7 @@ sub update_plugin_config {
             my $redis   = $self->LRR_CONF->get_redis_config;
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-            unless ( $redis->exists($namerds) ) {
+            unless ( $redis->hexists( $namerds, "installed_path" ) ) {
                 $redis->quit();
                 $self->render(
                     openapi => {
