@@ -265,7 +265,7 @@ sub download_url ( $url, $ua ) {
 
     # To support long paths use a temp file and then move it to the final location using long-path compatible methods
     my $mojo_temp = tmpnam();
-    if ( !$tx->result->save_to( $mojo_temp ) ) {
+    if ( !$tx->result->content->asset->move_to( $mojo_temp ) ) {
         die("Could not move uploaded file $filename to $mojo_temp");
     }
 
