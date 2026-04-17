@@ -516,17 +516,6 @@ sub scan_plugins {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Scanning plugins...");
 
-    # Convert absolute installed_path values to lib/-relative form.
-    my $lib_prefix = getcwd() . "/lib/";
-    foreach my $key ( $redis->keys("LRR_PLUGIN_*") ) {
-        next unless $redis->hexists( $key, "installed_path" );
-        my $recorded = $redis->hget( $key, "installed_path" );
-        next unless index( $recorded, $lib_prefix ) == 0;
-        my $relative = substr( $recorded, length($lib_prefix) );
-        $logger->info("Migrating $key installed_path to relative form: '$relative'");
-        $redis->hset( $key, "installed_path", $relative );
-    }
-
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
     # Build namespace -> [class, file_path] map, detect duplicates
@@ -596,6 +585,7 @@ sub scan_plugins {
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
     my @all_keys     = $redis->keys("LRR_PLUGIN_*");
     my %discovereduc = map { uc($_) => 1 } keys %ns_map;
+    my $lib_prefix   = getcwd() . "/lib/";
     $logger->info("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
 
     foreach my $key (@all_keys) {
