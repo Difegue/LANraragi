@@ -10,6 +10,7 @@ use utf8;
 use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
+use UUID::Tiny ':std';
 
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file);
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
@@ -28,7 +29,7 @@ sub get_tankoubon_list ( $page = 0 ) {
     $page //= 0;
 
     # Tankoubons are represented by TANK_[timestamp] in DB. Can't wait for 2038!
-    my @tanks = $redis->keys('TANK_??????????');
+    my @tanks = $redis->keys('TANK_????????-????-????-????-????????????');
 
     # Jam tanks into an array of hashes
     my @result;
@@ -66,7 +67,10 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Set all fields of the group object
     unless ( length($tank_id) ) {
-        $tank_id = "TANK_" . time();
+        my $timestamp = time();
+        my $md5_UUID     = create_uuid(UUID_V3, $timestamp);
+        my $str_appendix = uuid_to_string($md5_UUID);
+        $tank_id = "TANK_" . $str_appendix;
 
         my $isnewkey = 0;
         until ($isnewkey) {
@@ -124,7 +128,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
         return ();
     }
 
-    unless ( length($tank_id) == 15 && $redis->exists($tank_id) ) {
+    unless ( length($tank_id) == 41 && $redis->exists($tank_id) ) {
         $logger->warn("$tank_id doesn't exist in the database!");
         return ();
     }
