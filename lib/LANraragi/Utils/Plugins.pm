@@ -13,6 +13,13 @@ use LANraragi::Utils::Redis    qw(redis_decode);
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
+# Per-worker cross-worker coherence state. Each prefork worker maintains its own
+# view of which Redis-tracked generation of each plugin namespace it has loaded.
+# On upgrade, install_plugin / process_upload bump installed_generation in Redis;
+# the next get_plugin call on any worker observes the mismatch and reloads.
+my %LOADED_GEN;
+my %LOAD_FAILED;
+
 # Functions related to the Plugin system.
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
@@ -109,6 +116,35 @@ sub get_plugin {
     unless ( $redis->exists($namerds) ) {
         $redis->quit();
         return 0;
+    }
+
+    # Cross-worker coherence: managed/sideloaded plugins opt in via installed_generation.
+    # Builtins have no generation field and skip the check entirely.
+    if ( $redis->hexists( $namerds, "installed_generation" ) ) {
+        my $installed_path = $redis->hget( $namerds, "installed_path" );
+        my $current_gen    = $redis->hget( $namerds, "installed_generation" );
+
+        if (   $installed_path
+            && ( $LOADED_GEN{$name}  // -1 ) != $current_gen
+            && ( $LOAD_FAILED{$name} // -1 ) != $current_gen )
+        {
+            delete $INC{$installed_path};
+            my $ok = eval {
+                no warnings 'redefine';
+                require $installed_path;
+                1;
+            };
+            if ($ok) {
+                $LOADED_GEN{$name} = $current_gen;
+                delete $LOAD_FAILED{$name};
+                get_logger( "Plugin System", "lanraragi" )
+                    ->info("Reloaded plugin '$name' to generation $current_gen (pid $$)");
+            } else {
+                $LOAD_FAILED{$name} = $current_gen;
+                get_logger( "Plugin System", "lanraragi" )
+                    ->warn("Failed to reload plugin '$name' at generation $current_gen: $@");
+            }
+        }
     }
     $redis->quit();
 

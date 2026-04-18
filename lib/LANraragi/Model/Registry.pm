@@ -431,13 +431,15 @@ sub install_plugin {
     $logger->info("Installed plugin '$namespace' to $installpath");
 
     # Atomically verify registry still exists and store provenance.
+    # installed_generation is bumped so other workers see a version change and reload.
     my $script = <<'LUA';
     if redis.call("EXISTS", KEYS[1]) == 0 then
         return 0
     end
-    redis.call("HSET", KEYS[2], "installed_path",    ARGV[1])
-    redis.call("HSET", KEYS[2], "installed_version", ARGV[2])
-    redis.call("HSET", KEYS[2], "registry",          ARGV[3])
+    redis.call("HINCRBY", KEYS[2], "installed_generation", 1)
+    redis.call("HSET",    KEYS[2], "installed_path",    ARGV[1])
+    redis.call("HSET",    KEYS[2], "installed_version", ARGV[2])
+    redis.call("HSET",    KEYS[2], "registry",          ARGV[3])
     return 1
 LUA
 
@@ -505,7 +507,7 @@ sub uninstall_plugin {
     }
 
     # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
-    $redis->hdel( $namerds, "installed_path", "installed_version", "registry" );
+    $redis->hdel( $namerds, "installed_path", "installed_version", "registry", "installed_generation" );
 
     return ( 200, 1, undef );
 }
@@ -608,7 +610,7 @@ sub scan_plugins {
             } else {
                 $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
             }
-            $redis->hdel( $key, "installed_path", "installed_version", "registry" );
+            $redis->hdel( $key, "installed_path", "installed_version", "registry", "installed_generation" );
         }
     }
 

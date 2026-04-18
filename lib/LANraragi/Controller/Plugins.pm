@@ -305,16 +305,19 @@ sub process_upload {
                 if ( -e $output_file ) {
                     unlink($output_file);
 
-                    # Remove the existing file from @INC to avoid the require call below croaking
+                    # Clear both %INC key forms: absolute (legacy sideload pattern) and
+                    # lib-relative (matches Module::Pluggable and get_plugin's reload path).
                     delete( $INC{$output_file} );
+                    delete( $INC{$install_relpath} );
                 }
 
                 $file->move_to($output_file);
 
-                #Per Module::Pluggable rules, the plugin class matches the filename
+                # Lib-relative require matches Module::Pluggable's %INC key form, so
+                # get_plugin's coherence reload (which uses installed_path from Redis,
+                # i.e. the lib-relative form) evicts the same key this path populates.
                 eval {
-                    #@INC is not refreshed mid-execution, so we use the full filepath
-                    require $output_file;
+                    require $install_relpath;
                     $pluginclass->plugin_info();
                 };
 
@@ -325,6 +328,7 @@ sub process_upload {
                     # Cleanup this shameful attempt
                     unlink($output_file);
                     delete( $INC{$output_file} );
+                    delete( $INC{$install_relpath} );
 
                     $self->render(
                         json => {
@@ -345,6 +349,7 @@ sub process_upload {
                 unless ( uc( $pluginfo{namespace} ) eq uc($ns) ) {
                     unlink($output_file);
                     delete( $INC{$output_file} );
+                    delete( $INC{$install_relpath} );
 
                     $self->render(
                         json => {
@@ -358,8 +363,10 @@ sub process_upload {
                 }
 
                 # Register installed_path so infer_plugin_source works before next scan_plugins.
+                # Bump installed_generation so other workers reload on their next get_plugin.
                 my $redis = $self->LRR_CONF->get_redis_config;
                 $redis->hset( $namerds, "installed_path", $install_relpath );
+                $redis->hincrby( $namerds, "installed_generation", 1 );
                 $redis->quit();
 
                 $self->render(
