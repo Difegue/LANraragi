@@ -8,6 +8,7 @@ use warnings;
 use utf8;
 
 use Redis;
+use Time::HiRes qw(time);
 
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Redis      qw(redis_encode);
