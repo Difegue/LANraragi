@@ -67,9 +67,8 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Set all fields of the group object
     unless ( length($tank_id) ) {
-        my $timestamp = time();
-        my $md5_UUID     = create_uuid(UUID_V3, $timestamp);
-        my $str_appendix = uuid_to_string($md5_UUID);
+        my $v4_rand_UUID_2  = create_uuid(UUID_RANDOM);
+        my $str_appendix = uuid_to_string($v4_rand_UUID_2);
         $tank_id = "TANK_" . $str_appendix;
 
         my $isnewkey = 0;
@@ -185,7 +184,7 @@ sub delete_tankoubon ($tank_id) {
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
 
-    if ( length($tank_id) != 15 ) {
+    if ( length($tank_id) != 41 ) {
 
         # Probably not a Tankoubon ID
         $logger->error("$tank_id is not a Tankoubon ID, doing nothing.");

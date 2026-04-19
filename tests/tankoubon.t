@@ -25,21 +25,18 @@ my $redis = LANraragi::Model::Config->get_redis;
 # Build search hashes
 LANraragi::Model::Stats::build_stat_hashes();
 
-# Search queries
-my ( $total, $filtered, @rgs );
-
 # Get Tankoubon
-my ( $total, $filtered, %tankoubon ) = LANraragi::Model::Tankoubon::get_tankoubon("TANK_1589141306", 0, 0);
-is($tankoubon{id}, "TANK_1589141306", 'ID test');
+my ( $total, $filtered, %tankoubon ) = LANraragi::Model::Tankoubon::get_tankoubon("TANK_0daa851e-55da-36b2-bfa3-2d1c8c3d6d08", 0, 0);
+is($tankoubon{id}, "TANK_0daa851e-55da-36b2-bfa3-2d1c8c3d6d08", 'ID test');
 is($tankoubon{name}, "Hello", 'Name test');
 is($total, 2, 'Total Test');
 is($filtered, 2, 'Count Test');
 ok($tankoubon{archives}[0] eq "28697b96f0ac5858be2666ed10ca47742c955555", 'Archives test');
 
 # List Tankoubon
-( $total, $filtered, @rgs ) = LANraragi::Model::Tankoubon::get_tankoubon_list(0);
-is($total, 2, 'Total Test');
-is($filtered, 2, 'Count Test');
-ok($rgs[0]{name} eq "World" && $rgs[1]{name} eq "Hello", 'Tank List test');
+my ( $total_list, $filtered_list, @rgs ) = LANraragi::Model::Tankoubon::get_tankoubon_list(0);
+is($total_list, 2, 'Total Test');
+is($filtered_list, 2, 'Count Test');
+ok($rgs[0]{name} eq "Hello" && $rgs[1]{name} eq "World", 'Tank List test');
 
 done_testing();
