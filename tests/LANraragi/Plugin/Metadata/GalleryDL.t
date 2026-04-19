@@ -165,4 +165,41 @@ note("gallerydl top-level metadata enrichment");
     );
 }
 
+note("gallerydl lang fallback");
+{
+    my %gallerydltags = gallerydl_test_from_data(
+        {
+            title    => "Synthetic lang fallback sample",
+            tags     => ["nakadashi"],
+            lang     => "en",
+            type     => "manga",
+            category => "nhentai"
+        }
+    );
+
+    is(
+        $gallerydltags{tags},
+        "nakadashi, language:en, type:manga, category:nhentai",
+        "lang field falls back to language namespace when language is absent"
+    );
+}
+
+note("gallerydl character field merge");
+{
+    my %gallerydltags = gallerydl_test_from_data(
+        {
+            title      => "Synthetic character merge sample",
+            tags       => ["nakadashi"],
+            character  => ["alice"],
+            characters => [ "bob", "alice" ]
+        }
+    );
+
+    is(
+        $gallerydltags{tags},
+        "nakadashi, character:alice, character:bob",
+        "character and characters merge without duplicate tags"
+    );
+}
+
 done_testing();
