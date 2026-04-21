@@ -102,11 +102,11 @@ Upload.handleCompletedUpload = function (jobID, d) {
     }
 
     if (d.result.success) {
-        $(`#${jobID}-link`).html(`${I18N.ClickToEdit}<br>(${d.result.message})`);
+        $(`#${jobID}-link`).html(`${I18N.ClickToEdit}<br>(${LRR.encodeHTML(d.result.message)})`);
         $(`#${jobID}-icon`).attr("class", "fa fa-check-circle");
         completedArchives += 1;
     } else {
-        $(`#${jobID}-link`).html(`${I18N.UploadError}<br>(${d.result.message})`);
+        $(`#${jobID}-link`).html(`${I18N.UploadError}<br>(${LRR.encodeHTML(d.result.message)})`);
         $(`#${jobID}-icon`).attr("class", "fa fa-exclamation-circle");
         failedArchives += 1;
     }
@@ -116,7 +116,7 @@ Upload.handleCompletedUpload = function (jobID, d) {
 };
 
 Upload.handleFailedUpload = function (jobID, d) {
-    $(`#${jobID}-link`).html(`${I18N.UploadError}<br>(${d})`);
+    $(`#${jobID}-link`).html(`${I18N.UploadError}<br>(${LRR.encodeHTML(d)})`);
     $(`#${jobID}-icon`).attr("class", "fa fa-exclamation-circle");
 
     failedArchives += 1;
