@@ -676,14 +676,6 @@ sub validate_managed_plugin {
         return ( undef, "Plugin file doesn't declare a LANraragi::Plugin:: package." );
     }
 
-    # Path safety: reject null bytes, traversal, and absolute paths.
-    if ( index( $plugpath, "\0" ) >= 0 ) {
-        return ( undef, "Invalid plugin path (null byte)." );
-    }
-    if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
-        return ( undef, "Invalid plugin path: $plugpath" );
-    }
-
     my $typedir = MANAGED_TYPE_DIRS->{$plugtype};
     unless ($typedir) {
         return ( undef, "Unknown plugin type '$plugtype'." );
