@@ -105,8 +105,8 @@ sub list_plugins {
         $plugin->{priority} = get_plugin_priority( $plugin->{namespace}, $redis );
 
         my $namerds  = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
-        my $registry = $redis->hget( $namerds, "registry" );
-        $plugin->{registry} = $registry ? $registry : undef;
+        my $registry = $redis->hget( $namerds, "installed_registry" );
+        $plugin->{installed_registry} = $registry ? $registry : undef;
     }
 
     $redis->quit();

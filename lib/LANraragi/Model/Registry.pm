@@ -318,10 +318,10 @@ sub fetch_registry_index {
 
 # Install a plugin from a registry.
 sub install_plugin {
-    my ( $namespace, $redis, $registry_id ) = @_;
+    my ( $namespace, $redis, $registry_id, $version ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    $logger->info("Installing plugin '$namespace' from registry '$registry_id'");
+    $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
@@ -342,18 +342,26 @@ sub install_plugin {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
 
-    my $plugmeta = $plugins->{$namespace};
-    my $plugpath = $plugmeta->{path};
+    my $plugroot = $plugins->{$namespace};
+
+    unless ( $plugroot->{versions} && $plugroot->{versions}{$version} ) {
+        return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
+    }
+
+    my $plugmeta = $plugroot->{versions}{$version};
+    $plugmeta->{type} = $plugroot->{type};
+
+    my $plugpath = $plugmeta->{artifact};
 
     # Validate plugin path before any file or network access
     unless ($plugpath) {
-        return ( 400, undef, "Plugin '$namespace' is missing required field 'path'." );
+        return ( 400, undef, "Plugin '$namespace' is missing required field 'artifact'." );
     }
     if ( index( $plugpath, "\0" ) >= 0 ) {
-        return ( 400, undef, "Invalid plugin path (null byte)." );
+        return ( 400, undef, "Invalid plugin artifact path (null byte)." );
     }
     if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
-        return ( 400, undef, "Invalid plugin path: $plugpath" );
+        return ( 400, undef, "Invalid plugin artifact path: $plugpath" );
     }
 
     my %config = $redis->hgetall($registry_id);
@@ -437,9 +445,9 @@ sub install_plugin {
         return 0
     end
     redis.call("HINCRBY", KEYS[2], "installed_generation", 1)
-    redis.call("HSET",    KEYS[2], "installed_path",    ARGV[1])
-    redis.call("HSET",    KEYS[2], "installed_version", ARGV[2])
-    redis.call("HSET",    KEYS[2], "registry",          ARGV[3])
+    redis.call("HSET",    KEYS[2], "installed_path",     ARGV[1])
+    redis.call("HSET",    KEYS[2], "installed_version",  ARGV[2])
+    redis.call("HSET",    KEYS[2], "installed_registry", ARGV[3])
     return 1
 LUA
 
@@ -507,7 +515,7 @@ sub uninstall_plugin {
     }
 
     # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
-    $redis->hdel( $namerds, "installed_path", "installed_version", "registry", "installed_generation" );
+    $redis->hdel( $namerds, "installed_path", "installed_version", "installed_registry", "installed_generation" );
 
     return ( 200, 1, undef );
 }
@@ -610,7 +618,7 @@ sub scan_plugins {
             } else {
                 $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
             }
-            $redis->hdel( $key, "installed_path", "installed_version", "registry", "installed_generation" );
+            $redis->hdel( $key, "installed_path", "installed_version", "installed_registry", "installed_generation" );
         }
     }
 
@@ -622,8 +630,8 @@ sub infer_plugin_source {
     my ( $namespace, $redis ) = @_;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    if ( $redis->hexists( $namerds, "registry" ) ) {
-        my $reg = $redis->hget( $namerds, "registry" );
+    if ( $redis->hexists( $namerds, "installed_registry" ) ) {
+        my $reg = $redis->hget( $namerds, "installed_registry" );
         return "managed" if $reg && $reg ne "";
     }
 
@@ -644,7 +652,7 @@ sub validate_managed_plugin {
 
     my $plugname          = $plugmeta->{name};
     my $plugver           = $plugmeta->{version};
-    my $plugpath          = $plugmeta->{path};
+    my $plugpath          = $plugmeta->{artifact};
     my $plugtype          = $plugmeta->{type};
     my $expected_checksum = $plugmeta->{sha256};
 
@@ -655,7 +663,7 @@ sub validate_managed_plugin {
         return ( undef, "Plugin '$namespace' is missing required field 'version'." );
     }
     unless ($plugpath) {
-        return ( undef, "Plugin '$namespace' is missing required field 'path'." );
+        return ( undef, "Plugin '$namespace' is missing required field 'artifact'." );
     }
     unless ($plugtype) {
         return ( undef, "Plugin '$namespace' is missing required field 'type'." );

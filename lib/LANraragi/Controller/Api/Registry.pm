@@ -243,9 +243,9 @@ sub refresh_registry {
                 return;
             }
 
-            unless ( $index->{version} ) {
+            unless ( defined $index->{version} && $index->{version} == 1 ) {
                 $redis->quit();
-                render_api_response( $self, "refresh_registry", "Invalid registry.json: missing 'version' field." );
+                render_api_response( $self, "refresh_registry", "Invalid registry.json: registry version must be 1." );
                 return;
             }
 
@@ -277,6 +277,7 @@ sub install_plugin {
     my $body        = $self->req->json;
     my $namespace   = $body->{namespace};
     my $registry_id = $body->{registry};
+    my $version     = $body->{version};
     my $force       = $body->{force} // 0;
 
     return unless exec_with_lock(
@@ -289,7 +290,7 @@ sub install_plugin {
 
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
             if ( $redis->hexists( $namerds, "installed_path" ) && !$force ) {
-                my $currentreg = $redis->hget( $namerds, "registry" );
+                my $currentreg = $redis->hget( $namerds, "installed_registry" );
                 my $currentver = $redis->hget( $namerds, "installed_version" );
 
                 unless ($currentreg) {
@@ -312,7 +313,7 @@ sub install_plugin {
 
             my $logger = get_logger( "Registry", "lanraragi" );
             my ( $status, $plugmeta, $message ) = eval {
-                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id );
+                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id, $version );
             };
             if ($@) {
                 $logger->error("install_plugin failed for '$namespace': $@");
@@ -332,12 +333,12 @@ sub install_plugin {
 
             $self->render(
                 openapi => {
-                    operation => "install_plugin",
-                    success   => 1,
-                    name      => $plugmeta->{name},
-                    namespace => $namespace,
-                    version   => $plugmeta->{version},
-                    registry  => $registry_id,
+                    operation          => "install_plugin",
+                    success            => 1,
+                    name               => $plugmeta->{name},
+                    namespace          => $namespace,
+                    version            => $plugmeta->{version},
+                    installed_registry => $registry_id,
                 }
             );
         }

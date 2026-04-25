@@ -954,6 +954,7 @@ paths:
               required:
                 - namespace
                 - registry
+                - version
               properties:
                 namespace:
                   type: string
@@ -964,6 +965,10 @@ paths:
                   description: Registry ID to install from.
                   minLength: 14
                   maxLength: 14
+                version:
+                  type: string
+                  minLength: 1
+                  description: Explicit version key to install from the registry.
                 force:
                   type: boolean
                   description: Force install even if plugin is already installed from a different source.
@@ -982,18 +987,14 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
-                  error:
-                    type: string
-                    nullable: true
                   name:
                     type: string
                   namespace:
                     type: string
                   version:
                     type: string
-                  registry:
+                  installed_registry:
                     type: string
                     description: Registry ID the plugin was installed from.
         '400':
@@ -4116,7 +4117,7 @@ components:
           type: integer
           minimum: 0
           description: Execution priority for metadata plugins. Lower values run first.
-        registry:
+        installed_registry:
           type: string
           nullable: true
           description: Registry ID the plugin was installed from, or null if not registry-managed
