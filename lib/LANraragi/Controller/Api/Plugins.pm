@@ -22,7 +22,7 @@ sub update_plugin_config {
                 $self->render(
                     openapi => {
                         operation => "update_plugin_config",
-                        error     => "Plugin '$namespace' doesn't exist on the server.",
+                        error     => "Plugin '$namespace' is not installed.",
                         success   => 0,
                     },
                     status => 404
