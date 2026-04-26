@@ -4,8 +4,9 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON qw(decode_json true false);
 
 use LANraragi::Model::Registry;
-use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic  qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Registry qw(validate_registry_index);
 
 sub list_registries {
     my $self  = shift->openapi->valid_input or return;
@@ -230,15 +231,10 @@ sub refresh_registry {
                 return;
             }
 
-            unless ( defined $index->{version} && $index->{version} == 1 ) {
+            my $validation_error = validate_registry_index($index);
+            if ($validation_error) {
                 $redis->quit();
-                render_api_response( $self, "refresh_registry", "Invalid registry.json: registry version must be 1." );
-                return;
-            }
-
-            unless ( ref $index->{plugins} eq 'HASH' ) {
-                $redis->quit();
-                render_api_response( $self, "refresh_registry", "Invalid registry.json: 'plugins' must be an object." );
+                render_api_response( $self, "refresh_registry", $validation_error );
                 return;
             }
 
@@ -260,12 +256,13 @@ sub refresh_registry {
 }
 
 sub install_plugin {
-    my $self        = shift->openapi->valid_input or return;
-    my $body        = $self->req->json;
-    my $namespace   = $body->{namespace};
-    my $registry_id = $body->{registry};
-    my $version     = $body->{version};
-    my $force       = $body->{force} // 0;
+    my $self                    = shift->openapi->valid_input or return;
+    my $body                    = $self->req->json;
+    my $namespace               = $body->{namespace};
+    my $registry_id             = $body->{registry};
+    my $version                 = $body->{version};
+    my $installed_channel       = $body->{installed_channel};
+    my $force                   = $body->{force} // 0;
 
     return unless exec_with_lock(
         $self,
@@ -276,31 +273,32 @@ sub install_plugin {
             my $redis = $self->LRR_CONF->get_redis_config;
 
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
-            if ( $redis->hexists( $namerds, "installed_path" ) && !$force ) {
+            if ( $redis->hexists( $namerds, "installed_path" ) ) {
+                my $source     = LANraragi::Model::Registry::infer_plugin_source( $namespace, $redis );
                 my $currentreg = $redis->hget( $namerds, "installed_registry" );
                 my $currentver = $redis->hget( $namerds, "installed_version" );
 
-                unless ($currentreg) {
-                    # No provenance (legacy/sideloaded) -- requires force
+                if ( $source ne "managed" ) {
+                    # Sideloaded or default plugin: force cannot bypass; user must remove it first.
                     $redis->quit();
                     render_api_response( $self, "install_plugin",
-                        "Plugin '$namespace' already exists without provenance. Use force to overwrite." );
+                        "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry." );
                     return;
                 }
 
-                if ( $currentreg ne $registry_id ) {
-                    # Different registry -- requires force
+                if ( !$force && $currentreg && $currentreg ne $registry_id ) {
                     $redis->quit();
                     render_api_response( $self, "install_plugin",
                         "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
                     return;
                 }
-
             }
 
             my $logger = get_logger( "Registry", "lanraragi" );
             my ( $status, $plugmeta, $message ) = eval {
-                LANraragi::Model::Registry::install_plugin( $namespace, $redis, $registry_id, $version );
+                LANraragi::Model::Registry::install_plugin(
+                    $namespace, $registry_id, $version, $installed_channel, $redis
+                );
             };
             if ($@) {
                 $logger->error("install_plugin failed for '$namespace': $@");
@@ -325,7 +323,9 @@ sub install_plugin {
                     name               => $plugmeta->{name},
                     namespace          => $namespace,
                     version            => $plugmeta->{version},
-                    installed_registry => $registry_id,
+                    installed_registry => $plugmeta->{installed_registry},
+                    installed_sha256   => $plugmeta->{installed_sha256},
+                    installed_channel  => $plugmeta->{installed_channel},
                 }
             );
         }

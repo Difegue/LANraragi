@@ -13,8 +13,16 @@ use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Path     qw(unlink_path package_to_path);
-use LANraragi::Utils::Plugins  qw();
-use LANraragi::Utils::Registry qw(resolve_git_raw_url find_package_conflict find_namespace_conflict MANAGED_TYPE_DIRS);
+use LANraragi::Utils::Plugins  ();
+use LANraragi::Utils::Registry qw(
+    resolve_git_raw_url
+    find_package_conflict
+    find_namespace_conflict
+    validate_registry_index
+    validate_registry_artifact_path
+    resolve_local_registry_artifact_path
+    MANAGED_TYPE_DIRS
+);
 
 # Max file sizes for slurp (files will/should never reach this size anyways but stops OOM)
 use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
@@ -57,6 +65,7 @@ sub create_registry {
         }
     }
 
+    # TODO: there is a bug here, fix before merge.
     my $registry_id = "REG_" . time();
     my $isnewkey    = 0;
     until ($isnewkey) {
@@ -85,7 +94,9 @@ sub create_registry {
 sub get_registry {
     my ( $registry_id, $redis ) = @_;
 
-    return () unless $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id);
+    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        return ();
+    }
 
     my %config = $redis->hgetall($registry_id);
     $config{id} = $registry_id;
@@ -149,13 +160,20 @@ sub update_registry {
     my %merged = ( %current_registry, %updated_registry );
 
     if ( $type eq "git" ) {
-        return ( 400, undef, "Git registry needs a URL." )      unless $merged{url};
-        return ( 400, undef, "Git registry needs a provider." ) unless $merged{provider};
+        unless ( $merged{url} ) {
+            return ( 400, undef, "Git registry needs a URL." );
+        }
+        unless ( $merged{provider} ) {
+            return ( 400, undef, "Git registry needs a provider." );
+        }
     } elsif ( $type eq "local" ) {
-        return ( 400, undef, "Local registry needs a path." ) unless $merged{path};
+        unless ( $merged{path} ) {
+            return ( 400, undef, "Local registry needs a path." );
+        }
     }
 
-    # Atomic update via Lua: stale field removal, field writes, optional index clear.
+    # Lua keeps stale-field removal + field writes + index clear atomic so a
+    # type change cannot leave the registry hash with mixed-type stale fields.
     my @fields_to_remove;
     # type is always set on a valid registry (stored at creation)
     if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) {
@@ -218,7 +236,7 @@ sub delete_registry {
     my $logger = get_logger( "Registry", "lanraragi" );
 
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
-        return ( 404, undef, "$registry_id is not a registry ID, doing nothing." );
+        return ( 404, undef, "This registry doesn't exist." );
     }
 
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
@@ -316,36 +334,59 @@ sub fetch_registry_index {
     return ( 400, undef, "Unknown registry type: $type" );
 }
 
-# Install a plugin from a registry.
+# Install a plugin from a registry whose index has been refreshed and cached.
+# namespace, registry_id, version are required to identify the plugin to install.
 sub install_plugin {
-    my ( $namespace, $redis, $registry_id, $version ) = @_;
+    my ( $namespace, $registry_id, $version, $installed_channel, $redis ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
 
+    # registry must exist
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
         return ( 404, undef, "This registry doesn't exist." );
     }
 
+    # registry index must exist, otherwise require a refresh.
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $indexkey = "REG_INDEX_$suffix";
-
     unless ( $redis->exists($indexkey) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
     }
 
     my $indexjson = $redis->get($indexkey);
-    my $index    = decode_json($indexjson);
-    my $plugins  = $index->{plugins};
+    my $index     = decode_json($indexjson);
+    my $plugins   = $index->{plugins};
 
-    unless ( $plugins->{$namespace} ) {
+    # Registry namespace keys are validated as lowercase by validate_registry_index;
+    # accept any caller casing by normalizing here.
+    my $nskey = lc($namespace);
+    unless ( $plugins->{$nskey} ) {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
 
-    my $plugroot = $plugins->{$namespace};
+    my $plugroot = $plugins->{$nskey};
 
     unless ( $plugroot->{versions} && $plugroot->{versions}{$version} ) {
         return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
+    }
+
+    if ( defined $installed_channel ) {
+        unless ( ref $plugroot->{channels} eq "HASH" ) {
+            return ( 400, undef, "Plugin '$namespace' is missing channel data." );
+        }
+
+        unless ( exists $plugroot->{channels}{$installed_channel} ) {
+            return ( 400, undef, "Channel '$installed_channel' not found for plugin '$namespace'." );
+        }
+
+        unless ( $plugroot->{channels}{$installed_channel} eq $version ) {
+            return (
+                400,
+                undef,
+                "Channel '$installed_channel' resolves to version '$plugroot->{channels}{$installed_channel}', not '$version'."
+            );
+        }
     }
 
     my $plugmeta = $plugroot->{versions}{$version};
@@ -353,15 +394,9 @@ sub install_plugin {
 
     my $plugpath = $plugmeta->{artifact};
 
-    # Validate plugin path before any file or network access
-    unless ($plugpath) {
-        return ( 400, undef, "Plugin '$namespace' is missing required field 'artifact'." );
-    }
-    if ( index( $plugpath, "\0" ) >= 0 ) {
-        return ( 400, undef, "Invalid plugin artifact path (null byte)." );
-    }
-    if ( $plugpath =~ /\.\./ || $plugpath =~ m{^/} ) {
-        return ( 400, undef, "Invalid plugin artifact path: $plugpath" );
+    my ( $artifact_valid, $artifact_error ) = validate_registry_artifact_path($plugpath);
+    unless ($artifact_valid) {
+        return ( 400, undef, $artifact_error );
     }
 
     my %config = $redis->hgetall($registry_id);
@@ -377,18 +412,26 @@ sub install_plugin {
     my $content;
 
     if ( $type eq "local" ) {
-        my $file = "$config{path}/$plugpath";
-
-        unless ( -e $file ) {
-            return ( 404, undef, "Plugin file not found: $file" );
+        my ( $root_canon, $file_canon, $resolve_error ) =
+            resolve_local_registry_artifact_path( $config{path}, $plugpath );
+        if ($resolve_error) {
+            return ( 400, undef, $resolve_error );
         }
 
-        my $filesize = -s $file;
+        unless ( -e $file_canon ) {
+            return ( 404, undef, "Plugin file not found: $file_canon" );
+        }
+
+        unless ( -f $file_canon ) {
+            return ( 400, undef, "Plugin artifact is not a regular file: $file_canon" );
+        }
+
+        my $filesize = -s $file_canon;
         if ( $filesize > MAX_PLUGIN_FILE_SIZE ) {
-            return ( 400, undef, "Plugin file too large: $file ($filesize bytes)" );
+            return ( 400, undef, "Plugin file too large: $file_canon ($filesize bytes)" );
         }
 
-        $content = eval { Mojo::File->new($file)->slurp };
+        $content = eval { Mojo::File->new($file_canon)->slurp };
         unless ( defined $content ) {
             return ( 500, undef, "Cannot read plugin file: $@" );
         }
@@ -426,6 +469,7 @@ sub install_plugin {
     my $installdir      = $validated->{install_dir};
     my $installpath     = $validated->{install_path};
     my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) );
+    my $channel_value   = defined $installed_channel ? $installed_channel : "";
 
     make_path($installdir) unless -d $installdir;
 
@@ -448,12 +492,18 @@ sub install_plugin {
     redis.call("HSET",    KEYS[2], "installed_path",     ARGV[1])
     redis.call("HSET",    KEYS[2], "installed_version",  ARGV[2])
     redis.call("HSET",    KEYS[2], "installed_registry", ARGV[3])
+    redis.call("HSET",    KEYS[2], "installed_sha256",   ARGV[4])
+    if ARGV[5] ~= "" then
+        redis.call("HSET", KEYS[2], "installed_channel", ARGV[5])
+    else
+        redis.call("HDEL", KEYS[2], "installed_channel")
+    end
     return 1
 LUA
 
     my $provenance_written = eval {
         $redis->eval( $script, 2, $registry_id, $namerds,
-            $install_relpath, $plugmeta->{version}, $registry_id );
+            $install_relpath, $plugmeta->{version}, $registry_id, $plugmeta->{sha256}, $channel_value );
     };
     if ($@) {
         $logger->error("Redis error during provenance write for '$namespace': $@");
@@ -467,6 +517,13 @@ LUA
         return ( 409, undef, "Registry was deleted during install." );
     }
 
+    # If the upgrade landed at a new path (type-change between published versions, in violation
+    # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
+    if ( defined $currentpath && $currentpath ne $installpath && -e $currentpath ) {
+        unlink_path($currentpath)
+            or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
+    }
+
     my $incpath = package_to_path( $validated->{package} );
     delete $INC{$incpath};
     eval { require $incpath };
@@ -474,7 +531,15 @@ LUA
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
     }
 
-    return ( 200, $plugmeta, undef );
+    my %installed_meta = (
+        name               => $plugmeta->{name},
+        version            => $plugmeta->{version},
+        installed_registry => $registry_id,
+        installed_sha256   => $plugmeta->{sha256},
+        installed_channel  => ( $channel_value ne "" ? $channel_value : undef ),
+    );
+
+    return ( 200, \%installed_meta, undef );
 }
 
 # Uninstall a plugin by deleting it from disk and cleaning up Redis.
@@ -515,7 +580,15 @@ sub uninstall_plugin {
     }
 
     # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
-    $redis->hdel( $namerds, "installed_path", "installed_version", "installed_registry", "installed_generation" );
+    $redis->hdel(
+        $namerds,
+        "installed_path",
+        "installed_version",
+        "installed_registry",
+        "installed_sha256",
+        "installed_channel",
+        "installed_generation"
+    );
 
     return ( 200, 1, undef );
 }
@@ -583,21 +656,21 @@ sub scan_plugins {
         my $filepath = $entry->{file_path};
         my $namerds  = "LRR_PLUGIN_" . uc($ns);
 
-        if ( $redis->exists($namerds) ) {
-            next if $redis->hexists( $namerds, "installed_path" );
-            $logger->info("Plugin '$ns': setting installed_path to '$filepath'.");
-            $redis->hset( $namerds, "installed_path", $filepath );
-        } else {
-            $logger->info("Registering discovered plugin '$ns' at $filepath");
-            $redis->hset( $namerds, "installed_path", $filepath );
+        my $current_path = $redis->hget( $namerds, "installed_path" );
+        if ( defined $current_path && $current_path eq $filepath ) {
+            next;
         }
+
+        # Self-heal stale or missing installed_path: discovery is the source of truth.
+        $logger->debug("Plugin '$ns': setting installed_path to '$filepath'.");
+        $redis->hset( $namerds, "installed_path", $filepath );
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
     my @all_keys     = $redis->keys("LRR_PLUGIN_*");
     my %discovereduc = map { uc($_) => 1 } keys %ns_map;
     my $lib_prefix   = getcwd() . "/lib/";
-    $logger->info("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
+    $logger->debug("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
 
     foreach my $key (@all_keys) {
         my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;
@@ -618,7 +691,15 @@ sub scan_plugins {
             } else {
                 $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
             }
-            $redis->hdel( $key, "installed_path", "installed_version", "installed_registry", "installed_generation" );
+            $redis->hdel(
+                $key,
+                "installed_path",
+                "installed_version",
+                "installed_registry",
+                "installed_sha256",
+                "installed_channel",
+                "installed_generation"
+            );
         }
     }
 

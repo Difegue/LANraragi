@@ -104,9 +104,10 @@ sub list_plugins {
         $plugin->{hidden}   = is_plugin_hidden( $plugin->{namespace}, $redis ) ? true : false;
         $plugin->{priority} = get_plugin_priority( $plugin->{namespace}, $redis );
 
-        my $namerds  = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
-        my $registry = $redis->hget( $namerds, "installed_registry" );
-        $plugin->{installed_registry} = $registry ? $registry : undef;
+        my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
+        foreach my $field (qw(installed_version installed_sha256 installed_channel installed_registry)) {
+            $plugin->{$field} = $redis->hget( $namerds, $field );
+        }
     }
 
     $redis->quit();

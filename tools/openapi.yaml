@@ -579,7 +579,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   registries:
                     type: array
@@ -659,7 +658,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -712,7 +710,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -788,7 +785,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -853,7 +849,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -901,7 +896,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -969,9 +963,14 @@ paths:
                   type: string
                   minLength: 1
                   description: Explicit version key to install from the registry.
+                installed_channel:
+                  type: string
+                  nullable: true
+                  minLength: 1
+                  description: Optional channel name to record for channel-tracked installs.
                 force:
                   type: boolean
-                  description: Force install even if plugin is already installed from a different source.
+                  description: Force install even if the plugin is already installed from a different managed registry. Sideloaded and built-in plugins cannot be overwritten — remove them first.
       responses:
         '200':
           description: Plugin installed
@@ -997,6 +996,13 @@ paths:
                   installed_registry:
                     type: string
                     description: Registry ID the plugin was installed from.
+                  installed_sha256:
+                    type: string
+                    description: SHA-256 of the installed artifact.
+                  installed_channel:
+                    type: string
+                    nullable: true
+                    description: Channel recorded for this install, or null for explicit-version installs.
         '400':
           description: Install failed (validation, bad path, unknown type)
           content:
@@ -1067,7 +1073,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -1143,7 +1148,6 @@ paths:
                   success:
                     type: integer
                     enum:
-                      - 0
                       - 1
                   error:
                     type: string
@@ -4121,6 +4125,18 @@ components:
           type: string
           nullable: true
           description: Registry ID the plugin was installed from, or null if not registry-managed
+        installed_version:
+          type: string
+          nullable: true
+          description: Installed version recorded in Redis, or null if not registry-managed
+        installed_sha256:
+          type: string
+          nullable: true
+          description: SHA-256 recorded for the installed artifact, or null if not registry-managed
+        installed_channel:
+          type: string
+          nullable: true
+          description: Channel recorded for this install, or null for explicit-version installs
       example:
         author: Difegue
         description: Searches chaika.moe for tags matching your archive.

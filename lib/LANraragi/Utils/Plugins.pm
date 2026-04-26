@@ -109,10 +109,11 @@ sub get_enabled_plugins {
 sub get_plugin {
 
     my $name = shift;
+    my $name_uc = uc($name); # namespaces are normalized to upper case.
 
     # Plugin must be registered in Redis to be active.
     my $redis   = LANraragi::Model::Config->get_redis_config;
-    my $namerds = "LRR_PLUGIN_" . uc($name);
+    my $namerds = "LRR_PLUGIN_" . $name_uc;
     unless ( $redis->exists($namerds) ) {
         $redis->quit();
         return 0;
@@ -125,8 +126,8 @@ sub get_plugin {
         my $current_gen    = $redis->hget( $namerds, "installed_generation" );
 
         if (   $installed_path
-            && ( $LOADED_GEN{$name}  // -1 ) != $current_gen
-            && ( $LOAD_FAILED{$name} // -1 ) != $current_gen )
+            && ( $LOADED_GEN{$name_uc}  // -1 ) != $current_gen
+            && ( $LOAD_FAILED{$name_uc} // -1 ) != $current_gen )
         {
             delete $INC{$installed_path};
             my $ok = eval {
@@ -135,12 +136,12 @@ sub get_plugin {
                 1;
             };
             if ($ok) {
-                $LOADED_GEN{$name} = $current_gen;
-                delete $LOAD_FAILED{$name};
+                $LOADED_GEN{$name_uc} = $current_gen;
+                delete $LOAD_FAILED{$name_uc};
                 get_logger( "Plugin System", "lanraragi" )
                     ->info("Reloaded plugin '$name' to generation $current_gen (pid $$)");
             } else {
-                $LOAD_FAILED{$name} = $current_gen;
+                $LOAD_FAILED{$name_uc} = $current_gen;
                 get_logger( "Plugin System", "lanraragi" )
                     ->warn("Failed to reload plugin '$name' at generation $current_gen: $@");
             }
@@ -158,7 +159,7 @@ sub get_plugin {
             $namespace = $pluginfo{namespace};
         };
 
-        if ( $name eq $namespace ) {
+        if ( $name_uc eq uc($namespace) ) {
             return $plugin;
         }
     }
