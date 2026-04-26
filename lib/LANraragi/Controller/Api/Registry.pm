@@ -122,19 +122,6 @@ sub update_registry {
                 return;
             }
 
-            # HTTPS enforcement for updates;
-            # OpenAPI covers creates but not merges
-            my %existing = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
-            if (%existing) {
-                my $mergedtype = $updated_registry{type} // $existing{type};
-                my $mergedurl  = $updated_registry{url}  // $existing{url};
-                if ( $mergedtype eq "git" && $mergedurl && $mergedurl !~ m{^https://} ) {
-                    $redis->quit();
-                    render_api_response( $self, "update_registry", "Git registry URL must use HTTPS." );
-                    return;
-                }
-            }
-
             my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
                 $registry_id, $redis, %updated_registry
             );
