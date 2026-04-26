@@ -33,10 +33,10 @@ my ( $stamps, $err ) = LANraragi::Model::Stamp::get_stamps_by_page("be447b58ea66
 is ( scalar @$stamps, 2, "Stamps by page length test" );
 
 my ( $stamps, $err ) = LANraragi::Model::Stamp::get_stamps_by_page("be447b58ea66137c415ee306ee2ac44b308ee484", 1);
-is ( $stamps->[0]{"id"}, "1:1589138380", "Stamps by page value test" );
+is ( $stamps->[0]{"id"}, "STAMPS_1_1777224824662", "Stamps by page value test" );
 
-my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp("be447b58ea66137c415ee306ee2ac44b308ee484", "0:1589138380");
-is ( %$stamp{"id"}, "0:1589138380", "Get stamp id test" );
+my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp("STAMPS_0_1777224824660");
+is ( %$stamp{"id"}, "STAMPS_0_1777224824660", "Get stamp id test" );
 is ( %$stamp{"content"}, "Lorem", "Get stamp content test" );
 is ( %$stamp{"position"}, "0,0", "Get stamp position test" );
 

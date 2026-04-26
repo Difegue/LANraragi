@@ -10,11 +10,10 @@ use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
 sub get_stamp {
 
-    my $self    = shift->openapi->valid_input or return;
-    my $id      = $self->stash('id');
-    my $stamp_id    = $self->req->param('stamp_id');
+    my $self        = shift->openapi->valid_input or return;
+    my $stamp_id    = $self->stash('id');
 
-    my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp($id, $stamp_id);
+    my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp($stamp_id);
 
     unless ($stamp) {
         render_api_response($self, "get_stamp", "The given stamp does not exist.");
@@ -82,8 +81,7 @@ sub add_stamp {
 sub update_stamp {
 
     my $self        = shift->openapi->valid_input or return;
-    my $id          = $self->stash('id');
-    my $stamp_id    = $self->req->param('stamp_id');
+    my $stamp_id    = $self->stash('id');
     my $position    = $self->req->param('position') || undef;
     my $content     = $self->req->param('content') || undef;
 
@@ -93,10 +91,10 @@ sub update_stamp {
         "update_stamp",
         $stamp_id,
         sub {
-            my ( $result, $err ) = LANraragi::Model::Stamp::update_stamp( $id, $stamp_id, $content, $position );
+            my ( $result, $err ) = LANraragi::Model::Stamp::update_stamp( $stamp_id, $content, $position );
 
             if ($result) {
-                my %stamp      = LANraragi::Model::Stamp::get_stamp( $id, $stamp_id );
+                my %stamp      = LANraragi::Model::Stamp::get_stamp( $stamp_id );
                 my $successMessage = "Updated stamp \"$stamp_id\"!";
 
                 render_api_response( $self, "update_stamp", undef, $successMessage );
@@ -110,9 +108,8 @@ sub update_stamp {
 
 sub delete_stamp {
 
-    my $self   = shift->openapi->valid_input or return;
-    my $id = $self->stash('id');
-    my $stamp_id = $self->req->param('stamp_id');
+    my $self        = shift->openapi->valid_input or return;
+    my $stamp_id    = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
@@ -120,7 +117,7 @@ sub delete_stamp {
         "delete_stamp",
         $stamp_id,
         sub {
-            my ( $result, $err ) = LANraragi::Model::Stamp::remove_stamp($id, $stamp_id);
+            my ( $result, $err ) = LANraragi::Model::Stamp::remove_stamp($stamp_id);
 
             if ($result) {
                 render_api_response( $self, "delete_stamp" );

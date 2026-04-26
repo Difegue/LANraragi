@@ -120,7 +120,8 @@ sub setup_redis_mock {
             "title": "\u4f7f\u5f92\u3001\u8972\u6765",
             "file": "package.json",
             "summary": "",
-            "lastreadtime": 0
+            "lastreadtime": 0,
+            "stamps": "[\\\"STAMPS_0_1777224824660\\\", \\\"STAMPS_0_1777224824661\\\", \\\"STAMPS_1_1777224824662\\\", \\\"STAMPS_2_1777224824663\\\", \\\"STAMPS_3_1777224824664\\\"]"
         },
         "TANK_1589141306": [
             "name_Hello",
@@ -131,12 +132,30 @@ sub setup_redis_mock {
             "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ],
-        "STAMPS_be447b58ea66137c415ee306ee2ac44b308ee484": {
-            "0:1589138380": "0,0|Lorem",
-            "0:1589138381": "0,0|Ipsum",
-            "1:1589138380": "0,0|Dolor",
-            "2:1589138380": "0,0|Sit",
-            "5:1589138380": "0,0|Amet"
+        "STAMPS_0_1777224824660": {
+            "content": "Lorem",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_0_1777224824661": {
+            "content": "Ipsum",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_1_1777224824662": {
+            "content": "Dolor",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_2_1777224824663": {
+            "content": "Sit",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_3_1777224824664": {
+            "content": "Amet",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
         }
     })
       };

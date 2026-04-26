@@ -9,49 +9,64 @@ use utf8;
 
 use Redis;
 use Time::HiRes qw(time);
+use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Redis      qw(redis_encode);
-use LANraragi::Utils::String     qw(remove_separator);
+use LANraragi::Utils::Logging   qw(get_logger);
+use LANraragi::Utils::Redis     qw(redis_encode redis_decode);
+use LANraragi::Utils::Generic   qw(filter_hash_by_keys);
 
 
-# get_stamp(id, stamp_id)
+# get_stamp(stamp_id)
 #   Gets the requested stamp.
 #   Returns the stamp object.
 sub get_stamp {
-    my ( $id, $stamp_id ) = @_;
+    my ( $stamp_id ) = @_;
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "STAMPS_" . $id;
     my $err     = "";
 
-    if ( $redis->hexists($faves_id => $stamp_id) ) {
-        my $content = $redis->hget($faves_id => $stamp_id);
-        my %stamp = convert_stamp_to_object($stamp_id, $content);
-
-        return ( \%stamp, $err );
+    if ( $stamp_id eq "" ) {
+        $logger->debug("No stamp ID provided.");
+        return ();
     }
+
+    unless ( $redis->exists($stamp_id) ) {
+        $logger->warn("$stamp_id doesn't exist in the database!");
+        return ();
+    }
+
+    my %stamp = convert_stamp_to_object( $redis, $stamp_id );
 
     $redis->quit;
 
-    return ();
+    return ( \%stamp, $err );
 }
 
-# get_stamps_by_page(id)
+# get_stamps_by_page(id, page)
 #   Gets the list of pages that have at least one stamp.
 #   Returns an array of stamps objects.
 # TODO Pagination
 sub get_stamps_by_page {
-    my ( $id, $index ) = @_;
+    my ( $archive_id, $index ) = @_;
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "STAMPS_" . $id;
     my $err     = "";
+    my @stamps;
 
-    my $data = get_stamps_data($redis, $faves_id, $index);
-    my @stamps = convert_stamps_to_object(%$data);
+    unless ( $redis->exists($archive_id) ) {
+        $err = "$archive_id does not exist in the database.";
+        $logger->error($err);
+        $redis->quit;
+        return ( 0, $err );
+    }
+
+    if ( $redis->hexists($archive_id => "stamps") ) {
+        my @stamp_ids = decode_json($redis->hget( $archive_id, "stamps" ));
+        my @filtered_stamps = filter_stamps_by_page(@stamp_ids, $index);
+        @stamps = convert_stamps_to_object($redis, @filtered_stamps);
+    }
 
     $redis->quit;
 
@@ -62,190 +77,237 @@ sub get_stamps_by_page {
 #   Gets the list of pages that have at least one stamp.
 #   Returns an array of page numbers.
 sub get_stamped_pages {
-	my ( $id ) = @_;
+	my ( $archive_id ) = @_;
 
 	my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "STAMPS_" . $id;
     my $err    = "";
+    my @keys;
 
-    my $fields = $redis->hkeys($faves_id);
-
-    my %indexes;
-
-    foreach my $field (@$fields) {
-        # Extract the page number
-        my ($index) = split(/:/, $field, 2);
-        $indexes{$index} = 1;
-    }
-
-    my @keys = keys %indexes;
-
-    $redis->quit;
-
-    return ( \@keys, $err );
-}
-
-# add_stamp(id, key, content, position)
-#   Add the stamp to the page.
-#   Returns the stamp key.
-sub add_stamp {
-	my ( $id, $index, $content, $position ) = @_;
-
-    my $redis  = LANraragi::Model::Config->get_redis;
-    my $logger = get_logger( "Stamps", "lanraragi" );
-    my $faves_id = "STAMPS_" . $id;
-    my $err    = "";
-
-    unless ( $redis->exists($id) ) {
-        $err = "$id does not exist in the database.";
+    unless ( $redis->exists($archive_id) ) {
+        $err = "$archive_id does not exist in the database.";
         $logger->error($err);
         $redis->quit;
         return ( 0, $err );
     }
 
-    $content = remove_separator($content, "|");
-    $position = remove_separator($position, "|");
+    if ( $redis->hexists($archive_id => "stamps") ) {
+        my %indexes;
+        my $stamps    = $redis->hget( $archive_id, "stamps" );
+        $stamps = deserialize_stamp_list($stamps);
 
-    # page:timestamp
-    # Not sure if this is the right way to make a timestamp in milliseconds, is the only thing that came to my mind
-    my $key = $index . ":" . int(time() * 1000);
+        if (!defined $stamps) {
+            $redis->quit();
+            $err = "There was a problem deserializing the stamps";
+            return ( 0, $err );
+        }
 
-    $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
+        my @stamps = @$stamps;
 
-    $redis->quit;
+        foreach my $stamp (@stamps) {
+            # Extract the page number
+            my (undef, $index, undef) = split(/_/, $stamp, 3);
+            $indexes{$index} = 1;
+        }
+
+        @keys = keys %indexes;
+    }
+
+    $redis->quit();
+
+    return ( \@keys, $err );
+}
+
+# add_stamp(archive_id, page, content, position)
+#   Add the stamp to the page.
+#   Returns the stamp key.
+sub add_stamp {
+	my ( $archive_id, $index, $content, $position ) = @_;
+
+    my $redis  = LANraragi::Model::Config->get_redis;
+    my $logger = get_logger( "Stamps", "lanraragi" );
+    my $err    = "";
+
+    unless ( $redis->exists($archive_id) ) {
+        $err = "$archive_id does not exist in the database.";
+        $logger->error($err);
+        $redis->quit;
+        return ( 0, $err );
+    }
+
+    # Page and creation date are saved in the key.
+    # This one uses Time::HiRes to get timestamp in milliseconds.
+    my $key = "STAMPS_" . $index . "_" . int(time() * 1000);
+
+    # Probably unnecessary since this is in ms.
+    my $isnewkey = 0;
+    until ($isnewkey) {
+        if ( $redis->exists($key) ) {
+            $key = "STAMPS_" . $index . "_" . int(time() * 1000 + 1);
+        } else {
+            $isnewkey = 1;
+        }
+    }
+
+    $redis->hset( $key, "content", redis_encode($content) );
+    $redis->hset( $key, "position", redis_encode($position) );
+    # This one is probably redundant, but I'll add it for the purpose of reverse searches, maybe for cache build up.
+    $redis->hset( $key, "archive_id", redis_encode($archive_id) );
+
+    # Add to archive
+    my $stamps    = $redis->hget( $archive_id, "stamps" );
+    my @stamps;
+
+    no warnings 'experimental::try';
+    try {
+        eval { @stamps = @{ decode_json($stamps) } };
+        if ($@) {
+            $err = "Couldn't deserialize stamps in DB for $archive_id! Redis returned the following junk data: $stamps";
+            $redis->del($key);
+            $logger->error($err);
+            $redis->quit;
+            return ( 0, $err );
+        }
+        push @stamps, $key;
+        $stamps          = encode_json(\@stamps);
+    } catch ($e) {
+        $logger->warn(
+            "Error while updating Stamps: $e -- Will overwrite with a Stamps containing the new data. (This is normal if this ID had no Stamps yet.)"
+        );
+        @stamps          = [];
+        push @stamps, $key;
+        $stamps          = encode_json(\@stamps);
+    }
+    $redis->hset( $archive_id, "stamps", $stamps );
+
+    $redis->quit();
 
     return ( $key, $err );
 }
 
-# update_stamp(id, key, content, position)
+# update_stamp(id, content, position)
 #   Removes the stamp from the page.
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub update_stamp {
-    my ( $id, $key, $content, $position ) = @_;
+    my ( $stamp_id, $content, $position ) = @_;
 
     my $logger = get_logger( "Stamps", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
-    my $faves_id = "STAMPS_" . $id;
 
-    if ( $redis->exists($faves_id) ) {
-        # Format inputs
-        my $current = $redis->hget($faves_id => $key);
-        my @c_content = split(/\|/, $current);
-
+    if ( $redis->exists($stamp_id) ) {
         if ( defined $position ) {
-            $position = remove_separator($position, "|");
-        } else {
-            $position = $c_content[0]
+            $redis->hset( $stamp_id, "position", redis_encode($position) )
         }
 
         if ( defined $content ) {
-            $content = remove_separator($content, "|");
-        } else {
-            $content = $c_content[1]
+            $redis->hset( $stamp_id, "content", redis_encode($content) )
         }
 
-        # Update stamp
-        $redis->hset( $faves_id, $key, redis_encode("${position}|${content}") );
-        $redis->quit;
+        $redis->quit();
         return ( 1, $err );
     }
 
-    $err = "$faves_id doesn't exist in the database!";
+    $err = "$stamp_id doesn't exist in the database!";
     $logger->warn($err);
-    $redis->quit;
+    $redis->quit();
     return ( 0, $err );
 }
 
-# remove_stamp(id, key)
+# remove_stamp(key)
 #   Removes the stamp from the page.
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub remove_stamp {
-	my ( $id, $key ) = @_;
+	my ( $key ) = @_;
 
     my $logger = get_logger( "Stamps", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
-    my $faves_id = "STAMPS_" . $id;
 
-    if ( $redis->exists($faves_id) ) {
-        $redis->hdel($faves_id, $key);
-        $redis->quit;
+    if ( $redis->exists($key) ) {
+        # Remove key from archive.
+        # This should not throw an error, since the stamp should have been linked to the archive at creation.
+        my $archive_id      = $redis->hget( $key, "archive_id" );
+        my $stamps          = $redis->hget( $archive_id, "stamps" );
+        $stamps             = deserialize_stamp_list($stamps);
+        my @stamps          = remove_stampid_from_list($stamps, $key);
+        $redis->hset( $archive_id, "stamps", encode_json(\@stamps) );
+
+        $redis->del($key);
+
+        $redis->quit();
         return ( 1, $err );
     }
 
-    $err = "$faves_id doesn't exist in the database!";
+    $err = "$key doesn't exist in the database!";
     $logger->warn($err);
-    $redis->quit;
+    $redis->quit();
     return ( 0, $err );
-}
-
-# Extracts the stamps related to a page using HSCAN
-sub get_stamps_data {
-    my ($redis, $faves_id, $index) = @_;
-
-    my $cursor = 0;
-    my %result;
-    my $pattern = "$index:*";
-    my $logger = get_logger( "Stamps", "lanraragi" );
-
-    # Use a Do While until the cursor goes back to 0
-    do {
-        my ($next_cursor, $data) = $redis->hscan($faves_id, $cursor, 'MATCH', $pattern);
-
-        # Append data to the dictionary
-        for (my $i = 0; $i < @$data; $i += 2) {
-            my $field = $data->[$i];
-            my $value = $data->[$i + 1];
-
-            $result{$field} = $value;
-        }
-
-        $cursor = $next_cursor;
-
-    } while ($cursor != 0);
-
-    return \%result;
-}
-
-# Gets the number of stamps in the page
-sub size_stamps_by_page {
-    my ($redis, $faves_id, $index) = @_;
-
-    my $data = get_stamps_data($redis, $faves_id, $index);
-
-    return scalar keys %$data;
 }
 
 # Converts a stamp register to object
 sub convert_stamp_to_object {
-    my ( $stamp_id, $content ) = @_;
+    my ( $redis, $stamp_id ) = @_;
 
-    # Separate the string and classify the fields
-    my @x = split(/\|/, $content);
-    my %stamp = (
-        id       => $stamp_id,
-        position => $x[0],
-        content  => $x[1],
-    );
+    my @allowed_keys = ( 'content', 'position' );
+    my %stamp = $redis->hgetall($stamp_id);
+    ( $_ = redis_decode($_) ) for ( $stamp{content}, $stamp{position} );
+    %stamp = filter_hash_by_keys( \@allowed_keys, %stamp );
+    $stamp{id} = $stamp_id;
 
     return %stamp;
 }
 
 # Converts an array of stamp registers to an array ob objects
 sub convert_stamps_to_object {
-    my (%stamps_raw) = @_;
+    my ( $redis, @stamp_ids) = @_;
 
     my @stamps;
 
     # Convert stamp registers to objects
-    foreach my $i (keys %stamps_raw) {
-        my %stamp = convert_stamp_to_object($i, $stamps_raw{$i});
+    foreach my $i (@stamp_ids) {
+        my %stamp = convert_stamp_to_object($redis, $i);
         push @stamps, \%stamp;  
     }
 
     return @stamps;
+}
+
+sub remove_stampid_from_list {
+    my ($stamps, $stamp) = @_;
+
+    my @new_stamps = grep { $_ ne $stamp } @$stamps;
+    
+    return @new_stamps;
+}
+
+# Returns stamps whose page in STAMPS_<page>_<ts> matches.
+sub filter_stamps_by_page {
+    my ($stamps, $page) = @_;
+    
+    my @filtered = grep {
+        my (undef, $index, undef) = split(/_/, $_, 3);
+        defined $index && $index == $page;
+    } @$stamps;
+    
+    return @filtered;
+}
+
+# Convert JSON string to array.
+sub deserialize_stamp_list {
+    my ($stamps) = @_;
+
+    my $decoded;
+    eval {
+        $decoded = decode_json($stamps);
+        die "There was a problem serializing stamps" unless ref($decoded) eq 'ARRAY';
+    };
+
+    if ($@) {
+        return undef;
+    }
+
+    return $decoded;
 }
 
 1;

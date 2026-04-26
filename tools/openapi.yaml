@@ -1874,12 +1874,106 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/StampsResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps/{index}:
+    get:
+      operationId: stampsByPage
+      x-mojo-to: api-stamp#get_stamps_by_page
+      summary: 🔑 Get the stamps linked to the page
+      description: Get the stamps linked to the page.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
                   result:
                     type: array
                     items:
-                      type: string
+                      $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: addStamp
+      x-mojo-to: api-stamp#add_stamp
+      summary: 🔑 Add a stamp annotation
+      description: Add a new Stamp to the page at the given coordinates.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - add_stamp
+                  stamp_id:
+                    type: string
+                    description: Stamp ID
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
         '400':
           description: Error response
           content:
@@ -3414,13 +3508,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: ID of the archive.
-          schema:
-            type: string
-        - name: stamp_id
-          in: query
-          required: true
-          description: ID of the stamp
+          description: ID of the stamp.
           schema:
             type: string
       responses:
@@ -3429,20 +3517,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  result:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        description: ID of the stamp
-                      content:
-                        type: string
-                        description: Text of the stamp
-                      position:
-                        type: string
-                        description: Position of the stamp in the page
+                $ref: '#/components/schemas/StampsData'
         '400':
           description: Error response
           content:
@@ -3468,13 +3543,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: ID of the archive.
-          schema:
-            type: string
-        - name: stamp_id
-          in: query
-          required: true
-          description: ID of the stamp
+          description: ID of the stamp.
           schema:
             type: string
         - name: content
@@ -3521,13 +3590,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: ID of the archive.
-          schema:
-            type: string
-        - name: stamp_id
-          in: query
-          required: true
-          description: ID of the stamp
+          description: ID of the stamp.
           schema:
             type: string
       responses:
@@ -3545,105 +3608,6 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: The Stamp is currently locked for modification
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-  /stamps/{id}/{index}:
-    get:
-      operationId: stampsByPage
-      x-mojo-to: api-stamp#get_stamps_by_page
-      summary: 🔑 Get the stamps linked to the page
-      description: Get the stamps linked to the page.
-      tags:
-        - stamps
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the archive.
-          schema:
-            type: string
-        - name: index
-          in: path
-          required: true
-          description: Page of the archive.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Success response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/StampsData'
-        '400':
-          description: Error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-    put:
-      security:
-        - api_key: []
-      operationId: addStamp
-      x-mojo-to: api-stamp#add_stamp
-      summary: 🔑 Add a stamp annotation
-      description: Add a new Stamp to the page at the given coordinates.
-      tags:
-        - stamps
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the archive.
-          schema:
-            type: string
-        - name: index
-          in: path
-          required: true
-          description: Page of the archive.
-          schema:
-            type: integer
-        - name: content
-          in: query
-          required: false
-          description: Text of the stamp.
-          schema:
-            type: string
-        - name: position
-          in: query
-          required: false
-          description: Position of the stamp in the page.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum: 
-                      - add_stamp
-                  stamp_id:
-                    type: string
-                    description: Stamp ID
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                      - 1
-        '400':
-          description: Error response
           content:
             application/json:
               schema:
@@ -4083,5 +4047,12 @@ components:
       example:
         position: 12,34
         content: Lorem ipsum dolore
+    StampsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: string
 servers:
   - url: https://lrr.tvc-16.science/api
