@@ -154,12 +154,6 @@ sub validate_registry_index {
     }
 
     foreach my $namespace ( sort keys %{ $index->{plugins} } ) {
-        # Namespaces are normalized to lowercase: Redis keys and reconcile lookup
-        # both treat case-insensitively, so the canonical key must be lowercase.
-        unless ( $namespace eq lc($namespace) ) {
-            return "Invalid registry.json: plugin namespace '$namespace' must be lowercase.";
-        }
-
         my $plugin = $index->{plugins}{$namespace};
         unless ( ref $plugin eq "HASH" ) {
             return "Invalid registry.json: plugin '$namespace' must be an object.";

@@ -952,8 +952,8 @@ paths:
               properties:
                 namespace:
                   type: string
-                  pattern: "^[a-zA-Z0-9_-]+$"
-                  description: Namespace of the plugin to install.
+                  pattern: "^[a-z0-9_-]+$"
+                  description: Namespace of the plugin to install. Registry namespaces are lowercase.
                 registry:
                   type: string
                   description: Registry ID to install from.

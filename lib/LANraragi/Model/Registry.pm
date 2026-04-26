@@ -358,14 +358,11 @@ sub install_plugin {
     my $index     = decode_json($indexjson);
     my $plugins   = $index->{plugins};
 
-    # Registry namespace keys are validated as lowercase by validate_registry_index;
-    # accept any caller casing by normalizing here.
-    my $nskey = lc($namespace);
-    unless ( $plugins->{$nskey} ) {
+    unless ( $plugins->{$namespace} ) {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
 
-    my $plugroot = $plugins->{$nskey};
+    my $plugroot = $plugins->{$namespace};
 
     unless ( $plugroot->{versions} && $plugroot->{versions}{$version} ) {
         return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
