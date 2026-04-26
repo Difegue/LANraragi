@@ -37,33 +37,37 @@ sub create_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %config = ( name => $body->{name}, type => $type );
+            eval {
+                my %config = ( name => $body->{name}, type => $type );
 
-            if ( $type eq "git" ) {
-                $config{provider} = $body->{provider};
-                $config{url}      = $body->{url};
-                $config{ref}      = $body->{ref} // "main";
-            } elsif ( $type eq "local" ) {
-                $config{path} = $body->{path};
-            }
-
-            my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config );
-            $redis->quit();
-
-            if ($error) {
-                render_api_response( $self, "create_registry", $error );
-                return;
-            }
-
-            $self->render(
-                openapi => {
-                    operation => "create_registry",
-                    success   => 1,
-                    error     => "",
-                    id        => $registry_id,
-                    registry  => { id => $registry_id, %config },
+                if ( $type eq "git" ) {
+                    $config{provider} = $body->{provider};
+                    $config{url}      = $body->{url};
+                    $config{ref}      = $body->{ref} // "main";
+                } elsif ( $type eq "local" ) {
+                    $config{path} = $body->{path};
                 }
-            );
+
+                my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config );
+
+                if ($error) {
+                    render_api_response( $self, "create_registry", $error );
+                    return;
+                }
+
+                $self->render(
+                    openapi => {
+                        operation => "create_registry",
+                        success   => 1,
+                        error     => "",
+                        id        => $registry_id,
+                        registry  => { id => $registry_id, %config },
+                    }
+                );
+            };
+            my $err = $@;
+            $redis->quit();
+            die $err if $err;
         }
     );
 }
@@ -112,43 +116,45 @@ sub update_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %updated_registry;
-            for my $field (qw(name type provider url ref path)) {
-                $updated_registry{$field} = $body->{$field} if exists $body->{$field};
-            }
-
-            unless (%updated_registry) {
-                $redis->quit();
-                render_api_response( $self, "update_registry", "Nothing to update." );
-                return;
-            }
-
-            my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
-                $registry_id, $redis, %updated_registry
-            );
-
-            unless ( $status == 200 ) {
-                $redis->quit();
-                $self->render(
-                    openapi => { operation => "update_registry", error => $message, success => 0 },
-                    status  => $status
-                );
-                return;
-            }
-
-            my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
-            $redis->quit();
-
-            $self->render(
-                openapi => {
-                    operation     => "update_registry",
-                    success       => 1,
-                    error         => "",
-                    id            => $registry_id,
-                    registry      => \%registry,
-                    index_cleared => $indexcleared ? true : false,
+            eval {
+                my %updated_registry;
+                for my $field (qw(name type provider url ref path)) {
+                    $updated_registry{$field} = $body->{$field} if exists $body->{$field};
                 }
-            );
+
+                unless (%updated_registry) {
+                    render_api_response( $self, "update_registry", "Nothing to update." );
+                    return;
+                }
+
+                my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
+                    $registry_id, $redis, %updated_registry
+                );
+
+                unless ( $status == 200 ) {
+                    $self->render(
+                        openapi => { operation => "update_registry", error => $message, success => 0 },
+                        status  => $status
+                    );
+                    return;
+                }
+
+                my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+
+                $self->render(
+                    openapi => {
+                        operation     => "update_registry",
+                        success       => 1,
+                        error         => "",
+                        id            => $registry_id,
+                        registry      => \%registry,
+                        index_cleared => $indexcleared ? true : false,
+                    }
+                );
+            };
+            my $err = $@;
+            $redis->quit();
+            die $err if $err;
         }
     );
 }
@@ -165,20 +171,24 @@ sub delete_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my ( $status, $success, $message ) = LANraragi::Model::Registry::delete_registry(
-                $registry_id, $redis
-            );
-            $redis->quit();
-
-            unless ( $status == 200 ) {
-                $self->render(
-                    openapi => { operation => "delete_registry", error => $message, success => 0 },
-                    status  => $status
+            eval {
+                my ( $status, $success, $message ) = LANraragi::Model::Registry::delete_registry(
+                    $registry_id, $redis
                 );
-                return;
-            }
 
-            render_api_response( $self, "delete_registry" );
+                unless ( $status == 200 ) {
+                    $self->render(
+                        openapi => { operation => "delete_registry", error => $message, success => 0 },
+                        status  => $status
+                    );
+                    return;
+                }
+
+                render_api_response( $self, "delete_registry" );
+            };
+            my $err = $@;
+            $redis->quit();
+            die $err if $err;
         }
     );
 }
@@ -195,62 +205,62 @@ sub refresh_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+            eval {
+                my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
 
-            unless (%config) {
-                $redis->quit();
+                unless (%config) {
+                    $self->render(
+                        openapi => {
+                            operation => "refresh_registry",
+                            error     => "This registry doesn't exist.",
+                            success   => 0,
+                        },
+                        status => 404
+                    );
+                    return;
+                }
+
+                my $type = $config{type};
+                my ( $status, $content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
+                    $type, %config
+                );
+
+                unless ( $status == 200 ) {
+                    $self->render(
+                        openapi => { operation => "refresh_registry", error => $message, success => 0 },
+                        status  => $status
+                    );
+                    return;
+                }
+
+                my $index = eval { decode_json($content) };
+                if ($@) {
+                    render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
+                    return;
+                }
+
+                my $validation_error = validate_registry_index($index);
+                if ($validation_error) {
+                    render_api_response( $self, "refresh_registry", $validation_error );
+                    return;
+                }
+
+                # Cache the raw JSON under the paired index key
+                my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+                my $indexkey = "REG_INDEX_$suffix";
+                $redis->set( $indexkey, $content );
+
                 $self->render(
                     openapi => {
                         operation => "refresh_registry",
-                        error     => "This registry doesn't exist.",
-                        success   => 0,
-                    },
-                    status => 404
+                        success   => 1,
+                        index     => $index,
+                    }
                 );
-                return;
-            }
-
-            my $type = $config{type};
-            my ( $status, $content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
-                $type, %config
-            );
-
-            unless ( $status == 200 ) {
-                $redis->quit();
-                $self->render(
-                    openapi => { operation => "refresh_registry", error => $message, success => 0 },
-                    status  => $status
-                );
-                return;
-            }
-
-            my $index = eval { decode_json($content) };
-            if ($@) {
-                $redis->quit();
-                render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
-                return;
-            }
-
-            my $validation_error = validate_registry_index($index);
-            if ($validation_error) {
-                $redis->quit();
-                render_api_response( $self, "refresh_registry", $validation_error );
-                return;
-            }
-
-            # Cache the raw JSON under the paired index key
-            my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-            my $indexkey = "REG_INDEX_$suffix";
-            $redis->set( $indexkey, $content );
+            };
+            my $err = $@;
             $redis->quit();
-
-            $self->render(
-                openapi => {
-                    operation => "refresh_registry",
-                    success   => 1,
-                    index     => $index,
-                }
-            );
+            die $err if $err;
         }
     );
 }
@@ -344,20 +354,24 @@ sub uninstall_plugin {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
-                $namespace, $redis
-            );
-            $redis->quit();
-
-            unless ( $status == 200 ) {
-                $self->render(
-                    openapi => { operation => "uninstall_plugin", error => $message, success => 0 },
-                    status  => $status
+            eval {
+                my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
+                    $namespace, $redis
                 );
-                return;
-            }
 
-            render_api_response( $self, "uninstall_plugin" );
+                unless ( $status == 200 ) {
+                    $self->render(
+                        openapi => { operation => "uninstall_plugin", error => $message, success => 0 },
+                        status  => $status
+                    );
+                    return;
+                }
+
+                render_api_response( $self, "uninstall_plugin" );
+            };
+            my $err = $@;
+            $redis->quit();
+            die $err if $err;
         }
     );
 }

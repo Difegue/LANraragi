@@ -861,6 +861,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /registries/{id}/refresh:
     post:

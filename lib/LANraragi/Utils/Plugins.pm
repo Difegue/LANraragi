@@ -111,10 +111,12 @@ sub get_plugin {
     my $name = shift;
     my $name_uc = uc($name); # namespaces are normalized to upper case.
 
-    # Plugin must be registered in Redis to be active.
+    # Plugin must have a discovered installed_path to be callable.
+    # Uninstall hdels installed_path while preserving user config; gating on
+    # key-existence alone would let uninstalled namespaces remain callable.
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my $namerds = "LRR_PLUGIN_" . $name_uc;
-    unless ( $redis->exists($namerds) ) {
+    unless ( $redis->hexists( $namerds, "installed_path" ) ) {
         $redis->quit();
         return 0;
     }
