@@ -5,7 +5,7 @@ use warnings;
 use utf8;
 
 use Cwd qw(abs_path getcwd);
-use File::Spec;
+use File::Spec; # TODO(REVIEW): why use this over Path? Check dev for consistency.
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
@@ -33,22 +33,20 @@ use constant MANAGED_TYPE_DIRS => {
     script   => "Scripts",
 };
 
-# Allowed-field whitelists for registry.json schema v1, used by validate_registry_index.
+# Allowed-field whitelists for registry.json schema.
 my @ALLOWED_ROOT_FIELDS     = qw(version generated_at plugins);
 my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type channels versions);
 my @ALLOWED_VERSION_FIELDS  = qw(version name author description artifact sha256 published_at);
 my @REQUIRED_VERSION_FIELDS = qw(name author description artifact sha256 published_at);
 
 # Resolve a git URL to a raw file URL for a given provider
-# Supports github, gitlab, and gitea/codeberg providers.
+# (Should) support github, gitlab, and gitea/codeberg providers but who knows
 sub resolve_git_raw_url {
     my ( $provider, $url, $ref, $path ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    # Accept any number of path segments between host and the final repo segment;
-    # the trailing segment is the repo, everything before is the owner path
-    # (GitHub: single owner; GitLab: owner + nested subgroups; Gitea: single owner).
+    # TODO: this just needs to be tested more (maybe with a Gitlab + Gitea repo)
     my ( $host, $owner, $repo );
     if ( $url =~ m{^https?://([^/]+)/(.+)/([^/]+?)(?:\.git)?$} ) {
         ( $host, $owner, $repo ) = ( $1, $2, $3 );
@@ -103,6 +101,7 @@ sub find_namespace_conflict {
 # Scan Plugin/ directory for a .pm file matching the given criteria.
 # $skip_path: optional absolute filepath to exclude
 # $match_fn: coderef($filepath, $fh) -> bool; return true if filepath conflicts.
+# TODO(REVIEW): move to bottom.
 sub _find_conflict {
     my ( $skip_path, $match_fn ) = @_;
 
@@ -114,7 +113,7 @@ sub _find_conflict {
     find_path(
         sub {
             return if $conflict;
-            return unless /\.pm$/;
+            return unless /\.pm$/; # TODO(REVIEW): why here? "for a .pm file"
             return if $skip_path && $_ eq $skip_path;
 
             if ( $match_fn->($_) ) {
@@ -127,7 +126,8 @@ sub _find_conflict {
     return $conflict;
 }
 
-# check registry index satisfies a bunch of conditions...
+# strictly check registry index satisfies a bunch of registry spec-related conditions...
+# TODO(REVIEW): group things together more logically
 sub validate_registry_index {
     my ($index) = @_;
 
@@ -271,6 +271,7 @@ sub resolve_local_registry_artifact_path {
     return ( $root_canon, $file_canon, undef );
 }
 
+# Check timestamp is (stylistically) of the form "9999-99-99T99:99:99Z".
 sub is_valid_registry_timestamp {
     my ($timestamp) = @_;
     return $timestamp =~ /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\z/;

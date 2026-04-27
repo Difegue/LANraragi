@@ -8,6 +8,11 @@ use LANraragi::Utils::Generic  qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(validate_registry_index);
 
+# TODO(REVIEW) evals should cover SPECIFIC logic known to throw a SPECIFIC die(s), not blanket an entire code block.
+# furthermore, evals should not be applied/wrapped over Model-layer subs. Instead, the eval should drop to Model (and Model should handle failures more gracefully) instead.
+# logic-specific eval failures should be accompanied with error logging that identifies where the logic failed.
+# See Api/Archive.pm. (variants)
+
 sub list_registries {
     my $self  = shift->openapi->valid_input or return;
     my $redis = $self->LRR_CONF->get_redis_config;
@@ -24,10 +29,15 @@ sub list_registries {
     );
 }
 
+# create a registry, which can be of type either git or local.
+# git type: requires provider, url, ref (default "main").
+# local type: requires path (to local registry.json)
 sub create_registry {
-    my $self = shift->openapi->valid_input or return;
-    my $body = $self->req->json;
-    my $type = $body->{type};
+    my $self    = shift->openapi->valid_input or return;
+    my $body    = $self->req->json;
+    my $type    = $body->{type};
+
+    # TODO(REVIEW) logging required.
 
     return unless exec_with_lock(
         $self,
@@ -37,6 +47,7 @@ sub create_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
+            # TODO(REVIEW) eval too broad.
             eval {
                 my %config = ( name => $body->{name}, type => $type );
 
@@ -48,7 +59,7 @@ sub create_registry {
                     $config{path} = $body->{path};
                 }
 
-                my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config );
+                my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config ); # TODO(REVIEW): move redis to second arg (variants)
 
                 if ($error) {
                     render_api_response( $self, "create_registry", $error );
@@ -67,7 +78,8 @@ sub create_registry {
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW): check dev branch consistency on end of controller error handling
+            # TODO(REVIEW) reachability + use error logging instead, this is at the end of the logic anyways
         }
     );
 }
@@ -103,10 +115,14 @@ sub get_registry {
     );
 }
 
+# Update a registry by its ID.
+# The registry must exist (otherwise, use create_registry)
 sub update_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
     my $body        = $self->req->json;
+
+    # TODO(REVIEW) logging required.
 
     return unless exec_with_lock(
         $self,
@@ -116,13 +132,14 @@ sub update_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
+            # TODO(REVIEW) eval too broad.
             eval {
                 my %updated_registry;
                 for my $field (qw(name type provider url ref path)) {
                     $updated_registry{$field} = $body->{$field} if exists $body->{$field};
                 }
 
-                unless (%updated_registry) {
+                unless ( %updated_registry ) {
                     render_api_response( $self, "update_registry", "Nothing to update." );
                     return;
                 }
@@ -130,7 +147,9 @@ sub update_registry {
                 my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
                     $registry_id, $redis, %updated_registry
                 );
+                # TODO(REVIEW) logging required
 
+                # TODO(REVIEW): check dev branch status check consistency (and all variants)
                 unless ( $status == 200 ) {
                     $self->render(
                         openapi => { operation => "update_registry", error => $message, success => 0 },
@@ -139,6 +158,7 @@ sub update_registry {
                     return;
                 }
 
+                # TODO(REVIEW): why does registry need to be retrieved, instead of retrieving it from update_registry?
                 my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
 
                 $self->render(
@@ -147,14 +167,14 @@ sub update_registry {
                         success       => 1,
                         error         => "",
                         id            => $registry_id,
-                        registry      => \%registry,
-                        index_cleared => $indexcleared ? true : false,
+                        registry      => \%registry,                    # TODO(REVIEW): why ref here
+                        index_cleared => $indexcleared ? true : false,  # TODO(REVIEW): why fallback (variants)
                     }
                 );
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW) ditto
         }
     );
 }
@@ -162,6 +182,8 @@ sub update_registry {
 sub delete_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
+
+    # TODO(REVIEW) logging required + cases
 
     return unless exec_with_lock(
         $self,
@@ -171,7 +193,9 @@ sub delete_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
+            # TODO(REVIEW) eval too broad (and is it necesary i.e. actually can die?) clearly doesn't need render.
             eval {
+                # TODO(REVIEW) 'message' is misleading, this is an error?
                 my ( $status, $success, $message ) = LANraragi::Model::Registry::delete_registry(
                     $registry_id, $redis
                 );
@@ -188,14 +212,17 @@ sub delete_registry {
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW) ditto
         }
     );
 }
 
+# TODO(REVIEW) most of this logic doesn't belong in controller.
 sub refresh_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
+
+    # TODO(REVIEW) logging required.
 
     return unless exec_with_lock(
         $self,
@@ -205,6 +232,7 @@ sub refresh_registry {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
+            # TODO(REVIEW) eval too broad.
             eval {
                 my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
 
@@ -220,6 +248,7 @@ sub refresh_registry {
                     return;
                 }
 
+                # TODO(REVIEW) why does type need extraction if it's already in config? (variants)
                 my $type = $config{type};
                 my ( $status, $content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
                     $type, %config
@@ -239,16 +268,19 @@ sub refresh_registry {
                     return;
                 }
 
+                # TODO(REVIEW) this logic does not belong in the Controller.
                 my $validation_error = validate_registry_index($index);
                 if ($validation_error) {
                     render_api_response( $self, "refresh_registry", $validation_error );
                     return;
                 }
 
+                # TODO(REVIEW) this logic does not belong in the Controller.
                 # Cache the raw JSON under the paired index key
                 my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
                 my $indexkey = "REG_INDEX_$suffix";
 
+                # TODO(REVIEW) this logic does not belong in the Controller.
                 # Spec-contract checks against the previously cached index, if any.
                 # Removed versions and cross-refresh type changes are publisher-contract
                 # violations the spec asks LRR to surface where practical.
@@ -294,19 +326,21 @@ sub refresh_registry {
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW) ditto
         }
     );
 }
 
+# Install a managed plugin.
+# TODO(REVIEW) this should be under plugins.
 sub install_plugin {
     my $self                    = shift->openapi->valid_input or return;
     my $body                    = $self->req->json;
     my $namespace               = $body->{namespace};
     my $registry_id             = $body->{registry};
     my $version                 = $body->{version};
-    my $installed_channel       = $body->{installed_channel};
-    my $force                   = $body->{force} // 0;
+    my $installed_channel       = $body->{installed_channel};       # TODO(REVIEW) should installed_channel be required here? Is it required by openapi?
+    my $force                   = $body->{force} // 0;              # upgrade path
 
     return unless exec_with_lock(
         $self,
@@ -317,6 +351,10 @@ sub install_plugin {
             my $redis = $self->LRR_CONF->get_redis_config;
 
             eval {
+                # Since a plugin namespace can be built-in or sideloaded, we'll need to check redis first.
+                # if a plugin exists and is not managed, installation may not continue.
+                # The user will have to remove/uninstall the existing plugin before installing a managed plugin
+                # by the same namespace.
                 my $namerds = "LRR_PLUGIN_" . uc($namespace);
                 if ( $redis->hexists( $namerds, "installed_path" ) ) {
                     my $source     = LANraragi::Model::Registry::infer_plugin_source( $namespace, $redis );
@@ -324,14 +362,18 @@ sub install_plugin {
                     my $currentver = $redis->hget( $namerds, "installed_version" );
 
                     if ( $source ne "managed" ) {
-                        # Sideloaded or default plugin: force cannot bypass; user must remove it first.
-                        render_api_response( $self, "install_plugin",
-                            "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry." );
+                        render_api_response( 
+                            $self,
+                            "install_plugin",
+                            "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry."
+                        );
                         return;
                     }
 
-                    if ( !$force && $currentreg && $currentreg ne $registry_id ) {
-                        render_api_response( $self, "install_plugin",
+                    my $is_installed = $currentreg && $currentreg ne $registry_id;
+                    if ( $is_installed && !$force ) {
+                        render_api_response( $self,
+                            "install_plugin",
                             "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
                         return;
                     }
@@ -343,6 +385,7 @@ sub install_plugin {
                         $namespace, $registry_id, $version, $installed_channel, $redis
                     );
                 };
+                # TODO(REVIEW) declare error.
                 if ($@) {
                     $logger->error("install_plugin failed for '$namespace': $@");
                     render_api_response( $self, "install_plugin", "Plugin installation failed." );
@@ -372,11 +415,14 @@ sub install_plugin {
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW) ditto
         }
     );
 }
 
+# Uninstall a plugin.
+# Applies to both managed and sideloaded plugins.
+# TODO(REVIEW) ditto under Plugins.pm.
 sub uninstall_plugin {
     my $self      = shift->openapi->valid_input or return;
     my $namespace = $self->stash('plugin_namespace');
@@ -406,7 +452,7 @@ sub uninstall_plugin {
             };
             my $err = $@;
             $redis->quit();
-            die $err if $err;
+            die $err if $err; # TODO(REVIEW) ditto
         }
     );
 }

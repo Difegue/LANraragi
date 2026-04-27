@@ -3,10 +3,12 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
+# TODO(REVIEW): what if the plugin does not exist on disk? If a plugin is not installed,
+# should its configs be updatable?
 sub update_plugin_config {
-    my $self      = shift->openapi->valid_input or return;
-    my $namespace = $self->stash('plugin_namespace');
-    my $body      = $self->req->json;
+    my $self        = shift->openapi->valid_input or return;
+    my $namespace   = $self->stash('plugin_namespace');
+    my $body        = $self->req->json; # TODO(REVIEW): document shape of body
 
     return unless exec_with_lock(
         $self,
@@ -30,6 +32,7 @@ sub update_plugin_config {
                 return;
             }
 
+            # TODO(REVIEW): transaction + error handling
             if ( exists $body->{enabled} ) {
                 $redis->hset( $namerds, "enabled", $body->{enabled} ? "1" : "0" );
             }

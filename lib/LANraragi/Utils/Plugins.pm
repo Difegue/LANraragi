@@ -17,6 +17,9 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # view of which Redis-tracked generation of each plugin namespace it has loaded.
 # On upgrade, install_plugin / process_upload bump installed_generation in Redis;
 # the next get_plugin call on any worker observes the mismatch and reloads.
+# TODO(REVIEW): purpose/explanation of installed_generation
+# TODO(REVIEW): purpose/explanation of these constants
+# TODO(REVIEW): why are these above Exporter?
 my %LOADED_GEN;
 my %LOAD_FAILED;
 
@@ -40,13 +43,19 @@ sub get_plugins {
         if ( $plugin->can('plugin_info') ) {
             my %pluginfo;
             eval { %pluginfo = $plugin->plugin_info() };
-            next if $@;
+            next if $@; # TODO(REVIEW): silent skipping (variant)
 
-            # Redis is the sole authority on plugin availability.
-            # One Redis key per namespace; one entry per namespace in the result.
+            # Skip plugins which are not registered by Redis.
             my $ns = $pluginfo{namespace};
-            next unless $redis->hexists( "LRR_PLUGIN_" . uc($ns), "installed_path" );
-            next if $seen_ns{$ns}++;
+            unless ( $redis->hexists( "LRR_PLUGIN_" . uc($ns), "installed_path" ) ) {
+                # TODO(REVIEW): logging
+                next;
+            }
+            if ( $seen_ns{$ns}++ ) {
+                # TODO(REVIEW): logging
+                # TODO(REVIEW): can an ns be seen multiple times?
+                next;
+            }
 
             if    ( $type eq 'script' )   { next if ( !$plugin->can('run_script') ); }
             elsif ( $type eq 'metadata' ) { next if ( !$plugin->can('get_tags') ); }
@@ -54,6 +63,8 @@ sub get_plugins {
             elsif ( $type eq 'login' )    { next if ( !$plugin->can('do_login') ); }
 
             if ( $pluginfo{type} eq $type || $type eq "all" ) { push( @validplugins, \%pluginfo ); }
+        } else {
+            # TODO(REVIEW): log case where plugin has no plugin_info.
         }
     }
 
@@ -105,15 +116,18 @@ sub get_enabled_plugins {
     return @enabled;
 }
 
-#Look for a plugin by namespace.
+#Look for a plugin by uc-normalized namespace.
+# TODO(REVIEW): explain how redis is being used.
 sub get_plugin {
 
     my $name = shift;
-    my $name_uc = uc($name); # namespaces are normalized to upper case.
+    my $name_uc = uc($name);
 
     # Plugin must have a discovered installed_path to be callable.
     # Uninstall hdels installed_path while preserving user config; gating on
     # key-existence alone would let uninstalled namespaces remain callable.
+    # TODO(REVIEW): this counts as validation logic; does it belong in get_plugin? Who are the callers
+    # it looks more like it should be for plugin invokation?
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my $namerds = "LRR_PLUGIN_" . $name_uc;
     unless ( $redis->hexists( $namerds, "installed_path" ) ) {
@@ -140,12 +154,11 @@ sub get_plugin {
             if ($ok) {
                 $LOADED_GEN{$name_uc} = $current_gen;
                 delete $LOAD_FAILED{$name_uc};
-                get_logger( "Plugin System", "lanraragi" )
-                    ->info("Reloaded plugin '$name' to generation $current_gen (pid $$)");
+                get_logger( "Plugin System", "lanraragi" )->info("Reloaded plugin '$name' to generation $current_gen (pid $$)");
             } else {
+                # TODO(REVIEW): document when this would trigger
                 $LOAD_FAILED{$name_uc} = $current_gen;
-                get_logger( "Plugin System", "lanraragi" )
-                    ->warn("Failed to reload plugin '$name' at generation $current_gen: $@");
+                get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name' at generation $current_gen: $@");
             }
         }
     }

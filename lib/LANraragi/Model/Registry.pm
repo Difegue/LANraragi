@@ -45,12 +45,14 @@ my %STALE_FIELDS = (
 
 # Create a registry entry with a generated REG_{timestamp} ID.
 # Returns ( $registry_id, undef ) or ( undef, $error_message ).
+# TODO(REVIEW) requires fields: created_date and updated_date.
 sub create_registry {
     my ( $redis, %config ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Creating registry (type: $config{type})");
 
+    # TODO(REVIEW): maybe set default (first) registry to REG_0000000001?
     # TODO: remove with multi-registry.
     # Single-registry enforcement
     my @existing = $redis->keys("REG_??????????");
@@ -65,6 +67,7 @@ sub create_registry {
         }
     }
 
+    # TODO(REVIEW): check stamps PR for offset consistency.
     # Atomic claim of an unused REG_<ts> hash key: Lua keeps the existence
     # check and the type write atomic so two concurrent callers cannot land
     # on the same id.
@@ -92,9 +95,10 @@ LUA
         }
     }
 
-    my $type         = $config{type};
-    my @valid_fields = @{ $TYPE_FIELDS{$type} };
+    my $type            = $config{type}; # TODO(REVIEW) move this to the beginning and don't use `config{type}` in earlier code. Also rename to `registry_type`. (variant)
+    my @valid_fields    = @{ $TYPE_FIELDS{$type} };
 
+    # TODO(REVIEW) how much of this can be merged with update_registry?
     foreach my $field (@valid_fields) {
         next if $field eq "type";
         next unless defined $config{$field};
@@ -110,7 +114,9 @@ LUA
 sub get_registry {
     my ( $registry_id, $redis ) = @_;
 
+    # TODO(REVIEW): pull out to sub: is_valid_registry(registry_id).
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+        # TODO(REVIEW) logging needed.
         return ();
     }
 
@@ -139,6 +145,7 @@ sub get_registry_list {
 }
 
 # Update mutable fields on an existing registry.
+# TODO(REVIEW) how much update_registry logic coincides with create-registry?
 sub update_registry {
     my ( $registry_id, $redis, %updated_registry ) = @_;
 
@@ -170,6 +177,8 @@ sub update_registry {
     }
 
     # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
+    # TODO(REVIEW) type change needs logging.
+    # TODO(REVIEW) use explicit updated_reg_type, current_reg_type for below (updated_registry{type}, etc).
     my $type = $updated_registry{type} // $current_registry{type};
 
     # Partial updates may omit fields already stored; merge before validating.
@@ -188,11 +197,11 @@ sub update_registry {
         }
     }
 
-    # Lua keeps stale-field removal + field writes + index clear atomic so a
-    # type change cannot leave the registry hash with mixed-type stale fields.
+    # If a type change is made, then registry may be left with stale or mixed type states, which we'll need to clean up.
+    # TODO(REVIEW) integration test coverage for mixed type registry updates? create git -> update git -> update local -> update local -> update git -> update local -> update git (AABBABAB)
     my @fields_to_remove;
     # type is always set on a valid registry (stored at creation)
-    if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) {
+    if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) { # TODO(REVIEW) is existence check required?
         $logger->info("Type change on '$registry_id': '$current_registry{type}' -> '$type'; removing stale fields.");
         @fields_to_remove = @{ $STALE_FIELDS{$type} };
     }
@@ -207,7 +216,7 @@ sub update_registry {
     }
 
     my $indexkey = "";
-    if ($indexcleared) {
+    if ( $indexcleared ) {
         my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
         $indexkey = "REG_INDEX_$suffix";
     }
@@ -233,12 +242,12 @@ LUA
         $redis->eval( $script, 2, $registry_id, $indexkey,
             scalar @fields_to_remove, @fields_to_remove, @fields_to_set );
     };
-    if ($@) {
+    if ($@) { # TODO(REVIEW) same error var thing
         $logger->error("Redis error during registry update for '$registry_id': $@");
         return ( 500, undef, "Redis error while updating registry." );
     }
 
-    if ($indexcleared) {
+    if ( $indexcleared ) {
         $logger->info("Cleared cached index for '$registry_id' due to source field change.");
     }
 
@@ -256,16 +265,16 @@ sub delete_registry {
     }
 
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-    my $indexkey = "REG_INDEX_$suffix";
+    my $registry_index_key      = "REG_INDEX_$suffix";
 
-    # Atomic delete of registry + index key
+    # Delete registry + index key
     my $script = <<'LUA';
     redis.call("DEL", KEYS[1])
     redis.call("DEL", KEYS[2])
     return 1
 LUA
 
-    eval { $redis->eval( $script, 2, $registry_id, $indexkey ) };
+    eval { $redis->eval( $script, 2, $registry_id, $registry_index_key ) };
     if ($@) {
         $logger->error("Redis error during registry delete for '$registry_id': $@");
         return ( 500, undef, "Redis error while deleting registry." );
@@ -340,13 +349,13 @@ sub fetch_registry_index {
         unless ( defined $res ) {
             my $error = "Cannot reach registry: $@";
             $logger->error($error);
-            return ( 502, undef, $error );
+            return ( 502, undef, $error ); # TODO(REVIEW): should be 500
         }
 
         unless ( $res->is_success ) {
             my $error = "Failed to fetch registry index: HTTP " . $res->code;
             $logger->error($error);
-            return ( 502, undef, $error );
+            return ( 502, undef, $error ); # TODO(REVIEW): should be 500
         }
 
         return ( 200, $res->body, undef );
@@ -357,6 +366,9 @@ sub fetch_registry_index {
 
 # Install a plugin from a registry whose index has been refreshed and cached.
 # namespace, registry_id, version are required to identify the plugin to install.
+# TODO(REVIEW) move to Model/Plugins.pm.
+# TODO(REVIEW) what if the signature of the plugin changes from one version to the next, or across provenance, in a way which is incompatible?
+# because uninstall plugin keeps configuration, this will require thought...
 sub install_plugin {
     my ( $namespace, $registry_id, $version, $installed_channel, $redis ) = @_;
 
@@ -370,14 +382,14 @@ sub install_plugin {
 
     # registry index must exist, otherwise require a refresh.
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-    my $indexkey = "REG_INDEX_$suffix";
+    my $indexkey = "REG_INDEX_$suffix"; # TODO(REVIEW): rename to registry_index_key
     unless ( $redis->exists($indexkey) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
     }
 
-    my $indexjson = $redis->get($indexkey);
-    my $index     = decode_json($indexjson);
-    my $plugins   = $index->{plugins};
+    my $indexjson   = $redis->get($indexkey);
+    my $index       = decode_json($indexjson); # TODO(REVIEW) rename to registry_index (variant)
+    my $plugins     = $index->{plugins};
 
     unless ( $plugins->{$namespace} ) {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
@@ -390,14 +402,20 @@ sub install_plugin {
     }
 
     if ( defined $installed_channel ) {
+        $logger->info("Installing plugin via installed channel: $installed_channel");
+
+        # TODO(REVIEW) check dev branch for consistency (use of raw ref)
         unless ( ref $plugroot->{channels} eq "HASH" ) {
             return ( 400, undef, "Plugin '$namespace' is missing channel data." );
         }
 
+        # TODO(REVIEW) duplicate code
+        # TODO(REVIEW) check dev branch for consistency (key chaining)
         unless ( exists $plugroot->{channels}{$installed_channel} ) {
             return ( 400, undef, "Channel '$installed_channel' not found for plugin '$namespace'." );
         }
 
+        # TODO(REVIEW) why does version need resolving here?
         unless ( $plugroot->{channels}{$installed_channel} eq $version ) {
             return (
                 400,
@@ -405,33 +423,35 @@ sub install_plugin {
                 "Channel '$installed_channel' resolves to version '$plugroot->{channels}{$installed_channel}', not '$version'."
             );
         }
+    } else {
+        $logger->info("Installing plugin without a channel.");
     }
 
     my $plugmeta = $plugroot->{versions}{$version};
     $plugmeta->{type} = $plugroot->{type};
 
+    # Validate plugin artifact path.
     my $plugpath = $plugmeta->{artifact};
-
     my ( $artifact_valid, $artifact_error ) = validate_registry_artifact_path($plugpath);
-    unless ($artifact_valid) {
+    unless ( $artifact_valid ) {
         return ( 400, undef, $artifact_error );
     }
 
-    my %config = $redis->hgetall($registry_id);
-    my $type   = $config{type};
+    my %config  = $redis->hgetall($registry_id); # TODO(REVIEW) rename to redis_config (variant: any registry/plugin intersection requires explicit "registry_"/"plugin_" prefix).
+    my $type    = $config{type}; # TODO(REVIEW) same here.
 
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
     my $currentpath;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        # TODO(REVIEW): move to sub `resolve_installed_path`. (variant)
         $currentpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
     }
 
-    my $content;
+    my $content; # TODO(REVIEW) rename to plugin_content
 
     if ( $type eq "local" ) {
-        my ( $root_canon, $file_canon, $resolve_error ) =
-            resolve_local_registry_artifact_path( $config{path}, $plugpath );
+        my ( $root_canon, $file_canon, $resolve_error ) = resolve_local_registry_artifact_path( $config{path}, $plugpath );
         if ($resolve_error) {
             return ( 400, undef, $resolve_error );
         }
@@ -476,32 +496,36 @@ sub install_plugin {
         $content = $res->body;
     } else {
         # check against type just in case
+        # TODO(REVIEW) logging required.
         return ( 400, undef, "Unknown registry type: $type" );
     }
 
+    # Check that plugins are installed under "Plugins/Managed/".
     my ( $validated, $error ) = validate_managed_plugin( $content, $namespace, $plugmeta, $currentpath );
     if ($error) {
+        # TODO(REVIEW) logging required.
         return ( 422, undef, $error );
     }
 
     my $installdir      = $validated->{install_dir};
     my $installpath     = $validated->{install_path};
-    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) );
-    my $channel_value   = defined $installed_channel ? $installed_channel : "";
+    my $incpath         = package_to_path( $validated->{package} );
+    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) ); # TODO(REVIEW) Paths compliance?
+    my $channel_value   = defined $installed_channel ? $installed_channel : ""; # TODO(REVIEW) confirm channel_value accepts "" fallback
 
     make_path($installdir) unless -d $installdir;
 
     eval { Mojo::File->new($installpath)->spew($content) };
     if ($@) {
-        my $error = "Cannot write plugin file: $@";
+        my $error = "Cannot write plugin file during installation: $@";
         $logger->error($error);
         return ( 500, undef, $error );
     }
 
     $logger->info("Installed plugin '$namespace' to $installpath");
 
-    # Atomically verify registry still exists and store provenance.
-    # installed_generation is bumped so other workers see a version change and reload.
+    # Verify registry exists and store updated plugin provenance.
+    # TODO(REVIEW) integration coverage for plugin install + metadata confirmation.
     my $script = <<'LUA';
     if redis.call("EXISTS", KEYS[1]) == 0 then
         return 0
@@ -520,30 +544,32 @@ sub install_plugin {
 LUA
 
     my $provenance_written = eval {
-        $redis->eval( $script, 2, $registry_id, $namerds,
-            $install_relpath, $plugmeta->{version}, $registry_id, $plugmeta->{sha256}, $channel_value );
+        $redis->eval(
+            $script, 2, $registry_id, $namerds,
+            $install_relpath, $plugmeta->{version}, $registry_id, $plugmeta->{sha256}, $channel_value
+        );
     };
     if ($@) {
         $logger->error("Redis error during provenance write for '$namespace': $@");
         # Clean up the written file since provenance was not recorded
-        unlink_path($installpath);
+        unlink_path($installpath); # TODO(REVIEW) why remove?
         return ( 500, undef, "Redis error while writing provenance." );
     }
     unless ($provenance_written) {
         # Registry was deleted between our existence check and the Lua script
-        unlink_path($installpath);
+        unlink_path($installpath); # TODO(REVIEW) why remove?
         return ( 409, undef, "Registry was deleted during install." );
     }
 
     # If the upgrade landed at a new path (type-change between published versions, in violation
     # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
     if ( defined $currentpath && $currentpath ne $installpath && -e $currentpath ) {
-        unlink_path($currentpath)
-            or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
+         # TODO(REVIEW) why remove?
+        unlink_path($currentpath) or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
     }
 
-    my $incpath = package_to_path( $validated->{package} );
-    delete $INC{$incpath};
+    # Reload INC with new plugin/incpath.
+    delete $INC{$incpath}; # TODO(REVIEW) is it possible that incpath in INC does not equal incpath in package?
     eval { require $incpath };
     if ($@) {
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
@@ -554,13 +580,16 @@ LUA
         version            => $plugmeta->{version},
         installed_registry => $registry_id,
         installed_sha256   => $plugmeta->{sha256},
-        installed_channel  => ( $channel_value ne "" ? $channel_value : undef ),
+        installed_channel  => ( $channel_value ne "" ? $channel_value : undef ), # TODO(REVIEW): why channel either "" or undef at times? Inconsistent.
     );
 
-    return ( 200, \%installed_meta, undef );
+    return ( 200, \%installed_meta, undef ); # TODO(REVIEW): why ref?
 }
 
 # Uninstall a plugin by deleting it from disk and cleaning up Redis.
+# Does not remove configuration settings.
+# TODO(REVIEW) move to Model/Plugins.pm.
+# TODO(REVIEW) sequence of install/uninstall integration tests + metadata verification?
 sub uninstall_plugin {
     my ( $namespace, $redis ) = @_;
 
@@ -570,6 +599,7 @@ sub uninstall_plugin {
 
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        # TODO(REVIEW) ditto
         $installpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
     }
 
@@ -578,10 +608,15 @@ sub uninstall_plugin {
     }
 
     my $source = infer_plugin_source( $namespace, $redis );
+
+    # We don't touch builtin plugins!
+    # TODO(REVIEW) what if a builtin plugin gets added in the future via an update which coincidentally conflicts with a user's managed plugin?
+    # Will have to think about that...
     if ( $source eq "builtin" ) {
         return ( 403, undef, "Cannot uninstall built-in plugin '$namespace'." );
     }
 
+    # Delete the plugin file (only if it's actually inside LRR lib)
     if ( -e $installpath ) {
         my $canonpath = abs_path($installpath);
         my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
@@ -597,7 +632,7 @@ sub uninstall_plugin {
         $logger->warn("Plugin '$namespace' file not found at $installpath -- cleaning up Redis only.");
     }
 
-    # Clear provenance only; preserve user config (enabled, customargs, hidden, priority, named params)
+    # Clear provenance from plugin.
     $redis->hdel(
         $namerds,
         "installed_path",
@@ -612,6 +647,7 @@ sub uninstall_plugin {
 }
 
 # Reconcile discovered plugins with Redis state at startup.
+# TODO(REVIEW) move to Model/Plugins.pm.
 sub scan_plugins {
     my ($redis) = @_;
 
@@ -621,6 +657,8 @@ sub scan_plugins {
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
     # Build namespace -> [class, file_path] map, detect duplicates
+    # TODO(REVIEW): ns_map needs an explanation of derivation process (and when derivation stops) and usage.
+    # preferably: ns_map construction stop stage needs to be detailed and when reads are made != when writes are made.
     my %ns_map;
 
     foreach my $class (@discovered) {
@@ -667,8 +705,9 @@ sub scan_plugins {
         }
     }
 
+    # Skip duplicates
     foreach my $ns ( keys %ns_map ) {
-        next if @{ $ns_map{$ns} } > 1;    # skip duplicates
+        next if @{ $ns_map{$ns} } > 1;
 
         my $entry    = $ns_map{$ns}[0];
         my $filepath = $entry->{file_path};
@@ -676,10 +715,11 @@ sub scan_plugins {
 
         my $current_path = $redis->hget( $namerds, "installed_path" );
         if ( defined $current_path && $current_path eq $filepath ) {
-            next;
+            next; # skip if database already tracks said path
         }
 
         # Self-heal stale or missing installed_path: discovery is the source of truth.
+        # TODO(REVIEW): when a plugin is discovered and not present in database, wouldn't this be considered a spontaneous "installation"?
         $logger->debug("Plugin '$ns': setting installed_path to '$filepath'.");
         $redis->hset( $namerds, "installed_path", $filepath );
     }
@@ -725,6 +765,8 @@ sub scan_plugins {
 }
 
 # Infer plugin source from Redis provenance or install path.
+# source is either "managed", "sideloaded", or "builtin".
+ # TODO(REVIEW): why pass namespace when its only purpose is to be converted to namerds? (variant)
 sub infer_plugin_source {
     my ( $namespace, $redis ) = @_;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
@@ -740,12 +782,14 @@ sub infer_plugin_source {
         return "managed"    if $path && $path =~ m{Plugin/Managed/};
     }
 
+    # TODO(REVIEW): is builtin guaranteed to be under the expected path pattern?
     return "builtin";
 }
 
 # Validate downloaded plugin content against registry metadata and filesystem state.
 # Covers managed plugins only (installed via registry into Plugin/Managed/).
 # Read-only
+# TODO(REVIEW) move to Model/Plugins.pm.
 sub validate_managed_plugin {
     my ( $content, $namespace, $plugmeta, $currentpath ) = @_;
 
