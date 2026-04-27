@@ -248,6 +248,40 @@ sub refresh_registry {
                 # Cache the raw JSON under the paired index key
                 my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
                 my $indexkey = "REG_INDEX_$suffix";
+
+                # Spec-contract checks against the previously cached index, if any.
+                # Removed versions and cross-refresh type changes are publisher-contract
+                # violations the spec asks LRR to surface where practical.
+                my $oldraw = $redis->get($indexkey);
+                if ( defined $oldraw && $oldraw ne "" ) {
+                    my $oldindex = eval { decode_json($oldraw) };
+                    if ( ref $oldindex eq "HASH" && ref $oldindex->{plugins} eq "HASH" ) {
+                        my $logger  = get_logger( "Registry", "lanraragi" );
+                        my $oldp    = $oldindex->{plugins};
+                        my $newp    = $index->{plugins};
+                        foreach my $ns ( sort keys %{$oldp} ) {
+                            unless ( exists $newp->{$ns} ) {
+                                $logger->warn("Registry $registry_id: plugin '$ns' removed from registry");
+                                next;
+                            }
+                            if (   defined $oldp->{$ns}{type}
+                                && defined $newp->{$ns}{type}
+                                && $oldp->{$ns}{type} ne $newp->{$ns}{type} ) {
+                                $logger->warn(
+                                    "Registry $registry_id: plugin '$ns' type changed from '$oldp->{$ns}{type}' to '$newp->{$ns}{type}' (spec invariant violation)"
+                                );
+                            }
+                            my $oldv = $oldp->{$ns}{versions} || {};
+                            my $newv = $newp->{$ns}{versions} || {};
+                            foreach my $ver ( sort keys %{$oldv} ) {
+                                unless ( exists $newv->{$ver} ) {
+                                    $logger->warn("Registry $registry_id: plugin '$ns' version '$ver' removed from registry");
+                                }
+                            }
+                        }
+                    }
+                }
+
                 $redis->set( $indexkey, $content );
 
                 $self->render(
@@ -282,62 +316,63 @@ sub install_plugin {
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
 
-            my $namerds = "LRR_PLUGIN_" . uc($namespace);
-            if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                my $source     = LANraragi::Model::Registry::infer_plugin_source( $namespace, $redis );
-                my $currentreg = $redis->hget( $namerds, "installed_registry" );
-                my $currentver = $redis->hget( $namerds, "installed_version" );
+            eval {
+                my $namerds = "LRR_PLUGIN_" . uc($namespace);
+                if ( $redis->hexists( $namerds, "installed_path" ) ) {
+                    my $source     = LANraragi::Model::Registry::infer_plugin_source( $namespace, $redis );
+                    my $currentreg = $redis->hget( $namerds, "installed_registry" );
+                    my $currentver = $redis->hget( $namerds, "installed_version" );
 
-                if ( $source ne "managed" ) {
-                    # Sideloaded or default plugin: force cannot bypass; user must remove it first.
-                    $redis->quit();
-                    render_api_response( $self, "install_plugin",
-                        "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry." );
+                    if ( $source ne "managed" ) {
+                        # Sideloaded or default plugin: force cannot bypass; user must remove it first.
+                        render_api_response( $self, "install_plugin",
+                            "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry." );
+                        return;
+                    }
+
+                    if ( !$force && $currentreg && $currentreg ne $registry_id ) {
+                        render_api_response( $self, "install_plugin",
+                            "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
+                        return;
+                    }
+                }
+
+                my $logger = get_logger( "Registry", "lanraragi" );
+                my ( $status, $plugmeta, $message ) = eval {
+                    LANraragi::Model::Registry::install_plugin(
+                        $namespace, $registry_id, $version, $installed_channel, $redis
+                    );
+                };
+                if ($@) {
+                    $logger->error("install_plugin failed for '$namespace': $@");
+                    render_api_response( $self, "install_plugin", "Plugin installation failed." );
                     return;
                 }
 
-                if ( !$force && $currentreg && $currentreg ne $registry_id ) {
-                    $redis->quit();
-                    render_api_response( $self, "install_plugin",
-                        "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
+                unless ( $status == 200 ) {
+                    $self->render(
+                        openapi => { operation => "install_plugin", error => $message, success => 0 },
+                        status  => $status
+                    );
                     return;
                 }
-            }
 
-            my $logger = get_logger( "Registry", "lanraragi" );
-            my ( $status, $plugmeta, $message ) = eval {
-                LANraragi::Model::Registry::install_plugin(
-                    $namespace, $registry_id, $version, $installed_channel, $redis
+                $self->render(
+                    openapi => {
+                        operation          => "install_plugin",
+                        success            => 1,
+                        name               => $plugmeta->{name},
+                        namespace          => $namespace,
+                        version            => $plugmeta->{version},
+                        installed_registry => $plugmeta->{installed_registry},
+                        installed_sha256   => $plugmeta->{installed_sha256},
+                        installed_channel  => $plugmeta->{installed_channel},
+                    }
                 );
             };
-            if ($@) {
-                $logger->error("install_plugin failed for '$namespace': $@");
-                $redis->quit();
-                render_api_response( $self, "install_plugin", "Plugin installation failed." );
-                return;
-            }
+            my $err = $@;
             $redis->quit();
-
-            unless ( $status == 200 ) {
-                $self->render(
-                    openapi => { operation => "install_plugin", error => $message, success => 0 },
-                    status  => $status
-                );
-                return;
-            }
-
-            $self->render(
-                openapi => {
-                    operation          => "install_plugin",
-                    success            => 1,
-                    name               => $plugmeta->{name},
-                    namespace          => $namespace,
-                    version            => $plugmeta->{version},
-                    installed_registry => $plugmeta->{installed_registry},
-                    installed_sha256   => $plugmeta->{installed_sha256},
-                    installed_channel  => $plugmeta->{installed_channel},
-                }
-            );
+            die $err if $err;
         }
     );
 }

@@ -123,6 +123,15 @@ note('testing resolve_git_raw_url enforces HTTPS for gitlab/gitea...');
     is( $result, "https://git.local/api/v1/repos/owner/repo/raw/registry.json?ref=main", "gitea http url upgraded to https" );
 }
 
+note('testing resolve_git_raw_url escapes path segments...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
+        "github", "https://github.com/owner/repo.git", "main", "Plugin/Foo Bar.pm"
+    );
+    is( $result, "https://raw.githubusercontent.com/owner/repo/main/Plugin/Foo%20Bar.pm", "github path with space is percent-encoded per segment" );
+}
+
 note('testing resolve_git_raw_url with invalid input...');
 
 {
@@ -299,6 +308,13 @@ note('testing validate_registry_index accepts a valid index...');
 {
     my $err = LANraragi::Utils::Registry::validate_registry_index( make_valid_index() );
     is( $err, undef, "valid index returns undef" );
+}
+
+{
+    my $idx = make_valid_index();
+    $idx->{plugins} = {};
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, undef, "empty plugins hash accepted" );
 }
 
 note('testing validate_registry_index rejects root-level violations...');

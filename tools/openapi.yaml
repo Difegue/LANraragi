@@ -675,6 +675,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during registry creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /registries/{id}:
     get:
@@ -930,6 +936,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '502':
           description: Failed to fetch registry index from git
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during refresh
           content:
             application/json:
               schema:

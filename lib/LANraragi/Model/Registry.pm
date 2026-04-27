@@ -65,22 +65,38 @@ sub create_registry {
         }
     }
 
-    # TODO: there is a bug here, fix before merge.
-    my $registry_id = "REG_" . time();
-    my $isnewkey    = 0;
-    until ($isnewkey) {
-        if ( $redis->exists($registry_id) ) {
-            $registry_id = "REG_" . ( time() + 1 );
+    # Atomic claim of an unused REG_<ts> hash key: Lua keeps the existence
+    # check and the type write atomic so two concurrent callers cannot land
+    # on the same id.
+    my $claim_script = <<'LUA';
+    if redis.call("EXISTS", KEYS[1]) == 1 then
+        return 0
+    end
+    redis.call("HSET", KEYS[1], "type", ARGV[1])
+    return 1
+LUA
+
+    my $registry_id;
+    my $offset = 0;
+    until ($registry_id) {
+        my $candidate = "REG_" . ( time() + $offset );
+        my $claimed   = eval { $redis->eval( $claim_script, 1, $candidate, $config{type} ) };
+        if ($@) {
+            $logger->error("Redis error during registry id claim: $@");
+            return ( undef, "Redis error while creating registry." );
+        }
+        if ($claimed) {
+            $registry_id = $candidate;
         } else {
-            $isnewkey = 1;
+            $offset++;
         }
     }
 
-    # Store config fields
     my $type         = $config{type};
     my @valid_fields = @{ $TYPE_FIELDS{$type} };
 
     foreach my $field (@valid_fields) {
+        next if $field eq "type";
         next unless defined $config{$field};
         $redis->hset( $registry_id, $field, $config{$field} );
     }
@@ -320,7 +336,12 @@ sub fetch_registry_index {
 
         my $ua = Mojo::UserAgent->new;
         $ua->max_response_size(MAX_REGISTRY_INDEX_SIZE);
-        my $res = $ua->get($rawurl)->result;
+        my $res = eval { $ua->get($rawurl)->result };
+        unless ( defined $res ) {
+            my $error = "Cannot reach registry: $@";
+            $logger->error($error);
+            return ( 502, undef, $error );
+        }
 
         unless ( $res->is_success ) {
             my $error = "Failed to fetch registry index: HTTP " . $res->code;
