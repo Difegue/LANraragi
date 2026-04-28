@@ -47,7 +47,8 @@ my %STALE_FIELDS = (
 # Returns ( $registry_id, undef ) or ( undef, $error_message ).
 # TODO(REVIEW) requires fields: created_date and updated_date.
 sub create_registry {
-    my ( $redis, %config ) = @_;
+    my ( $config, $redis ) = @_;
+    my %config = %{$config};
 
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Creating registry (type: $config{type})");
@@ -95,8 +96,8 @@ LUA
         }
     }
 
-    my $type            = $config{type}; # TODO(REVIEW) move this to the beginning and don't use `config{type}` in earlier code. Also rename to `registry_type`. (variant)
-    my @valid_fields    = @{ $TYPE_FIELDS{$type} };
+    my $registry_type   = $config{type};
+    my @valid_fields    = @{ $TYPE_FIELDS{$registry_type} };
 
     # TODO(REVIEW) how much of this can be merged with update_registry?
     foreach my $field (@valid_fields) {
@@ -105,7 +106,7 @@ LUA
         $redis->hset( $registry_id, $field, $config{$field} );
     }
 
-    $logger->info("Created registry '$registry_id' (name: $config{name}, type: $type)");
+    $logger->info("Created registry '$registry_id' (name: $config{name}, type: $registry_type)");
 
     return ( $registry_id, undef );
 }
@@ -177,20 +178,21 @@ sub update_registry {
     }
 
     # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
-    # TODO(REVIEW) use explicit updated_reg_type, current_reg_type for below (updated_registry{type}, etc).
-    my $type = $updated_registry{type} // $current_registry{type};
+    my $updated_registry_type = $updated_registry{type};
+    my $current_registry_type = $current_registry{type};
+    my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
 
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
 
-    if ( $type eq "git" ) {
+    if ( $target_registry_type eq "git" ) {
         unless ( $merged{url} ) {
             return ( 400, undef, "Git registry needs a URL." );
         }
         unless ( $merged{provider} ) {
             return ( 400, undef, "Git registry needs a provider." );
         }
-    } elsif ( $type eq "local" ) {
+    } elsif ( $target_registry_type eq "local" ) {
         unless ( $merged{path} ) {
             return ( 400, undef, "Local registry needs a path." );
         }
@@ -200,12 +202,12 @@ sub update_registry {
     # TODO(REVIEW) integration test coverage for mixed type registry updates? create git -> update git -> update local -> update local -> update git -> update local -> update git (AABBABAB)
     my @fields_to_remove;
     # type is always set on a valid registry (stored at creation)
-    if ( exists $updated_registry{type} && $updated_registry{type} ne $current_registry{type} ) { # TODO(REVIEW) is existence check required?
-        $logger->info("Type change on '$registry_id': '$current_registry{type}' -> '$type'; removing stale fields.");
-        @fields_to_remove = @{ $STALE_FIELDS{$type} };
+    if ( exists $updated_registry{type} && $updated_registry_type ne $current_registry_type ) { # TODO(REVIEW) is existence check required?
+        $logger->info("Type change on '$registry_id': '$current_registry_type' -> '$target_registry_type'; removing stale fields.");
+        @fields_to_remove = @{ $STALE_FIELDS{$target_registry_type} };
     }
 
-    my @valid_fields = @{ $TYPE_FIELDS{$type} };
+    my @valid_fields = @{ $TYPE_FIELDS{$target_registry_type} };
     my %valid_set    = map { $_ => 1 } @valid_fields;
     my @fields_to_set;
     foreach my $field ( keys %updated_registry ) {
@@ -286,12 +288,13 @@ LUA
 
 # Fetch registry.json from a configured registry source.
 sub fetch_registry_index {
-    my ( $type, %config ) = @_;
+    my %registry_config = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
+    my $registry_type = $registry_config{type};
 
-    if ( $type eq "local" ) {
-        my $path = $config{path};
+    if ( $registry_type eq "local" ) {
+        my $path = $registry_config{path};
 
         if ( index( $path, "\0" ) >= 0 || $path =~ /\.\./ ) {
             my $error = "Invalid registry path (null byte or traversal).";
@@ -329,13 +332,15 @@ sub fetch_registry_index {
         return ( 200, $content, undef );
     }
 
-    if ( $type eq "git" ) {
+    if ( $registry_type eq "git" ) {
 
         # resolve_git_raw_url returns undef when the URL format or provider is unrecognized
-        my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, "registry.json" );
+        my $rawurl = resolve_git_raw_url(
+            $registry_config{provider}, $registry_config{url}, $registry_config{ref}, "registry.json"
+        );
 
         unless ($rawurl) {
-            my $error = "Cannot resolve git URL: $config{url}";
+            my $error = "Cannot resolve git URL: $registry_config{url}";
             $logger->error($error);
             return ( 400, undef, $error );
         }
@@ -360,7 +365,7 @@ sub fetch_registry_index {
         return ( 200, $res->body, undef );
     }
 
-    return ( 400, undef, "Unknown registry type: $type" );
+    return ( 400, undef, "Unknown registry type: $registry_type" );
 }
 
 # Install a plugin from a registry whose index has been refreshed and cached.
@@ -369,7 +374,7 @@ sub fetch_registry_index {
 # TODO(REVIEW) what if the signature of the plugin changes from one version to the next, or across provenance, in a way which is incompatible?
 # because uninstall plugin keeps configuration, this will require thought...
 sub install_plugin {
-    my ( $namespace, $registry_id, $version, $installed_channel, $redis ) = @_;
+    my ( $namespace, $redis, $registry_id, $version, $installed_channel ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
@@ -381,22 +386,22 @@ sub install_plugin {
 
     # registry index must exist, otherwise require a refresh.
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-    my $indexkey = "REG_INDEX_$suffix"; # TODO(REVIEW): rename to registry_index_key
-    unless ( $redis->exists($indexkey) ) {
+    my $registry_index_key = "REG_INDEX_$suffix";
+    unless ( $redis->exists($registry_index_key) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
     }
 
-    my $indexjson   = $redis->get($indexkey);
-    my $index       = decode_json($indexjson); # TODO(REVIEW) rename to registry_index (variant)
-    my $plugins     = $index->{plugins};
+    my $registry_index_json = $redis->get($registry_index_key);
+    my $registry_index      = decode_json($registry_index_json);
+    my $registry_plugins    = $registry_index->{plugins};
 
-    unless ( $plugins->{$namespace} ) {
+    unless ( $registry_plugins->{$namespace} ) {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
 
-    my $plugroot = $plugins->{$namespace};
+    my $plugin_root = $registry_plugins->{$namespace};
 
-    unless ( $plugroot->{versions} && $plugroot->{versions}{$version} ) {
+    unless ( $plugin_root->{versions} && $plugin_root->{versions}{$version} ) {
         return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
     }
 
@@ -404,40 +409,40 @@ sub install_plugin {
         $logger->info("Installing plugin via installed channel: $installed_channel");
 
         # TODO(REVIEW) check dev branch for consistency (use of raw ref)
-        unless ( ref $plugroot->{channels} eq "HASH" ) {
+        unless ( ref $plugin_root->{channels} eq "HASH" ) {
             return ( 400, undef, "Plugin '$namespace' is missing channel data." );
         }
 
         # TODO(REVIEW) duplicate code
         # TODO(REVIEW) check dev branch for consistency (key chaining)
-        unless ( exists $plugroot->{channels}{$installed_channel} ) {
+        unless ( exists $plugin_root->{channels}{$installed_channel} ) {
             return ( 400, undef, "Channel '$installed_channel' not found for plugin '$namespace'." );
         }
 
         # TODO(REVIEW) why does version need resolving here?
-        unless ( $plugroot->{channels}{$installed_channel} eq $version ) {
+        unless ( $plugin_root->{channels}{$installed_channel} eq $version ) {
             return (
                 400,
                 undef,
-                "Channel '$installed_channel' resolves to version '$plugroot->{channels}{$installed_channel}', not '$version'."
+                "Channel '$installed_channel' resolves to version '$plugin_root->{channels}{$installed_channel}', not '$version'."
             );
         }
     } else {
         $logger->info("Installing plugin without a channel.");
     }
 
-    my $plugmeta = $plugroot->{versions}{$version};
-    $plugmeta->{type} = $plugroot->{type};
+    my $plugin_metadata = $plugin_root->{versions}{$version};
+    $plugin_metadata->{type} = $plugin_root->{type};
 
     # Validate plugin artifact path.
-    my $plugpath = $plugmeta->{artifact};
+    my $plugpath = $plugin_metadata->{artifact};
     my ( $artifact_valid, $artifact_error ) = validate_registry_artifact_path($plugpath);
     unless ( $artifact_valid ) {
         return ( 400, undef, $artifact_error );
     }
 
-    my %config  = $redis->hgetall($registry_id); # TODO(REVIEW) rename to redis_config (variant: any registry/plugin intersection requires explicit "registry_"/"plugin_" prefix).
-    my $type    = $config{type}; # TODO(REVIEW) same here.
+    my %registry_config  = $redis->hgetall($registry_id);
+    my $registry_type    = $registry_config{type};
 
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
     my $currentpath;
@@ -447,10 +452,11 @@ sub install_plugin {
         $currentpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
     }
 
-    my $content; # TODO(REVIEW) rename to plugin_content
+    my $plugin_content;
 
-    if ( $type eq "local" ) {
-        my ( $root_canon, $file_canon, $resolve_error ) = resolve_local_registry_artifact_path( $config{path}, $plugpath );
+    if ( $registry_type eq "local" ) {
+        my ( $root_canon, $file_canon, $resolve_error ) =
+            resolve_local_registry_artifact_path( $registry_config{path}, $plugpath );
         if ($resolve_error) {
             return ( 400, undef, $resolve_error );
         }
@@ -468,13 +474,13 @@ sub install_plugin {
             return ( 400, undef, "Plugin file too large: $file_canon ($filesize bytes)" );
         }
 
-        $content = eval { Mojo::File->new($file_canon)->slurp };
-        unless ( defined $content ) {
+        $plugin_content = eval { Mojo::File->new($file_canon)->slurp };
+        unless ( defined $plugin_content ) {
             return ( 500, undef, "Cannot read plugin file: $@" );
         }
 
-    } elsif ( $type eq "git" ) {
-        my $rawurl = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, $plugpath );
+    } elsif ( $registry_type eq "git" ) {
+        my $rawurl = resolve_git_raw_url( $registry_config{provider}, $registry_config{url}, $registry_config{ref}, $plugpath );
 
         unless ($rawurl) {
             return ( 400, undef, "Can't resolve download URL for $plugpath" );
@@ -492,15 +498,15 @@ sub install_plugin {
             return ( 502, undef, $error );
         }
 
-        $content = $res->body;
+        $plugin_content = $res->body;
     } else {
         # check against type just in case
-        $logger->error("Unknown registry type '$type' while installing plugin '$namespace' from registry '$registry_id'.");
-        return ( 400, undef, "Unknown registry type: $type" );
+        $logger->error("Unknown registry type '$registry_type' while installing plugin '$namespace' from registry '$registry_id'.");
+        return ( 400, undef, "Unknown registry type: $registry_type" );
     }
 
     # Check that plugins are installed under "Plugins/Managed/".
-    my ( $validated, $error ) = validate_managed_plugin( $content, $namespace, $plugmeta, $currentpath );
+    my ( $validated, $error ) = validate_managed_plugin( $plugin_content, $namespace, $plugin_metadata, $currentpath );
     if ($error) {
         $logger->warn("Managed plugin validation failed for '$namespace' from registry '$registry_id': $error");
         return ( 422, undef, $error );
@@ -514,7 +520,7 @@ sub install_plugin {
 
     make_path($installdir) unless -d $installdir;
 
-    eval { Mojo::File->new($installpath)->spew($content) };
+    eval { Mojo::File->new($installpath)->spew($plugin_content) };
     if ($@) {
         my $error = "Cannot write plugin file during installation: $@";
         $logger->error($error);
@@ -545,7 +551,7 @@ LUA
     my $provenance_written = eval {
         $redis->eval(
             $script, 2, $registry_id, $namerds,
-            $install_relpath, $plugmeta->{version}, $registry_id, $plugmeta->{sha256}, $channel_value
+            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256}, $channel_value
         );
     };
     if ($@) {
@@ -575,10 +581,10 @@ LUA
     }
 
     my %installed_meta = (
-        name               => $plugmeta->{name},
-        version            => $plugmeta->{version},
+        name               => $plugin_metadata->{name},
+        version            => $plugin_metadata->{version},
         installed_registry => $registry_id,
-        installed_sha256   => $plugmeta->{sha256},
+        installed_sha256   => $plugin_metadata->{sha256},
         installed_channel  => ( $channel_value ne "" ? $channel_value : undef ), # TODO(REVIEW): why channel either "" or undef at times? Inconsistent.
     );
 
@@ -606,7 +612,7 @@ sub uninstall_plugin {
         return ( 404, undef, "Plugin '$namespace' has no install path recorded." );
     }
 
-    my $source = infer_plugin_source( $namespace, $redis );
+    my $source = infer_plugin_source( $namerds, $redis );
 
     # We don't touch builtin plugins!
     # TODO(REVIEW) what if a builtin plugin gets added in the future via an update which coincidentally conflicts with a user's managed plugin?
@@ -765,10 +771,8 @@ sub scan_plugins {
 
 # Infer plugin source from Redis provenance or install path.
 # source is either "managed", "sideloaded", or "builtin".
- # TODO(REVIEW): why pass namespace when its only purpose is to be converted to namerds? (variant)
 sub infer_plugin_source {
-    my ( $namespace, $redis ) = @_;
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+    my ( $namerds, $redis ) = @_;
 
     if ( $redis->hexists( $namerds, "installed_registry" ) ) {
         my $reg = $redis->hget( $namerds, "installed_registry" );

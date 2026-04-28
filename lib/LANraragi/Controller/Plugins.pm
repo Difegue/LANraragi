@@ -38,7 +38,8 @@ sub index {
     # Add source and priority to all plugins
     for my $list ( $meta_all, $downloaders, $logins, $scripts ) {
         for my $plugin (@$list) {
-            $plugin->{source} = LANraragi::Model::Registry::infer_plugin_source( $plugin->{namespace}, $redis );
+            my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
+            $plugin->{source} = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
         }
     }
 

@@ -59,7 +59,7 @@ sub create_registry {
                     $config{path} = $body->{path};
                 }
 
-                my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( $redis, %config ); # TODO(REVIEW): move redis to second arg (variants)
+                my ( $registry_id, $error ) = LANraragi::Model::Registry::create_registry( \%config, $redis );
 
                 if ($error) {
                     render_api_response( $self, "create_registry", $error );
@@ -250,10 +250,8 @@ sub refresh_registry {
                     return;
                 }
 
-                # TODO(REVIEW) why does type need extraction if it's already in config? (variants)
-                my $type = $config{type};
-                my ( $status, $content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
-                    $type, %config
+                my ( $status, $registry_content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
+                    %config
                 );
 
                 unless ( $status == 200 ) {
@@ -264,14 +262,14 @@ sub refresh_registry {
                     return;
                 }
 
-                my $index = eval { decode_json($content) };
+                my $registry_index = eval { decode_json($registry_content) };
                 if ($@) {
                     render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
                     return;
                 }
 
                 # TODO(REVIEW) this logic does not belong in the Controller.
-                my $validation_error = validate_registry_index($index);
+                my $validation_error = validate_registry_index($registry_index);
                 if ($validation_error) {
                     render_api_response( $self, "refresh_registry", $validation_error );
                     return;
@@ -280,37 +278,37 @@ sub refresh_registry {
                 # TODO(REVIEW) this logic does not belong in the Controller.
                 # Cache the raw JSON under the paired index key
                 my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-                my $indexkey = "REG_INDEX_$suffix";
+                my $registry_index_key = "REG_INDEX_$suffix";
 
                 # TODO(REVIEW) this logic does not belong in the Controller.
                 # Spec-contract checks against the previously cached index, if any.
                 # Removed versions and cross-refresh type changes are publisher-contract
                 # violations the spec asks LRR to surface where practical.
-                my $oldraw = $redis->get($indexkey);
-                if ( defined $oldraw && $oldraw ne "" ) {
-                    my $oldindex = eval { decode_json($oldraw) };
+                my $previous_registry_content = $redis->get($registry_index_key);
+                if ( defined $previous_registry_content && $previous_registry_content ne "" ) {
+                    my $previous_registry_index = eval { decode_json($previous_registry_content) };
                     if ($@) {
                         $logger->warn("Registry '$registry_id': cached previous registry index could not be decoded: $@");
                     }
-                    if ( ref $oldindex eq "HASH" && ref $oldindex->{plugins} eq "HASH" ) {
-                        my $oldp    = $oldindex->{plugins};
-                        my $newp    = $index->{plugins};
-                        foreach my $ns ( sort keys %{$oldp} ) {
-                            unless ( exists $newp->{$ns} ) {
+                    if ( ref $previous_registry_index eq "HASH" && ref $previous_registry_index->{plugins} eq "HASH" ) {
+                        my $previous_plugin_map = $previous_registry_index->{plugins};
+                        my $current_plugin_map  = $registry_index->{plugins};
+                        foreach my $ns ( sort keys %{$previous_plugin_map} ) {
+                            unless ( exists $current_plugin_map->{$ns} ) {
                                 $logger->warn("Registry $registry_id: plugin '$ns' removed from registry");
                                 next;
                             }
-                            if (   defined $oldp->{$ns}{type}
-                                && defined $newp->{$ns}{type}
-                                && $oldp->{$ns}{type} ne $newp->{$ns}{type} ) {
+                            if (   defined $previous_plugin_map->{$ns}{type}
+                                && defined $current_plugin_map->{$ns}{type}
+                                && $previous_plugin_map->{$ns}{type} ne $current_plugin_map->{$ns}{type} ) {
                                 $logger->warn(
-                                    "Registry $registry_id: plugin '$ns' type changed from '$oldp->{$ns}{type}' to '$newp->{$ns}{type}' (spec invariant violation)"
+                                    "Registry $registry_id: plugin '$ns' type changed from '$previous_plugin_map->{$ns}{type}' to '$current_plugin_map->{$ns}{type}' (spec invariant violation)"
                                 );
                             }
-                            my $oldv = $oldp->{$ns}{versions} || {};
-                            my $newv = $newp->{$ns}{versions} || {};
-                            foreach my $ver ( sort keys %{$oldv} ) {
-                                unless ( exists $newv->{$ver} ) {
+                            my $previous_plugin_versions = $previous_plugin_map->{$ns}{versions} || {};
+                            my $current_plugin_versions  = $current_plugin_map->{$ns}{versions} || {};
+                            foreach my $ver ( sort keys %{$previous_plugin_versions} ) {
+                                unless ( exists $current_plugin_versions->{$ver} ) {
                                     $logger->warn("Registry $registry_id: plugin '$ns' version '$ver' removed from registry");
                                 }
                             }
@@ -318,13 +316,13 @@ sub refresh_registry {
                     }
                 }
 
-                $redis->set( $indexkey, $content );
+                $redis->set( $registry_index_key, $registry_content );
 
                 $self->render(
                     openapi => {
                         operation => "refresh_registry",
                         success   => 1,
-                        index     => $index,
+                        index     => $registry_index,
                     }
                 );
             };
@@ -361,7 +359,7 @@ sub install_plugin {
                 # by the same namespace.
                 my $namerds = "LRR_PLUGIN_" . uc($namespace);
                 if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                    my $source     = LANraragi::Model::Registry::infer_plugin_source( $namespace, $redis );
+                    my $source     = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
                     my $currentreg = $redis->hget( $namerds, "installed_registry" );
                     my $currentver = $redis->hget( $namerds, "installed_version" );
 
@@ -386,7 +384,7 @@ sub install_plugin {
                 my $logger = get_logger( "Registry", "lanraragi" );
                 my ( $status, $plugmeta, $message ) = eval {
                     LANraragi::Model::Registry::install_plugin(
-                        $namespace, $registry_id, $version, $installed_channel, $redis
+                        $namespace, $redis, $registry_id, $version, $installed_channel
                     );
                 };
                 # TODO(REVIEW) declare error.
