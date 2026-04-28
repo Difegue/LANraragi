@@ -952,7 +952,7 @@ paths:
       security:
         - api_key: []
       operationId: installPlugin
-      x-mojo-to: api-registry#install_plugin
+      x-mojo-to: api-plugins#install_plugin
       summary: 🔑 Install a Plugin
       description: Install or upgrade a plugin from a registry by namespace.
       tags:
@@ -1063,7 +1063,7 @@ paths:
       security:
         - api_key: []
       operationId: uninstallPlugin
-      x-mojo-to: api-registry#uninstall_plugin
+      x-mojo-to: api-plugins#uninstall_plugin
       summary: 🔑 Uninstall a Plugin
       description: Remove an installed plugin from disk and clean up its configuration.
       tags:
