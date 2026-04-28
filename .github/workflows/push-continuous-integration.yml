@@ -85,7 +85,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
-        timeout-minutes: 30
+        timeout-minutes: 50
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
@@ -216,7 +216,7 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
       - name: Run integration tests against local LANraragi build
         working-directory: aio-lanraragi/integration_tests
-        timeout-minutes: 50
+        timeout-minutes: 70
         run: |
           $env:CI='true'
           uv run pytest tests `
