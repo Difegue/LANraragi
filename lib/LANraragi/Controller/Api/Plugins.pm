@@ -60,7 +60,7 @@ sub install_plugin {
     my $namespace         = $body->{namespace};
     my $registry_id       = $body->{registry};
     my $version           = $body->{version};
-    my $installed_channel = $body->{installed_channel};       # TODO(REVIEW) should installed_channel be required here? Is it required by openapi?
+    my $installed_channel = $body->{installed_channel};
     my $force             = $body->{force} // 0;              # upgrade path
 
     return unless exec_with_lock(

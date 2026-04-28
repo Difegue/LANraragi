@@ -934,14 +934,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
-        '502':
-          description: Failed to fetch registry index from git
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
         '500':
-          description: Redis error during refresh
+          description: Failed to fetch registry index from git, or Redis error during refresh
           content:
             application/json:
               schema:
