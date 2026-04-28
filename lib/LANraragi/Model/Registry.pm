@@ -368,6 +368,82 @@ sub fetch_registry_index {
     return ( 400, undef, "Unknown registry type: $registry_type" );
 }
 
+sub refresh_registry {
+    my ( $registry_id, $redis ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+    my %config = get_registry( $registry_id, $redis );
+
+    unless (%config) {
+        return ( 404, undef, "This registry doesn't exist." );
+    }
+
+    my ( $status, $registry_content, $message ) = fetch_registry_index(%config);
+    unless ( $status == 200 ) {
+        return ( $status, undef, $message );
+    }
+
+    my $registry_index = eval { decode_json($registry_content) };
+    if ($@) {
+        my $error = "Invalid registry.json: $@";
+        $logger->warn("Registry '$registry_id': failed to decode registry index: $@");
+        return ( 400, undef, $error );
+    }
+
+    my $validation_error = validate_registry_index($registry_index);
+    if ($validation_error) {
+        $logger->warn("Registry '$registry_id': registry index failed validation: $validation_error");
+        return ( 400, undef, $validation_error );
+    }
+
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+    my $registry_index_key = "REG_INDEX_$suffix";
+
+    # Spec-contract checks against the previously cached index, if any.
+    # Removed versions and cross-refresh type changes are publisher-contract
+    # violations the spec asks LRR to surface where practical.
+    my $previous_registry_content = $redis->get($registry_index_key);
+    if ( defined $previous_registry_content && $previous_registry_content ne "" ) {
+        my $previous_registry_index = eval { decode_json($previous_registry_content) };
+        if ($@) {
+            $logger->warn("Registry '$registry_id': cached previous registry index could not be decoded: $@");
+        }
+        if ( ref $previous_registry_index eq "HASH" && ref $previous_registry_index->{plugins} eq "HASH" ) {
+            my $previous_plugin_map = $previous_registry_index->{plugins};
+            my $current_plugin_map  = $registry_index->{plugins};
+            foreach my $ns ( sort keys %{$previous_plugin_map} ) {
+                unless ( exists $current_plugin_map->{$ns} ) {
+                    $logger->warn("Registry $registry_id: plugin '$ns' removed from registry");
+                    next;
+                }
+                if (   defined $previous_plugin_map->{$ns}{type}
+                    && defined $current_plugin_map->{$ns}{type}
+                    && $previous_plugin_map->{$ns}{type} ne $current_plugin_map->{$ns}{type} )
+                {
+                    $logger->warn(
+                        "Registry $registry_id: plugin '$ns' type changed from '$previous_plugin_map->{$ns}{type}' to '$current_plugin_map->{$ns}{type}' (spec invariant violation)"
+                    );
+                }
+                my $previous_plugin_versions = $previous_plugin_map->{$ns}{versions} || {};
+                my $current_plugin_versions  = $current_plugin_map->{$ns}{versions} || {};
+                foreach my $ver ( sort keys %{$previous_plugin_versions} ) {
+                    unless ( exists $current_plugin_versions->{$ver} ) {
+                        $logger->warn("Registry $registry_id: plugin '$ns' version '$ver' removed from registry");
+                    }
+                }
+            }
+        }
+    }
+
+    eval { $redis->set( $registry_index_key, $registry_content ) };
+    if ($@) {
+        $logger->error("Redis error during registry refresh for '$registry_id': $@");
+        return ( 500, undef, "Redis error while refreshing registry." );
+    }
+
+    return ( 200, $registry_index, undef );
+}
+
 # Install a plugin from a registry whose index has been refreshed and cached.
 # namespace, registry_id, version are required to identify the plugin to install.
 # TODO(REVIEW) move to Model/Plugins.pm.

@@ -1,12 +1,11 @@
 package LANraragi::Controller::Api::Registry;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(decode_json true false);
+use Mojo::JSON qw(true false);
 
 use LANraragi::Model::Registry;
 use LANraragi::Utils::Generic  qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Registry qw(validate_registry_index);
 
 sub list_registries {
     my $self  = shift->openapi->valid_input or return;
@@ -210,102 +209,26 @@ sub refresh_registry {
         $registry_id,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-
-            # TODO(REVIEW) eval too broad.
-            eval {
-                my %config = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
-
-                unless (%config) {
-                    $self->render(
-                        openapi => {
-                            operation => "refresh_registry",
-                            error     => "This registry doesn't exist.",
-                            success   => 0,
-                        },
-                        status => 404
-                    );
-                    return;
-                }
-
-                my ( $status, $registry_content, $message ) = LANraragi::Model::Registry::fetch_registry_index(
-                    %config
-                );
-
-                unless ( $status == 200 ) {
-                    $self->render(
-                        openapi => { operation => "refresh_registry", error => $message, success => 0 },
-                        status  => $status
-                    );
-                    return;
-                }
-
-                my $registry_index = eval { decode_json($registry_content) };
-                if ($@) {
-                    render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
-                    return;
-                }
-
-                # TODO(REVIEW) this logic does not belong in the Controller.
-                my $validation_error = validate_registry_index($registry_index);
-                if ($validation_error) {
-                    render_api_response( $self, "refresh_registry", $validation_error );
-                    return;
-                }
-
-                # TODO(REVIEW) this logic does not belong in the Controller.
-                # Cache the raw JSON under the paired index key
-                my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-                my $registry_index_key = "REG_INDEX_$suffix";
-
-                # TODO(REVIEW) this logic does not belong in the Controller.
-                # Spec-contract checks against the previously cached index, if any.
-                # Removed versions and cross-refresh type changes are publisher-contract
-                # violations the spec asks LRR to surface where practical.
-                my $previous_registry_content = $redis->get($registry_index_key);
-                if ( defined $previous_registry_content && $previous_registry_content ne "" ) {
-                    my $previous_registry_index = eval { decode_json($previous_registry_content) };
-                    if ($@) {
-                        $logger->warn("Registry '$registry_id': cached previous registry index could not be decoded: $@");
-                    }
-                    if ( ref $previous_registry_index eq "HASH" && ref $previous_registry_index->{plugins} eq "HASH" ) {
-                        my $previous_plugin_map = $previous_registry_index->{plugins};
-                        my $current_plugin_map  = $registry_index->{plugins};
-                        foreach my $ns ( sort keys %{$previous_plugin_map} ) {
-                            unless ( exists $current_plugin_map->{$ns} ) {
-                                $logger->warn("Registry $registry_id: plugin '$ns' removed from registry");
-                                next;
-                            }
-                            if (   defined $previous_plugin_map->{$ns}{type}
-                                && defined $current_plugin_map->{$ns}{type}
-                                && $previous_plugin_map->{$ns}{type} ne $current_plugin_map->{$ns}{type} ) {
-                                $logger->warn(
-                                    "Registry $registry_id: plugin '$ns' type changed from '$previous_plugin_map->{$ns}{type}' to '$current_plugin_map->{$ns}{type}' (spec invariant violation)"
-                                );
-                            }
-                            my $previous_plugin_versions = $previous_plugin_map->{$ns}{versions} || {};
-                            my $current_plugin_versions  = $current_plugin_map->{$ns}{versions} || {};
-                            foreach my $ver ( sort keys %{$previous_plugin_versions} ) {
-                                unless ( exists $current_plugin_versions->{$ver} ) {
-                                    $logger->warn("Registry $registry_id: plugin '$ns' version '$ver' removed from registry");
-                                }
-                            }
-                        }
-                    }
-                }
-
-                $redis->set( $registry_index_key, $registry_content );
-
-                $self->render(
-                    openapi => {
-                        operation => "refresh_registry",
-                        success   => 1,
-                        index     => $registry_index,
-                    }
-                );
-            };
-            my $err = $@;
+            my ( $status, $registry_index, $message ) = LANraragi::Model::Registry::refresh_registry(
+                $registry_id, $redis
+            );
             $redis->quit();
-            die $err if $err; # TODO(REVIEW) ditto
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => { operation => "refresh_registry", error => $message, success => 0 },
+                    status  => $status
+                );
+                return;
+            }
+
+            $self->render(
+                openapi => {
+                    operation => "refresh_registry",
+                    success   => 1,
+                    index     => $registry_index,
+                }
+            );
         }
     );
 }
