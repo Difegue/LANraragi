@@ -14,6 +14,7 @@ use Mojo::UserAgent;
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Path     qw(unlink_path package_to_path);
 use LANraragi::Utils::Plugins  ();
+use LANraragi::Utils::PluginState qw(record_load_failure record_load_success signal_uninstalled signal_updated);
 use LANraragi::Utils::Registry qw(
     resolve_git_raw_url
     find_package_conflict
@@ -650,9 +651,13 @@ LUA
 
     # Reload INC with new plugin/incpath.
     delete $INC{$incpath}; # TODO(REVIEW) is it possible that incpath in INC does not equal incpath in package?
+    signal_updated($namespace);
     eval { require $incpath };
     if ($@) {
+        record_load_failure($namespace);
         $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
+    } else {
+        record_load_success($namespace);
     }
 
     my %installed_meta = (
@@ -721,6 +726,7 @@ sub uninstall_plugin {
         "installed_channel",
         "installed_generation"
     );
+    signal_uninstalled($namespace);
 
     return ( 200, 1, undef );
 }
@@ -836,6 +842,9 @@ sub scan_plugins {
                 "installed_channel",
                 "installed_generation"
             );
+            if ( $key =~ /^LRR_PLUGIN_(.+)$/ ) {
+                signal_uninstalled($1);
+            }
         }
     }
 

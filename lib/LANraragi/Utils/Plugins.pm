@@ -7,21 +7,17 @@ use utf8;
 use Mojo::JSON                 qw(decode_json);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Path     qw(package_to_path);
+use LANraragi::Utils::PluginState qw(
+    plugin_needs_reload
+    record_load_failure
+    record_load_success
+    should_skip_reload
+);
 use LANraragi::Utils::Redis    qw(redis_decode);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
-
-# Per-worker cross-worker coherence state. Each prefork worker maintains its own
-# view of which Redis-tracked generation of each plugin namespace it has loaded.
-# On upgrade, install_plugin / process_upload bump installed_generation in Redis;
-# the next get_plugin call on any worker observes the mismatch and reloads.
-# TODO(REVIEW): purpose/explanation of installed_generation
-# TODO(REVIEW): purpose/explanation of these constants
-# TODO(REVIEW): why are these above Exporter?
-my %LOADED_GEN;
-my %LOAD_FAILED;
 
 # Functions related to the Plugin system.
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
@@ -134,39 +130,29 @@ sub get_plugin {
     # it looks more like it should be for plugin invokation?
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my $namerds = "LRR_PLUGIN_" . $name_uc;
+    my $installed_path = $redis->hget( $namerds, "installed_path" );
     unless ( $redis->hexists( $namerds, "installed_path" ) ) {
         $redis->quit();
         return 0;
     }
+    $redis->quit();
 
-    # Cross-worker coherence: managed/sideloaded plugins opt in via installed_generation.
-    # Builtins have no generation field and skip the check entirely.
-    if ( $redis->hexists( $namerds, "installed_generation" ) ) {
-        my $installed_path = $redis->hget( $namerds, "installed_path" );
-        my $current_gen    = $redis->hget( $namerds, "installed_generation" );
-
-        if (   $installed_path
-            && ( $LOADED_GEN{$name_uc}  // -1 ) != $current_gen
-            && ( $LOAD_FAILED{$name_uc} // -1 ) != $current_gen )
-        {
-            delete $INC{$installed_path};
-            my $ok = eval {
-                no warnings 'redefine';
-                require $installed_path;
-                1;
-            };
-            if ($ok) {
-                $LOADED_GEN{$name_uc} = $current_gen;
-                delete $LOAD_FAILED{$name_uc};
-                get_logger( "Plugin System", "lanraragi" )->info("Reloaded plugin '$name' to generation $current_gen (pid $$)");
-            } else {
-                # TODO(REVIEW): document when this would trigger
-                $LOAD_FAILED{$name_uc} = $current_gen;
-                get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name' at generation $current_gen: $@");
-            }
+    if ( $installed_path && plugin_needs_reload($name_uc) && !should_skip_reload($name_uc) ) {
+        delete $INC{$installed_path};
+        my $ok = eval {
+            no warnings 'redefine';
+            require $installed_path;
+            1;
+        };
+        if ($ok) {
+            record_load_success($name_uc);
+            get_logger( "Plugin System", "lanraragi" )->info("Reloaded plugin '$name' in worker $$");
+        } else {
+            # TODO(REVIEW): document when this would trigger
+            record_load_failure($name_uc);
+            get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name': $@");
         }
     }
-    $redis->quit();
 
     #Go through plugins to find one with a matching namespace
     my @plugins = plugins;
