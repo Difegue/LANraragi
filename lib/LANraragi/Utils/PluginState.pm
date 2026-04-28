@@ -22,11 +22,6 @@ our @EXPORT_OK = qw(
 my %LOADED_GEN;
 my %LOAD_FAILED;
 
-sub _normalized_namespace {
-    my ($namespace) = @_;
-    return uc($namespace);
-}
-
 sub _registered_generation {
     my ($namespace_uc) = @_;
 
@@ -49,7 +44,7 @@ sub _registered_generation {
 # Workers which previously failed to load plugin may re-attempt to load the updated plugin.
 sub signal_updated {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
 
     delete $LOADED_GEN{$namespace_uc};
     delete $LOAD_FAILED{$namespace_uc};
@@ -60,7 +55,7 @@ sub signal_updated {
 # Workers may no longer load the plugin even if it is present in INC cache.
 sub signal_uninstalled {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
 
     delete $LOADED_GEN{$namespace_uc};
     delete $LOAD_FAILED{$namespace_uc};
@@ -71,7 +66,7 @@ sub signal_uninstalled {
 # Future reload attempts for the current registered plugin will be skipped.
 sub record_load_success {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation($namespace_uc);
 
     return unless defined $generation;
@@ -85,7 +80,7 @@ sub record_load_success {
 # Future attempts to load plugin will be skipped.
 sub record_load_failure {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation($namespace_uc);
 
     return unless defined $generation;
@@ -97,7 +92,7 @@ sub record_load_failure {
 # Check if a plugin requires a INC-reload.
 sub plugin_needs_reload {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation($namespace_uc);
 
     return 0 unless defined $generation;
@@ -110,7 +105,7 @@ sub plugin_needs_reload {
 # Failure state is reset on plugin updates.
 sub should_skip_reload {
     my ($namespace) = @_;
-    my $namespace_uc = _normalized_namespace($namespace);
+    my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation($namespace_uc);
 
     return 0 unless defined $generation;
