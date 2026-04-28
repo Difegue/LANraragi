@@ -70,75 +70,76 @@ sub install_plugin {
         $namespace,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
+            # Since a plugin namespace can be built-in or sideloaded, we'll need to check redis first.
+            # if a plugin exists and is not managed, installation may not continue.
+            # The user will have to remove/uninstall the existing plugin before installing a managed plugin
+            # by the same namespace.
+            my $namerds = "LRR_PLUGIN_" . uc($namespace);
+            if ( $redis->hexists( $namerds, "installed_path" ) ) {
+                my $source     = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
+                my $currentreg = $redis->hget( $namerds, "installed_registry" );
+                my $currentver = $redis->hget( $namerds, "installed_version" );
 
-            eval {
-                # Since a plugin namespace can be built-in or sideloaded, we'll need to check redis first.
-                # if a plugin exists and is not managed, installation may not continue.
-                # The user will have to remove/uninstall the existing plugin before installing a managed plugin
-                # by the same namespace.
-                my $namerds = "LRR_PLUGIN_" . uc($namespace);
-                if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                    my $source     = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
-                    my $currentreg = $redis->hget( $namerds, "installed_registry" );
-                    my $currentver = $redis->hget( $namerds, "installed_version" );
-
-                    if ( $source ne "managed" ) {
-                        render_api_response(
-                            $self,
-                            "install_plugin",
-                            "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry."
-                        );
-                        return;
-                    }
-
-                    my $is_installed = $currentreg && $currentreg ne $registry_id;
-                    if ( $is_installed && !$force ) {
-                        render_api_response(
-                            $self,
-                            "install_plugin",
-                            "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite."
-                        );
-                        return;
-                    }
-                }
-
-                my $logger = get_logger( "Registry", "lanraragi" );
-                my ( $status, $plugmeta, $message ) = eval {
-                    LANraragi::Model::Registry::install_plugin(
-                        $namespace, $redis, $registry_id, $version, $installed_channel
-                    );
-                };
-                # TODO(REVIEW) declare error.
-                if ($@) {
-                    $logger->error("install_plugin failed for '$namespace': $@");
-                    render_api_response( $self, "install_plugin", "Plugin installation failed." );
-                    return;
-                }
-
-                unless ( $status == 200 ) {
-                    $self->render(
-                        openapi => { operation => "install_plugin", error => $message, success => 0 },
-                        status  => $status
+                if ( $source ne "managed" ) {
+                    $redis->quit();
+                    render_api_response(
+                        $self,
+                        "install_plugin",
+                        "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry."
                     );
                     return;
                 }
 
-                $self->render(
-                    openapi => {
-                        operation          => "install_plugin",
-                        success            => 1,
-                        name               => $plugmeta->{name},
-                        namespace          => $namespace,
-                        version            => $plugmeta->{version},
-                        installed_registry => $plugmeta->{installed_registry},
-                        installed_sha256   => $plugmeta->{installed_sha256},
-                        installed_channel  => $plugmeta->{installed_channel},
-                    }
+                my $is_installed = $currentreg && $currentreg ne $registry_id;
+                if ( $is_installed && !$force ) {
+                    $redis->quit();
+                    render_api_response(
+                        $self,
+                        "install_plugin",
+                        "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite."
+                    );
+                    return;
+                }
+            }
+
+            my $logger = get_logger( "Registry", "lanraragi" );
+            my $install_error;
+            my ( $status, $plugmeta, $message ) = eval {
+                LANraragi::Model::Registry::install_plugin(
+                    $namespace, $redis, $registry_id, $version, $installed_channel
                 );
             };
-            my $err = $@;
+            $install_error = $@;
+
+            if ($install_error) {
+                $redis->quit();
+                $logger->error("install_plugin failed for '$namespace': $install_error");
+                render_api_response( $self, "install_plugin", "Plugin installation failed." );
+                return;
+            }
+
             $redis->quit();
-            die $err if $err; # TODO(REVIEW) ditto
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => { operation => "install_plugin", error => $message, success => 0 },
+                    status  => $status
+                );
+                return;
+            }
+
+            $self->render(
+                openapi => {
+                    operation          => "install_plugin",
+                    success            => 1,
+                    name               => $plugmeta->{name},
+                    namespace          => $namespace,
+                    version            => $plugmeta->{version},
+                    installed_registry => $plugmeta->{installed_registry},
+                    installed_sha256   => $plugmeta->{installed_sha256},
+                    installed_channel  => $plugmeta->{installed_channel},
+                }
+            );
         }
     );
 }
@@ -154,25 +155,20 @@ sub uninstall_plugin {
         $namespace,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-
-            eval {
-                my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
-                    $namespace, $redis
-                );
-
-                unless ( $status == 200 ) {
-                    $self->render(
-                        openapi => { operation => "uninstall_plugin", error => $message, success => 0 },
-                        status  => $status
-                    );
-                    return;
-                }
-
-                render_api_response( $self, "uninstall_plugin" );
-            };
-            my $err = $@;
+            my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
+                $namespace, $redis
+            );
             $redis->quit();
-            die $err if $err; # TODO(REVIEW) ditto
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => { operation => "uninstall_plugin", error => $message, success => 0 },
+                    status  => $status
+                );
+                return;
+            }
+
+            render_api_response( $self, "uninstall_plugin" );
         }
     );
 }
