@@ -448,8 +448,7 @@ sub install_plugin {
     my $currentpath;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        # TODO(REVIEW): move to sub `resolve_installed_path`. (variant)
-        $currentpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
+        $currentpath = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
     my $plugin_content;
@@ -604,8 +603,7 @@ sub uninstall_plugin {
 
     my $installpath;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        # TODO(REVIEW) ditto
-        $installpath = getcwd() . "/lib/" . $redis->hget( $namerds, "installed_path" );
+        $installpath = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
     unless ($installpath) {
@@ -732,7 +730,6 @@ sub scan_plugins {
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
     my @all_keys     = $redis->keys("LRR_PLUGIN_*");
     my %discovereduc = map { uc($_) => 1 } keys %ns_map;
-    my $lib_prefix   = getcwd() . "/lib/";
     $logger->debug("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
 
     foreach my $key (@all_keys) {
@@ -746,7 +743,7 @@ sub scan_plugins {
         unless ( $discovereduc{$nspart} ) {
             if ( $redis->hexists( $key, "installed_path" ) ) {
                 my $path = $redis->hget( $key, "installed_path" );
-                if ( -e $lib_prefix . $path ) {
+                if ( -e resolve_installed_path($path) ) {
                     $logger->warn("Plugin key '$key' (installed_path: $path) not discovered but file exists -- skipping removal.");
                     next;
                 }
@@ -869,6 +866,11 @@ sub validate_managed_plugin {
     }
 
     return ( { install_path => $installpath, install_dir => $installdir, package => $pkg }, undef );
+}
+
+sub resolve_installed_path {
+    my ($installed_path) = @_;
+    return getcwd() . "/lib/" . $installed_path;
 }
 
 1;
