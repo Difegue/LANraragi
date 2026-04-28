@@ -36,8 +36,8 @@ sub create_registry {
     my $self    = shift->openapi->valid_input or return;
     my $body    = $self->req->json;
     my $type    = $body->{type};
-
-    # TODO(REVIEW) logging required.
+    my $logger  = get_logger( "Registry", "lanraragi" );
+    $logger->info("Create registry requested (type: " . ( defined $type ? $type : "<undef>" ) . ").");
 
     return unless exec_with_lock(
         $self,
@@ -121,8 +121,8 @@ sub update_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
     my $body        = $self->req->json;
-
-    # TODO(REVIEW) logging required.
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    $logger->info("Update registry requested for '$registry_id'.");
 
     return unless exec_with_lock(
         $self,
@@ -147,10 +147,11 @@ sub update_registry {
                 my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
                     $registry_id, $redis, %updated_registry
                 );
-                # TODO(REVIEW) logging required
+                $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
 
                 # TODO(REVIEW): check dev branch status check consistency (and all variants)
                 unless ( $status == 200 ) {
+                    $logger->warn("Update registry failed for '$registry_id': $message");
                     $self->render(
                         openapi => { operation => "update_registry", error => $message, success => 0 },
                         status  => $status
@@ -182,8 +183,8 @@ sub update_registry {
 sub delete_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
-
-    # TODO(REVIEW) logging required + cases
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    $logger->info("Delete registry requested for '$registry_id'.");
 
     return unless exec_with_lock(
         $self,
@@ -201,6 +202,7 @@ sub delete_registry {
                 );
 
                 unless ( $status == 200 ) {
+                    $logger->warn("Delete registry failed for '$registry_id': $message");
                     $self->render(
                         openapi => { operation => "delete_registry", error => $message, success => 0 },
                         status  => $status
@@ -221,8 +223,8 @@ sub delete_registry {
 sub refresh_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
-
-    # TODO(REVIEW) logging required.
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    $logger->info("Refresh registry requested for '$registry_id'.");
 
     return unless exec_with_lock(
         $self,
@@ -287,8 +289,10 @@ sub refresh_registry {
                 my $oldraw = $redis->get($indexkey);
                 if ( defined $oldraw && $oldraw ne "" ) {
                     my $oldindex = eval { decode_json($oldraw) };
+                    if ($@) {
+                        $logger->warn("Registry '$registry_id': cached previous registry index could not be decoded: $@");
+                    }
                     if ( ref $oldindex eq "HASH" && ref $oldindex->{plugins} eq "HASH" ) {
-                        my $logger  = get_logger( "Registry", "lanraragi" );
                         my $oldp    = $oldindex->{plugins};
                         my $newp    = $index->{plugins};
                         foreach my $ns ( sort keys %{$oldp} ) {

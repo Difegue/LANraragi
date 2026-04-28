@@ -116,7 +116,7 @@ sub get_registry {
 
     # TODO(REVIEW): pull out to sub: is_valid_registry(registry_id).
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
-        # TODO(REVIEW) logging needed.
+        get_logger( "Registry", "lanraragi" )->warn("Registry lookup failed for invalid or missing registry id '$registry_id'.");
         return ();
     }
 
@@ -177,7 +177,6 @@ sub update_registry {
     }
 
     # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
-    # TODO(REVIEW) type change needs logging.
     # TODO(REVIEW) use explicit updated_reg_type, current_reg_type for below (updated_registry{type}, etc).
     my $type = $updated_registry{type} // $current_registry{type};
 
@@ -496,14 +495,14 @@ sub install_plugin {
         $content = $res->body;
     } else {
         # check against type just in case
-        # TODO(REVIEW) logging required.
+        $logger->error("Unknown registry type '$type' while installing plugin '$namespace' from registry '$registry_id'.");
         return ( 400, undef, "Unknown registry type: $type" );
     }
 
     # Check that plugins are installed under "Plugins/Managed/".
     my ( $validated, $error ) = validate_managed_plugin( $content, $namespace, $plugmeta, $currentpath );
     if ($error) {
-        # TODO(REVIEW) logging required.
+        $logger->warn("Managed plugin validation failed for '$namespace' from registry '$registry_id': $error");
         return ( 422, undef, $error );
     }
 

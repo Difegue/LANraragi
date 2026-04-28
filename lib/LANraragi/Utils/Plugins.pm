@@ -34,6 +34,7 @@ sub get_plugins {
 
     my $type    = shift;
     my $redis   = LANraragi::Model::Config->get_redis_config;
+    my $logger  = get_logger( "Plugin System", "lanraragi" );
     my @plugins = plugins;
     my @validplugins;
     my %seen_ns;
@@ -43,16 +44,19 @@ sub get_plugins {
         if ( $plugin->can('plugin_info') ) {
             my %pluginfo;
             eval { %pluginfo = $plugin->plugin_info() };
-            next if $@; # TODO(REVIEW): silent skipping (variant)
+            if ($@) {
+                $logger->warn("Skipping plugin '$plugin' while listing type '$type': plugin_info() failed: $@");
+                next;
+            }
 
             # Skip plugins which are not registered by Redis.
             my $ns = $pluginfo{namespace};
             unless ( $redis->hexists( "LRR_PLUGIN_" . uc($ns), "installed_path" ) ) {
-                # TODO(REVIEW): logging
+                $logger->warn("Skipping plugin '$plugin' (namespace '$ns') while listing type '$type': installed_path missing from Redis.");
                 next;
             }
             if ( $seen_ns{$ns}++ ) {
-                # TODO(REVIEW): logging
+                $logger->warn("Skipping duplicate plugin namespace '$ns' while listing type '$type'; keeping first discovered plugin.");
                 # TODO(REVIEW): can an ns be seen multiple times?
                 next;
             }
@@ -64,7 +68,7 @@ sub get_plugins {
 
             if ( $pluginfo{type} eq $type || $type eq "all" ) { push( @validplugins, \%pluginfo ); }
         } else {
-            # TODO(REVIEW): log case where plugin has no plugin_info.
+            $logger->warn("Skipping plugin '$plugin' while listing type '$type': class has no plugin_info().");
         }
     }
 
@@ -169,10 +173,16 @@ sub get_plugin {
 
     foreach my $plugin (@plugins) {
         my $namespace = "";
+        my $plugin_name = $plugin;
         eval {
             my %pluginfo = $plugin->plugin_info();
             $namespace = $pluginfo{namespace};
         };
+        if ($@) {
+            get_logger( "Plugin System", "lanraragi" )
+                ->warn("Skipping plugin '$plugin_name' during namespace lookup for '$name': plugin_info() failed: $@");
+            next;
+        }
 
         if ( $name_uc eq uc($namespace) ) {
             return $plugin;
