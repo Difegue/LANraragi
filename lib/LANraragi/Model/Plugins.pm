@@ -24,7 +24,7 @@ use LANraragi::Utils::Generic  qw(exec_with_lock_pure);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
-use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin);
+use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin);
 use LANraragi::Utils::PluginState qw(record_load_failure record_load_success signal_uninstalled signal_updated);
 use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Path     qw(create_path unlink_path package_to_path);
@@ -483,7 +483,6 @@ sub install_plugin {
     if redis.call("EXISTS", KEYS[1]) == 0 then
         return 0
     end
-    redis.call("HINCRBY", KEYS[2], "installed_generation", 1)
     redis.call("HSET",    KEYS[2], "installed_path",     ARGV[1])
     redis.call("HSET",    KEYS[2], "installed_version",  ARGV[2])
     redis.call("HSET",    KEYS[2], "installed_registry", ARGV[3])
@@ -523,7 +522,7 @@ LUA
 
     # Reload INC with new plugin/incpath.
     delete $INC{$incpath}; # TODO(REVIEW) is it possible that incpath in INC does not equal incpath in package?
-    signal_updated($namespace);
+    signal_updated( $namespace, $redis );
     eval { require $incpath };
     if ($@) {
         record_load_failure($namespace);
@@ -587,17 +586,8 @@ sub uninstall_plugin {
         $logger->warn("Plugin '$namespace' file not found at $installpath -- cleaning up Redis only.");
     }
 
-    # Clear provenance from plugin.
-    $redis->hdel(
-        $namerds,
-        "installed_path",
-        "installed_version",
-        "installed_registry",
-        "installed_sha256",
-        "installed_channel",
-        "installed_generation"
-    );
-    signal_uninstalled($namespace);
+    unregister_plugin( $redis, $namespace );
+    signal_uninstalled( $namespace, $redis );
 
     return ( 200, 1, undef );
 }
@@ -676,7 +666,7 @@ sub scan_plugins {
         # Self-heal stale or missing installed_path: discovery is the source of truth.
         # TODO(REVIEW): when a plugin is discovered and not present in database, wouldn't this be considered a spontaneous "installation"?
         $logger->debug("Plugin '$ns': setting installed_path to '$filepath'.");
-        $redis->hset( $namerds, "installed_path", $filepath );
+        register_plugin( $redis, $ns, $filepath );
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
@@ -703,17 +693,9 @@ sub scan_plugins {
             } else {
                 $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
             }
-            $redis->hdel(
-                $key,
-                "installed_path",
-                "installed_version",
-                "installed_registry",
-                "installed_sha256",
-                "installed_channel",
-                "installed_generation"
-            );
+            unregister_plugin( $redis, $nspart );
             if ( $key =~ /^LRR_PLUGIN_(.+)$/ ) {
-                signal_uninstalled($1);
+                signal_uninstalled( $1, $redis );
             }
         }
     }

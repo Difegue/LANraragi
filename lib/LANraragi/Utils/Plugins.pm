@@ -23,7 +23,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden get_plugin_priority use_plugin);
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden get_plugin_priority use_plugin register_plugin unregister_plugin read_registered_plugins);
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -31,9 +31,9 @@ sub get_plugins {
     my $type    = shift;
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my $logger  = get_logger( "Plugin System", "lanraragi" );
+    my %registered = read_registered_plugins($redis);
     my @plugins = plugins;
     my @validplugins;
-    my %seen_ns;
     foreach my $plugin (@plugins) {
 
         # Check that the metadata sub is there before invoking it
@@ -46,14 +46,15 @@ sub get_plugins {
             }
 
             # Skip plugins which are not registered by Redis.
-            my $ns = $pluginfo{namespace};
-            unless ( $redis->hexists( "LRR_PLUGIN_" . uc($ns), "installed_path" ) ) {
+            my $ns        = $pluginfo{namespace};
+            my $ns_uc     = uc($ns);
+            my $classpath = package_to_path($plugin);
+            unless ( exists $registered{$ns_uc} ) {
                 $logger->warn("Skipping plugin '$plugin' (namespace '$ns') while listing type '$type': installed_path missing from Redis.");
                 next;
             }
-            if ( $seen_ns{$ns}++ ) {
-                $logger->warn("Skipping duplicate plugin namespace '$ns' while listing type '$type'; keeping first discovered plugin.");
-                # TODO(REVIEW): can an ns be seen multiple times?
+            unless ( $registered{$ns_uc} eq $classpath ) {
+                $logger->warn("Skipping plugin '$plugin' (namespace '$ns') while listing type '$type': discovered path '$classpath' does not match registered survivor '$registered{$ns_uc}'.");
                 next;
             }
 
@@ -120,7 +121,7 @@ sub get_enabled_plugins {
 # TODO(REVIEW): explain how redis is being used.
 sub get_plugin {
 
-    my $name = shift;
+    my $name    = shift;
     my $name_uc = uc($name);
 
     # Plugin must have a discovered installed_path to be callable.
@@ -128,10 +129,9 @@ sub get_plugin {
     # key-existence alone would let uninstalled namespaces remain callable.
     # TODO(REVIEW): this counts as validation logic; does it belong in get_plugin? Who are the callers
     # it looks more like it should be for plugin invokation?
-    my $redis   = LANraragi::Model::Config->get_redis_config;
-    my $namerds = "LRR_PLUGIN_" . $name_uc;
-    my $installed_path = $redis->hget( $namerds, "installed_path" );
-    unless ( $redis->hexists( $namerds, "installed_path" ) ) {
+    my $redis          = LANraragi::Model::Config->get_redis_config;
+    my $installed_path = read_registered_plugins( $redis, $name );
+    unless ($installed_path) {
         $redis->quit();
         return 0;
     }
@@ -154,12 +154,15 @@ sub get_plugin {
         }
     }
 
-    #Go through plugins to find one with a matching namespace
+    # Go through plugins to find the registered survivor path.
     my @plugins = plugins;
 
     foreach my $plugin (@plugins) {
-        my $namespace = "";
         my $plugin_name = $plugin;
+        my $classpath   = package_to_path($plugin);
+        next unless $classpath eq $installed_path;
+
+        my $namespace = "";
         eval {
             my %pluginfo = $plugin->plugin_info();
             $namespace = $pluginfo{namespace};
@@ -241,6 +244,50 @@ sub get_plugin_parameters {
 
     $redis->quit();
     return %args;
+}
+
+sub register_plugin {
+    my ( $redis, $namespace, $installed_path ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    $redis->hset( $namerds, "installed_path", $installed_path );
+
+    return $installed_path;
+}
+
+sub unregister_plugin {
+    my ( $redis, $namespace ) = @_;
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    $redis->hdel(
+        $namerds,
+        "installed_path",
+        "installed_version",
+        "installed_registry",
+        "installed_sha256",
+        "installed_channel"
+    );
+}
+
+sub read_registered_plugins {
+    my ( $redis, $namespace ) = @_;
+
+    if ( defined $namespace ) {
+        my $namerds = "LRR_PLUGIN_" . uc($namespace);
+        return unless $redis->hexists( $namerds, "installed_path" );
+        return $redis->hget( $namerds, "installed_path" );
+    }
+
+    my @keys = $redis->keys("LRR_PLUGIN_*");
+    my %registered;
+    foreach my $key (@keys) {
+        next unless $redis->hexists( $key, "installed_path" );
+        my ($namespace_uc) = $key =~ /^LRR_PLUGIN_(.+)$/;
+        next unless defined $namespace_uc;
+        $registered{$namespace_uc} = $redis->hget( $key, "installed_path" );
+    }
+
+    return %registered;
 }
 
 sub is_plugin_enabled {

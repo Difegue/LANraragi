@@ -11,7 +11,7 @@ use Cwd;
 
 use File::Basename;
 use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
-use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority register_plugin);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::PluginState qw(record_load_success signal_updated);
 use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
@@ -365,11 +365,9 @@ sub process_upload {
                 }
 
                 # Register installed_path so infer_plugin_source works before next scan_plugins.
-                # Bump installed_generation so other workers reload on their next get_plugin.
                 my $redis = $self->LRR_CONF->get_redis_config;
-                $redis->hset( $namerds, "installed_path", $install_relpath );
-                $redis->hincrby( $namerds, "installed_generation", 1 );
-                signal_updated($ns);
+                register_plugin( $redis, $ns, $install_relpath );
+                signal_updated( $ns, $redis );
                 record_load_success($ns);
                 $redis->quit();
 

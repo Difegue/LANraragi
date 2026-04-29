@@ -38,24 +38,30 @@ sub _registered_generation {
     return $generation;
 }
 
-# signal_updated( $namespace )
+# signal_updated( $namespace, $redis )
 # If a namespace is updated, the updated survivor should synchronize to all workers.
 # Workers must update to the new plugin via INC reload.
 # Workers which previously failed to load plugin may re-attempt to load the updated plugin.
 sub signal_updated {
-    my ($namespace) = @_;
+    my ( $namespace, $redis ) = @_;
     my $namespace_uc = uc($namespace);
+    my $namerds      = "LRR_PLUGIN_" . $namespace_uc;
+
+    $redis->hincrby( $namerds, "installed_generation", 1 );
 
     delete $LOADED_GEN{$namespace_uc};
     delete $LOAD_FAILED{$namespace_uc};
 }
 
-# signal_uninstalled( $namespace )
+# signal_uninstalled( $namespace, $redis )
 # If a namespace is uninstalled, synchronize to all workers.
 # Workers may no longer load the plugin even if it is present in INC cache.
 sub signal_uninstalled {
-    my ($namespace) = @_;
+    my ( $namespace, $redis ) = @_;
     my $namespace_uc = uc($namespace);
+    my $namerds      = "LRR_PLUGIN_" . $namespace_uc;
+
+    $redis->hdel( $namerds, "installed_generation" );
 
     delete $LOADED_GEN{$namespace_uc};
     delete $LOAD_FAILED{$namespace_uc};
