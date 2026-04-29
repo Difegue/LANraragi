@@ -1,7 +1,7 @@
 package LANraragi::Controller::Api::Plugins;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Model::Registry;
+use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -76,7 +76,7 @@ sub install_plugin {
             # by the same namespace.
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
             if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                my $source     = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
+                my $source     = LANraragi::Model::Plugins::infer_plugin_source( $namerds, $redis );
                 my $currentreg = $redis->hget( $namerds, "installed_registry" );
                 my $currentver = $redis->hget( $namerds, "installed_version" );
 
@@ -105,7 +105,7 @@ sub install_plugin {
             my $logger = get_logger( "Registry", "lanraragi" );
             my $install_error;
             my ( $status, $plugmeta, $message ) = eval {
-                LANraragi::Model::Registry::install_plugin(
+                LANraragi::Model::Plugins::install_plugin(
                     $namespace, $redis, $registry_id, $version, $installed_channel
                 );
             };
@@ -155,7 +155,7 @@ sub uninstall_plugin {
         $namespace,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-            my ( $status, $success, $message ) = LANraragi::Model::Registry::uninstall_plugin(
+            my ( $status, $success, $message ) = LANraragi::Model::Plugins::uninstall_plugin(
                 $namespace, $redis
             );
             $redis->quit();

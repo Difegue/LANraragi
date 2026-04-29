@@ -15,7 +15,7 @@ use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_ena
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::PluginState qw(record_load_success signal_updated);
 use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
-use LANraragi::Model::Registry;
+use LANraragi::Model::Plugins;
 
 # This action will render a template
 sub index {
@@ -40,7 +40,7 @@ sub index {
     for my $list ( $meta_all, $downloaders, $logins, $scripts ) {
         for my $plugin (@$list) {
             my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
-            $plugin->{source} = LANraragi::Model::Registry::infer_plugin_source( $namerds, $redis );
+            $plugin->{source} = LANraragi::Model::Plugins::infer_plugin_source( $namerds, $redis );
         }
     }
 
