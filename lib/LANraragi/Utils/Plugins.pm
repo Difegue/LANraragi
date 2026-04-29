@@ -6,7 +6,6 @@ use utf8;
 
 use Mojo::JSON                 qw(decode_json);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Path     qw(package_to_path);
 use LANraragi::Utils::PluginState qw(
     plugin_needs_reload
     record_load_failure
@@ -32,9 +31,20 @@ sub get_plugins {
     my $redis   = LANraragi::Model::Config->get_redis_config;
     my $logger  = get_logger( "Plugin System", "lanraragi" );
     my %registered = read_registered_plugins($redis);
-    my @plugins = plugins;
     my @validplugins;
-    foreach my $plugin (@plugins) {
+
+    # Skip plugins which are not registered by Redis.
+    foreach my $ns_uc ( sort keys %registered ) {
+        my $installed_path = $registered{$ns_uc};
+        my $plugin         = $installed_path;
+        $plugin =~ s/\.pm$//;
+        $plugin =~ s|/|::|g;
+
+        my $loaded = eval { require $installed_path; 1 };
+        unless ($loaded) {
+            $logger->warn("Skipping plugin '$plugin' while listing type '$type': require '$installed_path' failed: $@");
+            next;
+        }
 
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
@@ -42,19 +52,6 @@ sub get_plugins {
             eval { %pluginfo = $plugin->plugin_info() };
             if ($@) {
                 $logger->warn("Skipping plugin '$plugin' while listing type '$type': plugin_info() failed: $@");
-                next;
-            }
-
-            # Skip plugins which are not registered by Redis.
-            my $ns        = $pluginfo{namespace};
-            my $ns_uc     = uc($ns);
-            my $classpath = package_to_path($plugin);
-            unless ( exists $registered{$ns_uc} ) {
-                $logger->warn("Skipping plugin '$plugin' (namespace '$ns') while listing type '$type': installed_path missing from Redis.");
-                next;
-            }
-            unless ( $registered{$ns_uc} eq $classpath ) {
-                $logger->warn("Skipping plugin '$plugin' (namespace '$ns') while listing type '$type': discovered path '$classpath' does not match registered survivor '$registered{$ns_uc}'.");
                 next;
             }
 
@@ -111,7 +108,6 @@ sub get_enabled_plugins {
 
     $redis->quit();
 
-    # Sort by priority (lower = runs first), stable sort preserves discovery order for ties
     @enabled = sort { $a->{priority} <=> $b->{priority} } @enabled;
 
     return @enabled;
@@ -151,34 +147,14 @@ sub get_plugin {
             # TODO(REVIEW): document when this would trigger
             record_load_failure($name_uc);
             get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name': $@");
+            return 0;
         }
     }
 
-    # Go through plugins to find the registered survivor path.
-    my @plugins = plugins;
-
-    foreach my $plugin (@plugins) {
-        my $plugin_name = $plugin;
-        my $classpath   = package_to_path($plugin);
-        next unless $classpath eq $installed_path;
-
-        my $namespace = "";
-        eval {
-            my %pluginfo = $plugin->plugin_info();
-            $namespace = $pluginfo{namespace};
-        };
-        if ($@) {
-            get_logger( "Plugin System", "lanraragi" )
-                ->warn("Skipping plugin '$plugin_name' during namespace lookup for '$name': plugin_info() failed: $@");
-            next;
-        }
-
-        if ( $name_uc eq uc($namespace) ) {
-            return $plugin;
-        }
-    }
-
-    return 0;
+    my $plugin = $installed_path;
+    $plugin =~ s/\.pm$//;
+    $plugin =~ s|/|::|g;
+    return $plugin;
 }
 
 # Get the parameters for the specified plugin, either default values or input by the user in the settings page.
