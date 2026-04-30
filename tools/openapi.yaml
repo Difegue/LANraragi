@@ -2379,6 +2379,115 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
   
+  /search/composite:
+    post:
+      operationId: compositeSearchArchives
+      x-mojo-to: api-search#handle_composite
+      summary: Composite Search Archives
+      description: >-
+        Perform a composite search with multiple clauses OR'd together.
+        Each clause is an independent AND conjunction with its own filter,
+        categories, and flags. Results are unioned, deduplicated, and
+        sorted globally.
+      tags:
+        - search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - clauses
+              properties:
+                clauses:
+                  type: array
+                  minItems: 1
+                  description: >-
+                    Array of search clauses. Each clause is an independent AND
+                    conjunction. Multiple clauses are OR-unioned.
+                  items:
+                    type: object
+                    properties:
+                      filter:
+                        type: string
+                        description: Search filter string (same syntax as /search filter parameter).
+                      categories:
+                        type: array
+                        description: Category filters to apply to this clause.
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - mode
+                          properties:
+                            id:
+                              type: string
+                              description: Category ID.
+                              minLength: 14
+                              maxLength: 14
+                            mode:
+                              type: string
+                              description: Whether to include or exclude this category.
+                              enum:
+                                - include
+                                - exclude
+                      newonly:
+                        type: integer
+                        enum: [-1, 0, 1]
+                        description: >-
+                          New archive filter. 1 = only new, -1 = exclude new, 0 = off.
+                      untaggedonly:
+                        type: integer
+                        enum: [-1, 0, 1]
+                        description: >-
+                          Untagged archive filter. 1 = only untagged, -1 = exclude untagged, 0 = off.
+                      hidecompleted:
+                        type: boolean
+                        description: >-
+                          Hide completed archives (progress >= pagecount). Defaults to false.
+                start:
+                  type: integer
+                  description: >-
+                    Pagination offset. Use -1 to get all results.
+                sortby:
+                  type: string
+                  description: >-
+                    Namespace by which to sort results. Use "title" for title sort,
+                    "lastread" for last read time sort.
+                order:
+                  type: string
+                  description: Sort order.
+                  enum:
+                    - asc
+                    - desc
+                groupby_tanks:
+                  type: boolean
+                  default: true
+                  description: >-
+                    Enable or disable Tankoubon grouping. Defaults to true.
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive metadata objects for each search result
+                    items:
+                      $ref: '#/components/schemas/ArchiveMetadataJson'
+                  recordsFiltered:
+                    type: integer
+                    description: Amount of archives in the search result
+                  recordsTotal:
+                    type: integer
+                    description: Total number of archives available
+        '204':
+          description: Search engine is not initialized yet. Please wait a few seconds.
+
   /database/stats:
     get:
       operationId: getStatistics
