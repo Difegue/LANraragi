@@ -31,7 +31,7 @@ BEGIN {
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
+our @EXPORT_OK = qw(is_image is_archive is_content_folder render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail get_version);
 
@@ -47,6 +47,51 @@ sub is_image {
 # Checks if the provided file is an archive.
 sub is_archive {
     return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
+}
+
+# Checks if the provided path is a leaf content folder:
+# a directory that contains image files and has no subdirectories containing images.
+sub is_content_folder {
+    my $path = $_[0];
+    return 0 unless -d $path;
+
+    my $has_images = 0;
+    opendir( my $dh, $path ) or return 0;
+    while ( my $entry = readdir($dh) ) {
+        next if $entry eq '.' || $entry eq '..';
+        my $full = "$path/$entry";
+        if ( -d $full ) {
+            if ( _dir_has_images($full) ) {
+                closedir($dh);
+                return 0;
+            }
+        } elsif ( is_image($entry) ) {
+            $has_images = 1;
+        }
+    }
+    closedir($dh);
+    return $has_images;
+}
+
+# Checks if the provided directory contains any image files. Probably shouldn't go recursively, since for now only leaf directories with images are considered content folders.
+sub _dir_has_images {
+    my $dir = shift;
+    opendir( my $dh, $dir ) or return 0;
+    while ( my $entry = readdir($dh) ) {
+        next if $entry eq '.' || $entry eq '..';
+        my $full = "$dir/$entry";
+        if ( -d $full ) {
+            if ( _dir_has_images($full) ) {
+                closedir($dh);
+                return 1;
+            }
+        } elsif ( is_image($entry) ) {
+            closedir($dh);
+            return 1;
+        }
+    }
+    closedir($dh);
+    return 0;
 }
 
 # Renders the basic success API JSON template, where the $mojo object inherits the openapi controller.

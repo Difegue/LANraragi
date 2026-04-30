@@ -7,7 +7,7 @@ use utf8;
 use feature qw(signatures);
 no warnings 'experimental::signatures';
 
-use Digest::SHA qw(sha256_hex);
+use Digest::SHA qw(sha256_hex sha1_hex);
 use Mojo::JSON  qw(decode_json);
 use Encode;
 use File::Basename;
@@ -17,12 +17,12 @@ use Unicode::Normalize;
 use List::Util      qw(max);
 use List::MoreUtils qw(uniq);
 
-use LANraragi::Utils::Generic qw(flat);
+use LANraragi::Utils::Generic qw(flat is_image);
 use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified get_archive_path);
+use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified get_archive_path find_path);
 
 use LANraragi::Model::Config;
 
@@ -34,12 +34,18 @@ our @EXPORT_OK = qw(
   redis_decode redis_encode
 );
 
-# Creates a DB entry for a file path with the given ID.
+# Creates a DB entry for a file/directory path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
-    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+
+    my $name;
+    if ( -d $file ) {
+        $name = File::Basename::basename($file);
+    } else {
+        ( $name, undef, undef ) = fileparse( $file, qr/\.[^.]*/ );
+    }
 
     # Initialize Redis hash for the added file
     $logger->debug("Pushing to redis on ID $id:");
@@ -51,7 +57,11 @@ sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
     $redis->hset( $id, "summary", "" );
 
     if ( defined($file) && -e $file ) {
-        $redis->hset( $id, "arcsize", -s $file );
+        if ( -d $file ) {
+            $redis->hset( $id, "arcsize", _compute_dir_size($file) );
+        } else {
+            $redis->hset( $id, "arcsize", -s $file );
+        }
     }
 
     # Don't encode filenames.
@@ -268,6 +278,8 @@ sub build_json ( $id, %hash ) {
         $title = $name;
     }
 
+    my $extension = -d $file ? "folder" : lc( ( split( /\./, $file ) )[-1] );
+
     my $arcdata = {
         arcid        => $id,
         title        => $title,
@@ -275,7 +287,7 @@ sub build_json ( $id, %hash ) {
         tags         => $tags,
         summary      => $summary,
         isnew        => $isnew ? $isnew : "false",
-        extension    => lc( ( split( /\./, $file ) )[-1] ),
+        extension    => $extension,
         progress     => $progress     ? int($progress)     : 0,
         pagecount    => $pagecount    ? int($pagecount)    : 0,
         lastreadtime => $lastreadtime ? int($lastreadtime) : 0,
@@ -570,8 +582,12 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 }
 
 # This function is used for all ID computation in LRR.
-# Takes the path to the file as an argument.
+# Takes the path to the file or directory as an argument.
 sub compute_id ($file) {
+
+    if ( -d $file ) {
+        return _compute_id_directory($file);
+    }
 
     #Read the first 512 KBs only (allows for faster disk speeds )
     open_path_or_die( my $handle, '<:raw', $file );
@@ -590,6 +606,39 @@ sub compute_id ($file) {
 
     return $digest;
 
+}
+
+# Compute ID for a directory by concatenating the first 4KB of each file (sorted by relative path).
+sub _compute_id_directory ($dir) {
+
+    my @files;
+    find_path(
+        sub {
+            $_ = create_path($_);
+            return if -d $_;
+            my $rel = $_;
+            $rel =~ s/^\Q$dir\E[\/\\]?//;
+            push @files, $rel;
+        },
+        $dir
+    );
+
+    @files = sort { lc($a) cmp lc($b) } @files;
+
+    die "Computed ID is for an empty directory, invalid source." unless @files;
+
+    my $ctx = Digest::SHA->new(1);
+    for my $rel (@files) {
+        my $full = "$dir/$rel";
+        if ( open my $fh, '<:raw', $full ) {
+            my $buf;
+            read $fh, $buf, 16384;
+            close $fh;
+            $ctx->add($buf) if defined $buf && length $buf;
+        }
+    }
+
+    return $ctx->hexdigest;
 }
 
 # Bust the current search cache key in Redis.
@@ -641,7 +690,24 @@ sub get_computed_tagrules {
 
 sub add_arcsize ( $redis, $id ) {
     my $file = get_archive_path( $redis, $id );
-    $redis->hset( $id, "arcsize", -s $file );
+    if ( -d $file ) {
+        $redis->hset( $id, "arcsize", _compute_dir_size($file) );
+    } else {
+        $redis->hset( $id, "arcsize", -s $file );
+    }
+}
+
+sub _compute_dir_size ($dir) {
+    my $total = 0;
+    find_path(
+        sub {
+            $_ = create_path($_);
+            return if -d $_;
+            $total += -s $_ if -f $_;
+        },
+        $dir
+    );
+    return $total;
 }
 
 sub get_arcsize ( $redis, $id ) {

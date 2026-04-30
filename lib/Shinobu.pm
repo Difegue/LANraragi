@@ -31,7 +31,7 @@ use Encode;
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_id get_arcsize add_timestamp_tag add_archive_to_redis add_arcsize add_pagecount);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_archive exec_with_lock_pure);
+use LANraragi::Utils::Generic    qw(is_archive is_image is_content_folder exec_with_lock_pure);
 use LANraragi::Utils::Redis      qw(redis_encode);
 use LANraragi::Utils::Path       qw(create_path open_path find_path get_archive_path);
 
@@ -80,12 +80,12 @@ sub initialize_from_new_process {
     update_filemap();
     $logger->info("Initial scan complete! Adding watcher to content folder to monitor for further file edits.");
 
-    # Add watcher to content directory
+    # Add watcher to content directory -- also watch image files for content folder detection
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
         directories     => [$userdir],
-        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i,
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst|png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|jxl)$/i,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                                                   #excluded subdirs
+        exclude         => [ 'thumb', '.' ],
     );
 
     my $class = ref($contentwatcher);
@@ -121,7 +121,7 @@ sub initialize_from_new_process {
 }
 
 # Update the filemap. This acts as a masterlist of what's in the content directory.
-# This computes IDs for all new archives and henceforth can get rather expensive!
+# This computes IDs for all new archives/content folders and henceforth can get rather expensive!
 sub update_filemap {
 
     $logger->info("Scanning content folder for changes...");
@@ -130,17 +130,23 @@ sub update_filemap {
     # Clear hash
     my $dirname = LANraragi::Model::Config->get_userdir;
     my @files;
+    my @dirs;
 
     # Get all files in content directory and subdirectories.
     find_path(
         sub {
             $_ = create_path($_);
-            return if -d $_;    #Directories are excluded on the spot
+            if ( -d $_ ) {
+                push @dirs, $_ if is_content_folder($_);
+                return;
+            }
             return unless is_archive($_);
-            push @files, $_;    #Push files to array
+            push @files, $_;
         },
         $dirname
     );
+
+    push @files, @dirs;
 
     # Cross-check with filemap to get recorded files that aren't on the FS, and new files that aren't recorded.
     my @filemapfiles = $redis->exists("LRR_FILEMAP") ? $redis->hkeys("LRR_FILEMAP") : ();
@@ -183,39 +189,43 @@ sub update_filemap {
 sub add_to_filemap ( $redis_cfg, $file ) {
 
     my $redis_arc = LANraragi::Model::Config->get_redis;
-    if ( is_archive($file) ) {
+    my $is_dir    = -d $file;
+
+    if ( is_archive($file) || $is_dir ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
 
-        #Freshly created files might not be complete yet.
-        #We have to wait before doing any form of calculation.
-        while (1) {
-            last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
-            last if open_path( my $handle, '<', $file );
-            $logger->debug("Waiting for file to be openable");
-            sleep(1);
+        unless ($is_dir) {
+            #Freshly created files might not be complete yet.
+            #We have to wait before doing any form of calculation.
+            while (1) {
+                last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
+                last if open_path( my $handle, '<', $file );
+                $logger->debug("Waiting for file to be openable");
+                sleep(1);
+            }
+
+            # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller
+            my $cnt = 0;
+            while (1) {
+                last if ( ( ( -s $file ) >= 512000 ) || $cnt >= 5 );
+                $logger->debug("Waiting for file to be fully written");
+                sleep(1);
+                $cnt++;
+            }
         }
 
-        # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller
-        my $cnt = 0;
-        while (1) {
-            last if ( ( ( -s $file ) >= 512000 ) || $cnt >= 5 );
-            $logger->debug("Waiting for file to be fully written");
-            sleep(1);
-            $cnt++;
-        }
-
-        #Compute the ID of the archive and add it to the hash
+        #Compute the ID of the archive/folder and add it to the hash
         my $id = "";
         eval { $id = compute_id($file); };
         my $compute_error = $@;
 
         if ($compute_error && -e $file) {
-            $logger->error("Couldn't open $file for ID computation: $compute_error");
+            $logger->error("Couldn't compute ID for $file: $compute_error");
             $logger->error("Giving up on adding it to the filemap.");
             return;
         } elsif ($compute_error) {
-            $logger->warn("File $file no longer exists; giving up on adding it to the filemap.");
+            $logger->warn("$file no longer exists; giving up on adding it to the filemap.");
             return;
         }
 
@@ -227,7 +237,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         );
 
         if ( !$acquired ) {
-            $logger->warn("Write lock already acquired for archive $file with ID $id, skipping.");
+            $logger->warn("Write lock already acquired for $file with ID $id, skipping.");
         }
 
         # New file handling runs outside the lock so auto-plugin can acquire its own lock.
@@ -237,7 +247,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         }
 
     } else {
-        $logger->debug("$file not recognized as archive, skipping.");
+        $logger->debug("$file not recognized as archive or content folder, skipping.");
     }
     $redis_arc->quit;
 }
@@ -289,7 +299,12 @@ sub update_filemap_entry ( $logger, $id, $file, $redis_cfg, $redis_arc ) {
             $logger->debug("File name discrepancy detected between DB and filesystem!");
             $logger->debug("Filesystem: $file");
             $logger->debug("Database: $filecheck");
-            my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+            my $name;
+            if ( -d $file ) {
+                $name = File::Basename::basename($file);
+            } else {
+                ( $name, undef, undef ) = fileparse( $file, qr/\.[^.]*/ );
+            }
             $redis_arc->hset( $id, "file", $file );
             $redis_arc->hset( $id, "name", redis_encode($name) );
             $redis_arc->wait_all_responses;
@@ -321,16 +336,30 @@ sub update_filemap_entry ( $logger, $id, $file, $redis_cfg, $redis_arc ) {
 sub new_file_callback ($name) {
 
     $logger->debug("New file detected: $name");
-    unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis_config;
+    if ( -d $name ) {
+        return;
+    }
+
+    my $redis = LANraragi::Model::Config->get_redis_config;
+
+    if ( is_archive($name) ) {
         eval { add_to_filemap( $redis, $name ); };
-        $redis->quit();
-
         if ($@) {
-            $logger->error("Error while handling new file: $@");
+            $logger->error("Error while handling new archive: $@");
+        }
+    } elsif ( is_image($name) ) {
+        my $parent = File::Basename::dirname($name);
+        if ( is_content_folder($parent) ) {
+            $logger->debug("Image added to content folder $parent, processing folder.");
+            eval { add_to_filemap( $redis, $parent ); };
+            if ($@) {
+                $logger->error("Error while handling content folder: $@");
+            }
         }
     }
+
+    $redis->quit();
 }
 
 # Deleted files are simply dropped from the filemap.
@@ -338,17 +367,15 @@ sub new_file_callback ($name) {
 sub deleted_file_callback ($name) {
 
     $logger->info("$name was deleted from the content folder!");
-    unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis_config;
+    my $redis = LANraragi::Model::Config->get_redis_config;
 
-        # Prune file from filemap
-        $redis->hdel( "LRR_FILEMAP", $name );
+    # Prune the path from filemap (works for both files and directories)
+    $redis->hdel( "LRR_FILEMAP", $name );
 
-        eval { invalidate_cache(); };
+    eval { invalidate_cache(); };
 
-        $redis->quit();
-    }
+    $redis->quit();
 }
 
 sub add_new_files (@files) {

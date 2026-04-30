@@ -104,6 +104,11 @@ sub serve_file {
 
     my $file = get_archive_path( $redis, $id );
     $redis->quit();
+
+    if ( -d $file ) {
+        return render_api_response( $self, "serve_file", "Cannot download a folder-based archive as a single file." );
+    }
+
     $self->render_file( filepath => compat_path($file), filename => basename($file) );
 }
 

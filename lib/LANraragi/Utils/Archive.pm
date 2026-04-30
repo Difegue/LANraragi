@@ -29,7 +29,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
-use LANraragi::Utils::Path       qw(get_archive_path);
+use LANraragi::Utils::Path       qw(get_archive_path find_path create_path);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
@@ -153,14 +153,30 @@ sub expand {
     return lc($file);
 }
 
-# Returns a list of all the files contained in the given archive with corresponding archive ID.
+# Returns a list of all the files contained in the given archive/directory with corresponding archive ID.
 sub get_filelist ($archive, $arcid) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
     my @files = ();
 
-    if ( is_pdf($archive) ) {
+    if ( -d $archive ) {
+
+        my $basedir = $archive;
+        find_path(
+            sub {
+                $_ = create_path($_);
+                return if -d $_;
+                return unless is_image($_);
+
+                my $rel = $_;
+                $rel =~ s/^\Q$basedir\E[\/\\]?//;
+                push @files, $rel;
+            },
+            $basedir
+        );
+
+    } elsif ( is_pdf($archive) ) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
@@ -282,11 +298,24 @@ sub is_apple_signature_like_path ($path) {
     return 0;
 }
 
-# Uses libarchive::peek to figure out if $archive contains $file.
+# Checks if $archive contains $file. For directories, checks the filesystem directly.
 # Returns the exact in-archive path of the file if it exists, undef otherwise.
 sub is_file_in_archive ( $archive, $wantedname ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
+
+    if ( -d $archive ) {
+        $logger->debug("Checking directory $archive for '$wantedname'");
+        my @filelist = get_filelist( $archive, "" );
+        for my $file (@filelist) {
+            my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+            if ( "$name$suffix" =~ /\Q$wantedname\E$/ ) {
+                $logger->debug("OK!");
+                return $file;
+            }
+        }
+        return;
+    }
 
     if ( is_pdf($archive) ) {
         $logger->debug("$archive is a pdf, no sense looking for specific files");
@@ -342,7 +371,12 @@ sub extract_single_file ( $archive, $filepath ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    # Remove file from $outfile and hand the full directory to make_path
+    if ( -d $archive ) {
+        my $fullpath = "$archive/$filepath";
+        $logger->debug("Reading file directly from directory: $fullpath");
+        return Mojo::File->new($fullpath)->slurp;
+    }
+
     if ( is_pdf($archive) ) {
 
         # For pdfs the filenames are always x.jpg, so we pull the page number from that
@@ -377,13 +411,24 @@ sub extract_single_file ( $archive, $filepath ) {
 }
 
 # Variant for plugins.
-# Extracts the file to a folder in /temp/plugin.
+# Extracts the file to a folder in /temp/plugin. For directories, copies the file instead.
 sub extract_file_from_archive ( $archive, $filename ) {
 
     my $path = get_temp . "/plugin";
     mkdir $path;
 
     my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
+
+    if ( -d $archive ) {
+        my $src = "$archive/$filename";
+        my ( $name, $dir, $suffix ) = fileparse( $filename, qr/\.[^.]*/ );
+        my $destdir = "$tmp/$dir";
+        make_path($destdir);
+        my $dest = "$tmp/$filename";
+        File::Copy::cp( $src, $dest ) or die "Could not copy '$src' to '$dest': $!";
+        return $dest;
+    }
+
     return extract_single_file_to_file( $archive, $filename, $tmp );
 }
 

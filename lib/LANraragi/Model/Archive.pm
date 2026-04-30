@@ -235,14 +235,19 @@ sub serve_thumbnail {
 }
 
 sub get_page_data ( $id, $path ) {
+
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $archive = get_archive_path( $redis, $id );
+    $redis->quit();
+
+    # For directories, read directly from disk without caching
+    if ( -d $archive ) {
+        return extract_single_file( $archive, $path );
+    }
+
     my $cachekey = "page/$id/$path";
     my $content  = fetch($cachekey);
     if ( !defined($content) ) {
-
-        # Extract the file from the parent archive if it doesn't exist
-        my $redis   = LANraragi::Model::Config->get_redis;
-        my $archive = get_archive_path( $redis, $id );
-        $redis->quit();
         $content = extract_single_file( $archive, $path );
         put( $cachekey, $content );
     }
@@ -255,6 +260,18 @@ sub serve_page {
     my $logger = get_logger( "File Serving", "lanraragi" );
 
     $logger->debug("Page /$id/$path was requested");
+
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $archive = get_archive_path( $redis, $id );
+    $redis->quit();
+
+    # For directories without resize, serve the file directly from disk
+    if ( -d $archive && !LANraragi::Model::Config->enable_resize ) {
+        my $fullpath = "$archive/$path";
+        $logger->debug("Serving directory file directly: $fullpath");
+        $self->render_file( filepath => $fullpath, content_disposition => "inline" );
+        return;
+    }
 
     # Apply resizing transformation if set in Settings
     if ( LANraragi::Model::Config->enable_resize ) {
@@ -407,7 +424,12 @@ sub delete_archive ($id) {
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
-        my $status = unlink_path($filename);
+        my $status;
+        if ( -d $filename ) {
+            $status = remove_tree($filename);
+        } else {
+            $status = unlink_path($filename);
+        }
 
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
