@@ -4,7 +4,7 @@
  * @global
  */
 const Index = {};
-Index.selectedCategory = "";
+Index.selectedCategories = new Set();
 Index.awesomplete = {};
 Index.carouselInitialized = false;
 Index.swiper = {};
@@ -299,18 +299,17 @@ Index.toggleOrder = function (e) {
 };
 
 /**
- * Toggles a category filter.
- * Sets the internal selectedCategory variable and changes the button's class.
+ * Toggles a category filter on or off.
  * @param {*} button Button matching the category.
  */
 Index.toggleCategory = function (button) {
-    // Add/remove class to button depending on the state
     const categoryId = button.id;
-    if (Index.selectedCategory === categoryId) {
+
+    if (Index.selectedCategories.has(categoryId)) {
+        Index.selectedCategories.delete(categoryId);
         button.classList.remove("toggled");
-        Index.selectedCategory = "";
     } else {
-        Index.selectedCategory = categoryId;
+        Index.selectedCategories.add(categoryId);
         button.classList.add("toggled");
     }
 
@@ -425,66 +424,81 @@ Index.updateCarousel = function (e) {
 
     $("#reload-carousel").addClass("fa-spin");
 
-    // Hit a different API endpoint depending on the requested localStorage carousel type
-    let endpoint;
-    const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
-    const category = Index.selectedCategory ? `&category=${Index.selectedCategory}` : "";
+    // Build carousel request using the composite search API
+    let carouselBody = IndexTable.buildCompositeBody(-1);
 
     switch (localStorage.carouselType) {
         case "random":
             $("#carousel-icon")[0].classList = "fas fa-random";
             $("#carousel-title").text(I18N.CarouselRandom);
-            endpoint = `/api/search/random?count=15${filter}${category}`;
-
-            // Special categories that imply additional query params
-            if (Index.selectedCategory === "NEW_ONLY") {
-                endpoint += "&newonly=true";
-            } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
-                endpoint += "&untaggedonly=true";
-            }
-
             break;
         case "inbox":
             $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
             $("#carousel-title").text(I18N.NewArchives);
-            endpoint = `/api/search?newonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
+            carouselBody.clauses.forEach(c => { c.newonly = 1; });
+            carouselBody.sortby = "date_added";
+            carouselBody.order = "desc";
             break;
         case "untagged":
             $("#carousel-icon")[0].classList = "fas fa-edit";
             $("#carousel-title").text(I18N.UntaggedArchives);
-            endpoint = `/api/search?untaggedonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
+            carouselBody.clauses.forEach(c => { c.untaggedonly = 1; });
+            carouselBody.sortby = "date_added";
+            carouselBody.order = "desc";
             break;
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
-            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}`;
+            carouselBody.sortby = "lastread";
+            carouselBody.clauses.forEach(c => { c.hidecompleted = 1; });
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
             $("#carousel-title").text("What???");
-            endpoint = `/api/search?${filter}${category}`.replace(/\?$/, "");
             break;
     }
 
+    const isRandom = localStorage.carouselType === "random";
+
     if (Index.carouselInitialized) {
-        Server.callAPI(endpoint, "GET", null, I18N.CarouselError,
-            (results) => {
-                Index.swiper.virtual.removeAllSlides();
-                const slides = results.data
-                    .map((archive) => LRR.buildThumbnailDiv(archive));
-                Index.swiper.virtual.appendSlide(slides);
-                Index.swiper.virtual.update();
-
-                if (results.data.length === 0) {
-                    $("#carousel-empty").show();
+        fetch(new LRR.apiURL("/api/search/composite"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(carouselBody),
+        })
+            .then((response) => {
+                if (response.status === 204) return { data: [] };
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((results) => {
+                if (isRandom && results.data.length > 0) {
+                    for (let i = results.data.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [results.data[i], results.data[j]] = [results.data[j], results.data[i]];
+                    }
+                    results.data = results.data.slice(0, 15);
                 }
-
-                $("#carousel-loading").hide();
-                $(".swiper-wrapper").show();
-                $("#reload-carousel").removeClass("fa-spin");
-            },
-        );
+                Index._updateCarouselSlides(results);
+            })
+            .catch(() => LRR.showErrorToast(I18N.CarouselError));
     }
+};
+
+Index._updateCarouselSlides = function (results) {
+    Index.swiper.virtual.removeAllSlides();
+    const slides = results.data
+        .map((archive) => LRR.buildThumbnailDiv(archive));
+    Index.swiper.virtual.appendSlide(slides);
+    Index.swiper.virtual.update();
+
+    if (results.data.length === 0) {
+        $("#carousel-empty").show();
+    }
+
+    $("#carousel-loading").hide();
+    $(".swiper-wrapper").show();
+    $("#reload-carousel").removeClass("fa-spin");
 };
 
 Index.handleColumnNum = function () {
@@ -850,14 +864,15 @@ Index.loadCategories = function () {
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
             data.sort((a, b) => b.pinned - a.pinned);
-            // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
+            const catClass = (id) => (Index.selectedCategories.has(id) ? "toggled" : "");
+
             let html = `<div style='display:inline-block'>
-                            <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
+                            <input class='favtag-btn ${catClass("NEW_ONLY")}'
+                            type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}'
                             onclick='Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
                         </div><div style='display:inline-block'>
-                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}' 
+                            <input class='favtag-btn ${catClass("UNTAGGED_ONLY")}'
+                            type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}'
                             onclick='Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
                         </div>`;
 
@@ -871,8 +886,8 @@ Index.loadCategories = function () {
                 catName = LRR.encodeHTML(catName);
 
                 const div = `<div style='display:inline-block'>
-                    <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='${category.id}' value='${catName}' 
+                    <input class='favtag-btn ${catClass(category.id)}'
+                            type='button' id='${category.id}' value='${catName}'
                             onclick='Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
 

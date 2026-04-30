@@ -14,10 +14,10 @@ use Sort::Naturally;
 use Cpanel::JSON::XS qw(decode_json);
 use Time::HiRes      qw(time);
 
-use LANraragi::Utils::Generic qw(intersect_arrays);
-use LANraragi::Utils::String  qw(trim);
-use LANraragi::Utils::Redis   qw(redis_decode redis_encode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic  qw(intersect_arrays);
+use LANraragi::Utils::Search   qw(normalize_clauses reduce_clauses compute_search_filter resolve_search_clause);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -26,20 +26,23 @@ use LANraragi::Model::Category;
 # Performs a search on the database.
 sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted ) {
 
-    my $redis  = LANraragi::Model::Config->get_redis_search;
-    my $logger = get_logger( "Search Engine", "lanraragi" );
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my $redis_db = LANraragi::Model::Config->get_redis;
+    my $logger   = get_logger( "Search Engine", "lanraragi" );
 
-    unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
+    unless ( $redis->exists("LAST_JOB_TIME") ) {
         $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
 
         # TODO - This is the only case where the API returns -1, but it's not really handled well clientside at the moment.
+        $redis->quit();
+        $redis_db->quit();
         return ( -1, -1, () );
     }
 
     my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
 
     # Get tank ids count
-    my $tankidscount = scalar( LANraragi::Model::Config->get_redis->keys('TANK_??????????') );
+    my $tankidscount = scalar( $redis_db->keys('TANK_??????????') );
 
     # Total number of archives (as int)
     my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankidscount;
@@ -54,14 +57,33 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
     unless ( $cachehit && $sortkey ne "lastread" ) {
         $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
+
+        # Resolve candidate set based on grouptanks mode
+        my @candidates;
+        if ($grouptanks) {
+            @candidates = $redis->smembers("LRR_TANKGROUPED");
+        } else {
+            @candidates = $redis_db->keys('????????????????????????????????????????');
+        }
+
+        # Convert single category_id to structured format for resolve_search_clause
+        my @categories = ();
+        if ( $category_id && $category_id ne "" ) {
+            push @categories, { id => $category_id, mode => "include" };
+        }
+
+        my @tokens = compute_search_filter( $filter // "" );
+        my $clause = resolve_search_clause( \@tokens, \@categories, \@candidates, $newonly, $untaggedonly, $hidecompleted );
+
         my $keyed_count;
-        ( $keyed_count, @filtered ) =
-          search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted );
+        ( $keyed_count, @filtered ) = do_composite_search_inner( $redis, $redis_db, [$clause], $sortkey, $sortorder );
 
         # Cache this query in the search database, prepending the keyed count for partition-aware cache inversion
         eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze [ $keyed_count, @filtered ] ); };
     }
+
     $redis->quit();
+    $redis_db->quit();
 
     # If start is negative, return all possible data.
     if ( $start == -1 ) {
@@ -74,6 +96,156 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     # Return total keys and the filtered ones
     my $end = min( $start + $keysperpage - 1, $#filtered );
     return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
+}
+
+# do_composite_search (clause_descriptors, start, sortkey, sortorder, grouptanks)
+# Performs a composite search: each clause descriptor is resolved into an AND conjunction,
+# then multiple clauses are OR-unioned. Superset of do_search.
+#
+# Sort and pagination are global, applied after the OR union across all clauses.
+# No caching for composite queries.
+#
+# Parameters:
+#   $clause_descriptors - arrayref of descriptor hashrefs, each containing:
+#                           filter       => search filter string
+#                           categories   => arrayref of { id, mode } hashrefs
+#                           newonly      => 1 = only, -1 = exclude, 0 = off
+#                           untaggedonly => 1 = only, -1 = exclude, 0 = off
+#   $start      - pagination offset (-1 for all results)
+#   $sortkey    - sort field: "title", "lastread", or a tag namespace
+#   $sortorder  - 0 = ascending, 1 = descending
+#   $grouptanks - 0|1, determines candidate pool
+#
+# Returns: ($total, $filtered_count, @page_of_ids)
+sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $grouptanks ) {
+
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my $redis_db = LANraragi::Model::Config->get_redis;
+    my $logger   = get_logger( "Search Engine", "lanraragi" );
+
+    unless ( $redis->exists("LAST_JOB_TIME") ) {
+        $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
+        $redis->quit();
+        $redis_db->quit();
+        return ( -1, -1, () );
+    }
+
+    # Normalize once, reduce via DNF absorption, then resolve.
+    my $normed = normalize_clauses($clause_descriptors);
+    $normed = reduce_clauses($normed);
+
+    my $tankcount    = $redis->scard("LRR_TANKGROUPED") + 0;
+    my $tankidscount = scalar( $redis_db->keys('TANK_??????????') );
+    my $total        = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankidscount;
+
+    # Resolve base candidates from grouptanks mode
+    my @base_candidates;
+    if ($grouptanks) {
+        @base_candidates = $redis->smembers("LRR_TANKGROUPED");
+    } else {
+        @base_candidates = $redis_db->keys('????????????????????????????????????????');
+    }
+
+    # Resolve each normalized clause
+    my @clauses;
+    foreach my $n (@$normed) {
+        push @clauses, resolve_search_clause(
+            $n->{raw_tokens},
+            $n->{raw_categories},
+            \@base_candidates,
+            $n->{newonly},
+            $n->{untaggedonly},
+            $n->{hidecompleted},
+        );
+    }
+
+    my ( $keyed_count, @filtered ) = do_composite_search_inner( $redis, $redis_db, \@clauses, $sortkey, $sortorder );
+
+    $redis->quit();
+    $redis_db->quit();
+
+    # If start is negative, return all possible data.
+    if ( $start == -1 ) {
+        return ( $total, $#filtered + 1, @filtered );
+    }
+
+    # Only get the first X keys
+    my $keysperpage = LANraragi::Model::Config->get_pagesize;
+
+    my $end = min( $start + $keysperpage - 1, $#filtered );
+    return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
+}
+
+# do_composite_search_inner (redis, redis_db, clauses, sortkey, sortorder)
+# Core composite search logic. Runs search_core per clause, unions results, sorts globally.
+# Accepts Redis connections from the caller.
+#
+# For a single clause, delegates directly to search_core (no overhead).
+# For multiple clauses, runs search_core per clause, deduplicates the union, and re-sorts globally.
+#
+# Parameters:
+#   $redis      - Redis connection for search database
+#   $redis_db   - Redis connection for main database
+#   $clauses    - arrayref of clause hashrefs (see do_composite_search)
+#   $sortkey    - sort field
+#   $sortorder  - 0 = ascending, 1 = descending
+#
+# Returns: ($keyed_count, @sorted_ids)
+sub do_composite_search_inner ( $redis, $redis_db, $clauses, $sortkey, $sortorder ) {
+
+    # Single clause: delegate directly to search_core
+    if ( scalar @$clauses == 1 ) {
+        my $clause = $clauses->[0];
+        return search_core(
+            $redis, $redis_db,
+            $clause->{candidate_ids}, $clause->{tokens},
+            $sortkey, $sortorder,
+            $clause->{newonly}, $clause->{untaggedonly},
+            $clause->{hidecompleted}
+        );
+    }
+
+    # Multi-clause: run search_core per clause, union, re-sort globally
+    my %seen;
+    my @union;
+
+    foreach my $clause (@$clauses) {
+        my ( $kc, @results ) = search_core(
+            $redis, $redis_db,
+            $clause->{candidate_ids}, $clause->{tokens},
+            undef, $sortorder,
+            $clause->{newonly}, $clause->{untaggedonly},
+            $clause->{hidecompleted}
+        );
+
+        # Deduplicate: preserve first occurrence across clauses
+        foreach my $id (@results) {
+            unless ( $seen{$id}++ ) {
+                push @union, $id;
+            }
+        }
+    }
+
+    # Re-sort the union globally
+    if ( scalar @union > 0 ) {
+        if ( !$sortkey ) {
+            $sortkey = "title";
+        }
+
+        if ( $sortkey eq "title" ) {
+            my @ordered = nsort( $redis->zrangebylex( "LRR_TITLES", "-", "+" ) );
+            if ($sortorder) {
+                @ordered = reverse(@ordered);
+            }
+            @ordered = map { substr( $_, index( $_, "\x00" ) + 1 ) } @ordered;
+            @union = intersect_arrays( \@union, \@ordered, 0 );
+            return ( -1, @union );
+        } else {
+            return sort_results( $sortkey, $sortorder, @union );
+        }
+    }
+
+    return ( -1, @union );
 }
 
 sub check_cache ( $cachekey, $cachekey_inv ) {
@@ -114,54 +286,47 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
     return ( $cachehit, @filtered );
 }
 
-# Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted ) {
+# search_core (redis, redis_db, candidate_ids, tokens, sortkey, sortorder, newonly, untaggedonly, hidecompleted)
+# Core search function operating on a pre-resolved candidate set.
+# No category or grouptanks awareness — the caller resolves those into candidate_ids and tokens.
+#
+# Parameters:
+#   $redis         - Redis connection for search database (indexes, titles, cache)
+#   $redis_db      - Redis connection for main database (archive data)
+#   $candidate_ids - arrayref of IDs to search within (archive and/or tank IDs)
+#   $tokens        - arrayref of token hashrefs from compute_search_filter, each { tag, isneg, isexact }
+#   $sortkey       - sort field: "title", "lastread", or a tag namespace; undef to skip sorting
+#   $sortorder     - 0 = ascending, 1 = descending
+#   $newonly        - tri-state: 1 = only new, -1 = exclude new, 0 = off
+#   $untaggedonly   - tri-state: 1 = only untagged, -1 = exclude untagged, 0 = off
+#   $hidecompleted - boolean: 1 = hide archives with progress/pagecount > 0.85
+#
+# Returns: ($keyed_count, @sorted_ids)
+#   $keyed_count  - number of IDs possessing the sort key (-1 for title sort)
+#   @sorted_ids   - filtered and sorted ID list
+sub search_core ( $redis, $redis_db, $candidate_ids, $tokens, $sortkey, $sortorder, $newonly, $untaggedonly, $hidecompleted ) {
 
-    my $redis    = LANraragi::Model::Config->get_redis_search;
-    my $redis_db = LANraragi::Model::Config->get_redis;
-    my $logger   = get_logger( "Search Core", "lanraragi" );
+    my $logger = get_logger( "Search Core", "lanraragi" );
 
-    # Compute search filters
-    my @tokens = compute_search_filter($filter);
+    my @filtered = @$candidate_ids;
 
-    # Prepare array: For each token, we'll have a list of matching archive IDs.
-    # We intersect those lists as we proceed to get the final result.
-    my @filtered;
-    if ($grouptanks) {
-
-        # Start with our tank IDs, and all other archive IDs that aren't in tanks
-        @filtered = $redis->smembers("LRR_TANKGROUPED");
-    } else {
-
-        # Start with all our archive IDs. Tank IDs won't be present in this search.
-        @filtered = $redis_db->keys('????????????????????????????????????????');
+    # Empty candidate set: no results possible
+    if ( scalar @filtered == 0 ) {
+        return ( -1, () );
     }
 
-    # If we're using a category, we'll need to get its source data first.
-    my %category = LANraragi::Model::Category::get_category($category_id);
-
-    if (%category) {
-
-        # If the category is dynamic, get its search predicate and add it to the tokens.
-        # If it's static however, we can use its ID list as the base for our result array.
-        if ( $category{search} ne "" ) {
-            my @cat_tokens = compute_search_filter( $category{search} );
-            push @tokens, @cat_tokens;
-        } else {
-            @filtered = intersect_arrays( $category{archives}, \@filtered, 0 );
-        }
-    }
-
-    # If the untagged filter is enabled, call the untagged files API
+    # Untagged filter: 1 = only untagged, -1 = only tagged
     if ($untaggedonly) {
         my @untagged = $redis->smembers("LRR_UNTAGGED");
-        @filtered = intersect_arrays( \@untagged, \@filtered, 0 );
+        my $isneg = ( $untaggedonly == -1 ) ? 1 : 0;
+        @filtered = intersect_arrays( \@untagged, \@filtered, $isneg );
     }
 
-    # Check new filter
-    if ($newonly) {
+    # New filter: 1 = only new, -1 = only non-new
+    if ( $newonly && scalar @filtered > 0 ) {
         my @new = $redis->smembers("LRR_NEW");
-        @filtered = intersect_arrays( \@new, \@filtered, 0 );
+        my $isneg = ( $newonly == -1 ) ? 1 : 0;
+        @filtered = intersect_arrays( \@new, \@filtered, $isneg );
     }
 
     # Hide completed archives (Consider an archive read if progress is past 85 % of total)
@@ -218,8 +383,8 @@ LUA
     }
 
     # Iterate through each token and intersect the results with the previous ones.
-    unless ( scalar @tokens == 0 || scalar @filtered == 0 ) {
-        foreach my $token (@tokens) {
+    unless ( scalar @$tokens == 0 || scalar @filtered == 0 ) {
+        foreach my $token (@$tokens) {
 
             my $tag     = $token->{tag};
             my $isneg   = $token->{isneg};
@@ -341,6 +506,11 @@ LUA
     if ( scalar @filtered > 0 ) {
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
+        # undef sortkey: skip sorting (used by multi-clause path which re-sorts globally)
+        unless ( defined $sortkey ) {
+            return ( -1, @filtered );
+        }
+
         if ( !$sortkey ) {
             $sortkey = "title";
         }
@@ -367,107 +537,12 @@ LUA
             my $keyed_count;
             ( $keyed_count, @filtered ) = sort_results( $sortkey, $sortorder, @filtered );
 
-            $redis->quit();
-            $redis_db->quit();
             return ( $keyed_count, @filtered );
         }
     }
 
-    $redis->quit();
-    $redis_db->quit();
-
     # Title sort and unfiltered results: all archives are keyed
     return ( -1, @filtered );
-}
-
-# Transform the search engine syntax into a list of tokens.
-# A token object contains the tag, whether it must be an exact match, and whether it must be absent.
-sub compute_search_filter ($filter) {
-
-    my $logger = get_logger( "Search Core", "lanraragi" );
-    my @tokens = ();
-    if ( !$filter ) { $filter = ""; }
-
-    # Special characters:
-    # "" for exact search (or $, but is that one really useful now?)
-    # ?/_ for any character
-    # * % for multiple characters
-    # - to exclude the next tag
-
-    $b = reverse($filter);
-    while ( $b ne "" ) {
-
-        my $char  = chop $b;
-        my $isneg = 0;
-
-        # Skip spaces
-        while ( $char eq " " && $b ne "" ) {
-            $char = chop $b;
-        }
-
-        if ( $char eq "-" ) {
-            $isneg = 1;
-            $char  = chop $b;
-        }
-
-        # Get characters until the next comma, or the next " if the following char is "
-        my $delimiter = ',';
-        if ( $char eq '"' ) {
-            $delimiter = '"';
-            $char      = chop $b;
-        }
-
-        my $tag     = "";
-        my $isexact = 0;
-      TAGBUILD: while (1) {
-            if ( $char eq $delimiter || $char eq "" ) { last TAGBUILD; }
-            $tag  = $tag . $char;    # Add characters in reverse order since we used reverse earlier on
-            $char = chop $b;
-        }
-
-        #If last char is $ or delimiter was ", enable isexact
-        if ( $delimiter eq '"' ) {
-            $isexact = 1;
-
-            # Quotes then $ is an accepted syntax, even though it does nothing
-            $char = chop $b;
-            unless ( $char eq "\$" ) {
-                $b = $b . $char;
-            }
-        } else {
-            $char = chop $tag;
-            if ( $char eq "\$" ) {
-                $isexact = 1;
-            } else {
-                $tag = $tag . $char;
-            }
-        }
-
-        # Escape already present regex characters
-        $logger->debug("Pre-escaped tag: $tag");
-
-        $tag = trim($tag);
-
-        # Escape characters according to redis zscan rules
-        $tag =~ s/([\[\]\^\\])/\\$1/g;
-
-        # Replace placeholders with glob-style patterns,
-        # ? or _ => ?
-        $tag =~ s/\_/\?/g;
-
-        # * or % => *
-        $tag =~ s/\%/\*/g;
-
-        if ( $tag ne "" ) {    # Blank tokens shouldn't be added as theyll slow down search
-            push @tokens,
-              { tag     => lc($tag),
-                isneg   => $isneg,
-                isexact => $isexact
-              };
-        }
-
-    }
-    return @tokens;
 }
 
 sub sort_results ( $sortkey, $sortorder, @filtered ) {
@@ -480,6 +555,7 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
 
     # Should there be no IDs requiring sorting, return an empty array directly
     if ( scalar @filtered == 0 ) {
+        $redis->quit();
         return ( 0, @sorted );
     }
 
@@ -599,6 +675,7 @@ LUA
 
         my $total_time = time() - $start_time;
         $logger->debug("[PERF] sort_results completed in ${total_time}s");
+        $redis->quit();
         return ( scalar @keyed_ids, @sorted );
     }
 
@@ -609,6 +686,7 @@ LUA
     $logger->debug("[PERF] sort_results completed in ${total_time}s");
 
     # lastread: all returned archives are keyed (nil timestamps filtered out)
+    $redis->quit();
     return ( -1, @sorted );
 }
 

@@ -103,6 +103,36 @@ sub handle_api {
     }
 }
 
+# Composite search API with multi-clause OR support.
+sub handle_composite {
+
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+
+    my $clauses_raw = $body->{clauses};
+    my $start       = $body->{start}    // 0;
+    my $sortkey     = $body->{sortby};
+    my $sortorder   = ( $body->{order} && $body->{order} eq 'desc' ) ? 1 : 0;
+    my $grouptanks  = $body->{groupby_tanks} // 1;
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_composite_search(
+        $clauses_raw, $start, $sortkey, $sortorder, $grouptanks ? 1 : 0
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+        $self->render(
+            openapi => {
+                recordsTotal    => 0,
+                recordsFiltered => 0,
+                data            => []
+            },
+            status => 204
+        );
+    } else {
+        $self->render( openapi => get_api_object( $total, $filtered, @ids ) );
+    }
+}
+
 sub clear_cache {
     invalidate_cache();
     render_api_response( shift, "clear_cache" );
