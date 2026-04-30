@@ -15,7 +15,7 @@ IndexTable.currentSearch = "";
 IndexTable.initializeAll = function () {
     // Bind events to DOM
     $(document).on("click.apply-search", "#apply-search", () => { IndexTable.currentSearch = $("#search-input").val(); IndexTable.doSearch(); });
-    $(document).on("click.clear-search", "#clear-search", () => { IndexTable.currentSearch = ""; IndexTable.doSearch(); });
+    $(document).on("click.clear-search", "#clear-search", IndexTable.clearSearch);
     $(document).on("keyup.search-input", "#search-input", (e) => {
         if (e.defaultPrevented) {
             return;
@@ -70,10 +70,7 @@ IndexTable.initializeAll = function () {
     IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
         processing: true,
-        ajax: {
-            url: "search",
-            cache: true,
-        },
+        ajax: IndexTable.compositeAjax,
         deferRender: true,
         lengthChange: false,
         pageLength: Index.pageSize,
@@ -97,24 +94,17 @@ IndexTable.initializeAll = function () {
 
 /**
  * Looks at the active filters and performs a search using DataTables' API.
- * (which is hooked back to the internal Search API)
- * If you specify a page argument, the search will load the given page.
+ * Builds a composite search request from filter clauses and selected categories.
  * @param {*} page Page to load
  */
 IndexTable.doSearch = function (page) {
-    // Add the selected category to the tags column so it's picked up by the search engine
-    // This allows for the regular search bar to be used in conjunction with categories.
-    IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
-
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
-    IndexTable.dataTable.search(IndexTable.currentSearch);
 
     // Add the current search terms to the title tab
     document.title = IndexTable.originalTitle + ((IndexTable.currentSearch !== "") ? ` - ${IndexTable.currentSearch}` : "");
 
     if (page) {
-        // Hack the displayStart value to draw at the page we asked
         const customDisplayStart = page * IndexTable.dataTable.settings()[0]._iDisplayLength;
         IndexTable.dataTable.settings()[0].iInitDisplayStart = customDisplayStart;
     } else {
@@ -127,6 +117,80 @@ IndexTable.doSearch = function (page) {
 
     // Re-load carousel
     Index.updateCarousel();
+};
+
+/**
+ * Clears all search state: current search text, filter clauses, and triggers a new search.
+ */
+IndexTable.clearSearch = function () {
+    IndexTable.currentSearch = "";
+    IndexTable.doSearch();
+};
+
+/**
+ * Builds the composite search request body from current UI state.
+ * @param {number} start Pagination offset (-1 for all results)
+ * @returns {object} Composite search request body
+ */
+IndexTable.buildCompositeBody = function (start) {
+    // Build categories array from selected categories set
+    const categories = [];
+    for (const catId of Index.selectedCategories) {
+        if (catId === "NEW_ONLY" || catId === "UNTAGGED_ONLY") continue;
+        categories.push({ id: catId, mode: "include" });
+    }
+
+    const newonly = Index.selectedCategories.has("NEW_ONLY") ? 1 : 0;
+    const untaggedonly = Index.selectedCategories.has("UNTAGGED_ONLY") ? 1 : 0;
+
+    const clauses = [{ filter: IndexTable.currentSearch.trim(), categories, newonly, untaggedonly }];
+
+    return {
+        clauses,
+        start: start !== undefined ? start : 0,
+        sortby: "title",
+        order: "asc",
+        groupby_tanks: true,
+    };
+};
+
+/**
+ * Custom DataTables ajax function that POSTs to /api/search/composite.
+ * @param {object} data DataTables request data (contains draw, start, length, order, etc.)
+ * @param {function} callback DataTables callback to provide response data
+ * @param {object} settings DataTables settings object
+ */
+IndexTable.compositeAjax = function (data, callback, settings) {
+    const body = IndexTable.buildCompositeBody(data.start);
+
+    // Override sort from DataTables' own request data for reliable initialization
+    if (data.order && data.order.length > 0) {
+        const colIdx = data.order[0].column;
+        body.order = data.order[0].dir;
+        if (colIdx === 0) {
+            body.sortby = "title";
+        } else if (colIdx >= 1 && colIdx <= Index.getColumnCount()) {
+            body.sortby = localStorage.getItem(`customColumn${colIdx}`) || "title";
+        }
+    }
+
+    fetch(new LRR.apiURL("/api/search/composite"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    })
+        .then((response) => (response.ok && response.status !== 204) ? response.json() : { recordsTotal: 0, recordsFiltered: 0, data: [] })
+        .then((result) => {
+            callback({
+                draw: data.draw,
+                recordsTotal: result.recordsTotal,
+                recordsFiltered: result.recordsFiltered,
+                data: result.data,
+            });
+        })
+        .catch(() => {
+            callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
+        });
 };
 
 // #region Compact View
@@ -313,20 +377,22 @@ IndexTable.drawCallback = function () {
 };
 
 IndexTable.buildURLParameters = function () {
-    const cat = IndexTable.dataTable.column(".tags.itd").search();
     const page = IndexTable.dataTable.page.info().page + 1;
     const sortby = IndexTable.dataTable.order()[0][0];
     const sortorder = IndexTable.dataTable.order()[0][1];
 
-    const encodedSearch = encodeURIComponent(IndexTable.dataTable.search());
-
-    // Check each parameter and append them to the URL if they exist
     let params = "?";
     if (page !== 1) params += `p=${page}&`;
     if (sortby !== 0) params += `sort=${sortby}&`;
     if (sortorder !== "asc") params += `sortdir=${sortorder}&`;
-    if (encodedSearch !== "") params += `q=${encodedSearch}&`;
-    if (cat !== "") params += `c=${cat}&`;
+
+    // Current search input
+    if (IndexTable.currentSearch) params += `q=${encodeURIComponent(IndexTable.currentSearch)}&`;
+
+    // Categories
+    for (const catId of Index.selectedCategories) {
+        params += `c=${encodeURIComponent(catId)}&`;
+    }
 
     return params;
 };
@@ -334,8 +400,11 @@ IndexTable.buildURLParameters = function () {
 IndexTable.consumeURLParameters = function () {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.has("c")) Index.selectedCategory = params.get("c");
-    else Index.selectedCategory = "";
+    // Categories
+    Index.selectedCategories = new Set();
+    for (const entry of params.getAll("c")) {
+        Index.selectedCategories.add(entry);
+    }
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
