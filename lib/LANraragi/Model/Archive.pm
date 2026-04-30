@@ -9,6 +9,7 @@ use utf8;
 
 use Cwd 'abs_path';
 use Redis;
+use Encode;
 use Mojo::JSON  qw(decode_json encode_json);
 use Time::HiRes qw(usleep);
 use File::Path  qw(remove_tree);
@@ -267,7 +268,10 @@ sub serve_page {
 
     # For directories without resize, serve the file directly from disk
     if ( -d $archive && !LANraragi::Model::Config->enable_resize ) {
-        my $fullpath = "$archive/$path";
+        # $path is a Perl internal UTF-8 string from URL decoding;
+        # encode back to raw bytes to match filesystem encoding of $archive.
+        my $path_bytes = Encode::is_utf8($path) ? encode_utf8($path) : $path;
+        my $fullpath = "$archive/$path_bytes";
         $logger->debug("Serving directory file directly: $fullpath");
         $self->render_file( filepath => $fullpath, content_disposition => "inline" );
         return;

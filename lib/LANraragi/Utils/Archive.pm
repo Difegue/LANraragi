@@ -372,7 +372,10 @@ sub extract_single_file ( $archive, $filepath ) {
     my $logger = get_logger( "Archive", "lanraragi" );
 
     if ( -d $archive ) {
-        my $fullpath = "$archive/$filepath";
+        # $filepath may be a Perl internal UTF-8 string (from URL decoding);
+        # encode back to raw bytes to match the filesystem encoding of $archive.
+        my $fp_bytes = Encode::is_utf8($filepath) ? encode_utf8($filepath) : $filepath;
+        my $fullpath = "$archive/$fp_bytes";
         $logger->debug("Reading file directly from directory: $fullpath");
         return Mojo::File->new($fullpath)->slurp;
     }
@@ -420,11 +423,12 @@ sub extract_file_from_archive ( $archive, $filename ) {
     my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
 
     if ( -d $archive ) {
-        my $src = "$archive/$filename";
-        my ( $name, $dir, $suffix ) = fileparse( $filename, qr/\.[^.]*/ );
+        my $fn_bytes = Encode::is_utf8($filename) ? encode_utf8($filename) : $filename;
+        my $src = "$archive/$fn_bytes";
+        my ( $name, $dir, $suffix ) = fileparse( $fn_bytes, qr/\.[^.]*/ );
         my $destdir = "$tmp/$dir";
         make_path($destdir);
-        my $dest = "$tmp/$filename";
+        my $dest = "$tmp/$fn_bytes";
         File::Copy::cp( $src, $dest ) or die "Could not copy '$src' to '$dest': $!";
         return $dest;
     }
