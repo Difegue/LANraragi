@@ -14,6 +14,7 @@ use Data::Dumper;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
+use LANraragi::Utils::Search;
 
 # Mock Redis
 my $cwd = getcwd;
@@ -213,6 +214,335 @@ my %expected_unkeyed = map { $_ => 1 } (
     # Unkeyed partition still at back
     is_deeply( { map { $_ => 1 } @ids[4..12] }, \%expected_unkeyed,
         'Artist desc should keep all unkeyed archives at positions 5-13' );
+}
+
+# ── Composite search tests ──────────────────────────────────────────────────
+# Tests call do_composite_search_inner directly with pre-resolved clauses.
+# The mock redis is the same object for both $redis and $redis_db.
+
+my $redis_search = LANraragi::Model::Config->get_redis_search;
+my $redis_db     = LANraragi::Model::Config->get_redis;
+
+# All 9 archive IDs (non-grouptanks candidate set)
+my @all_archive_ids = $redis_db->keys('????????????????????????????????????????');
+
+note('testing composite search: single-clause equivalence...');
+{
+    # Single clause matching do_search("artist:wada rco", "", 0, 0, 0, 0, 0, 0)
+    my @tokens = LANraragi::Utils::Search::compute_search_filter("artist:wada rco");
+    my $clause = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc_composite, @composite_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    my ( $total_ds, $filtered_ds, @ds_ids ) =
+        LANraragi::Model::Search::do_search( "artist:wada rco", "", -1, 0, 0, 0, 0, 0, 0 );
+
+    is( scalar @composite_ids, $filtered_ds,
+        'Single-clause composite should match do_search result count' );
+    is_deeply( \@composite_ids, \@ds_ids,
+        'Single-clause composite should produce identical ID list to do_search' );
+}
+
+note('testing composite search: OR union of disjoint sets...');
+{
+    my @tokens_a = LANraragi::Utils::Search::compute_search_filter("artist:wada rco");
+    my @tokens_b = LANraragi::Utils::Search::compute_search_filter("artist:shirow masamune");
+
+    my $clause_a = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_a,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+    my $clause_b = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_b,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @union_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause_a, $clause_b], 0, 0 );
+
+    # wada rco: ...1eb3, ...22fd; shirow masamune: ...8630
+    is( scalar @union_ids, 3, 'Disjoint OR union should contain 3 results' );
+
+    my %union_set = map { $_ => 1 } @union_ids;
+    ok( $union_set{"2810d5e0a8d027ecefebca6237031a0fa7b91eb3"}, 'OR union contains wada rco archive (Fate GO MEMO 2)' );
+    ok( $union_set{"28697b96f0ac5858be2614ed10ca47742c9522fd"}, 'OR union contains wada rco archive (Fate GO MEMO)' );
+    ok( $union_set{"4857fd2e7c00db8b0af0337b94055d8445118630"}, 'OR union contains shirow masamune archive' );
+}
+
+note('testing composite search: OR union with deduplication...');
+{
+    # character:segata (fuzzy) matches ...ebf, ...ebg (+ title hits)
+    # male:very cool (fuzzy) matches ...ebf, ...22fd (+ title hits)
+    # ...ebf overlaps
+    my @tokens_a = LANraragi::Utils::Search::compute_search_filter("character:segata");
+    my @tokens_b = LANraragi::Utils::Search::compute_search_filter("male:very cool");
+
+    my $clause_a = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_a,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+    my $clause_b = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_b,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @union_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause_a, $clause_b], 0, 0 );
+
+    # Count occurrences of each ID to verify no duplicates
+    my %id_counts;
+    $id_counts{$_}++ for @union_ids;
+    my @dupes = grep { $id_counts{$_} > 1 } keys %id_counts;
+    is( scalar @dupes, 0, 'OR union should contain no duplicate IDs' );
+
+    # ...ebf must be present (it's in both clauses)
+    ok( $id_counts{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"},
+        'Overlapping archive appears exactly once in union' );
+}
+
+note('testing composite search: multi-category AND simulation...');
+{
+    # Simulate: static "Segata Sanshiro" AND dynamic "AMERICA ONRY"
+    # Static category provides candidate_ids = [...ebf, ...ebg]
+    # Dynamic category provides tokens = compute_search_filter("American")
+    my @static_ids = (
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+    );
+    my @tokens = LANraragi::Utils::Search::compute_search_filter("American");
+
+    my $clause = {
+        candidate_ids => \@static_ids,
+        tokens        => \@tokens,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    is( scalar @result_ids, 1, 'Multi-category AND should return 1 result' );
+    is( $result_ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+        'Multi-category AND should return Saturn US Manual' );
+}
+
+note('testing composite search: category NOT simulation...');
+{
+    # Exclude static "Segata Sanshiro" archives from candidate set
+    my %excluded = map { $_ => 1 } (
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+    );
+    my @candidates = grep { !$excluded{$_} } @all_archive_ids;
+    my @tokens = ();
+
+    my $clause = {
+        candidate_ids => \@candidates,
+        tokens        => \@tokens,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    is_deeply( [sort @result_ids], [sort grep { !$excluded{$_} } @all_archive_ids],
+        'Category NOT should return all archives except excluded' );
+}
+
+note('testing composite search: per-clause newonly OR untaggedonly...');
+{
+    # Clause A: newonly=1 → ...5f7e (Rohan) and ...955555 (All about Egypt), both isnew=true
+    # Clause B: untaggedonly=1 → ...8630 (Ghost in the Shell), ...5f7e (Rohan)
+    # Union should contain all three, with ...5f7e deduplicated
+    my $clause_a = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => 1,
+        untaggedonly   => 0,
+    };
+    my $clause_b = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => 0,
+        untaggedonly   => 1,
+    };
+
+    my ( $kc, @union_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause_a, $clause_b], 0, 0 );
+
+    is_deeply( [sort @union_ids],
+        [sort ("e4c422fd10943dc169e3489a38cdbf57101a5f7e", "28697b96f0ac5858be2666ed10ca47742c955555", "4857fd2e7c00db8b0af0337b94055d8445118630")],
+        'newonly OR untaggedonly should return both new archives and Ghost in the Shell' );
+}
+
+note('testing composite search: empty clause does not poison union...');
+{
+    # Clause A: nonexistent tag → 0 results
+    # Clause B: artist:wada rco → 2 results
+    my @tokens_a = LANraragi::Utils::Search::compute_search_filter("nonexistent_tag_xyz_12345");
+    my @tokens_b = LANraragi::Utils::Search::compute_search_filter("artist:wada rco");
+
+    my $clause_a = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_a,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+    my $clause_b = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => \@tokens_b,
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @union_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause_a, $clause_b], 0, 0 );
+
+    is( scalar @union_ids, 2, 'Empty clause should not affect non-empty clause results' );
+}
+
+note('testing tri-state newonly: exclude new archives...');
+{
+    my $clause = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => -1,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    is_deeply( [sort @result_ids],
+        [sort grep { $_ ne "e4c422fd10943dc169e3489a38cdbf57101a5f7e" && $_ ne "28697b96f0ac5858be2666ed10ca47742c955555" } @all_archive_ids],
+        'Exclude new should return all archives except the two new ones' );
+}
+
+note('testing tri-state untaggedonly: exclude untagged archives...');
+{
+    my $clause = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => 0,
+        untaggedonly   => -1,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    my @expected = sort grep { $_ ne "4857fd2e7c00db8b0af0337b94055d8445118630" && $_ ne "e4c422fd10943dc169e3489a38cdbf57101a5f7e" } @all_archive_ids;
+    is_deeply( [sort @result_ids], \@expected,
+        'Exclude untagged should return only tagged archives' );
+}
+
+note('testing tri-state combined: tagged AND non-new...');
+{
+    my $clause = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => -1,
+        untaggedonly   => -1,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    my @expected = sort grep {
+        $_ ne "4857fd2e7c00db8b0af0337b94055d8445118630"
+          && $_ ne "e4c422fd10943dc169e3489a38cdbf57101a5f7e"
+          && $_ ne "28697b96f0ac5858be2666ed10ca47742c955555"
+    } @all_archive_ids;
+    is_deeply( [sort @result_ids], \@expected,
+        'Tagged AND non-new should exclude both new archives and Ghost in the Shell' );
+}
+
+note('testing composite search: tagged OR in-category...');
+{
+    # Clause A: tagged archives (untaggedonly=-1)
+    # Clause B: archives in static category "Segata Sanshiro" (ebf, ebg)
+    # Union should be: all 7 tagged + ebf + ebg (but ebf/ebg are already tagged, so still 7)
+    my $clause_a = {
+        candidate_ids => \@all_archive_ids,
+        tokens        => [],
+        newonly        => 0,
+        untaggedonly   => -1,
+    };
+
+    my @static_ids = (
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+    );
+    my $clause_b = {
+        candidate_ids => \@static_ids,
+        tokens        => [],
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @union_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause_a, $clause_b], 0, 0 );
+
+    my @expected = sort grep { $_ ne "4857fd2e7c00db8b0af0337b94055d8445118630" && $_ ne "e4c422fd10943dc169e3489a38cdbf57101a5f7e" } @all_archive_ids;
+    is_deeply( [sort @union_ids], \@expected,
+        'Tagged OR in-category should return all tagged archives' );
+}
+
+note('testing composite search: NOT category...');
+{
+    # Exclude static "Segata Sanshiro" archives (ebf, ebg) from all archives
+    my %excluded = map { $_ => 1 } (
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+    );
+    my @candidates = grep { !$excluded{$_} } @all_archive_ids;
+
+    my $clause = {
+        candidate_ids => \@candidates,
+        tokens        => [],
+        newonly        => 0,
+        untaggedonly   => 0,
+    };
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    is_deeply( [sort @result_ids], [sort @candidates],
+        'NOT category should return all archives except excluded' );
+}
+
+note('testing resolve_search_clause: category exclude...');
+{
+    # Test resolve_search_clause with mode=exclude on static category "Segata Sanshiro"
+    my @tokens = LANraragi::Utils::Search::compute_search_filter("");
+    my $clause = LANraragi::Utils::Search::resolve_search_clause(
+        \@tokens,
+        [{ id => "SET_1589141306", mode => "exclude" }],
+        \@all_archive_ids, 0, 0, 0
+    );
+
+    my ( $kc, @result_ids ) =
+        LANraragi::Model::Search::do_composite_search_inner( $redis_search, $redis_db, [$clause], 0, 0 );
+
+    my @expected = sort grep {
+        $_ ne "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" && $_ ne "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"
+    } @all_archive_ids;
+    is_deeply( [sort @result_ids], \@expected,
+        'resolve_search_clause exclude should return all archives except Saturn JP and US' );
 }
 
 note('testing hidecompleted filter...');
@@ -422,6 +752,23 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
         'tank lastread sort asc: TANK_1589141306 appears before Saturn JP' );
 
     $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 0 );
+}
+
+note('testing newonly tri-state with tank membership (grouptanks=1)...');
+{
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, 0, 0, 1, 0, 1, 0 );
+    my %got = map { $_ => 1 } @ids;
+    is( $filtered, 2, 'newonly=1 grouptanks should return the new tank and the standalone new archive' );
+    ok( $got{"TANK_1589141306"}, 'newonly=1 keeps tank whose member is new' );
+    ok( $got{"e4c422fd10943dc169e3489a38cdbf57101a5f7e"}, 'newonly=1 keeps standalone new archive (Rohan)' );
+    ok( !$got{"TANK_1589138380"}, 'newonly=1 drops tank with no new member' );
+
+    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, 0, 0, -1, 0, 1, 0 );
+    %got = map { $_ => 1 } @ids;
+    is( $filtered, 11, 'newonly=-1 grouptanks should exclude the new tank and the standalone new archive' );
+    ok( !$got{"TANK_1589141306"}, 'newonly=-1 drops tank whose member is new' );
+    ok( !$got{"e4c422fd10943dc169e3489a38cdbf57101a5f7e"}, 'newonly=-1 drops standalone new archive (Rohan)' );
+    ok( $got{"TANK_1589138380"}, 'newonly=-1 keeps tank with no new member' );
 }
 
 done_testing();
