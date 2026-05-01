@@ -1,7 +1,6 @@
 package LANraragi::Plugin::Metadata::nHentai;
 
-use strict;
-use warnings;
+use v5.38;
 
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
@@ -13,7 +12,8 @@ use File::Basename;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::Redis qw(redis_decode);
+use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+use LANraragi::Utils::Redis   qw(redis_decode);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "nhplugin",
         login_from  => "nhapiauth",
         author      => "Difegue and others",
-        version     => "2.0",
+        version     => "2.1",
         description => "Searches nHentai for tags matching your archive.
           <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.
           <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
@@ -48,37 +48,47 @@ sub get_tags {
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
-    my $galleryID = "";
+    my $galleryID    = "";
+    my $file         = $lrr_info->{file_path};
+    my $meta_in_file = is_file_in_archive( $file, "meta.json" );
+    my $json;
 
-    # Quick regex to get the nh gallery id from the provided url or source tag.
-    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]+).*/ ) {
-        $galleryID = $1;
-        $logger->debug("Skipping search and using gallery $galleryID from oneshot args");
-    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*(?:https?:\/\/)?nhentai\.net\/g\/([0-9]*).*/gi ) {
+    if ( $meta_in_file ) {
+        # Use meta.json
+        my $meta_json = extract_file_from_archive( $file, $meta_in_file );
+        $json = decode_json( Mojo::File->new( $meta_json )->slurp );
 
-        # Matching URL Scheme like 'https://' is only for backward compatible purpose.
-        $galleryID = $1;
-        $logger->debug("Skipping search and using gallery $galleryID from source tag");
+        $galleryID = $json->{id};
+
+        $logger->debug("Using meta.json for $galleryID");
     } else {
-        $logger->debug("Searching gallery by title (filename)");
+        # Quick regex to get the nh gallery id from the provided url or source tag.
+        if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]+).*/ ) {
+            $galleryID = $1;
+            $logger->debug("Skipping search and using gallery $galleryID from oneshot args");
+        } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*(?:https?:\/\/)?nhentai\.net\/g\/([0-9]*).*/gi ) {
+            # Matching URL Scheme like 'https://' is only for backward compatible purpose.
+            $galleryID = $1;
+            $logger->debug("Skipping search and using gallery $galleryID from source tag");
+        } else {
+            $logger->debug("Searching gallery by title (filename)");
 
-        # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
-        my $file_path = redis_decode($lrr_info->{file_path});
+            # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
+            # Get Gallery ID by hand if the user didn't specify a URL
+            $galleryID = get_gallery_id_from_title( redis_decode($file) , $ua );
+        }
 
-        #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title( $file_path, $ua );
+        # Did we detect a nHentai gallery?
+        if ( !$galleryID ) {
+            my $message = "No matching nHentai Gallery Found!";
+            $logger->info($message);
+            die "${message}\n";
+        }
+
+        $logger->debug("Detected nHentai gallery ID is $galleryID");
     }
 
-    # Did we detect a nHentai gallery?
-    if ( !$galleryID ) {
-        my $message = "No matching nHentai Gallery Found!";
-        $logger->info($message);
-        die "${message}\n";
-    }
-
-    $logger->debug("Detected nHentai gallery ID is $galleryID");
-
-    my %hashdata = get_tags_from_nh( $galleryID, $ua, $add_uploaded );
+    my %hashdata = get_tags_from_nh( $galleryID, $ua, $add_uploaded, $json );
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -91,10 +101,7 @@ sub get_tags {
 ######
 
 #Uses the website's search to find a gallery and returns its content.
-sub get_search_json {
-
-    my ( $title, $ua ) = @_;
-
+sub get_search_json( $title, $ua ) {
     my $logger = get_plugin_logger();
 
     my $URL = "https://nhentai.net/api/v2/search?query=" . uri_escape_utf8($title);
@@ -108,12 +115,10 @@ sub get_search_json {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    return decode_json $res->body;
+    return $res->json;
 }
 
-sub get_gallery_id_from_title {
-
-    my ( $file, $ua ) = @_;
+sub get_gallery_id_from_title( $file, $ua ) {
     my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     my $logger = get_plugin_logger();
@@ -125,19 +130,17 @@ sub get_gallery_id_from_title {
 
     my $json = get_search_json( $title, $ua );
 
-    my @results = @{ $json->{"result"} };
+    my @results = @{ $json->{result} };
 
     if ( scalar @results > 0 ) {
-        return $results[0]->{"id"};
+        return $results[0]->{id};
     }
 
     return;
 }
 
 # retrieves html page from NH
-sub get_json_from_nh {
-
-    my ( $gID, $ua ) = @_;
+sub get_json_from_nh( $gID, $ua ) {
 
     my $logger = get_plugin_logger();
 
@@ -152,20 +155,18 @@ sub get_json_from_nh {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    return decode_json $res->body;
+    return $res->json;
 }
 
-sub get_tags_from_json {
+sub get_tags_from_json( $json ) {
 
-    my ($json) = @_;
-
-    my @json_tags = @{ $json->{"tags"} };
+    my @json_tags = @{ $json->{tags} };
     my @tags      = ();
 
     foreach my $tag (@json_tags) {
 
-        my $namespace = $tag->{"type"};
-        my $name      = $tag->{"name"};
+        my $namespace = $tag->{type};
+        my $name      = $tag->{name};
 
         if ( $namespace eq "tag" ) {
             push( @tags, $name );
@@ -177,23 +178,18 @@ sub get_tags_from_json {
     return @tags;
 }
 
-sub get_title_from_json {
-    my ($json) = @_;
-    return $json->{"title"}{"pretty"};
+sub get_title_from_json( $json ) {
+    return $json->{title}{pretty} || $json->{title}{english};
 }
 
-sub get_upload_from_json {
-    my ($json) = @_;
-    return $json->{"upload_date"};
+sub get_upload_from_json( $json ) {
+    return $json->{upload_date};
 }
 
-sub get_tags_from_nh {
-
-    my ( $gID, $ua, $add_uploaded ) = @_;
-
+sub get_tags_from_nh( $gID, $ua, $add_uploaded, $json ) {
     my %hashdata = ( tags => "" );
 
-    my $json = get_json_from_nh( $gID, $ua );
+    $json = get_json_from_nh( $gID, $ua ) unless $json;
 
     if ($json) {
         my @tags = get_tags_from_json($json);
