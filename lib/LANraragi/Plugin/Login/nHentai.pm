@@ -40,17 +40,13 @@ sub do_login {
     my $homepage = $version_info->{homepage};
     $ua->transactor->name("LANraragi/$version (+$homepage)");
 
-    if ( $key ) {
+    die "No API Key provided!" unless $key;
 
-        $logger->info("API Key provided ($key)!");
+    $logger->info("API Key provided ($key)!");
 
-        $ua->on(start => sub ($ua, $tx) {
-            $tx->req->headers->header("Authorization" => "Key $key");
-        });
-
-    } else {
-        $logger->info("No API Key provided");
-    }
+    $ua->on(start => sub ($ua, $tx) {
+        $tx->req->headers->header("Authorization" => "Key $key");
+    });
 
     return $ua;
 }
