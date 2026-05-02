@@ -703,23 +703,16 @@ sub scan_plugins {
     $logger->info("Plugin scan complete.");
 }
 
-# Infer plugin source from Redis provenance or install path.
-# source is either "managed", "sideloaded", or "builtin".
+# Infer plugin source from the recorded install path.
+# Returns either "managed" or "builtin".
 sub infer_plugin_source {
     my ( $namerds, $redis ) = @_;
 
-    if ( $redis->hexists( $namerds, "installed_registry" ) ) {
-        my $reg = $redis->hget( $namerds, "installed_registry" );
-        return "managed" if $reg && $reg ne "";
-    }
-
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
         my $path = $redis->hget( $namerds, "installed_path" );
-        return "sideloaded" if $path && $path =~ /Sideloaded/;
-        return "managed"    if $path && $path =~ m{Plugin/Managed/};
+        return "managed" if $path && $path =~ m{Plugin/(?:Managed|Sideloaded)/};
     }
 
-    # TODO(REVIEW): is builtin guaranteed to be under the expected path pattern?
     return "builtin";
 }
 

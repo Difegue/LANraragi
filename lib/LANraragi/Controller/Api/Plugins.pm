@@ -70,8 +70,8 @@ sub install_plugin {
         $namespace,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-            # Since a plugin namespace can be built-in or sideloaded, we'll need to check redis first.
-            # if a plugin exists and is not managed, installation may not continue.
+            # Since a plugin namespace can be built-in or managed, we'll need to check redis first.
+            # If a plugin exists and is not managed, installation may not continue.
             # The user will have to remove/uninstall the existing plugin before installing a managed plugin
             # by the same namespace.
             my $namerds = "LRR_PLUGIN_" . uc($namespace);

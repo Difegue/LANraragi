@@ -982,7 +982,7 @@ paths:
                   description: Optional channel name to record for channel-tracked installs.
                 force:
                   type: boolean
-                  description: Force install even if the plugin is already installed from a different managed registry. Sideloaded and built-in plugins cannot be overwritten — remove them first.
+                  description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten — remove them first.
       responses:
         '200':
           description: Plugin installed
