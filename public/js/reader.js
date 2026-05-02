@@ -187,7 +187,7 @@ Reader.initializeAll = function () {
             Reader.markerMode = false;
             Reader.toggleArchiveOverlay();
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${Reader.id}/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError, 
+                Server.callAPI(`/api/archives/${Reader.id}/stamps/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError, 
                     (data) => {
                         markerData.id = data["stamp_id"];
                         markerData.name = result.value;
@@ -920,7 +920,7 @@ Reader.createMarkerElement = function (markerData, index) {
             reverseButtons: true,
         }).then((result) => {
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}&content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError, 
+                Server.callAPI(`/api/stamps/${markerData.id}?content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError, 
                     () => {
                         Reader.markers[i].x = xPercent;
                         Reader.markers[i].y = yPercent;
@@ -941,7 +941,7 @@ Reader.createMarkerElement = function (markerData, index) {
     // Delete
     marker.addEventListener("contextmenu", (e) => {
         e.preventDefault();
-        Server.callAPI(`/api/stamps/${Reader.id}?stamp_id=${markerData.id}`, "DELETE", "Stamp deleted!", I18N.StampError, 
+        Server.callAPI(`/api/stamps/${markerData.id}`, "DELETE", "Stamp deleted!", I18N.StampError, 
             () => {
                 const i = marker.dataset.index;
 
@@ -981,7 +981,7 @@ Reader.toggleStamps = function () {
 Reader.loadStamps = function (currentPage) {
     Reader.markers = [];
     // Call for the first page
-    Server.callAPI(`/api/stamps/${Reader.id}/${currentPage}`, "GET", null, I18N.ServerInfoError, 
+    Server.callAPI(`/api/archives/${Reader.id}/stamps/${currentPage}`, "GET", null, I18N.ServerInfoError, 
         (data) => {
             let markerData = {};
 
@@ -1001,7 +1001,7 @@ Reader.loadStamps = function (currentPage) {
             && Reader.currentPage < Reader.maxPage) {
 
                 // Call for the second page
-                Server.callAPI(`/api/stamps/${Reader.id}/${currentPage+1}`, "GET", null, I18N.ServerInfoError, 
+                Server.callAPI(`/api/archives/${Reader.id}/stamps/${currentPage+1}`, "GET", null, I18N.ServerInfoError, 
                     (data) => {
                         let markerData = {};
 
@@ -1575,7 +1575,7 @@ Reader.filterStampedOverlay = function () {
         Reader.overlayFiltered = false;
         Reader.updateArchiveOverlay(true);
     } else {
-        Server.callAPI(`/api/stamps/pages/${Reader.id}`, "GET", null, I18N.ServerInfoError, 
+        Server.callAPI(`/api/archives/${Reader.id}/stamps/`, "GET", null, I18N.ServerInfoError, 
             (data) => {
                 $("#extract-spinner").hide();
                 let pages = data.result.sort();
