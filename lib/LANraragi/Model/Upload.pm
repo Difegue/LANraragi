@@ -10,7 +10,7 @@ use Config;
 use Encode;
 use URI::Escape;
 use File::Basename;
-use File::Temp qw(tempdir);
+use File::Temp qw(tempdir tmpnam);
 use File::Find qw(find);
 
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
@@ -21,7 +21,7 @@ use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Path     qw(create_path get_archive_path rename_path move_path unlink_path);
 
-use LANraragi::Model::Config   qw(get_userdir);
+use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
 use LANraragi::Model::Archive;
@@ -191,17 +191,16 @@ sub download_url ( $url, $ua ) {
     die "Not a proper URL" unless $url;
     $logger->info("Downloading URL $url...This will take some time.");
 
-    my $tempdir = tempdir();
-
     # Download the URL, with 5 maximum redirects and unlimited response size.
     my $filename = "Not_an_archive";
-    my ( $tx, $content_disp );
+    my ( $tx, $content_disp, $content_type );
 
     my $attempts = 0;
 
     while ( !$content_disp && $attempts < 5 ) {
         $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
         $content_disp = $tx->result->headers->content_disposition;
+        $content_type = $tx->result->headers->content_type;
 
         unless ($content_disp) {
             $logger->warn("No valid Content-Disposition header received, waiting and retrying... (attempt $attempts / 5)");
@@ -215,26 +214,45 @@ sub download_url ( $url, $ua ) {
         die( "No valid Content-Disposition header received after 5 attempts, aborting. (Last result: " . $tx->result->body . ")" );
     }
 
-    $logger->debug("Content-Disposition Header: $content_disp");
-    if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
-        $filename = $1;
-    } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
+    my $content_length = $tx->result->headers->content_length;
+    my $body_size = $tx->result->body_size;
+    if ( $content_length && $content_length != $body_size ) {
+        die( "Failed to download full body. (Expected $content_length bytes, received $body_size)" );
+    }
 
+    $logger->debug("Content-Disposition Header: $content_disp");
+    $logger->debug("Content-Type Header: $content_type");
+    if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
+        my $temp = $1;
+        # This field should be Latin1 but sometimes it is not so use Content-Type
+        # as a hint on what to do
+        if ( $content_type =~ /.*charset=UTF-8.*/gim ) {
+            $filename = Encode::decode( "utf-8", $temp );
+        } else {
+            $filename = Encode::decode( "iso-8859-1", $temp );
+        }
+    } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
         # This is an UTF8 filename as per rfc5987.
         # URL-decode to get the full filename.
-        $filename = uri_unescape($1);
-
+        $filename = Encode::decode( "utf-8", uri_unescape( $1 ) );
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
-
         # Fallback to the last element of the URL as the filename.
         $logger->debug("No filename found in header, using URL as filename.");
-        $filename = $1;
+        # Also URL/utf8 decode just in case
+        $filename = Encode::decode( "utf-8", uri_unescape( $1 ) );
+    }
+
+    if ( !IS_UNIX ) {
+        $filename = encode_utf8( $filename );
     }
 
     $logger->debug("Filename: $filename");
 
     # remove invalid Windows chars
     $filename =~ s@[\\/:"*?<>|]+@@g;
+
+    # Move file to a temp folder (not the default LRR one)
+    my $tempdir = tempdir();
 
     my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
     my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
@@ -246,22 +264,21 @@ sub download_url ( $url, $ua ) {
         $filename = substr( $filename, 0, -1 );
     }
     $filename = $filename . $ext;
-    $logger->debug("Filename post clean: $filename");
-    $tx->result->save_to("$tempdir\/$filename");
 
-    # Update $tempfile to the exact reference created by the host filesystem
-    # This is done by finding the first (and only) file in $tempdir.
-    my $tempfile = "";
-    find(
-        sub {
-            return if -d $_;
-            $tempfile = $File::Find::name;
-            $filename = $_;
-        },
-        $tempdir
-    );
+    my $tempfile = $tempdir . '/' . $filename;
 
-    return "$tempdir\/$filename";
+    # To support long paths use a temp file and then move it to the final location using long-path compatible methods
+    my $mojo_temp = tmpnam();
+    if ( !$tx->result->content->asset->move_to( $mojo_temp ) ) {
+        die("Could not move uploaded file $filename to $mojo_temp");
+    }
+
+    # Move the file for real this time
+    if ( !move_path( $mojo_temp, $tempfile ) ) {
+        die("Could not move uploaded file $mojo_temp to $tempfile");
+    }
+
+    return $tempfile;
 }
 
 1;

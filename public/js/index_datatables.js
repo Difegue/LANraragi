@@ -73,6 +73,12 @@ IndexTable.initializeAll = function () {
         ajax: {
             url: "search",
             cache: true,
+            data: (d) => {
+                if (localStorage.hidecompleted === "true") {
+                    d.hidecompleted = "true";
+                }
+                return d;
+            },
         },
         deferRender: true,
         lengthChange: false,

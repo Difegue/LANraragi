@@ -25,6 +25,9 @@ sub handle_datatables ($self) {
     my $sortorder = $req->param('order[0][dir]');
     my $sortkey   = $req->param("columns[$sortindex][name]");
 
+    # Saner params we add manually
+    my $hidecompleted = $req->param('hidecompleted') || "false";
+
     # See if specific column searches were made
     my $i              = 0;
     my $categoryfilter = "";
@@ -57,7 +60,8 @@ sub handle_datatables ($self) {
 
     # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 0 );
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 0,
+        $hidecompleted eq "true" );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }
@@ -68,22 +72,22 @@ sub handle_api {
     my $self = shift->openapi->valid_input or return;
     my $req  = $self->req;
 
-    my $filter     = $req->param('filter');
-    my $category   = $req->param('category') || "";
-    my $start      = $req->param('start')    || 0;
-    my $sortkey    = $req->param('sortby');
-    my $sortorder  = $req->param('order');
-    my $newfilter  = $req->param('newonly')       || "false";
-    my $untaggedf  = $req->param('untaggedonly')  || "false";
-    my $grouptanks = $req->param('groupby_tanks') || "false";
+    my $filter        = $req->param('filter');
+    my $category      = $req->param('category') || "";
+    my $start         = $req->param('start')    || 0;
+    my $sortkey       = $req->param('sortby');
+    my $sortorder     = $req->param('order');
+    my $newfilter     = $req->param('newonly')       || "false";
+    my $untaggedf     = $req->param('untaggedonly')  || "false";
+    my $grouptanks    = $req->param('groupby_tanks') || "false";
+    my $hidecompleted = $req->param('hidecompleted') || "false";
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
-        $filter, $category, $start, $sortkey, $sortorder,
-        $newfilter eq "true",
-        $untaggedf eq "true",
-        $grouptanks eq "true"
+        $filter,    $category,            $start,               $sortkey,
+        $sortorder, $newfilter eq "true", $untaggedf eq "true", $grouptanks eq "true",
+        $hidecompleted eq "true"
     );
 
     if ( $total eq -1 && $filtered eq -1 ) {
@@ -113,19 +117,21 @@ sub get_random_archives {
     my $self = shift->openapi->valid_input or return;
     my $req  = $self->req;
 
-    my $filter       = $req->param('filter');
-    my $category     = $req->param('category')      || "";
-    my $newfilter    = $req->param('newonly')       || "false";
-    my $untaggedf    = $req->param('untaggedonly')  || "false";
-    my $grouptanks   = $req->param('groupby_tanks') || "false";
-    my $random_count = $req->param('count')         || 5;
+    my $filter        = $req->param('filter');
+    my $category      = $req->param('category')      || "";
+    my $newfilter     = $req->param('newonly')       || "false";
+    my $untaggedf     = $req->param('untaggedonly')  || "false";
+    my $grouptanks    = $req->param('groupby_tanks') || "false";
+    my $hidecompleted = $req->param('hidecompleted') || "false";
+    my $random_count  = $req->param('count')         || 5;
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, -1, "title", 0,
         $newfilter eq "true",
         $untaggedf eq "true",
-        $grouptanks eq "true"
+        $grouptanks eq "true",
+        $hidecompleted eq "true"
     );
     my @random_ids;
 

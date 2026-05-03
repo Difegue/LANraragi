@@ -1,4 +1,7 @@
 #!/bin/sh
-kill -15 `cat /home/koyomi/lanraragi/temp/shinobu.pid-s6`
-kill -15 `cat /home/koyomi/lanraragi/temp/minion.pid-s6`
-sleep 5
+
+pkill --signal SIGINT -F "/home/koyomi/lanraragi/temp/shinobu.pid-s6"
+pkill --signal SIGTERM -F "/home/koyomi/lanraragi/temp/minion.pid-s6"
+
+pidwait -F "/home/koyomi/lanraragi/temp/shinobu.pid-s6"
+pidwait -F "/home/koyomi/lanraragi/temp/minion.pid-s6"

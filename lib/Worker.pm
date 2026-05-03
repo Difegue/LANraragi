@@ -26,6 +26,9 @@ my $logger = get_logger( "Minion Worker", "minion" );
 # Windows-only worker. Single threaded and non-forking.
 sub initialize_from_new_process {
 
+    # Enable autoflush
+    $| = 1;
+
     $logger->info("Minion Worker started.");
 
     my $userdir = LANraragi::Model::Config->get_userdir;

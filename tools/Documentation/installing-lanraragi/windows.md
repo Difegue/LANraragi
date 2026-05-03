@@ -87,3 +87,11 @@ In the popup select the "Beta: Use Unicode UTF-8" option.
 Restart and use the "Rescan content folder" button to fix existing paths.
 
 ![](../.gitbook/assets/utf8-restart.png)
+
+### Entry Point Not Found
+
+If a similar message to the following one is shown when starting the server that means you have installed a copy of OpenSSL that is not compatible with LANraragi, uninstall it to fix this issue.
+
+If you need OpenSSL installed then make sure it is not installed to the system directory as that option will cause this issue.
+
+![](../.gitbook/assets/openssl-error.png)

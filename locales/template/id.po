@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2026-02-04 17:01+0000\n"
+"PO-Revision-Date: 2026-03-26 08:09+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -429,10 +429,12 @@ msgid "Clean Database"
 msgstr "Bersihkan Pangkalan Data"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "Aktifkan Metrik"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 msgstr ""
+"Aktifkan pengumpulan metrik dan sajikan melalui endpoint metrik dalam format "
+"eksposisi Prometheus."
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
@@ -779,6 +781,15 @@ msgstr "Urutan Jenis"
 
 msgid "Crop thumbnails"
 msgstr "Pangkas keluku"
+
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed archives"
+msgstr ""
+
+msgid "If enabled, archives you've already completed will be hidden from the list."
+msgstr ""
 
 msgid "Go to Page:"
 msgstr "Pergi ke Halaman:"
@@ -1945,3 +1956,24 @@ msgstr "Galat menambah/menghapus bab:"
 
 msgid "Untitled Chapter"
 msgstr "Bab Tanpa Judul"
+
+msgid "Disable OpenAPI Validation"
+msgstr "Nonaktifkan Validasi OpenAPI"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"Menonaktifkan validasi skema OpenAPI API. Aktifkan opsi ini jika Anda "
+"mengalami error terkait validasi dengan klien API lama."
+
+msgid "Excluded Namespaces"
+msgstr "Ruang Nama yang Dikecualikan"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr ""
+"Daftar ruang nama tag yang dipisahkan dengan koma untuk dikecualikan dari "
+"saran pencarian dan statistik tag."
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr ""
+"Klien akan menggunakan daftar ini untuk menyaring tag yang tidak relevan "
+"dari pelengkapan otomatis dan awan tag."

@@ -22,10 +22,17 @@ jobs:
     name: Run Test Suite and Perl Critic
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Test Docker Build
-      run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
+    - uses: actions/checkout@v6
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+    - name: Build LRR Docker image
+      uses: docker/build-push-action@v7
+      with:
+        file: ./tools/build/docker/Dockerfile
+        tags: lanraragi:test
+        outputs: type=docker
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
     - name: LANraragi Test Suite
       uses: ./.github/action-run-tests
     - name: Perl Critic
@@ -41,7 +48,7 @@ jobs:
     needs: testSuite
     steps:
       - name: Checkout LANraragi repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: lanraragi
       - name: Set up Docker Buildx
@@ -58,13 +65,13 @@ jobs:
       - name: Load LRR Docker image
         run: docker load -i "${{ runner.temp }}/lanraragi-ci.tar"
       - name: Checkout aio-lanraragi integration tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
           ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Set up uv
@@ -97,7 +104,7 @@ jobs:
     needs: testSuite
     steps:
       - name: Checkout LANraragi repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: lanraragi
       - name: Compute windist cache key
@@ -187,13 +194,13 @@ jobs:
           cp -R ./templates ./win-dist
           cp -R ./locales ./win-dist
       - name: Checkout aio-lanraragi integration tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ env.INTEGRATION_TEST_REPOSITORY }}
           ref: ${{ env.INTEGRATION_TEST_REF }}
           path: aio-lanraragi
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Set up uv

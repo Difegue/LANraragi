@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.70",
-    "version_name": "Reality",
+    "version": "0.9.71",
+    "version_name": "She'll Drive the Big Car",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "devEngines": {
         "runtime": {
@@ -11,7 +11,7 @@
     "scripts": {
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
-        "lint": "eslint --ext .js public/",
+        "lint": "eslint public/",
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
         "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
         "dev-server-verbose": "export LRR_DEVSERVER=1 && perl ./script/launcher.pl -m -v ./script/lanraragi",
@@ -51,13 +51,13 @@
         "raty-js": "^4.3.0",
         "react-toastify": "9.0.0-rc-2",
         "sweetalert2": "11.22.4",
-        "swiper": "8.4.5",
+        "swiper": "12.1.2",
         "tippy.js": "6.3.7"
     },
     "devDependencies": {
-        "@eslint/js": "9.39.2",
-        "eslint": "9.39.2",
-        "eslint-plugin-import": "2.32.0",
+        "@eslint/js": "^10.0.1",
+        "@stylistic/eslint-plugin": "^4.0.0",
+        "eslint": "^10.1.0",
         "globals": "16.5.0"
     }
 }

@@ -15,7 +15,7 @@ services:
       - lrr
 
   redis:
-    image: "docker.io/redis:7"
+    image: "docker.io/valkey/valkey:9"
     volumes:
       - redis_data:/data
     networks:

@@ -23,9 +23,9 @@ sub plugin_info {
         name        => "nHentai",
         type        => "metadata",
         namespace   => "nhplugin",
-        login_from  => "nhentaicfbypass",
+        login_from  => "nhapiauth",
         author      => "Difegue and others",
-        version     => "1.9",
+        version     => "2.0",
         description => "Searches nHentai for tags matching your archive.
           <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.
           <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
@@ -78,7 +78,7 @@ sub get_tags {
 
     $logger->debug("Detected nHentai gallery ID is $galleryID");
 
-    my %hashdata = get_tags_from_NH( $galleryID, $ua, $add_uploaded );
+    my %hashdata = get_tags_from_nh( $galleryID, $ua, $add_uploaded );
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -91,28 +91,24 @@ sub get_tags {
 ######
 
 #Uses the website's search to find a gallery and returns its content.
-sub get_gallery_dom_by_title {
+sub get_search_json {
 
     my ( $title, $ua ) = @_;
 
     my $logger = get_plugin_logger();
 
-    #Strip away hyphens and apostrophes as they apparently break search
-    $title =~ s/-|'/ /g;
-
-    my $URL = "https://nhentai.net/search/?q=" . uri_escape_utf8($title);
-
-    $logger->debug("Using URL $URL to search on nH.");
+    my $URL = "https://nhentai.net/api/v2/search?query=" . uri_escape_utf8($title);
 
     my $res = $ua->get($URL)->result;
-    $logger->debug( "Got response " . $res->body );
 
     if ( $res->is_error ) {
         my $code = $res->code;
         die "Search gallery by title failed! (Code: $code)\n";
     }
 
-    return $res->dom;
+    $logger->debug("Tentative JSON: " . $res->body);
+
+    return decode_json $res->body;
 }
 
 sub get_gallery_id_from_title {
@@ -127,31 +123,25 @@ sub get_gallery_id_from_title {
         return $1;
     }
 
-    my $dom = get_gallery_dom_by_title( $title, $ua );
+    my $json = get_search_json( $title, $ua );
 
-    if ($dom) {
+    my @results = @{ $json->{"result"} };
 
-        # Get the first gallery url of the search results
-        my $gURL =
-          ( $dom->at('.cover') )
-          ? $dom->at('.cover')->attr('href')
-          : "";
-
-        $logger->debug("Got $gURL from parsing.");
-        if ( $gURL =~ /\/g\/(\d*)\//gm ) {
-            return $1;
-        }
+    if ( scalar @results > 0 ) {
+        return $results[0]->{"id"};
     }
 
     return;
 }
 
 # retrieves html page from NH
-sub get_html_from_NH {
+sub get_json_from_nh {
 
     my ( $gID, $ua ) = @_;
 
-    my $URL = "https://nhentai.net/g/$gID/";
+    my $logger = get_plugin_logger();
+
+    my $URL = "https://nhentai.net/api/v2/galleries/$gID";
 
     my $res = $ua->get($URL)->result;
 
@@ -160,31 +150,9 @@ sub get_html_from_NH {
         die "Error retrieving gallery from nHentai! (Code: $code)\n";
     }
 
-    return $res->body;
-}
+    $logger->debug("Tentative JSON: " . $res->body);
 
-#Find the metadata JSON in the HTML and turn it into an object
-#It's located under a N.gallery JS object.
-sub get_json_from_html {
-
-    my ($html) = @_;
-
-    my $logger = get_plugin_logger();
-
-    my $jsonstring = "{}";
-    if ( $html =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {
-        $jsonstring = $1;
-    }
-
-    $logger->debug("Tentative JSON: $jsonstring");
-
-    # nH now provides their JSON with \uXXXX escaped characters.
-    # The first pass of decode_json decodes those characters, but still outputs a string.
-    # The second pass turns said string into an object properly so we can exploit it as a hash.
-    my $json = decode_json $jsonstring;
-    $json = decode_json $json;
-
-    return $json;
+    return decode_json $res->body;
 }
 
 sub get_tags_from_json {
@@ -219,14 +187,13 @@ sub get_upload_from_json {
     return $json->{"upload_date"};
 }
 
-sub get_tags_from_NH {
+sub get_tags_from_nh {
 
     my ( $gID, $ua, $add_uploaded ) = @_;
 
     my %hashdata = ( tags => "" );
 
-    my $html = get_html_from_NH( $gID, $ua );
-    my $json = get_json_from_html($html);
+    my $json = get_json_from_nh( $gID, $ua );
 
     if ($json) {
         my @tags = get_tags_from_json($json);

@@ -11,6 +11,7 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Mojo::Util qw(xml_escape);
 use Mojo::IOLoop;
+use Mojo::JSON qw(decode_json);
 use Proc::Simple;
 use Sys::CpuAffinity;
 use Config;
@@ -32,7 +33,10 @@ BEGIN {
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail );
+  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail get_version);
+
+# Version information
+my $version_info;
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -471,6 +475,12 @@ LUA
     die $fn_err if $fn_err;
     return 1, $response;
 
+}
+
+sub get_version {
+    # Load package.json to get version/vername/description
+    $version_info = decode_json( Mojo::File->new('package.json')->slurp ), shift unless $version_info;
+    return $version_info;
 }
 
 1;

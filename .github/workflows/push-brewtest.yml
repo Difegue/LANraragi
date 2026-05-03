@@ -5,7 +5,7 @@ jobs:
     name: Test Homebrew version
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v6
     - name: Build and test bundled homebrew formula
       run: |
         cd tools/build/homebrew

@@ -6,6 +6,7 @@ use utf8;
 
 use Config;
 use Encode;
+use URI::Escape;
 
 use Mojolicious::Plugin::Minion::Admin;
 
@@ -39,7 +40,7 @@ sub apply_routes {
     # All "/api/*" endpoints are passed to OpenAPI.
     $self->plugin(
         "OpenAPI" => {
-            url    => $self->home->rel_file("tools/openapi.yaml"),
+            url    => ( IS_UNIX ? $self->home->rel_file("tools/openapi.yaml") : uri_escape( $self->home->rel_file("tools/openapi.yaml") ) ),
             route  => $api,
             security => {
                 api_key => sub {
@@ -73,7 +74,8 @@ sub apply_routes {
     $public_routes->get('/logout')->to('login#logout');
 
     # Routers for routes that require auth
-    my $logged_in = $public_routes->under('/')->to('login#logged_in');
+    my $logged_in     = $public_routes->under('/')->to('login#logged_in');
+    my $logged_in_api = $public_routes->under('/')->to('login#logged_in_api');
 
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
@@ -134,7 +136,7 @@ sub apply_routes {
 
     # Metrics API (not part of OpenAPI spec, serves Prometheus format)
     if ( $self->LRR_CONF->enable_metrics ) {
-        $public_routes->get('/api/info/metrics')->to('api-metrics#serve_metrics');
+        $logged_in_api->get('/api/info/metrics')->to('api-metrics#serve_metrics');
     }
 
     $search_api->get('/search')->to('api-search#handle_datatables');

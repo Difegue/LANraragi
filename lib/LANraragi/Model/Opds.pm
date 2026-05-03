@@ -27,8 +27,8 @@ sub generate_opds_catalog {
     my @cats    = LANraragi::Model::Category->get_category_list;
 
     # Use the search engine to get the list of archives to show in the catalog.
-    # TODO Add tankgroup support to opds?
-    my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, $start, "title", 0, 0, 0, 0 );
+    # TODO Add tankgroup/hidecompleted support to opds?
+    my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, $start, "title", 0, 0, 0, 0, 0 );
 
     my @list = ();
 
@@ -141,7 +141,7 @@ sub render_archive_page {
     my $archive = get_archive_path( $redis, $id );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive, $id);
+    my @images = get_filelist( $archive, $id );
 
     # If the page number is invalid, use the first page.
     if ( $page > scalar @images ) {

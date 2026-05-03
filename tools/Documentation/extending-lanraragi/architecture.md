@@ -121,6 +121,7 @@ root/
 |- tools         <- Contains scripts for building and installing LRR.
 |  |- Documentation <- What you're reading right now
 |  |- build         <- Build tools and scripts
+|     |- all              <- Patches and configuration files that are used by two or more targets
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
 |     |- windows          <- MSYS2 Windows build scripts, patches and submodule link to the Karen WPF Bootstrapper

@@ -795,6 +795,10 @@ div.fullscreen img {
   justify-content: center;
 }
 
+.fullscreen #display {
+    height: 100%;
+}
+
 .fullscreen-infinite {
   overflow-y: scroll;
 }
@@ -865,4 +869,15 @@ body.infinite-scroll .fullscreen-infinite img {
 
 .raty-cancel {
   margin-left: 8px;
+}
+
+#plugin-upload {
+  font-weight: normal;
+  vertical-align: bottom;
+}
+
+#plugin-upload>span {
+  position: absolute;
+  top: 5px;
+  left: 25%
 }

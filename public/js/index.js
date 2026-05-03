@@ -27,6 +27,7 @@ Index.initializeAll = function () {
     $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
+    $(document).on("change.hide-completed", "#hide-completed", Index.toggleHideCompleted);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
@@ -290,6 +291,11 @@ Index.toggleCrop = function () {
     IndexTable.dataTable.draw();
 };
 
+Index.toggleHideCompleted = function () {
+    localStorage.hidecompleted = $("#hide-completed")[0].checked;
+    IndexTable.dataTable.draw();
+};
+
 Index.toggleOrder = function (e) {
     e.preventDefault();
     const order = IndexTable.dataTable.order();
@@ -365,6 +371,7 @@ Index.promptCustomColumn = function (column) {
 Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
     $(".table-options").show();
     $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
+    $("#hide-completed")[0].checked = localStorage.hidecompleted === "true";
 
     $("#namespace-sortby").val(currentSort);
     $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
@@ -427,11 +434,14 @@ Index.updateCarousel = function (e) {
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
+    const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
+    const category = Index.selectedCategory ? `&category=${Index.selectedCategory}` : "";
+
     switch (localStorage.carouselType) {
         case "random":
             $("#carousel-icon")[0].classList = "fas fa-random";
             $("#carousel-title").text(I18N.CarouselRandom);
-            endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+            endpoint = `/api/search/random?count=15${filter}${category}`;
 
             // Special categories that imply additional query params
             if (Index.selectedCategory === "NEW_ONLY") {
@@ -444,22 +454,22 @@ Index.updateCarousel = function (e) {
         case "inbox":
             $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
             $("#carousel-title").text(I18N.NewArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?newonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
             break;
         case "untagged":
             $("#carousel-icon")[0].classList = "fas fa-edit";
             $("#carousel-title").text(I18N.UntaggedArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?untaggedonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
             break;
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
+            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}`;
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
             $("#carousel-title").text("What???");
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
+            endpoint = `/api/search?${filter}${category}`.replace(/\?$/, "");
             break;
     }
 
