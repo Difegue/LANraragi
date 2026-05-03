@@ -721,8 +721,8 @@ msgstr "Crop thumbnails"
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
 msgstr "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
 
-msgid "Hide completed archives"
-msgstr "Hide completed archives"
+msgid "Hide completed"
+msgstr "Hide completed"
 
 msgid "If enabled, archives you've already completed will be hidden from the list."
 msgstr "If enabled, archives you've already completed will be hidden from the list."
