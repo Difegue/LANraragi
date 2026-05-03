@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-03-23 13:12+0000\n"
+"PO-Revision-Date: 2026-05-04 23:09+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 5.17.1\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -675,13 +675,13 @@ msgid "Crop thumbnails"
 msgstr "裁剪缩略图"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
-msgstr ""
+msgstr "启用后，无法放入标准 A4 页面的缩略图将被裁剪，仅显示左侧部分。"
 
 msgid "Hide completed"
-msgstr ""
+msgstr "隐藏已读完"
 
 msgid "If enabled, archives you've already completed will be hidden from the list."
-msgstr ""
+msgstr "启用后，您已经读完的档案将从列表中隐藏。"
 
 msgid "Go to Page:"
 msgstr "跳转到页面："
