@@ -25,6 +25,9 @@ sub handle_datatables ($self) {
     my $sortorder = $req->param('order[0][dir]');
     my $sortkey   = $req->param("columns[$sortindex][name]");
 
+    # Saner params we add manually
+    my $hidecompleted = $req->param('hidecompleted') || "false";
+
     # See if specific column searches were made
     my $i              = 0;
     my $categoryfilter = "";
@@ -58,7 +61,7 @@ sub handle_datatables ($self) {
     # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
     my ( $total, $filtered, @ids ) =
       LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 0,
-        0 );
+        $hidecompleted eq "true" );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }

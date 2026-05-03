@@ -787,6 +787,15 @@ msgstr "Ordre de tri"
 msgid "Crop thumbnails"
 msgstr "Couper les miniatures"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed archives"
+msgstr ""
+
+msgid "If enabled, archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Aller à la page :"
 

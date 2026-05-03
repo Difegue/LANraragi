@@ -139,9 +139,9 @@
 						title="[% c.lh('Sort Order') %]"></a>
 
 					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
-						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
+					title="[% c.lh('If enabled, thumbnails that don\'t fit a regular A4 page will be cropped to only show the left side.') %]">
 					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
-				</div>
+				</div>			
 				<div class="compact-options">[% c.lh("Columns:") %]
 					<select class="favtag-btn" id="columnCount">
 						<script>  
@@ -151,6 +151,12 @@
 						</script> 
 					</select>
 				</div>
+				<div class="common-options" style="padding-top:12px">
+					<input id="hide-completed" class="fa table-option" type="checkbox" style="vertical-align: middle;"
+					title="[% c.lh('If enabled, archives you\'ve already completed will be hidden from the list.') %]">
+					<label for="hide-completed" style="vertical-align: middle; padding-top:6px">[% c.lh("Hide completed archives") %]</label>				
+				</div>
+
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
 					<select class="favtag-btn" id="page-select">
 					</select>
