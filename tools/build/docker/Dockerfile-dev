@@ -1,5 +1,5 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.20
+FROM        alpine:3.23
 
 #Default mojo server port
 EXPOSE 3000
@@ -27,9 +27,9 @@ fi
 
 WORKDIR /tmp/lrr
 
-#Copy cpanfile and install script before copying the entire context
-#This allows for Docker cache to preserve cpan dependencies
-COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-everything.sh tools/
+# Copy cpanfile and install script before copying the entire context
+# This allows for Docker cache to preserve cpan dependencies
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-everything.sh /tools/build/all/* tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
 
