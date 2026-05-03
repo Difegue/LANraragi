@@ -154,7 +154,7 @@
 				<div class="common-options" style="padding-top:12px">
 					<input id="hide-completed" class="fa table-option" type="checkbox" style="vertical-align: middle;"
 					title="[% c.lh('If enabled, archives you\'ve already completed will be hidden from the list.') %]">
-					<label for="hide-completed" style="vertical-align: middle; padding-top:6px">[% c.lh("Hide completed archives") %]</label>				
+					<label for="hide-completed">[% c.lh("Hide completed") %]</label>				
 				</div>
 
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
