@@ -122,12 +122,12 @@ sub setup_redis_mock {
             "summary": "",
             "lastreadtime": 0
         },
-        "TANK_1589141306": [
+        "TANK_0daa851e-55da-36b2-bfa3-2d1c8c3d6d08": [
             "name_Hello",
             "28697b96f0ac5858be2666ed10ca47742c955555",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ],
-        "TANK_1589138380":[
+        "TANK_0daa851e-55da-36b2-bfa3-2d1c8c3d6d09":[
             "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ]
@@ -146,7 +146,7 @@ sub setup_redis_mock {
 
             # Replace redis' '*' wildcards with regex '.*'s
             $expr = $expr =~ s/\*/\.\*/gr;
-            return grep { /$expr/ } keys %datamodel;
+            return grep { /^$expr$/ } keys %datamodel;
         }
     );
     $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );

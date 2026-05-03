@@ -10,6 +10,7 @@ use utf8;
 use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
+use UUID::Tiny ':std';
 
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file);
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
@@ -28,7 +29,7 @@ sub get_tankoubon_list ( $page = 0 ) {
     $page //= 0;
 
     # Tankoubons are represented by TANK_[timestamp] in DB. Can't wait for 2038!
-    my @tanks = $redis->keys('TANK_??????????');
+    my @tanks = $redis->keys('TANK_????????-????-????-????-????????????');
 
     # Jam tanks into an array of hashes
     my @result;
@@ -66,7 +67,9 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Set all fields of the group object
     unless ( length($tank_id) ) {
-        $tank_id = "TANK_" . time();
+        my $v4_rand_UUID_2  = create_uuid(UUID_RANDOM);
+        my $str_appendix = uuid_to_string($v4_rand_UUID_2);
+        $tank_id = "TANK_" . $str_appendix;
 
         my $isnewkey = 0;
         until ($isnewkey) {
@@ -124,7 +127,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
         return ();
     }
 
-    unless ( length($tank_id) == 15 && $redis->exists($tank_id) ) {
+    unless ( length($tank_id) == 41 && $redis->exists($tank_id) ) {
         $logger->warn("$tank_id doesn't exist in the database!");
         return ();
     }
@@ -181,7 +184,7 @@ sub delete_tankoubon ($tank_id) {
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
 
-    if ( length($tank_id) != 15 ) {
+    if ( length($tank_id) != 41 ) {
 
         # Probably not a Tankoubon ID
         $logger->error("$tank_id is not a Tankoubon ID, doing nothing.");
