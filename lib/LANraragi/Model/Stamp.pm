@@ -38,7 +38,7 @@ sub get_stamp {
 
     my %stamp = convert_stamp_to_object( $redis, $stamp_id );
 
-    $redis->quit;
+    $redis->quit();
 
     return ( \%stamp, $err );
 }
@@ -58,17 +58,17 @@ sub get_stamps_by_page {
     unless ( $redis->exists($archive_id) ) {
         $err = "$archive_id does not exist in the database.";
         $logger->error($err);
-        $redis->quit;
+        $redis->quit();
         return ( 0, $err );
     }
 
     if ( $redis->hexists($archive_id => "stamps") ) {
         my @stamp_ids = decode_json($redis->hget( $archive_id, "stamps" ));
-        my @filtered_stamps = filter_stamps_by_page(@stamp_ids, $index);
-        @stamps = convert_stamps_to_object($redis, @filtered_stamps);
+        my @filtered_stamps = filter_stamps_by_page( @stamp_ids, $index );
+        @stamps = convert_stamps_to_object( $redis, @filtered_stamps );
     }
 
-    $redis->quit;
+    $redis->quit();
 
     return ( \@stamps, $err );
 }
@@ -84,19 +84,19 @@ sub get_stamped_pages {
     my $err    = "";
     my @keys;
 
-    unless ( $redis->exists($archive_id) ) {
+    unless ( $redis->exists( $archive_id ) ) {
         $err = "$archive_id does not exist in the database.";
         $logger->error($err);
-        $redis->quit;
+        $redis->quit();
         return ( 0, $err );
     }
 
-    if ( $redis->hexists($archive_id => "stamps") ) {
+    if ( $redis->hexists( $archive_id => "stamps" ) ) {
         my %indexes;
         my $stamps    = $redis->hget( $archive_id, "stamps" );
-        $stamps = deserialize_stamp_list($stamps);
+        $stamps = deserialize_stamp_list( $stamps );
 
-        if (!defined $stamps) {
+        if ( !defined $stamps ) {
             $redis->quit();
             $err = "There was a problem deserializing the stamps";
             return ( 0, $err );
@@ -106,7 +106,7 @@ sub get_stamped_pages {
 
         foreach my $stamp (@stamps) {
             # Extract the page number
-            my (undef, $index, undef) = split(/_/, $stamp, 3);
+            my ( undef, $index, undef ) = split( /_/, $stamp, 3 );
             $indexes{$index} = 1;
         }
 
@@ -128,10 +128,19 @@ sub add_stamp {
     my $logger = get_logger( "Stamps", "lanraragi" );
     my $err    = "";
 
-    unless ( $redis->exists($archive_id) ) {
+    unless ( $redis->exists( $archive_id ) ) {
         $err = "$archive_id does not exist in the database.";
         $logger->error($err);
-        $redis->quit;
+        $redis->quit();
+        return ( 0, $err );
+    }
+
+    my $pagecount = $redis->hget( $archive_id => "pagecount" );
+
+    unless ( int($index) <= int($pagecount) && int($index) > 0 ) {
+        $err = "Page $index out of range.";
+        $logger->error($err);
+        $redis->quit();
         return ( 0, $err );
     }
 
@@ -141,8 +150,8 @@ sub add_stamp {
 
     # Probably unnecessary since this is in ms.
     my $isnewkey = 0;
-    until ($isnewkey) {
-        if ( $redis->exists($key) ) {
+    until ( $isnewkey ) {
+        if ( $redis->exists( $key ) ) {
             $key = "STAMPS_" . $index . "_" . int(time() * 1000 + 1);
         } else {
             $isnewkey = 1;
@@ -163,20 +172,20 @@ sub add_stamp {
         eval { @stamps = @{ decode_json($stamps) } };
         if ($@) {
             $err = "Couldn't deserialize stamps in DB for $archive_id! Redis returned the following junk data: $stamps";
-            $redis->del($key);
+            $redis->del( $key );
             $logger->error($err);
-            $redis->quit;
+            $redis->quit();
             return ( 0, $err );
         }
         push @stamps, $key;
-        $stamps          = encode_json(\@stamps);
-    } catch ($e) {
+        $stamps          = encode_json( \@stamps );
+    } catch ( $e ) {
         $logger->warn(
             "Error while updating Stamps: $e -- Will overwrite with a Stamps containing the new data. (This is normal if this ID had no Stamps yet.)"
         );
         @stamps          = [];
         push @stamps, $key;
-        $stamps          = encode_json(\@stamps);
+        $stamps          = encode_json( \@stamps );
     }
     $redis->hset( $archive_id, "stamps", $stamps );
 
@@ -195,13 +204,13 @@ sub update_stamp {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
 
-    if ( $redis->exists($stamp_id) ) {
+    if ( $redis->exists( $stamp_id ) ) {
         if ( defined $position ) {
-            $redis->hset( $stamp_id, "position", redis_encode($position) )
+            $redis->hset( $stamp_id, "position", redis_encode( $position ) )
         }
 
         if ( defined $content ) {
-            $redis->hset( $stamp_id, "content", redis_encode($content) )
+            $redis->hset( $stamp_id, "content", redis_encode( $content ) )
         }
 
         $redis->quit();
@@ -224,16 +233,16 @@ sub remove_stamp {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $err    = "";
 
-    if ( $redis->exists($key) ) {
+    if ( $redis->exists( $key ) ) {
         # Remove key from archive.
         # This should not throw an error, since the stamp should have been linked to the archive at creation.
         my $archive_id      = $redis->hget( $key, "archive_id" );
         my $stamps          = $redis->hget( $archive_id, "stamps" );
-        $stamps             = deserialize_stamp_list($stamps);
-        my @stamps          = remove_stampid_from_list($stamps, $key);
-        $redis->hset( $archive_id, "stamps", encode_json(\@stamps) );
+        $stamps             = deserialize_stamp_list( $stamps );
+        my @stamps          = remove_stampid_from_list( $stamps, $key );
+        $redis->hset( $archive_id, "stamps", encode_json( \@stamps ) );
 
-        $redis->del($key);
+        $redis->del( $key );
 
         $redis->quit();
         return ( 1, $err );
@@ -250,7 +259,7 @@ sub convert_stamp_to_object {
     my ( $redis, $stamp_id ) = @_;
 
     my @allowed_keys = ( 'content', 'position' );
-    my %stamp = $redis->hgetall($stamp_id);
+    my %stamp = $redis->hgetall( $stamp_id );
     ( $_ = redis_decode($_) ) for ( $stamp{content}, $stamp{position} );
     %stamp = filter_hash_by_keys( \@allowed_keys, %stamp );
     $stamp{id} = $stamp_id;
@@ -266,7 +275,7 @@ sub convert_stamps_to_object {
 
     # Convert stamp registers to objects
     foreach my $i (@stamp_ids) {
-        my %stamp = convert_stamp_to_object($redis, $i);
+        my %stamp = convert_stamp_to_object( $redis, $i );
         push @stamps, \%stamp;  
     }
 
@@ -274,7 +283,7 @@ sub convert_stamps_to_object {
 }
 
 sub remove_stampid_from_list {
-    my ($stamps, $stamp) = @_;
+    my ( $stamps, $stamp ) = @_;
 
     my @new_stamps = grep { $_ ne $stamp } @$stamps;
     
@@ -283,10 +292,10 @@ sub remove_stampid_from_list {
 
 # Returns stamps whose page in STAMPS_<page>_<ts> matches.
 sub filter_stamps_by_page {
-    my ($stamps, $page) = @_;
+    my ( $stamps, $page ) = @_;
     
     my @filtered = grep {
-        my (undef, $index, undef) = split(/_/, $_, 3);
+        my ( undef, $index, undef ) = split( /_/, $_, 3 );
         defined $index && $index == $page;
     } @$stamps;
     
@@ -295,15 +304,15 @@ sub filter_stamps_by_page {
 
 # Convert JSON string to array.
 sub deserialize_stamp_list {
-    my ($stamps) = @_;
+    my ( $stamps ) = @_;
 
     my $decoded;
     eval {
-        $decoded = decode_json($stamps);
+        $decoded = decode_json( $stamps );
         die "There was a problem serializing stamps" unless ref($decoded) eq 'ARRAY';
     };
 
-    if ($@) {
+    if ( $@ ) {
         return undef;
     }
 
