@@ -167,8 +167,7 @@ sub add_stamp {
     my $stamps    = $redis->hget( $archive_id, "stamps" );
     my @stamps;
 
-    no warnings 'experimental::try';
-    try {
+    if ( $redis->hexists( $archive_id, "stamps" )) {
         eval { @stamps = @{ decode_json($stamps) } };
         if ($@) {
             $err = "Couldn't deserialize stamps in DB for $archive_id! Redis returned the following junk data: $stamps";
@@ -179,11 +178,10 @@ sub add_stamp {
         }
         push @stamps, $key;
         $stamps          = encode_json( \@stamps );
-    } catch ( $e ) {
+    } else {
         $logger->warn(
-            "Error while updating Stamps: $e -- Will overwrite with a Stamps containing the new data. (This is normal if this ID had no Stamps yet.)"
+            "Stamps not initialized -- Will overwrite with a Stamps containing the new data. (This is normal if this ID had no Stamps yet.)"
         );
-        @stamps          = [];
         push @stamps, $key;
         $stamps          = encode_json( \@stamps );
     }
