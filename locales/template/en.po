@@ -1189,6 +1189,18 @@ msgstr "FullScreen"
 
 msgid "Toggle Bookmark"
 msgstr "Toggle Bookmark"
+
+msgid "Toggle Stamps"
+msgstr "Toggle Stamps"
+
+msgid "Delete Archive"
+msgstr "Delete Archive"
+
+msgid "Set stamp"
+msgstr "Set stamp"
+
+msgid "Filter stamped pages"
+msgstr "Filter stamped pages"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------
@@ -1831,6 +1843,15 @@ msgstr "Merge selection into a Tankoubon"
 
 msgid "Hide completed Archives"
 msgstr "Hide completed Archives"
+
+msgid "Enter Stamp name:"
+msgstr "Enter Stamp name:"
+
+msgid "Stamp name"
+msgstr "Stamp name"
+
+msgid "Error setting up the stamp"
+msgstr "Error setting up the stamp"
 
 # ------End of i18n.html.tt2------
 

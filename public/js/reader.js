@@ -164,7 +164,7 @@ Reader.initializeAll = function () {
             left: true,
         };
 
-        let page = Reader.currentPage;
+        let page = Reader.currentPage + 1;
 
         if (Reader.doublePageMode && Reader.currentPage > 0
             && Reader.currentPage < Reader.maxPage) {
@@ -1230,7 +1230,7 @@ Reader.updateProgress = function () {
 
     // Load stamps
     if (!Reader.infiniteScroll) {
-        const stamps = Reader.loadStamps(Reader.currentPage);
+        const stamps = Reader.loadStamps(Reader.currentPage + 1);
     }
 };
 
@@ -1586,17 +1586,17 @@ Reader.filterStampedOverlay = function () {
                     const index = parseInt(pages[page]);
 
                     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${index+1}`);
+                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${index}`);
                     
                     let thumbnail = `
-                        <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                            <span class='page-number'>${I18N.ReaderPage(index+1)}</span>
-                            <img src="${thumbnailUrl}" id="${index}_thumb" loading="lazy" />`;
+                        <div class='${thumbCss} quick-thumbnail' page='${index-1}' style='display: inline-block; cursor: pointer'>
+                            <span class='page-number'>${I18N.ReaderPage(index)}</span>
+                            <img src="${thumbnailUrl}" id="${index-1}_thumb" loading="lazy" />`;
 
                     if (Reader.pageThumbnails.includes(index)) thumbnail += 
                         `</div>`;
                     else thumbnail += 
-                            `<i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
+                            `<i id="${index-1}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
                         </div>`;
 
                     htmlBlob += thumbnail;
