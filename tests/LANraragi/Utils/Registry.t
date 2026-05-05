@@ -21,14 +21,13 @@ sub make_valid_index {
             "sample-downloader" => {
                 namespace => "sample-downloader",
                 type      => "download",
-                channels  => { latest => "1.0" },
                 versions  => {
-                    "1.0" => {
-                        version      => "1.0",
+                    "1.0.0" => {
+                        version      => "1.0.0",
                         name         => "Sample Downloader",
                         author       => "koyomi",
                         description  => "Downloads a sample archive.",
-                        artifact     => "artifacts/sample-downloader/1.0/SampleDownload.pm",
+                        artifact     => "artifacts/sample-downloader/1.0.0/SampleDownload.pm",
                         sha256       => "a" x 64,
                         published_at => "2026-03-20T00:00:00Z",
                     },
@@ -191,7 +190,7 @@ note('testing is_valid_registry_timestamp rejects non-spec formats...');
 note('testing validate_registry_artifact_path accepts valid relative paths...');
 
 {
-    my ( $ok, $err ) = LANraragi::Utils::Registry::validate_registry_artifact_path("artifacts/foo/1.0/Foo.pm");
+    my ( $ok, $err ) = LANraragi::Utils::Registry::validate_registry_artifact_path("artifacts/foo/1.0.0/Foo.pm");
     is( $ok,  1,     "nested relative path accepted (ok)" );
     is( $err, undef, "nested relative path accepted (no error)" );
 }
@@ -384,6 +383,13 @@ note('testing validate_registry_index rejects plugin-level violations...');
 
 {
     my $idx = make_valid_index();
+    $idx->{plugins}{"sample-downloader"}{channels} = { latest => "1.0.0" };
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' has unknown field 'channels'.", "channels field rejected as unknown" );
+}
+
+{
+    my $idx = make_valid_index();
     $idx->{plugins}{"sample-downloader"}{namespace} = "different-name";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
     is( $err, "Invalid registry.json: plugin key 'sample-downloader' must match inner namespace.", "key/inner namespace mismatch rejected" );
@@ -398,92 +404,208 @@ note('testing validate_registry_index rejects plugin-level violations...');
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{channels} = "not a hash";
-    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' 'channels' must be an object.", "non-hash channels rejected" );
-}
-
-{
-    my $idx = make_valid_index();
     $idx->{plugins}{"sample-downloader"}{versions} = {};
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
     is( $err, "Invalid registry.json: plugin 'sample-downloader' 'versions' must be a non-empty object.", "empty versions rejected" );
 }
 
+note('testing validate_registry_index rejects non-SemVer version keys...');
+
 {
     my $idx = make_valid_index();
-    delete $idx->{plugins}{"sample-downloader"}{channels}{latest};
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"} = {
+        version      => "1.0",
+        name         => "Sample Downloader",
+        author       => "koyomi",
+        description  => "Downloads a sample archive.",
+        artifact     => "artifacts/sample-downloader/1.0/SampleDownload.pm",
+        sha256       => "a" x 64,
+        published_at => "2026-03-20T00:00:00Z",
+    };
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' must define channels.latest.", "missing channels.latest rejected" );
+    is(
+        $err,
+        "Invalid registry.json: plugin 'sample-downloader' version key '1.0' is not a valid SemVer 2.0.0 string.",
+        "short dotted version key rejected"
+    );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{channels}{latest} = "9.9";
+    $idx->{plugins}{"sample-downloader"}{versions}{"not-a-version"} = {
+        version      => "not-a-version",
+        name         => "Sample Downloader",
+        author       => "koyomi",
+        description  => "Downloads a sample archive.",
+        artifact     => "artifacts/sample-downloader/not-a-version/SampleDownload.pm",
+        sha256       => "a" x 64,
+        published_at => "2026-03-20T00:00:00Z",
+    };
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' channels.latest must point to an existing version.", "channels.latest pointing nowhere rejected" );
+    is(
+        $err,
+        "Invalid registry.json: plugin 'sample-downloader' version key 'not-a-version' is not a valid SemVer 2.0.0 string.",
+        "non-semver string version key rejected"
+    );
+}
+
+{
+    my $idx = make_valid_index();
+    $idx->{plugins}{"sample-downloader"}{versions}{"v1.0.0"} = {
+        version      => "v1.0.0",
+        name         => "Sample Downloader",
+        author       => "koyomi",
+        description  => "Downloads a sample archive.",
+        artifact     => "artifacts/sample-downloader/v1.0.0/SampleDownload.pm",
+        sha256       => "a" x 64,
+        published_at => "2026-03-20T00:00:00Z",
+    };
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is(
+        $err,
+        "Invalid registry.json: plugin 'sample-downloader' version key 'v1.0.0' is not a valid SemVer 2.0.0 string.",
+        "v-prefixed version key rejected"
+    );
+}
+
+note('testing validate_registry_index accepts valid SemVer version keys...');
+
+{
+    my $idx = make_valid_index();
+    $idx->{plugins}{"sample-downloader"}{versions}{"2.0.0"} = {
+        version      => "2.0.0",
+        name         => "Sample Downloader",
+        author       => "koyomi",
+        description  => "Downloads a sample archive.",
+        artifact     => "artifacts/sample-downloader/2.0.0/SampleDownload.pm",
+        sha256       => "b" x 64,
+        published_at => "2026-03-23T00:00:00Z",
+    };
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, undef, "multiple valid SemVer version keys accepted" );
+}
+
+{
+    my $idx = make_valid_index();
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0-alpha.1"} = {
+        version      => "1.0.0-alpha.1",
+        name         => "Sample Downloader",
+        author       => "koyomi",
+        description  => "Downloads a sample archive.",
+        artifact     => "artifacts/sample-downloader/1.0.0-alpha.1/SampleDownload.pm",
+        sha256       => "c" x 64,
+        published_at => "2026-03-19T00:00:00Z",
+    };
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, undef, "SemVer prerelease version key accepted" );
 }
 
 note('testing validate_registry_index rejects version-level violations...');
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"} = "not a hash";
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"} = "not a hash";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0' must be an object.", "non-hash version rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' must be an object.", "non-hash version rejected" );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{unknown_field} = 1;
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{unknown_field} = 1;
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0' has unknown field 'unknown_field'.", "unknown version field rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' has unknown field 'unknown_field'.", "unknown version field rejected" );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{version} = "9.9";
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{version} = "9.9.9";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version key '1.0' must match inner version.", "key/inner version mismatch rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version key '1.0.0' must match inner version.", "key/inner version mismatch rejected" );
 }
 
 foreach my $field (qw(name author description artifact sha256 published_at)) {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{$field} = "";
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{$field} = "";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
     is(
         $err,
-        "Invalid registry.json: plugin 'sample-downloader' version '1.0' is missing '$field'.",
+        "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' is missing '$field'.",
         "empty required field '$field' rejected"
     );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{artifact} = "/etc/passwd";
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{artifact} = "/etc/passwd";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
     is( $err, "Invalid registry.json: artifact path must be relative.", "non-empty invalid artifact delegates to validate_registry_artifact_path" );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{sha256} = "z" x 64;
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{sha256} = "z" x 64;
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0' sha256 must be 64 hexadecimal characters.", "non-hex sha256 rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 hexadecimal characters.", "non-hex sha256 rejected" );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{sha256} = "a" x 63;
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{sha256} = "a" x 63;
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0' sha256 must be 64 hexadecimal characters.", "63-char sha256 rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 hexadecimal characters.", "63-char sha256 rejected" );
 }
 
 {
     my $idx = make_valid_index();
-    $idx->{plugins}{"sample-downloader"}{versions}{"1.0"}{published_at} = "yesterday";
+    $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{published_at} = "yesterday";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0' published_at must be a UTC RFC3339 timestamp.", "malformed published_at rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' published_at must be a UTC RFC3339 timestamp.", "malformed published_at rejected" );
+}
+
+note('testing resolve_max_version returns SemVer-greatest key...');
+
+{
+    my $plugin_root = {
+        versions => {
+            "1.0.0" => {},
+            "1.1.0" => {},
+            "2.0.0" => {},
+        },
+    };
+    my $max = LANraragi::Utils::Registry::resolve_max_version($plugin_root);
+    is( $max, "2.0.0", "greatest version among three is selected" );
+}
+
+{
+    my $plugin_root = {
+        versions => {
+            "1.0.0" => {},
+        },
+    };
+    my $max = LANraragi::Utils::Registry::resolve_max_version($plugin_root);
+    is( $max, "1.0.0", "single version is returned as max" );
+}
+
+{
+    my $plugin_root = {
+        versions => {
+            "1.0.0"       => {},
+            "1.0.0-alpha" => {},
+        },
+    };
+    my $max = LANraragi::Utils::Registry::resolve_max_version($plugin_root);
+    is( $max, "1.0.0", "release version is greater than prerelease by SemVer" );
+}
+
+{
+    my $plugin_root = {
+        versions => {
+            "1.9.0"  => {},
+            "1.10.0" => {},
+        },
+    };
+    my $max = LANraragi::Utils::Registry::resolve_max_version($plugin_root);
+    is( $max, "1.10.0", "SemVer comparator correctly orders 1.10.0 > 1.9.0" );
 }
 
 note('testing find_package_conflict...');

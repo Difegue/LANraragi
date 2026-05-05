@@ -960,7 +960,6 @@ paths:
               required:
                 - namespace
                 - registry
-                - version
               properties:
                 namespace:
                   type: string
@@ -974,12 +973,7 @@ paths:
                 version:
                   type: string
                   minLength: 1
-                  description: Explicit version key to install from the registry.
-                installed_channel:
-                  type: string
-                  nullable: true
-                  minLength: 1
-                  description: Optional channel name to record for channel-tracked installs.
+                  description: Explicit version key to install. If omitted, LRR installs the SemVer-max version from the registry index.
                 force:
                   type: boolean
                   description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten — remove them first.
@@ -1011,10 +1005,6 @@ paths:
                   installed_sha256:
                     type: string
                     description: SHA-256 of the installed artifact.
-                  installed_channel:
-                    type: string
-                    nullable: true
-                    description: Channel recorded for this install, or null for explicit-version installs.
         '400':
           description: Install failed (validation, bad path, unknown type)
           content:
@@ -4145,10 +4135,6 @@ components:
           type: string
           nullable: true
           description: SHA-256 recorded for the installed artifact, or null if not registry-managed
-        installed_channel:
-          type: string
-          nullable: true
-          description: Channel recorded for this install, or null for explicit-version installs
       example:
         author: Difegue
         description: Searches chaika.moe for tags matching your archive.

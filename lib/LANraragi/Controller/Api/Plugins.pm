@@ -57,11 +57,10 @@ sub update_plugin_config {
 sub install_plugin {
     my $self              = shift->openapi->valid_input or return;
     my $body              = $self->req->json;
-    my $namespace         = $body->{namespace};
-    my $registry_id       = $body->{registry};
-    my $version           = $body->{version};
-    my $installed_channel = $body->{installed_channel};
-    my $force             = $body->{force} // 0;              # upgrade path
+    my $namespace   = $body->{namespace};
+    my $registry_id = $body->{registry};
+    my $version     = $body->{version};
+    my $force       = $body->{force} // 0;              # upgrade path
 
     return unless exec_with_lock(
         $self,
@@ -106,7 +105,7 @@ sub install_plugin {
             my $install_error;
             my ( $status, $plugmeta, $message ) = eval {
                 LANraragi::Model::Plugins::install_plugin(
-                    $namespace, $redis, $registry_id, $version, $installed_channel
+                    $namespace, $redis, $registry_id, $version
                 );
             };
             $install_error = $@;
@@ -137,7 +136,6 @@ sub install_plugin {
                     version            => $plugmeta->{version},
                     installed_registry => $plugmeta->{installed_registry},
                     installed_sha256   => $plugmeta->{installed_sha256},
-                    installed_channel  => $plugmeta->{installed_channel},
                 }
             );
         }

@@ -9,6 +9,7 @@ use File::Spec; # TODO(REVIEW): why use this over Path? Check dev for consistenc
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
+use SemVer;
 
 use LANraragi::Utils::Path    qw(find_path);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -22,6 +23,7 @@ our @EXPORT_OK = qw(
     validate_registry_artifact_path
     resolve_local_registry_artifact_path
     is_valid_registry_timestamp
+    resolve_max_version
     MANAGED_TYPE_DIRS
 );
 
@@ -35,7 +37,7 @@ use constant MANAGED_TYPE_DIRS => {
 
 # Allowed-field whitelists for registry.json schema.
 my @ALLOWED_ROOT_FIELDS     = qw(version generated_at plugins);
-my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type channels versions);
+my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type versions);
 my @ALLOWED_VERSION_FIELDS  = qw(version name author description artifact sha256 published_at);
 my @REQUIRED_VERSION_FIELDS = qw(name author description artifact sha256 published_at);
 
@@ -174,20 +176,19 @@ sub validate_registry_index {
         unless ( defined $plugin->{type} && MANAGED_TYPE_DIRS->{ $plugin->{type} } ) {
             return "Invalid registry.json: plugin '$namespace' has invalid type '$plugin->{type}'.";
         }
-        unless ( ref $plugin->{channels} eq "HASH" ) {
-            return "Invalid registry.json: plugin '$namespace' 'channels' must be an object.";
-        }
         unless ( ref $plugin->{versions} eq "HASH" && keys %{ $plugin->{versions} } ) {
             return "Invalid registry.json: plugin '$namespace' 'versions' must be a non-empty object.";
         }
-        unless ( defined $plugin->{channels}{latest} && $plugin->{channels}{latest} ne "" ) {
-            return "Invalid registry.json: plugin '$namespace' must define channels.latest.";
-        }
-        unless ( exists $plugin->{versions}{ $plugin->{channels}{latest} } ) {
-            return "Invalid registry.json: plugin '$namespace' channels.latest must point to an existing version.";
-        }
 
         foreach my $version_key ( sort keys %{ $plugin->{versions} } ) {
+            # SemVer 2.0.0 forbids a leading "v" prefix. The SemVer module accepts it; reject explicitly.
+            if ( $version_key =~ /^v/i ) {
+                return "Invalid registry.json: plugin '$namespace' version key '$version_key' is not a valid SemVer 2.0.0 string.";
+            }
+            my $semver_ok = eval { SemVer->new($version_key); 1 };
+            unless ($semver_ok) {
+                return "Invalid registry.json: plugin '$namespace' version key '$version_key' is not a valid SemVer 2.0.0 string.";
+            }
             my $version = $plugin->{versions}{$version_key};
             unless ( ref $version eq "HASH" ) {
                 return "Invalid registry.json: plugin '$namespace' version '$version_key' must be an object.";
@@ -275,6 +276,17 @@ sub resolve_local_registry_artifact_path {
 sub is_valid_registry_timestamp {
     my ($timestamp) = @_;
     return $timestamp =~ /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\z/;
+}
+
+# Return the SemVer-greatest version key from a plugin record's versions map.
+# $plugin_root: the plugin record hashref (must have a non-empty 'versions' map).
+# Pure function, no Redis.
+sub resolve_max_version {
+    my ($plugin_root) = @_;
+
+    my @keys = keys %{ $plugin_root->{versions} };
+    my ($max) = sort { SemVer->new($b) <=> SemVer->new($a) } @keys;
+    return $max;
 }
 
 1;

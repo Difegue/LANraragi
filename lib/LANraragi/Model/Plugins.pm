@@ -34,6 +34,7 @@ use LANraragi::Utils::Registry qw(
     find_namespace_conflict
     validate_registry_artifact_path
     resolve_local_registry_artifact_path
+    resolve_max_version
     MANAGED_TYPE_DIRS
 );
 
@@ -323,10 +324,9 @@ sub has_old_style_params (%params) {
 # TODO(REVIEW) what if the signature of the plugin changes from one version to the next, or across provenance, in a way which is incompatible?
 # because uninstall plugin keeps configuration, this will require thought...
 sub install_plugin {
-    my ( $namespace, $redis, $registry_id, $version, $installed_channel ) = @_;
+    my ( $namespace, $redis, $registry_id, $version ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
 
     # registry must exist
     unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
@@ -350,35 +350,19 @@ sub install_plugin {
 
     my $plugin_root = $registry_plugins->{$namespace};
 
-    unless ( $plugin_root->{versions} && $plugin_root->{versions}{$version} ) {
+    unless ( ref $plugin_root->{versions} eq "HASH" && keys %{ $plugin_root->{versions} } ) {
+        return ( 404, undef, "No versions found for plugin '$namespace'." );
+    }
+
+    unless ( defined $version ) {
+        $version = resolve_max_version($plugin_root);
+    }
+
+    unless ( $plugin_root->{versions}{$version} ) {
         return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
     }
 
-    if ( defined $installed_channel ) {
-        $logger->info("Installing plugin via installed channel: $installed_channel");
-
-        # TODO(REVIEW) check dev branch for consistency (use of raw ref)
-        unless ( ref $plugin_root->{channels} eq "HASH" ) {
-            return ( 400, undef, "Plugin '$namespace' is missing channel data." );
-        }
-
-        # TODO(REVIEW) duplicate code
-        # TODO(REVIEW) check dev branch for consistency (key chaining)
-        unless ( exists $plugin_root->{channels}{$installed_channel} ) {
-            return ( 400, undef, "Channel '$installed_channel' not found for plugin '$namespace'." );
-        }
-
-        # TODO(REVIEW) why does version need resolving here?
-        unless ( $plugin_root->{channels}{$installed_channel} eq $version ) {
-            return (
-                400,
-                undef,
-                "Channel '$installed_channel' resolves to version '$plugin_root->{channels}{$installed_channel}', not '$version'."
-            );
-        }
-    } else {
-        $logger->info("Installing plugin without a channel.");
-    }
+    $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
 
     my $plugin_metadata = $plugin_root->{versions}{$version};
     $plugin_metadata->{type} = $plugin_root->{type};
@@ -464,7 +448,6 @@ sub install_plugin {
     my $installpath     = $validated->{install_path};
     my $incpath         = package_to_path( $validated->{package} );
     my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) ); # TODO(REVIEW) Paths compliance?
-    my $channel_value   = defined $installed_channel ? $installed_channel : ""; # TODO(REVIEW) confirm channel_value accepts "" fallback
 
     make_path($installdir) unless -d $installdir;
 
@@ -483,22 +466,18 @@ sub install_plugin {
     if redis.call("EXISTS", KEYS[1]) == 0 then
         return 0
     end
-    redis.call("HSET",    KEYS[2], "installed_path",     ARGV[1])
-    redis.call("HSET",    KEYS[2], "installed_version",  ARGV[2])
-    redis.call("HSET",    KEYS[2], "installed_registry", ARGV[3])
-    redis.call("HSET",    KEYS[2], "installed_sha256",   ARGV[4])
-    if ARGV[5] ~= "" then
-        redis.call("HSET", KEYS[2], "installed_channel", ARGV[5])
-    else
-        redis.call("HDEL", KEYS[2], "installed_channel")
-    end
+    redis.call("HSET", KEYS[2], "installed_path",     ARGV[1])
+    redis.call("HSET", KEYS[2], "installed_version",  ARGV[2])
+    redis.call("HSET", KEYS[2], "installed_registry", ARGV[3])
+    redis.call("HSET", KEYS[2], "installed_sha256",   ARGV[4])
+    redis.call("HDEL", KEYS[2], "installed_channel")
     return 1
 LUA
 
     my $provenance_written = eval {
         $redis->eval(
             $script, 2, $registry_id, $namerds,
-            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256}, $channel_value
+            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256}
         );
     };
     if ($@) {
@@ -536,7 +515,6 @@ LUA
         version            => $plugin_metadata->{version},
         installed_registry => $registry_id,
         installed_sha256   => $plugin_metadata->{sha256},
-        installed_channel  => ( $channel_value ne "" ? $channel_value : undef ), # TODO(REVIEW): why channel either "" or undef at times? Inconsistent.
     );
 
     return ( 200, \%installed_meta, undef ); # TODO(REVIEW): why ref?
