@@ -5,7 +5,7 @@ use Redis;
 use Encode;
 
 use LANraragi::Model::Stamp;
-use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock exec_with_lock_pure);
 
 
 sub get_stamp {
@@ -53,29 +53,37 @@ sub add_stamp {
     my $position = $self->req->param('position') || "";
 
     unless ( defined $index ) {
-        return render_api_response( $self, "add_stamp", "Archive page." );
+        return render_api_response( $self, "add_stamp", "No specified page for the stamp to attach to." );
     }
 
-    my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
+    return unless exec_with_lock(
+        $self,
+        "archive-write:$id",
+        "update_archive",
+        $id,
+        sub {
+            my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
 
-    if ($created_id) {
-        $self->render(
-            openapi => {
-                operation   => "add_stamp",
-                stamp_id    => $created_id,
-                success     => 1
+            if ($created_id) {
+                $self->render(
+                    openapi => {
+                        operation   => "add_stamp",
+                        stamp_id    => $created_id,
+                        success     => 1
+                    }
+                );
+            } else {
+                $self->render(
+                    openapi => {
+                        operation   => "add_stamp",
+                        stamp_id    => $created_id,
+                        success     => 0,
+                        error       => $err
+                    }
+                );
             }
-        );
-    } else {
-        $self->render(
-            openapi => {
-                operation   => "add_stamp",
-                stamp_id    => $created_id,
-                success     => 0,
-                error       => $err
-            }
-        );
-    }
+        }
+    );
 }
 
 sub update_stamp {
@@ -111,21 +119,35 @@ sub delete_stamp {
     my $self        = shift->openapi->valid_input or return;
     my $stamp_id    = $self->stash('id');
 
-    return unless exec_with_lock(
-        $self,
-        "stamp-write:$stamp_id",
-        "delete_stamp",
-        $stamp_id,
-        sub {
-            my ( $result, $err ) = LANraragi::Model::Stamp::remove_stamp($stamp_id);
+    my ( $result, $id ) = LANraragi::Model::Stamp::get_stamp_archive_id($stamp_id);
 
-            if ($result) {
-                render_api_response( $self, "delete_stamp" );
-            } else {
-                render_api_response( $self, "delete_stamp", $err );
+    if ( $result ) {
+        my ( $acquired, $response ) = exec_with_lock_pure(
+            [ "archive-write:$id", "stamp-write:$stamp_id" ],
+            sub { 
+                my ( $result, $err ) = LANraragi::Model::Stamp::remove_stamp($stamp_id);
+
+                if ( $result ) {
+                    render_api_response( $self, "delete_stamp" );
+                } else {
+                    render_api_response( $self, "delete_stamp", $err );
+                }
             }
+        );
+
+        if ( !$acquired ) {
+            $self->render(
+                json => {
+                    operation => "delete_stamp",
+                    success   => 0,
+                    error     => "Locked resource"
+                },
+                status => 423
+            );
         }
-    );
+    } else {
+        render_api_response( $self, "delete_stamp", $id );
+    }
 }
 
 1;

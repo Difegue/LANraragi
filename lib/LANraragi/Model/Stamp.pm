@@ -44,7 +44,7 @@ sub get_stamp {
 }
 
 # get_stamps_by_page(id, page)
-#   Gets the list of pages that have at least one stamp.
+#   Gets the list of stamps that are associated with this Archive ID and page.
 #   Returns an array of stamps objects.
 # TODO Pagination
 sub get_stamps_by_page {
@@ -193,7 +193,7 @@ sub add_stamp {
 }
 
 # update_stamp(id, content, position)
-#   Removes the stamp from the page.
+#   Update the stamp's content and position.
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub update_stamp {
     my ( $stamp_id, $content, $position ) = @_;
@@ -252,7 +252,30 @@ sub remove_stamp {
     return ( 0, $err );
 }
 
-# Converts a stamp register to object
+# remove_stamp(key)
+#   Removes the stamp from the page.
+#   Returns 1 on success, 0 on failure alongside an error message.
+sub get_stamp_archive_id {
+	my ( $key ) = @_;
+
+    my $logger = get_logger( "Stamps", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+    my $err    = "";
+
+    if ( $redis->exists( $key ) ) {
+        # Remove key from archive.
+        # This should not throw an error, since the stamp should have been linked to the archive at creation.
+        my $archive_id      = $redis->hget( $key, "archive_id" );
+        return ( 1, $archive_id );
+    }
+
+    $err = "$key doesn't exist in the database!";
+    $logger->warn($err);
+    $redis->quit();
+    return ( 0, $err );
+}
+
+# Converts a stamp register to object.
 sub convert_stamp_to_object {
     my ( $redis, $stamp_id ) = @_;
 
@@ -265,7 +288,7 @@ sub convert_stamp_to_object {
     return %stamp;
 }
 
-# Converts an array of stamp registers to an array ob objects
+# Converts an array of stamp registers to an array of objects.
 sub convert_stamps_to_object {
     my ( $redis, @stamp_ids) = @_;
 

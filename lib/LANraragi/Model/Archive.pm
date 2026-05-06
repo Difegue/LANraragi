@@ -406,7 +406,7 @@ sub delete_archive ($id) {
             $redis->del($stamp);
         }
     } else {
-        # Stamps attribute was not setted, do nothing.
+        # Stamps attribute was not set, do nothing.
     }
 
     $redis->del($id);

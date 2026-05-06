@@ -4040,7 +4040,7 @@ components:
           description: ID of the stamp
         position:
           type: string
-          description: Position of the stamp in the page in pixel coordinates
+          description: Position of the stamp in the page in normalized coordinates (0-100)
         content:
           type: string
           description: Text of the stamp
