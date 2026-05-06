@@ -326,10 +326,14 @@ p#nb {
   width: 24px;
   height: 24px;
 
-  background-image: url('../favicon.ico'); /* your icon path */
+  background-image: url('../favicon.ico');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  filter:
+		drop-shadow(0 0 1px black)
+		drop-shadow(0 0 1px black)
+		drop-shadow(0 0 1px black);
 
   transform: translate(-50%, -50%);
   pointer-events: auto;
