@@ -196,6 +196,90 @@ sub delete_registry {
     );
 }
 
+sub get_default_registry {
+    my $self  = shift->openapi->valid_input or return;
+    my $redis = $self->LRR_CONF->get_redis_config;
+
+    my $registry_id = LANraragi::Model::Registry::get_default_registry($redis);
+    $redis->quit();
+
+    $self->render(
+        openapi => {
+            operation   => "get_default_registry",
+            success     => 1,
+            registry_id => $registry_id,
+        }
+    );
+}
+
+sub update_default_registry {
+    my $self        = shift->openapi->valid_input or return;
+    my $registry_id = $self->stash('id');
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    $logger->info("Update default registry to '$registry_id' requested.");
+
+    return unless exec_with_lock(
+        $self,
+        "registry-default-write",
+        "update_default_registry",
+        "default_registry",
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
+            my ( $status, $reg_id, $message ) =
+                LANraragi::Model::Registry::update_default_registry( $registry_id, $redis );
+            $redis->quit();
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => {
+                        operation   => "update_default_registry",
+                        success     => 0,
+                        registry_id => $reg_id,
+                        error       => $message,
+                    },
+                    status => $status,
+                );
+                return;
+            }
+
+            $self->render(
+                openapi => {
+                    operation   => "update_default_registry",
+                    success     => 1,
+                    registry_id => $reg_id,
+                },
+                status => 200,
+            );
+        }
+    );
+}
+
+sub remove_default_registry {
+    my $self   = shift->openapi->valid_input or return;
+    my $logger = get_logger( "Registry", "lanraragi" );
+    $logger->info("Remove default registry requested.");
+
+    return unless exec_with_lock(
+        $self,
+        "registry-default-write",
+        "remove_default_registry",
+        "default_registry",
+        sub {
+            my $redis       = $self->LRR_CONF->get_redis_config;
+            my $registry_id = LANraragi::Model::Registry::remove_default_registry($redis);
+            $redis->quit();
+
+            $self->render(
+                openapi => {
+                    operation   => "remove_default_registry",
+                    success     => 1,
+                    registry_id => $registry_id,
+                }
+            );
+        }
+    );
+}
+
 sub refresh_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');

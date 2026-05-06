@@ -590,7 +590,7 @@ paths:
       operationId: createRegistry
       x-mojo-to: api-registry#create_registry
       summary: 🔑 Create a Registry
-      description: Add a new plugin registry. Currently limited to one registry.
+      description: Add a new plugin registry.
       tags:
         - registries
       requestBody:
@@ -670,13 +670,141 @@ paths:
                   registry:
                     $ref: '#/components/schemas/RegistryMetadata'
         '400':
-          description: Registry creation failed (single-registry limit, invalid path)
+          description: Registry creation failed (invalid path or required field)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
         '500':
           description: Redis error during registry creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /registries/default:
+    get:
+      operationId: getDefaultRegistry
+      x-mojo-to: api-registry#get_default_registry
+      summary: Get default Registry
+      description: >-
+        Retrieves the registry id currently designated as the default.
+
+        Returns an empty string if no registry is designated.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: Default registry id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - get_default_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  registry_id:
+                    description: Designated default registry id, or empty string if unset.
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+    delete:
+      security:
+        - api_key: []
+      operationId: removeDefaultRegistry
+      x-mojo-to: api-registry#remove_default_registry
+      summary: 🔑 Clear default Registry
+      description: >-
+        Clears the default-registry designation.
+
+        Returns the id of the previously-designated registry, or an empty string if none was set.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: Default registry cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - remove_default_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  registry_id:
+                    description: Id of the previously-designated registry.
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+  /registries/default/{id}:
+    put:
+      security:
+        - api_key: []
+      operationId: updateDefaultRegistry
+      x-mojo-to: api-registry#update_default_registry
+      summary: 🔑 Set default Registry
+      description: >-
+        Designates the registry with the given id as the default.
+
+        The frontend uses this designation to pre-select a registry in install/refresh dialogs.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry id to designate as default.
+      responses:
+        '200':
+          description: Default registry set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_default_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  registry_id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
+        '400':
+          description: Invalid registry id format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Registry with the specified id does not exist
           content:
             application/json:
               schema:

@@ -270,9 +270,42 @@ LUA
         return ( 500, undef, "Redis error while deleting registry." );
     }
 
+    if ( ( $redis->hget( 'LRR_CONFIG', 'default_registry' ) || "" ) eq $registry_id ) {
+        $redis->hdel( 'LRR_CONFIG', 'default_registry' );
+        $logger->info("Cleared default-registry pointer that referenced deleted '$registry_id'.");
+    }
+
     $logger->info("Deleted registry '$registry_id'.");
 
     return ( 200, 1, undef );
+}
+
+# Get the configured default registry id, or empty string if unset.
+sub get_default_registry {
+    my ($redis) = @_;
+    return $redis->hget( 'LRR_CONFIG', 'default_registry' ) || "";
+}
+
+# Set the configured default registry to $registry_id.
+# Returns ( $status_code, $registry_id, $message ).
+sub update_default_registry {
+    my ( $registry_id, $redis ) = @_;
+    unless ( defined $registry_id && $registry_id =~ /^REG_\d{10}$/ ) {
+        return ( 400, $registry_id, "Input registry ID is invalid." );
+    }
+    unless ( $redis->exists($registry_id) ) {
+        return ( 404, $registry_id, "Registry does not exist!" );
+    }
+    $redis->hset( 'LRR_CONFIG', 'default_registry', $registry_id );
+    return ( 200, $registry_id, "success" );
+}
+
+# Clear the configured default registry. Returns the previously-set id (empty string if unset).
+sub remove_default_registry {
+    my ($redis) = @_;
+    my $registry_id = $redis->hget( 'LRR_CONFIG', 'default_registry' ) || "";
+    $redis->hdel( 'LRR_CONFIG', 'default_registry' );
+    return $registry_id;
 }
 
 # Fetch registry.json from a configured registry source.
