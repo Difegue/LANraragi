@@ -567,6 +567,7 @@ sub install_plugin {
     my $require_error = $@;
 
     if ($require_error) {
+        delete $INC{$incpath}; # clear out undef resulting from require failure
         if ( my @resp = $do_rollback->("Plugin '$namespace' failed to load: $require_error") ) {
             return @resp;
         }
