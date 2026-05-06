@@ -25,9 +25,9 @@ use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
 use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin);
-use LANraragi::Utils::PluginState qw(record_load_failure record_load_success signal_uninstalled signal_updated);
+use LANraragi::Utils::PluginState qw(record_load_success signal_uninstalled signal_updated);
 use LANraragi::Utils::Redis    qw(redis_decode);
-use LANraragi::Utils::Path     qw(create_path unlink_path package_to_path);
+use LANraragi::Utils::Path     qw(create_path unlink_path rename_path package_to_path);
 use LANraragi::Utils::Registry qw(
     resolve_git_raw_url
     find_package_conflict
@@ -451,64 +451,141 @@ sub install_plugin {
 
     make_path($installdir) unless -d $installdir;
 
+    my $op_desc = "install of plugin '$namespace' (version=$version, registry=$registry_id)";
+    my @undo;   # all operations to undo in event of failure.
+    my $do_rollback = sub {
+        my ($reason) = @_;
+        $logger->error("$op_desc failed: $reason; attempting rollback");
+        while ( my $entry = pop @undo ) {
+            my ( $stage, $undo_sub ) = @$entry;
+            my $undo_err = $undo_sub->();
+            if ( defined $undo_err ) {
+                $logger->error("rollback of $op_desc failed during $stage: $undo_err");
+                return ( 500, undef,
+                    "Plugin '$namespace' failed and rollback was incomplete; manual cleanup may be required." );
+            }
+        }
+        return;
+    };
+
+    # Backup existing artifact so a same-path upgrade has bytes to restore on rollback.
+    my $backup_path;
+    if ( -e $installpath ) {
+        $backup_path = "$installpath.lrr-rollback";
+        unlink_path($backup_path) if -e $backup_path;
+        unless ( rename_path( $installpath, $backup_path ) ) {
+            my $err = "$!";
+            $logger->error("Cannot back up existing artifact at $installpath: $err");
+            return ( 500, undef, "Cannot back up existing artifact for transactional install: $err" );
+        }
+        push @undo, [
+            "restore prior artifact from $backup_path",
+            sub { rename_path( $backup_path, $installpath ) ? undef : "$!" },
+        ];
+    }
+
     eval { Mojo::File->new($installpath)->spew($plugin_content) };
     if ($@) {
-        my $error = "Cannot write plugin file during installation: $@";
-        $logger->error($error);
-        return ( 500, undef, $error );
+        my $err = $@;
+        if ( my @resp = $do_rollback->("Cannot write plugin file: $err") ) {
+            return @resp;
+        }
+        return ( 500, undef, "Cannot write plugin file during installation: $err" );
     }
+    push @undo, [
+        "unlink artifact at $installpath",
+        sub {
+            return unless -e $installpath;
+            unlink_path($installpath) ? undef : "$!";
+        },
+    ];
 
     $logger->info("Installed plugin '$namespace' to $installpath");
 
-    # Verify registry exists and store updated plugin provenance.
+    my %prior;
+    for my $field (qw(installed_path installed_version installed_registry installed_sha256)) {
+        my $val = $redis->hget( $namerds, $field );
+        $prior{$field} = $val if defined $val;
+    }
+
     # TODO(REVIEW) integration coverage for plugin install + metadata confirmation.
-    my $script = <<'LUA';
-    if redis.call("EXISTS", KEYS[1]) == 0 then
-        return 0
-    end
-    redis.call("HSET", KEYS[2], "installed_path",     ARGV[1])
-    redis.call("HSET", KEYS[2], "installed_version",  ARGV[2])
-    redis.call("HSET", KEYS[2], "installed_registry", ARGV[3])
-    redis.call("HSET", KEYS[2], "installed_sha256",   ARGV[4])
-    redis.call("HDEL", KEYS[2], "installed_channel")
-    return 1
-LUA
+    my $provenance_script = <<~'LUA';
+        if redis.call("EXISTS", KEYS[1]) == 0 then
+            return 0
+        end
+        redis.call("HSET", KEYS[2], "installed_path",     ARGV[1])
+        redis.call("HSET", KEYS[2], "installed_version",  ARGV[2])
+        redis.call("HSET", KEYS[2], "installed_registry", ARGV[3])
+        redis.call("HSET", KEYS[2], "installed_sha256",   ARGV[4])
+        redis.call("HDEL", KEYS[2], "installed_channel")
+        return 1
+        LUA
+
+    my $restore_script = <<~'LUA';
+        redis.call("HDEL", KEYS[1], "installed_path", "installed_version", "installed_registry", "installed_sha256")
+        for i = 1, #ARGV, 2 do
+            redis.call("HSET", KEYS[1], ARGV[i], ARGV[i + 1])
+        end
+        return 1
+        LUA
 
     my $provenance_written = eval {
         $redis->eval(
-            $script, 2, $registry_id, $namerds,
+            $provenance_script, 2, $registry_id, $namerds,
             $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256}
         );
     };
     if ($@) {
-        $logger->error("Redis error during provenance write for '$namespace': $@");
-        # Clean up the written file since provenance was not recorded
-        unlink_path($installpath); # TODO(REVIEW) why remove?
+        my $err = $@;
+        if ( my @resp = $do_rollback->("Redis error during provenance write: $err") ) {
+            return @resp;
+        }
         return ( 500, undef, "Redis error while writing provenance." );
     }
     unless ($provenance_written) {
-        # Registry was deleted between our existence check and the Lua script
-        unlink_path($installpath); # TODO(REVIEW) why remove?
+        if ( my @resp = $do_rollback->("Registry was deleted during install") ) {
+            return @resp;
+        }
         return ( 409, undef, "Registry was deleted during install." );
+    }
+    push @undo, [
+        ( exists $prior{installed_path}
+            ? "restore prior provenance for $namerds"
+            : "clear provenance for $namerds" ),
+        sub {
+            my @argv;
+            for my $field (qw(installed_path installed_version installed_registry installed_sha256)) {
+                push @argv, $field, $prior{$field} if exists $prior{$field};
+            }
+            eval { $redis->eval( $restore_script, 1, $namerds, @argv ) };
+            $@ ? "$@" : undef;
+        },
+    ];
+
+    delete $INC{$incpath};
+    eval { require $incpath };
+    my $require_error = $@;
+
+    if ($require_error) {
+        if ( my @resp = $do_rollback->("Plugin '$namespace' failed to load: $require_error") ) {
+            return @resp;
+        }
+        return ( 422, undef, "Plugin '$namespace' failed to load: $require_error" );
+    }
+
+    @undo = ();
+    if ( $backup_path && -e $backup_path ) {
+        unlink_path($backup_path) or $logger->warn("Could not remove rollback backup at $backup_path: $!");
     }
 
     # If the upgrade landed at a new path (type-change between published versions, in violation
     # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
     if ( defined $currentpath && $currentpath ne $installpath && -e $currentpath ) {
-         # TODO(REVIEW) why remove?
         unlink_path($currentpath) or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
     }
 
-    # Reload INC with new plugin/incpath.
-    delete $INC{$incpath}; # TODO(REVIEW) is it possible that incpath in INC does not equal incpath in package?
     signal_updated( $namespace, $redis );
-    eval { require $incpath };
-    if ($@) {
-        record_load_failure($namespace);
-        $logger->warn("Plugin '$namespace' installed but wouldn't load: $@");
-    } else {
-        record_load_success($namespace);
-    }
+    record_load_success($namespace);
 
     my %installed_meta = (
         name               => $plugin_metadata->{name},
@@ -517,7 +594,7 @@ LUA
         installed_sha256   => $plugin_metadata->{sha256},
     );
 
-    return ( 200, \%installed_meta, undef ); # TODO(REVIEW): why ref?
+    return ( 200, \%installed_meta, undef );
 }
 
 # Uninstall a plugin by deleting it from disk and cleaning up Redis.
