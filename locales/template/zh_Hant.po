@@ -1174,6 +1174,15 @@ msgstr "備份還原成功！"
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "還原備份時發生錯誤。<br/>請檢查伺服器日誌，並確認 JSON 格式正確。"
 
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
+
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "無法載入完整的檔案清單！請重新整理頁面。"
 

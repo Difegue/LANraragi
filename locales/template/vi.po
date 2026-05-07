@@ -1287,6 +1287,15 @@ msgstr ""
 "Lỗi khi khôi phục sao lưu.<br/> Vui lòng kiểm tra nhật ký máy chủ và đảm bảo "
 "rằng tệp JSON của bạn được định dạng chính xác."
 
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
+
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Không thể tải danh sách truyện đầy đủ! Vui lòng tải lại trang."
 

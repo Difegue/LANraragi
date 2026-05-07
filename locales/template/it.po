@@ -1262,6 +1262,15 @@ msgstr ""
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
 
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
+
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr ""
 

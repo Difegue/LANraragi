@@ -2,6 +2,10 @@ const I18N = {};
 
 I18N.BackupRestored = "[% c.lh("Backup restored!") %]";
 I18N.BackupFailed = "[% c.lh("An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted.") %]";
+I18N.BackupGenerating = "[% c.lh("Backup generation in progress...") %]";
+I18N.BackupUploading = "[% c.lh("Uploading backup file...") %]";
+I18N.BackupRestoring = "[% c.lh("Restoring your backup ...") %]";
+I18N.BackupComplete = "[% c.lh("Backup complete! Download will start automatically.") %]";
 
 I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
 I18N.TagStatsLoadFailure = "[% c.lh("Couldn't load the tag statistics! Please reload the page.") %]";

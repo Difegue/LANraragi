@@ -21,6 +21,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
+use LANraragi::Model::Backup;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -469,6 +470,70 @@ sub add_tasks {
                     data    => $plugin_result
                 }
             );
+        }
+    );
+
+    $minion->add_task(
+        backup_json => sub {
+            my ( $job, @args ) = @_;
+
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->info("Starting backup JSON generation...");
+
+            eval {
+                # Generate the backup JSON with progress reporting
+                my $json = LANraragi::Model::Backup::build_backup_JSON($job);
+
+                # Write JSON to temp file
+                my $tempdir  = get_temp();
+                my $filename = "backup_" . $job->id . ".json";
+                my $filepath = "$tempdir/$filename";
+
+                open my $fh, '>:encoding(UTF-8)', $filepath
+                  or die "Cannot write to $filepath: $!";
+                print $fh $json;
+                close $fh;
+
+                $logger->info("Backup JSON generated successfully at $filepath");
+
+                $job->finish(
+                    {   success  => 1,
+                        filename => $filename,
+                        path     => $filepath
+                    }
+                );
+            };
+
+            if ($@) {
+                my $error = "Error generating backup JSON: $@";
+                $logger->error($error);
+                $job->fail( { error => $error } );
+            }
+        }
+    );
+
+    $minion->add_task(
+        restore_backup => sub {
+            my ( $job, @args ) = @_;
+            my ($json_data) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->info("Starting backup restoration...");
+
+            eval {
+                # Restore from JSON with progress reporting
+                LANraragi::Model::Backup::restore_from_JSON( $json_data, $job );
+
+                $logger->info("Backup restored successfully");
+
+                $job->finish( { success => 1 } );
+            };
+
+            if ($@) {
+                my $error = "Error restoring backup: $@";
+                $logger->error($error);
+                $job->fail( { error => $error } );
+            }
         }
     );
 
