@@ -760,13 +760,16 @@ sub scan_plugins {
 }
 
 # Infer plugin source from the recorded install path.
-# Returns either "managed" or "builtin".
+# Returns one of "managed", "sideloaded", or "builtin".
 sub infer_plugin_source {
     my ( $namerds, $redis ) = @_;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
         my $path = $redis->hget( $namerds, "installed_path" );
-        return "managed" if $path && $path =~ m{Plugin/(?:Managed|Sideloaded)/};
+        if ( $path ) {
+            return "managed"    if $path =~ m{Plugin/Managed/};
+            return "sideloaded" if $path =~ m{Plugin/Sideloaded/};
+        }
     }
 
     return "builtin";
