@@ -189,6 +189,7 @@
                 <li>[% c.lh("F: toggle fullscreen mode") %]</li>
                 <li>[% c.lh("B: toggle bookmark") %]</li>
                 <li>[% c.lh("N: toggle auto next page") %]</li>
+                <li>[% c.lh("G: go to page number") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
