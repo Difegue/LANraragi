@@ -40,11 +40,21 @@ sub get_plugins {
         $plugin =~ s/\.pm$//;
         $plugin =~ s|/|::|g;
 
-        my $loaded = eval { require $installed_path; 1 };
+        if ( plugin_needs_reload($ns_uc) && !should_skip_reload($ns_uc) ) {
+            delete $INC{$installed_path};
+        }
+
+        my $loaded = eval {
+            no warnings 'redefine';
+            require $installed_path;
+            1;
+        };
         unless ($loaded) {
+            record_load_failure($ns_uc);
             $logger->warn("Skipping plugin '$plugin' while listing type '$type': require '$installed_path' failed: $@");
             next;
         }
+        record_load_success($ns_uc);
 
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
