@@ -215,8 +215,8 @@ sub validate_registry_index {
                 return $artifact_error;
             }
 
-            unless ( $version->{sha256} =~ /\A[a-fA-F0-9]{64}\z/ ) {
-                return "Invalid registry.json: plugin '$namespace' version '$version_key' sha256 must be 64 hexadecimal characters.";
+            unless ( $version->{sha256} =~ /\A[a-f0-9]{64}\z/ ) {
+                return "Invalid registry.json: plugin '$namespace' version '$version_key' sha256 must be 64 lowercase hexadecimal characters.";
             }
             unless ( is_valid_registry_timestamp( $version->{published_at} ) ) {
                 return "Invalid registry.json: plugin '$namespace' version '$version_key' published_at must be a UTC RFC3339 timestamp.";
