@@ -9,7 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: Download digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: ${{ runner.temp }}/digests
         pattern: digests-*

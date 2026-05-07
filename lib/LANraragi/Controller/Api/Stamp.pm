@@ -1,0 +1,154 @@
+package LANraragi::Controller::Api::Stamp;
+use Mojo::Base 'Mojolicious::Controller';
+
+use Redis;
+use Encode;
+
+use LANraragi::Model::Stamp;
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock exec_with_lock_pure);
+
+
+sub get_stamp {
+
+    my $self        = shift->openapi->valid_input or return;
+    my $stamp_id    = $self->stash('id');
+
+    my ( $stamp, $err ) = LANraragi::Model::Stamp::get_stamp($stamp_id);
+
+    unless ($stamp) {
+        render_api_response($self, "get_stamp", "The given stamp does not exist.");
+        return;
+    }
+
+    $self->render( openapi => { result => $stamp } );
+}
+
+sub get_stamps_by_page {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $id      = $self->stash('id');
+    my $index    = $self->stash('index');
+
+    my ( $stamps, $err ) = LANraragi::Model::Stamp::get_stamps_by_page($id, $index);
+
+    $self->render( openapi => { result => $stamps } );
+}
+
+sub get_stamped_pages {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $id      = $self->stash('id');
+
+    my ( $indexes, $err ) = LANraragi::Model::Stamp::get_stamped_pages( $id );
+
+    $self->render( openapi => { result => $indexes } );
+}
+
+sub add_stamp {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $id      = $self->stash('id');
+    my $index    = $self->stash('index');
+    my $content = $self->req->param('content') || "";
+    my $position = $self->req->param('position') || "";
+
+    unless ( defined $index ) {
+        return render_api_response( $self, "add_stamp", "No specified page for the stamp to attach to." );
+    }
+
+    return unless exec_with_lock(
+        $self,
+        "archive-write:$id",
+        "update_archive",
+        $id,
+        sub {
+            my ( $created_id, $err ) = LANraragi::Model::Stamp::add_stamp( $id, $index, $content, $position );
+
+            if ($created_id) {
+                $self->render(
+                    openapi => {
+                        operation   => "add_stamp",
+                        stamp_id    => $created_id,
+                        success     => 1
+                    }
+                );
+            } else {
+                $self->render(
+                    openapi => {
+                        operation   => "add_stamp",
+                        stamp_id    => $created_id,
+                        success     => 0,
+                        error       => $err
+                    }
+                );
+            }
+        }
+    );
+}
+
+sub update_stamp {
+
+    my $self        = shift->openapi->valid_input or return;
+    my $stamp_id    = $self->stash('id');
+    my $position    = $self->req->param('position') || undef;
+    my $content     = $self->req->param('content') || undef;
+
+    return unless exec_with_lock(
+        $self,
+        "stamp-write:$stamp_id",
+        "update_stamp",
+        $stamp_id,
+        sub {
+            my ( $result, $err ) = LANraragi::Model::Stamp::update_stamp( $stamp_id, $content, $position );
+
+            if ($result) {
+                my %stamp      = LANraragi::Model::Stamp::get_stamp( $stamp_id );
+                my $successMessage = "Updated stamp \"$stamp_id\"!";
+
+                render_api_response( $self, "update_stamp", undef, $successMessage );
+            } else {
+                render_api_response( $self, "update_stamp", $err );
+            }
+        }
+    );
+
+}
+
+sub delete_stamp {
+
+    my $self        = shift->openapi->valid_input or return;
+    my $stamp_id    = $self->stash('id');
+
+    my ( $result, $id ) = LANraragi::Model::Stamp::get_stamp_archive_id($stamp_id);
+
+    if ( $result ) {
+        my ( $acquired, $response ) = exec_with_lock_pure(
+            [ "archive-write:$id", "stamp-write:$stamp_id" ],
+            sub { 
+                my ( $result, $err ) = LANraragi::Model::Stamp::remove_stamp($stamp_id);
+
+                if ( $result ) {
+                    render_api_response( $self, "delete_stamp" );
+                } else {
+                    render_api_response( $self, "delete_stamp", $err );
+                }
+            }
+        );
+
+        if ( !$acquired ) {
+            $self->render(
+                json => {
+                    operation => "delete_stamp",
+                    success   => 0,
+                    error     => "Locked resource"
+                },
+                status => 423
+            );
+        }
+    } else {
+        render_api_response( $self, "delete_stamp", $id );
+    }
+}
+
+1;
+

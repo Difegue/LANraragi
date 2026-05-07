@@ -1,83 +1,58 @@
 package LANraragi::Plugin::Login::nHentai;
 
-use strict;
-use warnings;
-no warnings 'uninitialized';
+use v5.38;
 
 use Mojo::UserAgent;
+
+use LANraragi::Utils::Generic qw(get_version);
 use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
 
     return (
-		#Standard metadata
-        name      => "nHentai CF Bypass",
-        type      => "login",
-        namespace => "nhentaicfbypass",
-        author    => "Pheromir",
-        version   => "0.1",
-        description =>
-          "Bypasses the Cloudflare Javascript-challenge by re-using cookies from your browser. Both CF cookies and the user-agent must originate from the same webbrowser.",
-        parameters => [
-              { type => "string", desc => "Browser UserAgent string (Can be found at http://useragentstring.com/ for your browser)" },
-			{ type => "string", desc => "csrftoken cookie for domain nhentai.net" },
-			{ type => "string", desc => "cf_clearance cookie for domain nhentai.net" }
+        #Standard metadata
+        name        => "nHentai",
+        type        => "login",
+        namespace   => "nhapiauth",
+        author      => "Guerra24",
+        version     => "1.0",
+        description => "Authenticates the nHentai API using an API Key. You can generate one in your profile's settings.",
+        parameters  => [
+            { type => "string", desc => "API Key" }
         ]
     );
 
 }
 
-
 # Mandatory function to be implemented by your login plugin
 # Returns a Mojo::UserAgent object only!
 sub do_login {
-
     # Login plugins only receive the parameters entered by the user.
     shift;
-    my ( $useragent, $csrftoken, $cf_clearance ) = @_;
-    return get_user_agent( $useragent, $csrftoken, $cf_clearance );
-}
+    my ( $key ) = @_;
 
-# get_user_agent(useragent, cf cookies)
-# Try crafting a Mojo::UserAgent object that can access nHentai.
-# Returns the UA object created.
-sub get_user_agent {
-
-    my ( $useragent, $csrftoken, $cf_clearance ) = @_;
-
-    my $logger = get_logger( "nHentai Cloudflare Bypass", "plugins" );
+    my $logger = get_logger( "nHentai API Auth", "plugins" );
     my $ua     = Mojo::UserAgent->new;
 
-    if ( $useragent ne "" && $csrftoken ne "" && $cf_clearance ne "") {
-        $logger->info("Useragent and Cookies provided ($useragent $csrftoken $cf_clearance)!");
-        $ua->transactor->name($useragent);
+    my $version_info = get_version;
+    my $version = $version_info->{version};
+    my $homepage = $version_info->{homepage};
+    $ua->transactor->name("LANraragi/$version (+$homepage)");
 
-        #Setup the needed cookies
-        $ua->cookie_jar->add(
-            Mojo::Cookie::Response->new(
-                name   => 'csrftoken',
-                value  => $csrftoken,
-                domain => 'nhentai.net',
-                path   => '/'
-            )
-        );
+    if ( $key ) {
 
-        $ua->cookie_jar->add(
-            Mojo::Cookie::Response->new(
-                name   => 'cf_clearance',
-                value  => $cf_clearance,
-                domain => 'nhentai.net',
-                path   => '/'
-            )
-        );
+        $logger->info("API Key provided ($key)!");
+
+        $ua->on(start => sub ($ua, $tx) {
+            $tx->req->headers->header("Authorization" => "Key $key");
+        });
 
     } else {
-        $logger->info("No cookies provided, returning blank UserAgent.");
+        $logger->info("No API Key provided");
     }
 
     return $ua;
-
 }
 
 1;

@@ -774,6 +774,15 @@ msgstr "Sorter Rekkefølge"
 msgid "Crop thumbnails"
 msgstr "Beskjær miniatyrbilder"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed"
+msgstr ""
+
+msgid "If enabled, archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Gå til Side:"
 
@@ -1304,6 +1313,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Det oppsto en feil under gjenoppretting av sikkerhetskopien.<br/> Vennligst "
 "sjekk serverloggene og at JSON-filen er riktig formatert."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Kunne ikke laste hele arkivlisten! Vennligst last inn siden på nytt."

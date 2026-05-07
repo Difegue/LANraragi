@@ -9,20 +9,19 @@ services:
       - ../../../:/home/koyomi/lanraragi
     ports:
       - "3000:3000"
+    depends_on:
+     - redis
     environment:
       - "LRR_REDIS_ADDRESS=redis:6379"
-    networks:
-      - lrr
 
   redis:
     image: "docker.io/valkey/valkey:9"
     volumes:
       - redis_data:/data
-    networks:
-      - lrr
 
 networks:
-  lrr:
+  default:
+    name: lrr
 
 volumes:
   redis_data:

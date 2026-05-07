@@ -74,7 +74,8 @@ sub apply_routes {
     $public_routes->get('/logout')->to('login#logout');
 
     # Routers for routes that require auth
-    my $logged_in = $public_routes->under('/')->to('login#logged_in');
+    my $logged_in     = $public_routes->under('/')->to('login#logged_in');
+    my $logged_in_api = $public_routes->under('/')->to('login#logged_in_api');
 
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
@@ -117,7 +118,6 @@ sub apply_routes {
     $logged_in->get('/edit')->to('edit#index');
 
     $logged_in->get('/backup')->to('backup#index');
-    $logged_in->post('/backup')->to('backup#restore');
 
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
@@ -135,7 +135,7 @@ sub apply_routes {
 
     # Metrics API (not part of OpenAPI spec, serves Prometheus format)
     if ( $self->LRR_CONF->enable_metrics ) {
-        $public_routes->get('/api/info/metrics')->to('api-metrics#serve_metrics');
+        $logged_in_api->get('/api/info/metrics')->to('api-metrics#serve_metrics');
     }
 
     $search_api->get('/search')->to('api-search#handle_datatables');

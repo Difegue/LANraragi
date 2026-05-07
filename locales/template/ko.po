@@ -713,6 +713,15 @@ msgstr "정렬 순서"
 msgid "Crop thumbnails"
 msgstr "섬네일 자르기"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed"
+msgstr ""
+
+msgid "If enabled, archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "페이지로 이동:"
 
@@ -1210,6 +1219,15 @@ msgstr "백업 복원됨!"
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "백업 복원 중 오류가 발생했습니다.<br/> 서버 로그를 확인하고 JSON 형식이 "
 "올바른지 확인하세요."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "완전한 아카이브 목록을 로드할 수 없습니다! 페이지를 새로고침하세요."

@@ -23,7 +23,7 @@ apk add --no-cache valkey valkey-cli
 apk add --no-cache perl perl-io-socket-ssl imagemagick imagemagick-perlmagick
 apk add --no-cache libffi vips vips-jxl vips-heif
 apk add --no-cache ghostscript
-apk add --no-cache shadow s6 s6-overlay s6-portable-utils
+apk add --no-cache shadow s6 s6-overlay s6-portable-utils procps-ng
 apk add --no-cache g++ make pkgconf wget curl nodejs npm perl-dev libarchive-dev linux-headers patch
 
 # Run it with unlimited jobs to improve performance
@@ -32,7 +32,7 @@ export MAKEFLAGS="-j"
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 
-cd /home/koyomi/lanraragi/tools
+cd ./tools
 
 # Manually download and patch modules
 cpanm --notest --installdeps Crypt::DES -M https://cpan.metacpan.org

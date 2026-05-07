@@ -783,6 +783,15 @@ msgstr "Orden de clasificación"
 msgid "Crop thumbnails"
 msgstr "Recortar miniaturas"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed"
+msgstr ""
+
+msgid "If enabled, archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Ir a página:"
 
@@ -1314,6 +1323,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Ocurrió un error al restaurar la copia de seguridad.<br/> Por favor revisa "
 "el registro del servidor y que el JSON esté en el formato correcto."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr ""
