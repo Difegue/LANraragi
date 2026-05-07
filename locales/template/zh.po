@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-05-04 23:09+0000\n"
+"PO-Revision-Date: 2026-05-07 17:24+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -1166,13 +1166,13 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr "恢复备份时出错。<br/>请查看服务器日志并检查JSON格式是否正确。"
 
 msgid "Backup generation in progress..."
-msgstr ""
+msgstr "正在生成备份..."
 
 msgid "Uploading backup file..."
-msgstr ""
+msgstr "正在上传备份文件..."
 
 msgid "Backup complete! Download will start automatically."
-msgstr ""
+msgstr "备份完成！将自动开始下载。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "无法加载完整档案列表！请刷新页面。"
@@ -1807,3 +1807,9 @@ msgstr "以逗号分隔的标签命名空间列表，用于从搜索建议和标
 
 msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
 msgstr "客户端将使用此列表从自动完成和标签云中过滤掉干扰标签。"
+
+msgid "G: go to page number"
+msgstr "G：跳转页码"
+
+msgid "Go to page:"
+msgstr "跳转页面："
