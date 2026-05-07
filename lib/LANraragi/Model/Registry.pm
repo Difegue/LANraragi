@@ -198,6 +198,10 @@ sub update_registry {
         push @fields_to_set, $field, $updated_registry{$field};
     }
 
+    if ( !@fields_to_set && !@fields_to_remove ) {
+        return ( 400, undef, "No valid fields to update for this registry type." );
+    }
+
     my $indexkey = "";
     if ( $indexcleared ) {
         my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
