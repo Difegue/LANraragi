@@ -900,6 +900,8 @@ paths:
                     - gitea
                 url:
                   type: string
+                  format: uri
+                  pattern: "^https://"
                 ref:
                   type: string
                 path:
