@@ -72,6 +72,30 @@ sub build_backup_JSON {
         push @{ $backup{tankoubons} }, \%tank;
     }
 
+    # Backup stamps
+    my @stamp_ids = $redis->keys('STAMPS_*');
+
+    foreach my $stamp_id (@stamp_ids) {
+        eval {
+            my %stamp_hash = $redis->hgetall($stamp_id);
+            my ( $content, $position, $archive_id ) = @stamp_hash{qw(content position archive_id)};
+
+            ( $_ = redis_decode($_) ) for ( $content, $position, $archive_id );
+            ( $_ = trim_CRLF($_) )    for ( $content, $position, $archive_id );
+
+            my %stamp = (
+                stamp_id    => $stamp_id,
+                content     => $content,
+                position    => $position,
+                archive_id  => $archive_id
+            );
+
+            push @{ $backup{stamps} }, \%stamp;
+        };
+
+        $logger->trace("Backing up stamp $stamp_id: $@");
+    }
+
     # Backup archives themselves next
     my @keys = $redis->keys('????????????????????????????????????????');    #40-character long keys only => Archive IDs
 
@@ -80,7 +104,7 @@ sub build_backup_JSON {
 
         eval {
             my %hash = $redis->hgetall($id);
-            my ( $name, $title, $tags, $summary, $thumbhash ) = @hash{qw(name title tags summary thumbhash)};
+            my ( $name, $title, $tags, $summary, $thumbhash, $stamps ) = @hash{qw(name title tags summary thumbhash stamps)};
 
             ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
             ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags, $summary );
@@ -92,7 +116,8 @@ sub build_backup_JSON {
                 tags      => $tags,
                 summary   => $summary,
                 thumbhash => $thumbhash,
-                filename  => $name
+                filename  => $name,
+                stamps    => $stamps
             );
 
             push @{ $backup{archives} }, \%arc;
@@ -171,6 +196,31 @@ sub restore_from_JSON {
                 $redis->hset( $id, "thumbhash", $thumbhash );
             }
 
+            if ( defined $archive->{"stamps"} ) {
+                my $stamps = redis_encode( $archive->{"stamps"} );
+                $redis->hset( $id, "stamps", $stamps );
+            } else {
+                $redis->hset( $id, "stamps", "[]" );
+            }
+
+        }
+    }
+
+    foreach my $stamp ( @{ $json->{stamps} } ) {
+        my $stamp_id = $stamp->{"stamp_id"};
+
+        my $content = $stamp->{"content"};
+        my $position = $stamp->{"position"};
+        my $archive_id = $stamp->{"archive_id"};
+
+        #If the archive exists, restore metadata.
+        if ( $redis->exists($archive_id) ) {
+
+            ( $_ = redis_encode($_) ) for ( $content, $position, $archive_id );
+
+            $redis->hset( $stamp_id, "content", $content);
+            $redis->hset( $stamp_id, "position", $position);
+            $redis->hset( $stamp_id, "archive_id", $archive_id);
         }
     }
 

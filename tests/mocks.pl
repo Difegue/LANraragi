@@ -120,7 +120,8 @@ sub setup_redis_mock {
             "title": "\u4f7f\u5f92\u3001\u8972\u6765",
             "file": "package.json",
             "summary": "",
-            "lastreadtime": 0
+            "lastreadtime": 0,
+            "stamps": "[\\\"STAMPS_0_1777224824660\\\", \\\"STAMPS_0_1777224824661\\\", \\\"STAMPS_1_1777224824662\\\", \\\"STAMPS_2_1777224824663\\\", \\\"STAMPS_3_1777224824664\\\"]"
         },
         "TANK_1589141306": [
             "name_Hello",
@@ -130,7 +131,32 @@ sub setup_redis_mock {
         "TANK_1589138380":[
             "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ]
+        ],
+        "STAMPS_0_1777224824660": {
+            "content": "Lorem",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_0_1777224824661": {
+            "content": "Ipsum",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_1_1777224824662": {
+            "content": "Dolor",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_2_1777224824663": {
+            "content": "Sit",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        },
+        "STAMPS_3_1777224824664": {
+            "content": "Amet",
+            "position": "0,0",
+            "archive_id": "be447b58ea66137c415ee306ee2ac44b308ee484"
+        }
     })
       };
 
@@ -146,7 +172,8 @@ sub setup_redis_mock {
 
             # Replace redis' '*' wildcards with regex '.*'s
             $expr = $expr =~ s/\*/\.\*/gr;
-            return grep { /$expr/ } keys %datamodel;
+
+            return grep { /^$expr$/ } keys %datamodel;
         }
     );
     $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
@@ -410,6 +437,72 @@ sub setup_redis_mock {
             } else {
                 return @value;
             }
+        }
+    );
+
+    $redis->mock(
+        'hscan',    # $redis->hscan => get all values that match pattern in datamodel
+        sub {
+            # Default values
+            my ($self, $key, $cursor, @args) = @_;
+
+            my $match;
+            my $count;
+
+            # Parse optional args (MATCH, COUNT)
+            while (@args) {
+                my $arg = shift @args;
+                if ($arg eq 'MATCH') {
+                    $match = shift @args;
+                }
+                elsif ($arg eq 'COUNT') {
+                    $count = shift @args;
+                }
+            }
+
+            # Return empty result if key doesn't exist
+            return ('0', []) unless exists $datamodel{$key};
+
+            my $hash = $datamodel{$key};
+
+            # Get all keys
+            my @keys = keys %$hash;
+
+            # Apply MATCH if provided (convert glob → regex)
+            if (defined $match) {
+                my $regex = quotemeta($match);
+                $regex =~ s/\\\*/.*/g;   # * → .*
+                $regex =~ s/\\\?/.?/g;   # ? → .?
+                @keys = grep { $_ =~ /^$regex$/ } @keys;
+            }
+
+            # Apply COUNT (just truncate for simplicity)
+            if (defined $count && $count < @keys) {
+                @keys = @keys[0 .. $count - 1];
+            }
+
+            # Build field-value list
+            my @result;
+            for my $k (@keys) {
+                push @result, $k, $hash->{$k};
+            }
+
+            # Always return cursor 0 (no real iteration in mock)
+            return ('0', \@result);
+        }
+    );
+
+    $redis->mock(
+        'hkeys',    # $redis->hscan => get keys in hash table in datamodel
+        sub {
+            my $self = shift;
+            my $key  = shift;
+
+            unless (exists $datamodel{$key}) {
+                return [] ;
+            }
+            return [ keys %{ $datamodel{$key} } ];
+            
         }
     );
 

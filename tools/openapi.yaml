@@ -23,6 +23,8 @@ tags:
     description: Endpoints related to OPDS catalog generation and serving.
   - name: misc
     description: Other APIs that don't fit a dedicated theme.
+  - name: stamps
+    description: Stamps.
 
 paths:
   /opds:
@@ -1851,6 +1853,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps:
+    get:
+      operationId: stampedPages
+      x-mojo-to: api-stamp#get_stamped_pages
+      summary: 🔑 Get pages that contain at least one stamp in the archive
+      description: Get pages that contain at least one stamp in the archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps/{index}:
+    get:
+      operationId: stampsByPage
+      x-mojo-to: api-stamp#get_stamps_by_page
+      summary: 🔑 Get the stamps linked to the page
+      description: Get the stamps linked to the page.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: addStamp
+      x-mojo-to: api-stamp#add_stamp
+      summary: 🔑 Add a stamp annotation
+      description: Add a new Stamp to the page at the given coordinates.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - add_stamp
+                  stamp_id:
+                    type: string
+                    description: Stamp ID
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /search:
     get:
@@ -3367,6 +3496,122 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /stamps/{id}:
+    get:
+      operationId: getStamp
+      x-mojo-to: api-stamp#get_stamp
+      summary: Get Stamp
+      description: Get a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateStamp
+      x-mojo-to: api-stamp#update_stamp
+      summary: 🔑 Update Stamp
+      description: Update a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteStamp
+      x-mojo-to: api-stamp#delete_stamp
+      summary: 🔑 Delete Stamp
+      description: Remove a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 components:
   securitySchemes:
     api_key:
@@ -3783,5 +4028,31 @@ components:
         search:
           type: string
           description: Category search filter
+    StampsData:
+      type: object
+      description: JSON object for the Stamp model
+      required:
+        - position
+        - content
+      properties:
+        id:
+          type: string
+          description: ID of the stamp
+        position:
+          type: string
+          description: Position of the stamp in the page in normalized coordinates (0-100)
+        content:
+          type: string
+          description: Text of the stamp
+      example:
+        position: 12,34
+        content: Lorem ipsum dolore
+    StampsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: string
 servers:
   - url: https://lrr.tvc-16.science/api
