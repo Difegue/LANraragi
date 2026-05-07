@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2026-02-15 20:09+0000\n"
+"PO-Revision-Date: 2026-05-07 17:24+0000\n"
 "Last-Translator: Tim Fischbach <tim@fischbach.info>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17.1\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -440,10 +440,12 @@ msgid "Clean Database"
 msgstr "Datenbank bereinigen"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "Metriken aktivieren"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 msgstr ""
+"Aktiviere das Sammeln von Metriken und stelle diese im Prometheus Export "
+"Format über den Metriken-Endpunkt bereit."
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
@@ -797,13 +799,15 @@ msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped t
 msgstr ""
 
 msgid "Hide completed"
-msgstr ""
+msgstr "Ausblendung erfolgreich"
 
 msgid "If enabled, archives you've already completed will be hidden from the list."
 msgstr ""
+"Wenn diese Option aktiviert ist, werden Archive, welche du bereits "
+"abgeschlossen hast, von der Liste ausgeblendet."
 
 msgid "Go to Page:"
-msgstr "Zu dieser Seite springen:"
+msgstr "Springe zu Seite:"
 
 msgid "Columns:"
 msgstr "Spalten:"
@@ -1027,7 +1031,7 @@ msgid "View full-size image"
 msgstr "Bild in voller Größe anzeigen"
 
 msgid "Switch to another random archive"
-msgstr ""
+msgstr "Zu einem zufälligen Archiv wechseln"
 
 msgid "Archive Overview"
 msgstr ""
@@ -1851,3 +1855,19 @@ msgstr "Link kopieren"
 
 msgid "Plugin Settings"
 msgstr "Plugineinstellungen"
+
+msgid "Disable OpenAPI Validation"
+msgstr "OpenAPI Validierung deaktivieren"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"Deaktiviert die Validierung des OpenAPI API Schemas. Aktiviere diese Option, "
+"falls Validierungsfehler mit älteren API Clients auftreten sollten."
+
+msgid "Excluded Namespaces"
+msgstr "Ausgeschlossene Namespaces"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr ""
+"Komma-getrennte Liste der Namespace Tags, welche von den Suchvorschlägen und "
+"Tag Statistiken ausgeschlossen sind."
