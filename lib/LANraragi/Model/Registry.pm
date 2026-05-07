@@ -43,12 +43,6 @@ sub create_registry {
     $logger->info("Creating registry (type: $config{type})");
 
     # TODO(REVIEW): maybe set default (first) registry to REG_0000000001?
-    # TODO: remove with multi-registry.
-    # Single-registry enforcement
-    my @existing = $redis->keys("REG_??????????");
-    if (@existing) {
-        return ( undef, "Only one registry is supported -- remove the existing one first." );
-    }
 
     # Sanitize local registry path
     if ( $config{type} eq "local" && defined $config{path} ) {
@@ -124,8 +118,7 @@ sub get_registry_list {
 
     my @result;
 
-    # Sort by timestamp
-    # not used now, but will be when multi-registry hits
+    # Sort by timestamp for deterministic order across multiple registries.
     foreach my $key ( sort @reg_ids ) {
         my %config = get_registry( $key, $redis );
         push @result, \%config if %config;    # skip if deleted between keys() and hgetall
