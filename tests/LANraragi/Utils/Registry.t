@@ -545,14 +545,14 @@ foreach my $field (qw(name author description artifact sha256 published_at)) {
     my $idx = make_valid_index();
     $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{sha256} = "z" x 64;
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 hexadecimal characters.", "non-hex sha256 rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 lowercase hexadecimal characters.", "non-hex sha256 rejected" );
 }
 
 {
     my $idx = make_valid_index();
     $idx->{plugins}{"sample-downloader"}{versions}{"1.0.0"}{sha256} = "a" x 63;
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
-    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 hexadecimal characters.", "63-char sha256 rejected" );
+    is( $err, "Invalid registry.json: plugin 'sample-downloader' version '1.0.0' sha256 must be 64 lowercase hexadecimal characters.", "63-char sha256 rejected" );
 }
 
 {
