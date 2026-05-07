@@ -103,12 +103,14 @@ sub add_tasks {
             };
 
             eval {
-                if ( IS_UNIX ) {
+                if (IS_UNIX) {
                     mce_loop {
-                        $sub->(@{ $_ });
-                    } \@keys;
+                        $sub->( @{$_} );
+                    }
+                    \@keys;
                     MCE::Loop->finish;
                 } else {
+
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
                 }
@@ -121,7 +123,7 @@ sub add_tasks {
             $job->finish( { errors => \@err } );
 
             # Crashes on Windows so don't run it there
-            if ( IS_UNIX ) {
+            if (IS_UNIX) {
                 MCE::Shared->stop;
             }
         }
@@ -166,12 +168,14 @@ sub add_tasks {
             };
 
             eval {
-                if ( IS_UNIX ) {
+                if (IS_UNIX) {
                     mce_loop {
-                        $sub->(@{ $_ });
-                    } \@keys;
+                        $sub->( @{$_} );
+                    }
+                    \@keys;
                     MCE::Loop->finish;
                 } else {
+
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
                 }
@@ -181,7 +185,7 @@ sub add_tasks {
             $job->finish( { errors => \@err } );
 
             # Crashes on Windows so don't run it there
-            if ( IS_UNIX ) {
+            if (IS_UNIX) {
                 MCE::Shared->stop;
             }
         }
@@ -208,7 +212,7 @@ sub add_tasks {
 
             # Prepare to track visited nodes
             my $visited = MCE::Shared->hash;
-            my @ids = keys %thumbhashes;    # List of IDs to check
+            my @ids     = keys %thumbhashes;    # List of IDs to check
 
             my $sub = sub {
                 my (@keys) = @_;
@@ -218,13 +222,13 @@ sub add_tasks {
                 foreach my $id (@keys) {
 
                     # Skip if this ID has already been processed in another thread
-                    next if $visited->get( $id );
+                    next if $visited->get($id);
                     my @stack = ($id);
                     my @group;
 
                     while (@stack) {
                         my $node = pop @stack;
-                        next if $visited->get( $node );
+                        next if $visited->get($node);
 
                         # Mark the node as visited
                         $visited->set( $node, 1 );
@@ -232,13 +236,13 @@ sub add_tasks {
 
                         # Find all potential duplicates for this node
                         foreach my $other_id ( keys %thumbhashes ) {
-                            next if $node eq $other_id || $visited->get( $other_id );
+                            next if $node eq $other_id || $visited->get($other_id);
 
                             # Calculate Hamming distance
                             my $distance = 0;
                             for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
                                 $distance++
-                                if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                  if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
                                 last if $distance > $threshold;    # Early exit if threshold exceeded
                             }
 
@@ -265,10 +269,11 @@ sub add_tasks {
             };
 
             eval {
-                if ( IS_UNIX ) {
+                if (IS_UNIX) {
                     mce_loop {
-                        $sub->(@{ $_ });
-                    } \@ids;
+                        $sub->( @{$_} );
+                    }
+                    \@ids;
                     MCE::Loop->finish;
                 } else {
                     $sub->(@ids);
@@ -278,7 +283,7 @@ sub add_tasks {
             $job->finish( {} );
 
             # Crashes on Windows so don't run it there
-            if ( IS_UNIX ) {
+            if (IS_UNIX) {
                 MCE::Shared->stop;
             }
         }
@@ -299,8 +304,8 @@ sub add_tasks {
 
             my $logger = get_logger( "Minion", "minion" );
 
-            if ( IS_UNIX ) {
-                $file = decode_utf8( $file );
+            if (IS_UNIX) {
+                $file = decode_utf8($file);
             }
 
             $logger->info("Processing uploaded file $file...");
@@ -352,7 +357,7 @@ sub add_tasks {
             if ($downloader) {
 
                 $logger->info( "Found downloader " . $downloader->{namespace} );
-                my $tempdir = tempdir(CLEANUP => 1);
+                my $tempdir = tempdir( CLEANUP => 1 );
 
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
@@ -395,9 +400,10 @@ sub add_tasks {
                     );
                     return;
                 } else {
+
                     # Plugin provided a URL and User-Agent to download
                     $url = $plugin_result->{download_url};
-                    $ua = $plugin_result->{user_agent};
+                    $ua  = $plugin_result->{user_agent};
                     $logger->info("URL transformed by plugin to $url");
                 }
             } else {
@@ -419,7 +425,7 @@ sub add_tasks {
 
                 eval {
                     # Title might or might not be utf8 encoded
-                    $title = decode_utf8( $title );
+                    $title = decode_utf8($title);
                 };
 
                 $job->finish(
