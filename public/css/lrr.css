@@ -844,7 +844,6 @@ body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }
 
-
 .star-on-png,
 .star-off-png,
 .raty-cancel {
@@ -880,4 +879,29 @@ body.infinite-scroll .fullscreen-infinite img {
   position: absolute;
   top: 5px;
   left: 25%
+}
+
+/* Prevent absolute options from blocking the paginator */
+@media (max-width: 768px) {
+  .absolute-options {
+    position: fixed !important;
+    z-index: 100;
+  }
+
+  .absolute-left {
+    bottom: 15px !important;
+    left: 10px !important;
+    top: auto !important;
+  }
+
+  .absolute-right {
+    bottom: 15px !important;
+    right: 10px !important;
+    top: auto !important;
+  }
+
+  /* Ensure the paginator isn't blocked */
+  .sn {
+    margin-bottom: 60px !important;
+  }
 }
