@@ -89,6 +89,8 @@ I18N.NewArchives = "[% c.lh("New Archives") %]";
 I18N.UntaggedArchives = "[% c.lh("Untagged Archives") %]";
 I18N.CarouselOnDeck = "[% c.lh("On Deck") %]";
 I18N.CarouselError = "[% c.lh("Error getting carousel data!") %]";
+I18N.CarouselEmpty = "[% c.lh("No results here.") %]";
+
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";
 I18N.IndexTags = "[% c.lh("Tags") %]";
@@ -104,6 +106,16 @@ I18N.IndexCopyLinkFail = "[% c.lh("Copy failed.") %]";
 I18N.IndexArcInNoCats = "[% c.lh("This archive isn't in any category.") %]";
 I18N.IndexNoCategories = "[% c.lh("No Categories yet...") %]";
 I18N.IndexRemoveRating = "[% c.lh("Remove rating") %]";
+
+I18N.IndexSettingsTooltip = "[% c.lh("Index Settings") %]";
+I18N.IndexSettingsDisplayMode = "[% c.lh("Display Mode") %]";
+I18N.IndexSettingsThumbnail = "[% c.lh("Thumbnail") %]";
+I18N.IndexSettingsCompact = "[% c.lh("Compact") %]";
+I18N.IndexSettingsCropThumbs = "[% c.lh("Crop thumbnails") %]";
+I18N.IndexSettingsCropDesc = "[% c.lh("If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.") %]";
+I18N.IndexSettingsHideCompleted = "[% c.lh("Hide completed archives") %]";
+I18N.IndexSettingsHideCompletedDesc = "[% c.lh("If enabled, archives you've already completed will be hidden from the list.") %]";
+
 I18N.NewArchiveDesc = "[% c.lh("Click here to display new archives only.") %]";
 I18N.UntaggedArcDesc = "[% c.lh("Click here to display untagged archives only.") %]";
 I18N.CategoryDesc = "[% c.lh("Click here to display archives in this category only.") %]";

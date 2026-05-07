@@ -1142,9 +1142,6 @@ msgstr ""
 msgid "The default is 10 seconds."
 msgstr ""
 
-msgid "Reader Settings"
-msgstr ""
-
 msgid "Help"
 msgstr ""
 

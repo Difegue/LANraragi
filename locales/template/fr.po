@@ -1184,9 +1184,6 @@ msgstr "Défilement infini"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Affichez toutes les images dans une vue verticale sur la même page."
 
-msgid "Reader Settings"
-msgstr "Paramètres de la liseuse"
-
 msgid "Help"
 msgstr "Aide"
 

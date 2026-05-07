@@ -82,9 +82,6 @@ msgstr "Aplicar reglas de etiquetas"
 msgid "Add To Category"
 msgstr "Agregar a categoría"
 
-msgid "Delete Archive"
-msgstr ""
-
 msgid "Use plugin :"
 msgstr "Utilizar complemento:"
 
@@ -713,9 +710,6 @@ msgstr ""
 msgid "Save Metadata"
 msgstr "Guardar metadatos"
 
-msgid "Delete Archive"
-msgstr ""
-
 msgid "Read Archive"
 msgstr "Leer archivo"
 
@@ -1191,9 +1185,6 @@ msgstr "Desplazamiento infinito"
 
 msgid "Display all images in a vertical view in the same page."
 msgstr "Muestra todas las imágenes en una vista vertical en la misma página."
-
-msgid "Reader Settings"
-msgstr "Configuración del lector"
 
 msgid "Help"
 msgstr "Ayuda"

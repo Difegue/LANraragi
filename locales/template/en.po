@@ -60,9 +60,6 @@ msgstr "Apply Tag Rules"
 msgid "Add To Category"
 msgstr "Add To Category"
 
-msgid "Delete Archive"
-msgstr "Delete Archive"
-
 msgid "Use plugin :"
 msgstr "Use plugin :"
 
@@ -648,9 +645,6 @@ msgstr "Using a Plugin will save any modifications to archive metadata you might
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
-msgid "Delete Archive"
-msgstr "Delete Archive"
-
 msgid "Read Archive"
 msgstr "Read Archive"
 
@@ -733,11 +727,17 @@ msgstr "Go to Page:"
 msgid "Columns:"
 msgstr "Columns:"
 
-msgid "Switch to Compact Mode"
-msgstr "Switch to Compact Mode"
+msgid "Index Settings"
+msgstr "Index Settings"
 
-msgid "Switch to Thumbnail Mode"
-msgstr "Switch to Thumbnail Mode"
+msgid "Display Mode"
+msgstr "Display Mode"
+
+msgid "Compact"
+msgstr "Compact"
+
+msgid "Thumbnail"
+msgstr "Thumbnail"
 
 msgid "Title"
 msgstr "Title"
@@ -1132,9 +1132,6 @@ msgstr "Auto next page interval in seconds"
 
 msgid "The default is 10 seconds."
 msgstr "The default is 10 seconds."
-
-msgid "Reader Settings"
-msgstr "Reader Settings"
 
 msgid "Help"
 msgstr "Help"

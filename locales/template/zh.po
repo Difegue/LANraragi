@@ -1048,9 +1048,6 @@ msgstr "无极滚动"
 msgid "Display all images in a vertical view in the same page."
 msgstr "在同一页面中以垂直视图显示所有图片。"
 
-msgid "Reader Settings"
-msgstr "阅读器设置"
-
 msgid "Help"
 msgstr "帮助"
 

@@ -93,6 +93,75 @@ Index.initializeAll = function () {
         }),
     });
 
+    // Initialize settings menu (display mode, crop thumbnails, hide completed)
+    $.contextMenu({
+        selector: "#settings-menu",
+        trigger: "left",
+        build: () => {
+            const isThumbnail = localStorage.indexViewMode === "1";
+            return {
+                items: {
+                    "header": {
+                        name: I18N.IndexSettingsDisplayMode,
+                        icon: "fas fa-table",
+                        disabled: true,
+                    },
+                    "mode-thumbnail": {
+                        name: I18N.IndexSettingsThumbnail,
+                        type: "radio",
+                        radio: "displayMode",
+                        value: "1",
+                        selected: isThumbnail,
+                        events: {
+                            click() {
+                                localStorage.indexViewMode = "1";
+                                IndexTable.dataTable.draw();
+                            },
+                        }
+                    },
+                    "mode-compact": {
+                        name: I18N.IndexSettingsCompact,
+                        type: "radio",
+                        radio: "displayMode",
+                        value: "0",
+                        selected: !isThumbnail,
+                        events: {
+                            click() {
+                                localStorage.indexViewMode = "0";
+                                IndexTable.dataTable.draw();
+                            },
+                        }
+                    },
+                    "sep1": "---------",
+                    "crop-thumbnails": {
+                        name: `<span title="${I18N.IndexSettingsCropDesc}">${I18N.IndexSettingsCropThumbs}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.cropthumbs === "true",
+                        events: {
+                            click() {
+                                localStorage.cropthumbs = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                    "hide-completed": {
+                        name: `<span title="${I18N.IndexSettingsHideCompletedDesc}">${I18N.IndexSettingsHideCompleted}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.hidecompleted === "true",
+                        events: {
+                            click() {
+                                localStorage.hidecompleted = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                },
+            };
+        },
+    });
+
     // Tell user about the context menu
     if (localStorage.getItem("sawContextMenuToast") === null) {
         localStorage.sawContextMenuToast = true;
@@ -227,11 +296,6 @@ Index.handleEscapeKey = function (e) {
     if (e.key !== "Escape") return;
     if (e.target.tagName === "INPUT") return;
     LRR.closeOverlay();
-};
-
-Index.toggleMode = function () {
-    localStorage.indexViewMode = (localStorage.indexViewMode === "1") ? "0" : "1";
-    IndexTable.dataTable.draw();
 };
 
 Index.toggleCarousel = function (e, updateLocalStorage = true) {
@@ -370,8 +434,6 @@ Index.promptCustomColumn = function (column) {
  */
 Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
     $(".table-options").show();
-    $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
-    $("#hide-completed")[0].checked = localStorage.hidecompleted === "true";
 
     $("#namespace-sortby").val(currentSort);
     $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
@@ -379,14 +441,10 @@ Index.updateTableControls = function (currentSort, currentOrder, totalPages, cur
 
     if (localStorage.indexViewMode === "1") {
         $(".thumbnail-options").show();
-        $(".thumbnail-toggle").show();
         $(".compact-options").hide();
-        $(".compact-toggle").hide();
     } else {
         $(".thumbnail-options").hide();
-        $(".thumbnail-toggle").hide();
         $(".compact-options").show();
-        $(".compact-toggle").show();
     }
 
     // Page selector
