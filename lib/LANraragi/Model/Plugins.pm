@@ -517,7 +517,6 @@ sub install_plugin {
         redis.call("HSET", KEYS[2], "installed_version",  ARGV[2])
         redis.call("HSET", KEYS[2], "installed_registry", ARGV[3])
         redis.call("HSET", KEYS[2], "installed_sha256",   ARGV[4])
-        redis.call("HDEL", KEYS[2], "installed_channel")
         return 1
         LUA
 

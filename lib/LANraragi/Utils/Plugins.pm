@@ -251,7 +251,6 @@ sub unregister_plugin {
         "installed_version",
         "installed_registry",
         "installed_sha256",
-        "installed_channel"
     );
 }
 
