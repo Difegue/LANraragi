@@ -503,7 +503,7 @@ sub install_plugin {
     $logger->info("Installed plugin '$namespace' to $installpath");
 
     my %prior;
-    for my $field (qw(installed_path installed_version installed_registry installed_sha256)) {
+    for my $field (qw(installed_path installed_version installed_registry installed_sha256 type)) {
         my $val = $redis->hget( $namerds, $field );
         $prior{$field} = $val if defined $val;
     }
@@ -517,11 +517,12 @@ sub install_plugin {
         redis.call("HSET", KEYS[2], "installed_version",  ARGV[2])
         redis.call("HSET", KEYS[2], "installed_registry", ARGV[3])
         redis.call("HSET", KEYS[2], "installed_sha256",   ARGV[4])
+        redis.call("HSET", KEYS[2], "type",               ARGV[5])
         return 1
         LUA
 
     my $restore_script = <<~'LUA';
-        redis.call("HDEL", KEYS[1], "installed_path", "installed_version", "installed_registry", "installed_sha256")
+        redis.call("HDEL", KEYS[1], "installed_path", "installed_version", "installed_registry", "installed_sha256", "type")
         for i = 1, #ARGV, 2 do
             redis.call("HSET", KEYS[1], ARGV[i], ARGV[i + 1])
         end
@@ -531,7 +532,8 @@ sub install_plugin {
     my $provenance_written = eval {
         $redis->eval(
             $provenance_script, 2, $registry_id, $namerds,
-            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256}
+            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256},
+            $plugin_metadata->{type}
         );
     };
     if ($@) {
@@ -553,7 +555,7 @@ sub install_plugin {
             : "clear provenance for $namerds" ),
         sub {
             my @argv;
-            for my $field (qw(installed_path installed_version installed_registry installed_sha256)) {
+            for my $field (qw(installed_path installed_version installed_registry installed_sha256 type)) {
                 push @argv, $field, $prior{$field} if exists $prior{$field};
             }
             eval { $redis->eval( $restore_script, 1, $namerds, @argv ) };
@@ -678,9 +680,15 @@ sub scan_plugins {
             next;
         }
 
+        my $type = $info{type};
+        unless ($type) {
+            $logger->warn("Plugin $class (namespace '$ns') has no type, skipping.");
+            next;
+        }
+
         my $filepath = package_to_path($class);
 
-        push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath };
+        push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath, type => $type };
     }
 
     $logger->info("Discovered " . scalar( keys %ns_map ) . " plugin namespace(s).");
@@ -711,17 +719,22 @@ sub scan_plugins {
 
         my $entry    = $ns_map{$ns}[0];
         my $filepath = $entry->{file_path};
+        my $type     = $entry->{type};
         my $namerds  = "LRR_PLUGIN_" . uc($ns);
 
         my $current_path = $redis->hget( $namerds, "installed_path" );
-        if ( defined $current_path && $current_path eq $filepath ) {
-            next; # skip if database already tracks said path
+        my $current_type = $redis->hget( $namerds, "type" );
+        if (   defined $current_path
+            && $current_path eq $filepath
+            && defined $current_type
+            && $current_type eq $type ) {
+            next; # skip if database already tracks said path and type
         }
 
-        # Self-heal stale or missing installed_path: discovery is the source of truth.
+        # Self-heal stale or missing installed_path/type: discovery is the source of truth.
         # TODO(REVIEW): when a plugin is discovered and not present in database, wouldn't this be considered a spontaneous "installation"?
-        $logger->debug("Plugin '$ns': setting installed_path to '$filepath'.");
-        register_plugin( $redis, $ns, $filepath );
+        $logger->debug("Plugin '$ns': setting installed_path to '$filepath' (type=$type).");
+        register_plugin( $redis, $ns, $filepath, $type );
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)

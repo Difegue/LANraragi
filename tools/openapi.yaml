@@ -1268,14 +1268,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
 
-  /plugins/installed/{plugin_namespace}/config:
+  /plugins/installed/{plugin_namespace}/metadata-config:
     put:
       security:
         - api_key: []
-      operationId: updatePluginConfig
-      x-mojo-to: api-plugins#update_plugin_config
-      summary: 🔑 Update Plugin Configuration
-      description: Update per-plugin configuration fields. Only fields present in the request body are modified.
+      operationId: updateMetadataPluginConfig
+      x-mojo-to: api-plugins#update_metadata_plugin_config
+      summary: 🔑 Update Metadata Plugin Configuration
+      description: Update metadata-plugin-only configuration fields (enabled, hidden, priority). Only fields present in the request body are modified. Rejects non-metadata plugins with 400.
       tags:
         - plugins
       parameters:
@@ -1285,7 +1285,7 @@ paths:
           schema:
             type: string
             pattern: "^[a-zA-Z0-9_-]+$"
-          description: Namespace of the plugin to configure.
+          description: Namespace of the metadata plugin to configure.
       requestBody:
         required: true
         content:
@@ -1295,17 +1295,17 @@ paths:
               properties:
                 enabled:
                   type: boolean
-                  description: Whether this plugin runs automatically on new archives.
+                  description: Whether this metadata plugin runs automatically on new archives.
                 hidden:
                   type: boolean
-                  description: Whether to hide the plugin from UI dropdowns.
+                  description: Whether to hide the metadata plugin from UI dropdowns.
                 priority:
                   type: integer
                   minimum: 0
                   description: Execution priority for metadata plugins. Lower values run first.
       responses:
         '200':
-          description: Plugin configuration updated
+          description: Metadata plugin configuration updated
           content:
             application/json:
               schema:
@@ -1314,7 +1314,7 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - update_plugin_config
+                      - update_metadata_plugin_config
                   success:
                     type: integer
                     enum:
@@ -1338,6 +1338,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Plugin registration is corrupt (missing type)
           content:
             application/json:
               schema:

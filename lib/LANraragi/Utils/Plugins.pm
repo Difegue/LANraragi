@@ -233,10 +233,10 @@ sub get_plugin_parameters {
 }
 
 sub register_plugin {
-    my ( $redis, $namespace, $installed_path ) = @_;
+    my ( $redis, $namespace, $installed_path, $type ) = @_;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    $redis->hset( $namerds, "installed_path", $installed_path );
+    $redis->hset( $namerds, "installed_path", $installed_path, "type", $type );
 
     return $installed_path;
 }
@@ -251,6 +251,7 @@ sub unregister_plugin {
         "installed_version",
         "installed_registry",
         "installed_sha256",
+        "type",
     );
 }
 

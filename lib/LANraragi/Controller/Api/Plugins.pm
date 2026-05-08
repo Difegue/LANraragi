@@ -5,9 +5,10 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging qw(get_logger);
 
+# Update metadata plugin configuration.
 # TODO(REVIEW): what if the plugin does not exist on disk? If a plugin is not installed,
 # should its configs be updatable?
-sub update_plugin_config {
+sub update_metadata_plugin_config {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
     my $body        = $self->req->json; # TODO(REVIEW): document shape of body
@@ -15,7 +16,7 @@ sub update_plugin_config {
     return unless exec_with_lock(
         $self,
         "plugin-write:" . uc($namespace),
-        "update_plugin_config",
+        "update_metadata_plugin_config",
         $namespace,
         sub {
             my $redis   = $self->LRR_CONF->get_redis_config;
@@ -25,11 +26,42 @@ sub update_plugin_config {
                 $redis->quit();
                 $self->render(
                     openapi => {
-                        operation => "update_plugin_config",
+                        operation => "update_metadata_plugin_config",
                         error     => "Plugin '$namespace' is not installed.",
                         success   => 0,
                     },
                     status => 404
+                );
+                return;
+            }
+
+            # Check that our type exists and is metadata.
+            # if no type, then something's very wrong ...
+            my $type = $redis->hget( $namerds, "type" );
+            unless ( defined $type ) {
+                $redis->quit();
+                get_logger( "Plugin System", "lanraragi" )
+                    ->error("Plugin '$namespace' is registered without a type.");
+                $self->render(
+                    openapi => {
+                        operation => "update_metadata_plugin_config",
+                        error     => "Plugin '$namespace' has no recorded type.",
+                        success   => 0,
+                    },
+                    status => 500
+                );
+                return;
+            }
+
+            if ( $type ne "metadata" ) {
+                $redis->quit();
+                $self->render(
+                    openapi => {
+                        operation => "update_metadata_plugin_config",
+                        error     => "Plugin '$namespace' is not a metadata plugin; enabled/hidden/priority do not apply.",
+                        success   => 0,
+                    },
+                    status => 400
                 );
                 return;
             }
@@ -49,7 +81,7 @@ sub update_plugin_config {
 
             $redis->quit();
 
-            render_api_response( $self, "update_plugin_config" );
+            render_api_response( $self, "update_metadata_plugin_config" );
         }
     );
 }
