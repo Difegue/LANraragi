@@ -920,30 +920,6 @@ Index.migrateProgress = function () {
 // #region Archive Context Menu
 
 /**
- * Load the categories a given ID belongs to.
- * @param {*} id The ID of the archive to check
- * @returns Categories
- */
-Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
-        (data) => {
-            const items = {};
-
-            for (let i = 0; i < data.categories.length; i++) {
-                const cat = data.categories[i];
-                items[`delcat-${cat.id}`] = { name: cat.name, icon: "fas fa-stream" };
-            }
-
-            if (Object.keys(items).length === 0) {
-                items.noop = { name: I18N.IndexArcInNoCats, icon: "far fa-sad-cry" };
-            }
-
-            return items;
-        },
-    );
-};
-
-/**
  * Build category list for contextMenu and checkoff the ones the given ID belongs to.
  * @param {*} catList The list of categories, obtained statically
  * @param {*} id The ID of the archive to check
