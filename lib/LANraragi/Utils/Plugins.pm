@@ -123,7 +123,7 @@ sub get_enabled_plugins {
     return @enabled;
 }
 
-#Look for a plugin by uc-normalized namespace.
+#Look for a plugin by uc-normalized namespace for invokation.
 # TODO(REVIEW): explain how redis is being used.
 sub get_plugin {
 
