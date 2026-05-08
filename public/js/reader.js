@@ -29,6 +29,7 @@ Reader.autoNextPageCountdown = 0;
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
+    Reader.initFullscreen()
     Reader.applyContainerWidth();
     Reader.registerPreload();
     Reader.registerAutoNextPage();
@@ -56,7 +57,7 @@ Reader.initializeAll = function () {
     $(document).on("click.auto-next-page", "#auto-next-page-apply", Reader.registerAutoNextPage);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggle-full-screen", "#toggle-full-screen", () => Reader.handleFullScreen(true));
+    $(document).on("click.toggle-full-screen", "#toggle-full-screen", () => Reader.toggleFullScreen());
     $(document).on("click.toggle-auto-next-page", ".toggle-auto-next-page", Reader.toggleAutoNextPage);
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
@@ -132,16 +133,6 @@ Reader.initializeAll = function () {
         const pageNumber = +$(e.target).closest("div[page]").attr("page");
         Reader.goToPage(pageNumber);
     });
-
-    
-    // Apply full-screen utility
-    // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
-    // Small override function, always returns boolean
-    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
-    if (!window.fscreen.fullscreenEnabled) {
-        // Fullscreen mode is unsupported; use attribute selector to hide all instances
-        $("[id='toggle-full-screen']").hide();
-    }
 
     // Infer initial information from the URL
     const params = new URLSearchParams(window.location.search);
@@ -445,6 +436,19 @@ Reader.initializeSettings = function () {
     Reader.containerWidth = localStorage.containerWidth;
     if (Reader.containerWidth) { $("#container-width-input").val(Reader.containerWidth); }
 };
+
+Reader.initFullscreen = function () {
+    // Apply full-screen utility
+    // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
+    // Small override function, always returns boolean
+    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
+    if (!window.fscreen.fullscreenEnabled) {
+        // Fullscreen mode is unsupported; use attribute selector to hide all instances
+        $("[id='toggle-full-screen']").hide();
+    }
+
+    fscreen.onfullscreenchange = () => Reader.handleFullScreen(fscreen.fullscreenElement !== null);
+}
 
 Reader.initInfiniteScrollView = function () {
     $("body").addClass("infinite-scroll");
@@ -980,6 +984,10 @@ Reader.registerContainerWidth = function () {
 Reader.applyContainerWidth = function () {
     $(".reader-image, .sni").attr("style", "");
 
+    // If we are in fullscreen don't apply anything
+    if (window.fscreen.inFullscreen())
+        return;
+
     if (Reader.fitMode === "fit-height") {
         // Fit to height forces the image to 90% of visible screen height.
         // If the header is hidden, or if we're in infinite scrolling, then the image
@@ -1128,11 +1136,11 @@ Reader.toggleArchiveOverlay = function () {
 Reader.toggleFullScreen = function () {
     if (window.fscreen.inFullscreen()) {
         // if already full screen; exit
-        window.fscreen.exitFullscreen().then(() =>
-            Reader.handleFullScreen());
+        window.fscreen.exitFullscreen();
     } else {
         // else go fullscreen
-        Reader.handleFullScreen(true);
+        // ensure in every case, the correct fullscreen element is binded.
+        window.fscreen.requestFullscreen($("div#i3").get(0));
     }
 };
 
@@ -1143,13 +1151,14 @@ Reader.handleFullScreen = function (enableFullscreen = false) {
         } else {
             $("div#i3").addClass("fullscreen");
         }
-        // ensure in every case, the correct fullscreen element is binded.
-        window.fscreen.requestFullscreen($("div#i3").get(0));
-    } else if ($("body").hasClass("infinite-scroll")) {
-        $("div#i3").removeClass("fullscreen-infinite");
     } else {
-        $("div#i3").removeClass("fullscreen");
+        if ($("body").hasClass("infinite-scroll")) {
+            $("div#i3").removeClass("fullscreen-infinite");
+        } else {
+            $("div#i3").removeClass("fullscreen");
+        }
     }
+    Reader.applyContainerWidth();
 };
 
 Reader.getCurrentChapter = function () {
