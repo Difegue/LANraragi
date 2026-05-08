@@ -52,22 +52,28 @@ sub create_registry {
     }
 
     # TODO(REVIEW): check stamps PR for offset consistency.
-    # Atomic claim of an unused REG_<ts> hash key: Lua keeps the existence
-    # check and the type write atomic so two concurrent callers cannot land
-    # on the same id.
+    # Atomically claim an unused REG_<ts> hash key and populate registry hash in one go.
     my $claim_script = <<'LUA';
     if redis.call("EXISTS", KEYS[1]) == 1 then
         return 0
     end
-    redis.call("HSET", KEYS[1], "type", ARGV[1])
+    redis.call("HSET", KEYS[1], unpack(ARGV))
     return 1
 LUA
+
+    my $registry_type = $config{type};
+    my @valid_fields  = @{ $TYPE_FIELDS{$registry_type} };
+    my @field_args;
+    foreach my $field (@valid_fields) {
+        next unless defined $config{$field};
+        push @field_args, $field, $config{$field};
+    }
 
     my $registry_id;
     my $offset = 0;
     until ($registry_id) {
         my $candidate = "REG_" . ( time() + $offset );
-        my $claimed   = eval { $redis->eval( $claim_script, 1, $candidate, $config{type} ) };
+        my $claimed   = eval { $redis->eval( $claim_script, 1, $candidate, @field_args ) };
         if ($@) {
             $logger->error("Redis error during registry id claim: $@");
             return ( undef, "Redis error while creating registry." );
@@ -77,16 +83,6 @@ LUA
         } else {
             $offset++;
         }
-    }
-
-    my $registry_type   = $config{type};
-    my @valid_fields    = @{ $TYPE_FIELDS{$registry_type} };
-
-    # TODO(REVIEW) how much of this can be merged with update_registry?
-    foreach my $field (@valid_fields) {
-        next if $field eq "type";
-        next unless defined $config{$field};
-        $redis->hset( $registry_id, $field, $config{$field} );
     }
 
     $logger->info("Created registry '$registry_id' (name: $config{name}, type: $registry_type)");
