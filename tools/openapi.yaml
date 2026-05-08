@@ -675,6 +675,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '500':
           description: Redis error during registry creation
           content:
@@ -946,6 +952,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '500':
           description: Redis error during update
           content:
@@ -993,6 +1005,12 @@ paths:
                     type: string
         '404':
           description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
           content:
             application/json:
               schema:
@@ -1060,6 +1078,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '404':
           description: Registry not found or registry file not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
           content:
             application/json:
               schema:
@@ -1159,6 +1183,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '500':
           description: Server error (file write or Redis failure)
           content:
@@ -1219,6 +1249,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '404':
           description: Plugin has no install path recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
           content:
             application/json:
               schema:
@@ -1303,6 +1339,12 @@ paths:
                       - 0
                   error:
                     type: string
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /tempfolder:
     delete:
