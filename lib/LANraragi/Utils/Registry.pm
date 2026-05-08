@@ -58,13 +58,14 @@ sub resolve_git_raw_url {
     }
 
     my $epath = join( "/", map { url_escape($_) } split( m{/}, $path ) );
+    my $eref  = url_escape($ref);
 
     if ( $provider eq "github" ) {
-        return "https://raw.githubusercontent.com/$owner/$repo/$ref/$epath";
+        return "https://raw.githubusercontent.com/$owner/$repo/$eref/$epath";
     } elsif ( $provider eq "gitlab" ) {
-        return "https://$host/$owner/$repo/-/raw/$ref/$epath";
+        return "https://$host/$owner/$repo/-/raw/$eref/$epath";
     } elsif ( $provider eq "gitea" ) {
-        return "https://$host/api/v1/repos/$owner/$repo/raw/$epath?ref=" . url_escape($ref);
+        return "https://$host/api/v1/repos/$owner/$repo/raw/$epath?ref=$eref";
     }
 
     $logger->error("Unknown provider '$provider' for URL: $url");
