@@ -77,6 +77,9 @@ IndexTable.initializeAll = function () {
                 if (localStorage.hidecompleted === "true") {
                     d.hidecompleted = "true";
                 }
+                if (localStorage.grouptanks === "false") {
+                    d.grouptanks = "false";
+                }
                 return d;
             },
         },
@@ -87,7 +90,7 @@ IndexTable.initializeAll = function () {
         dom: `<"top"ip>rt<"bottom"p><"clear">`,
         language: {
             info: I18N.IndexPageCount,
-            infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
+            infoEmpty: `<h1><br/><i class="fas fa-4x fa-sad-cry"></i><br/><br/>
                         ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
             processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style="width: 80%;"></div></div></div>`,
         },

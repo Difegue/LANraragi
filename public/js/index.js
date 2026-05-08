@@ -24,10 +24,7 @@ Index.initializeAll = function () {
         const headerIndex = $(this).attr("id").split("-")[2];
         Index.promptCustomColumn(headerIndex);
     });
-    $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
-    $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
-    $(document).on("change.hide-completed", "#hide-completed", Index.toggleHideCompleted);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
@@ -153,6 +150,18 @@ Index.initializeAll = function () {
                         events: {
                             click() {
                                 localStorage.hidecompleted = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                    "group-tanks": {
+                        name: `<span title="${I18N.IndexSettingsGroupTanksDesc}">${I18N.IndexSettingsGroupTanks}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.grouptanks !== "false",
+                        events: {
+                            click() {
+                                localStorage.grouptanks = $(this).is(":checked");
                                 IndexTable.dataTable.draw();
                             },
                         },

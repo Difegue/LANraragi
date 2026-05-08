@@ -721,6 +721,12 @@ msgstr "Hide completed"
 msgid "If enabled, archives you've already completed will be hidden from the list."
 msgstr "If enabled, archives you've already completed will be hidden from the list."
 
+msgid "Group Tankoubons"
+msgstr "Group Tankoubons"
+
+msgid "If enabled, archives belonging to a Tankoubon will show as a single item."
+msgstr "If enabled, archives belonging to a Tankoubon will show as a single item."
+
 msgid "Go to Page:"
 msgstr "Go to Page:"
 
