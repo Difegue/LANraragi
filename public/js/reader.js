@@ -143,6 +143,8 @@ Reader.initializeAll = function () {
     $(document).on("click.reader-image", ".reader-image", (e) => {
         if (!Reader.markerMode) return;
 
+        $(".reader-image").css("cursor", "");
+
         // Compute marker position
         // This basically estimates the percentage of the width and legth of the image
         // where the user clicked, so later from this percentage can be reversed
@@ -209,6 +211,7 @@ Reader.initializeAll = function () {
             Reader.markerMode = false;
             Reader.toggleArchiveOverlay();
             Reader.pageNaviState = true;
+            $(".reader-image").css("cursor", "");
         }
     });
     $(document).on("click.set-stamp", "#set-stamp", Reader.addStamp);
@@ -525,6 +528,9 @@ Reader.initializeSettings = function () {
 
     Reader.containerWidth = localStorage.containerWidth;
     if (Reader.containerWidth) { $("#container-width-input").val(Reader.containerWidth); }
+    
+    Reader.markersVisible = JSON.parse(localStorage.markersVisible);
+    $("#toggle-stamps").prop("checked", Reader.markersVisible);
 };
 
 Reader.initFullscreen = function () {
@@ -816,6 +822,7 @@ Reader.toggleHelp = function () {
 Reader.addStamp = function () {
     Reader.markerMode = true;
     LRR.closeOverlay(); 
+    $(".reader-image").css("cursor", "cell");
     $("#overlay-page").show();
 };
 
@@ -830,7 +837,7 @@ Reader.createMarkerElement = function (markerData, index) {
     const container = document.getElementById("i1");
 
     const marker = document.createElement("div");
-    marker.className = "marker";
+    marker.className = "marker marker-context-menu";
 
     // Compute the px coordinates from the percentage based coordinates
     const rect = img.getBoundingClientRect();
@@ -859,6 +866,7 @@ Reader.createMarkerElement = function (markerData, index) {
     let isDragging = false;
 
     marker.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
         e.stopPropagation();
         isDragging = true;
         
@@ -908,44 +916,12 @@ Reader.createMarkerElement = function (markerData, index) {
         const i = marker.dataset.index;
         let inputValue = markerData.name;
 
-        LRR.showPopUp({
-            title: I18N.StampName,
-            input: "text",
-            inputPlaceholder:  I18N.StampPlaceholder, 
-            inputAttributes: {
-                autocapitalize: "off",
-            },
-            inputValue,
-            showCancelButton: true,
-            reverseButtons: true,
-        }).then((result) => {
-            if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/stamps/${markerData.id}?content=${result.value}&position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError, 
-                    () => {
-                        Reader.markers[i].x = xPercent;
-                        Reader.markers[i].y = yPercent;
-                        Reader.markers[i].name = result.value;
-
-                        Reader.pageNaviState = true;
-                        Reader.renderMarkers();
-                    }
-                );
-            } else {
-                Reader.pageNaviState = true;
-                Reader.renderMarkers();
-            }
-        });
-    });
-    
-
-    // Delete
-    marker.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        Server.callAPI(`/api/stamps/${markerData.id}`, "DELETE", "Stamp deleted!", I18N.StampError, 
+        Server.callAPI(`/api/stamps/${markerData.id}?position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError, 
             () => {
-                const i = marker.dataset.index;
+                Reader.markers[i].x = xPercent;
+                Reader.markers[i].y = yPercent;
 
-                Reader.markers.splice(i, 1);
+                Reader.pageNaviState = true;
                 Reader.renderMarkers();
             }
         );
@@ -969,12 +945,7 @@ Reader.renderMarkers = function () {
 
 Reader.toggleStamps = function () {
     // Show or hide the markers
-    Reader.markersVisible = !Reader.markersVisible;
-    if (Reader.markersVisible) {
-        $("#toggle-stamps").removeClass('fa-eye-slash').addClass('fa-eye');
-    } else {
-        $("#toggle-stamps").removeClass('fa-eye').addClass('fa-eye-slash');
-    }
+    Reader.markersVisible = localStorage.markersVisible = !Reader.markersVisible;
     Reader.renderMarkers();
 }
 
@@ -1028,6 +999,53 @@ Reader.loadStamps = function (currentPage) {
         }
     );
 }
+
+Reader.handleMarkerContextMenu = function (option, index) {
+    let i = parseInt(index);
+
+    switch (option) {
+        case "editmarker":
+            let emarker = Reader.markers[i];
+            let inputValue = emarker.name;
+
+            LRR.showPopUp({
+                title: I18N.StampName,
+                input: "text",
+                inputPlaceholder:  I18N.StampPlaceholder, 
+                inputAttributes: {
+                    autocapitalize: "off",
+                },
+                inputValue,
+                showCancelButton: true,
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed && result.value.trim() !== "") {
+                    Server.callAPI(`/api/stamps/${emarker.id}?content=${result.value}`, "PUT", "Stamp updated!", I18N.StampError, 
+                        () => {
+                            Reader.markers[i].name = result.value;
+
+                            Reader.pageNaviState = true;
+                            Reader.renderMarkers();
+                        }
+                    );
+                } else {
+                    Reader.pageNaviState = true;
+                }
+            });
+            break;
+        case "deletemarker":
+            let dmarker = Reader.markers[i];
+            Server.callAPI(`/api/stamps/${dmarker.id}`, "DELETE", "Stamp deleted!", I18N.StampError, 
+                () => {
+                    Reader.markers.splice(i, 1);
+                    Reader.renderMarkers();
+                }
+            );
+            break;
+        default:
+            break;
+    }
+};
 
 Reader.toggleBookmark = function (e) {
     e.preventDefault();
@@ -1324,6 +1342,8 @@ Reader.applyContainerWidth = function () {
         // Finally, fall back to 1200px width if none of the above matches
         $(".sni").attr("style", "max-width: 1200px");
     }
+
+    Reader.renderMarkers();
 };
 
 Reader.registerPreload = function () {
@@ -1460,6 +1480,9 @@ Reader.toggleFullScreen = function () {
 };
 
 Reader.handleFullScreen = function (enableFullscreen = false) {
+    if (Reader.markersVisible && enableFullscreen) {
+        Reader.toggleStamps();
+    }
     if (window.fscreen.inFullscreen() || enableFullscreen === true) {
         if ($("body").hasClass("infinite-scroll")) {
             $("div#i3").addClass("fullscreen-infinite");
@@ -1723,4 +1746,24 @@ Reader.getFilename = function(index) {
 window.addEventListener("resize", () => {
     // Reload the markers everytime the image size changes
     Reader.renderMarkers();
+});
+
+jQuery(() => {
+    // Initialize context menu
+    $.contextMenu({
+        selector: '.marker-context-menu',
+        build: ($trigger, e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            return {
+                callback: function (key, options) {
+                    Reader.handleMarkerContextMenu(key, $(this).attr("data-index"));
+                },
+                items: {
+                    "editmarker": {"name": "Edit Marker", "icon":"fas fa-pen-to-square"},
+                    "deletemarker": {"name": "Delete Marker", "icon":"fas fa-minus"},
+                }
+            }
+        }
+    });
 });

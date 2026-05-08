@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
     [% csshead %]
 
     <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/javascript"></script>
@@ -28,6 +29,7 @@
     <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/common.js?$version") %]" type="text/javascript"></script>
@@ -286,6 +288,11 @@
     <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
 </div>
 
+<div id="toggle-stamps-visibility">
+    <h2 class="config-panel"> [% c.lh('Toggle stamps') %]</h2>
+    <input id="toggle-stamps" class="favtag-btn config-btn" type="checkbox" value="[% c.lh('Disabled') %]">
+</div>
+
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
@@ -307,7 +314,6 @@
 <div class="absolute-options absolute-left">
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Options') %]"></a>
     <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title="[% c.lh('Help') %]"></a>
-    <a class="fa fa-eye-slash fa-2x" id="toggle-stamps" href="#" title="[% c.lh('Toggle stamps') %]"></a>
 </div>
 
 <div class="absolute-options absolute-right">

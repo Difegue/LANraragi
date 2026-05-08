@@ -1193,11 +1193,8 @@ msgstr "Toggle Bookmark"
 msgid "Toggle Stamps"
 msgstr "Toggle Stamps"
 
-msgid "Delete Archive"
-msgstr "Delete Archive"
-
-msgid "Set stamp"
-msgstr "Set stamp"
+msgid "Set Stamp"
+msgstr "Set Stamp"
 
 msgid "Filter stamped pages"
 msgstr "Filter stamped pages"
@@ -1850,8 +1847,8 @@ msgstr "Enter Stamp name:"
 msgid "Stamp name"
 msgstr "Stamp name"
 
-msgid "Error setting up the stamp"
-msgstr "Error setting up the stamp"
+msgid "Error setting up the Stamp"
+msgstr "Error setting up the Stamp"
 
 # ------End of i18n.html.tt2------
 
