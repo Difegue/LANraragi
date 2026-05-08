@@ -138,7 +138,8 @@ sub install_plugin {
                     installed_sha256   => $plugmeta->{installed_sha256},
                 }
             );
-        }
+        },
+        60,
     );
 }
 
