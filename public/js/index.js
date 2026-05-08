@@ -1072,6 +1072,10 @@ Index.handleContextMenu = function (option, id) {
             Index.pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`).toString()}`);
             Index.pseudoCopyBtn.click()
             break;
+        case "msm-toggle-archive":
+            if (!Index.isMultiSelectMode) Index.toggleMultiSelectMode();
+            Index.toggleArchiveSelection(id);
+            break;
         default:
             break;
     }
