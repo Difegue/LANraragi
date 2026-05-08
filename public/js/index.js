@@ -93,6 +93,7 @@ Index.initializeAll = function () {
     // Initialize settings menu (display mode, crop thumbnails, hide completed)
     $.contextMenu({
         selector: "#settings-menu",
+        zIndex: 10,
         trigger: "left",
         build: () => {
             const isThumbnail = localStorage.indexViewMode === "1";
