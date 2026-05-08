@@ -1324,23 +1324,18 @@ paths:
                     nullable: true
                   successMessage:
                     type: string
+        '400':
+          description: Field not applicable to this plugin type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
         '404':
           description: Plugin not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  operation:
-                    type: string
-                    enum:
-                      - update_plugin_config
-                  success:
-                    type: integer
-                    enum:
-                      - 0
-                  error:
-                    type: string
+                $ref: '#/components/schemas/OperationResponse'
         '423':
           description: Locked resource response
           content:
