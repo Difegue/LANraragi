@@ -88,7 +88,7 @@
 				<div id="category-container">
 					<!-- Categories go here -->
 				</div>
-				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
+				<input type='text' id='search-input' class='search stdinput' size='90' 
 					placeholder='[% c.lh("Search Title, Artist, Series, Language or Tags") %]' />
 				<input id='apply-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Apply Filter") %]' />
 				<input id='clear-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Clear Filter") %]' />
@@ -121,8 +121,8 @@
 							</div>
 							<div id="carousel-empty"
 								style="height: 344px; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-								<i class="fa fa-4x fa-sad-cry"></i>
-								<span style="margin-top: 12px;">[% c.lh("No results here.") %]</span>
+								<i class="fa fa-4x fa-glasses"></i>
+								<span id="carousel-empty-text" style="margin-top: 12px;">[% c.lh("No results here.") %]</span>
 							</div>
 						</div>
 					</div>

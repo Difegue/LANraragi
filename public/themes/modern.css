@@ -275,6 +275,10 @@ tr.gtr1 {
   background-color: #43464E;
 }
 
+#search-input {
+  height: 24px;
+}
+
 .stdinput {
   background: none repeat scroll 0 0 #ECF0F1;
   font-family: "Geist", arial, sans-serif;

@@ -795,7 +795,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr "Cacher archives lues"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr "Si activé, les archives déjà lues seront enlevées des résultats."
 
 msgid "Go to Page:"

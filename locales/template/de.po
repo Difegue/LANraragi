@@ -801,7 +801,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr "Ausblendung erfolgreich"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
 "Wenn diese Option aktiviert ist, werden Archive, welche du bereits "
 "abgeschlossen hast, von der Liste ausgeblendet."

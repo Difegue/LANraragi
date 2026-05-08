@@ -113,10 +113,10 @@ I18N.IndexSettingsThumbnail = "[% c.lh("Thumbnail") %]";
 I18N.IndexSettingsCompact = "[% c.lh("Compact") %]";
 I18N.IndexSettingsCropThumbs = "[% c.lh("Crop thumbnails") %]";
 I18N.IndexSettingsCropDesc = "[% c.lh("If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.") %]";
-I18N.IndexSettingsHideCompleted = "[% c.lh("Hide completed archives") %]";
-I18N.IndexSettingsHideCompletedDesc = "[% c.lh("If enabled, archives you've already completed will be hidden from the list.") %]";
+I18N.IndexSettingsHideCompleted = "[% c.lh("Hide completed Archives") %]";
+I18N.IndexSettingsHideCompletedDesc = "[% c.lh("If enabled, Archives you've already completed will be hidden from the list.") %]";
 I18N.IndexSettingsGroupTanks = "[% c.lh("Group Tankoubons") %]";
-I18N.IndexSettingsGroupTanksDesc = "[% c.lh("If enabled, archives belonging to a Tankoubon will show as a single item.") %]";
+I18N.IndexSettingsGroupTanksDesc = "[% c.lh("If enabled, Archives belonging to a Tankoubon will show as a single item.") %]";
 
 
 I18N.NewArchiveDesc = "[% c.lh("Click here to display new archives only.") %]";

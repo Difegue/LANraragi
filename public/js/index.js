@@ -242,6 +242,26 @@ Index.initializeAll = function () {
     });
 };
 
+Index.toggleOrder = function (e) {
+    e.preventDefault();
+    const order = IndexTable.dataTable.order();
+    order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
+    IndexTable.dataTable.order(order);
+    IndexTable.dataTable.draw();
+};
+
+/**
+ * Handle escape key to close overlays.
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleEscapeKey = function (e) {
+    if (e.key !== "Escape") return;
+    if (e.target.tagName === "INPUT") return;
+    LRR.closeOverlay();
+};
+
+// #region Bookmark/Favorite Icon
+
 // Turn bookmark icons to OFF for all archives.
 Index.bookmarkIconOff = function (arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
@@ -282,6 +302,10 @@ Index.toggleBookmarkStatusByIcon = function (e) {
     }
 };
 
+// #endregion
+
+// #region Search and Suggestions 
+
 /**
  * Handle quick search functionality. If user is in index page and
  * presses "/" key, focus to search input. If the release overlay
@@ -299,14 +323,52 @@ Index.handleQuickSearch = function (e) {
 };
 
 /**
- * Handle escape key to close overlays.
- * @param {KeyboardEvent} e - The keyboard event
+ * Load tag suggestions for the tag search bar.
  */
-Index.handleEscapeKey = function (e) {
-    if (e.key !== "Escape") return;
-    if (e.target.tagName === "INPUT") return;
-    LRR.closeOverlay();
+Index.loadTagSuggestions = function () {
+    // Query the tag cloud API to get the most used tags, excluding configured namespaces.
+    Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
+        (data) => {
+            // Get namespaces objects in the data array to fill the namespace-sortby combobox
+            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
+            namespacesSet.forEach((element) => {
+                if (element !== "") {
+                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
+                }
+            });
+
+            // Setup awesomplete for the tag search bar
+            Index.awesomplete = new Awesomplete("#search-input", {
+                list: data,
+                data(tag) {
+                    // Format tag objects from the API into a format awesomplete likes.
+                    let label = tag.text;
+                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
+
+                    return { label, value: tag.weight };
+                },
+                // Sort by weight
+                sort(a, b) {
+                    return b.value - a.value;
+                },
+                filter(text, input) {
+                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
+                },
+                item(text, input) {
+                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
+                },
+                replace(text) {
+                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
+                    this.input.value = `${before + text}$, `;
+                },
+            });
+        },
+    );
 };
+
+// #endregion
+
+// #region Carousel
 
 Index.toggleCarousel = function (e, updateLocalStorage = true) {
     if (updateLocalStorage) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
@@ -360,140 +422,15 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
     }
 };
 
-Index.toggleCrop = function () {
-    localStorage.cropthumbs = $("#thumbnail-crop")[0].checked;
-    IndexTable.dataTable.draw();
-};
-
-Index.toggleHideCompleted = function () {
-    localStorage.hidecompleted = $("#hide-completed")[0].checked;
-    IndexTable.dataTable.draw();
-};
-
-Index.toggleOrder = function (e) {
-    e.preventDefault();
-    const order = IndexTable.dataTable.order();
-    order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
-    IndexTable.dataTable.order(order);
-    IndexTable.dataTable.draw();
-};
-
-/**
- * Toggles a category filter.
- * Sets the internal selectedCategory variable and changes the button's class.
- * @param {*} button Button matching the category.
- */
-Index.toggleCategory = function (button) {
-    // Add/remove class to button depending on the state
-    const categoryId = button.id;
-    if (Index.selectedCategory === categoryId) {
-        button.classList.remove("toggled");
-        Index.selectedCategory = "";
-    } else {
-        Index.selectedCategory = categoryId;
-        button.classList.add("toggled");
-    }
-
-    // Trigger search
-    IndexTable.doSearch();
-};
-
-/**
- * Show a prompt to update the namespace of a column in compact mode.
- * @param {*} column Index of the column to modify, either 1 or 2
- */
-Index.promptCustomColumn = function (column) {
-    LRR.showPopUp({
-        title: I18N.CustomColumn,
-        text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
-        input: "text",
-        inputValue: localStorage.getItem(`customColumn${column}`),
-        inputPlaceholder: I18N.TagNamespace,
-        inputAttributes: {
-            autocapitalize: "off",
-        },
-        showCancelButton: true,
-        reverseButtons: true,
-        inputValidator: (value) => {
-            if (!value) {
-                return I18N.TagNamespaceError;
-            }
-            return undefined;
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (!LRR.isNullOrWhitespace(result.value)) {
-                const namespace = result.value.trim();
-                localStorage.setItem(`customColumn${column}`, namespace);
-
-                IndexTable.dataTable.settings()[0].aoColumns[column].sName = namespace;
-                // Update header text in-place to preserve DataTables sort handlers
-                $(`#header-${column}`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
-                IndexTable.doSearch();
-            }
-        }
-    });
-};
-
-/**
- * Update table controls to reflect the current status.
- * @param {*} currentSort Current sort column
- * @param {*} currentOrder Current sort order
- * @param {*} totalPages Total pages of the table
- * @param {*} currentPage Current page of the table
- */
-Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
-    $(".table-options").show();
-
-    $("#namespace-sortby").val(currentSort);
-    $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
-    $("#order-sortby")[0].classList.add(currentOrder === "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up");
-
-    if (localStorage.indexViewMode === "1") {
-        $(".thumbnail-options").show();
-        $(".compact-options").hide();
-    } else {
-        $(".thumbnail-options").hide();
-        $(".compact-options").show();
-    }
-
-    // Page selector
-    const pageSelect = $("#page-select");
-    pageSelect.empty();
-
-    for (let j = 1; j <= totalPages; j++) {
-        const oOption = document.createElement("option");
-        oOption.text = j;
-        oOption.value = j;
-        pageSelect[0].add(oOption, null);
-    }
-
-    pageSelect.val(currentPage);
-};
-
-Index.handleCustomSort = function () {
-    const namespace = $("#namespace-sortby").val();
-    const order = IndexTable.dataTable.order();
-
-    // Special case for title sorting, as that uses column 0
-    if (namespace === "title") {
-        order[0][0] = 0;
-    } else {
-        // The order set in the combobox uses is offset from title by 1; 
-        // e.g. customColumn1 is offset from title by 1.
-        order[0][0] = 1;
-        localStorage.customColumn1 = namespace;
-        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
-        // Update header text in-place to preserve DataTables sort handlers
-        $(`#header-1`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
-    }
-
-    IndexTable.dataTable.order(order);
-    IndexTable.dataTable.draw();
-};
-
 Index.updateCarousel = function (e) {
     e?.preventDefault();
+
+    // Don't overwrite the carousel while Multi-Select Mode is active
+    if (Index.isMultiSelectMode) {
+        $("#carousel-loading").hide();
+        return;
+    }
+
     $("#carousel-empty").hide();
     $("#carousel-loading").show();
     $(".swiper-wrapper").hide();
@@ -562,58 +499,9 @@ Index.updateCarousel = function (e) {
     }
 };
 
-Index.handleColumnNum = function () {
-    const columnCountSelect = document.getElementById("columnCount");
-    const selectedCount = columnCountSelect.value;
-    localStorage.setItem("columnCount", selectedCount);
-    Index.updateTableHeaders();
-    document.location.reload(true);
-};
+// #endregion
 
-/**
- * Generate the Table Headers based on the custom namespaces set in localStorage.
- */
-Index.generateTableHeaders = function (columnCount) {
-    const headerRow = $("#header-row");
-    headerRow.empty();
-    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`
-        <th id="titleheader" width="${headerWidth}">
-            <a>${I18N.IndexTitle}</a>
-        </th>`);
-
-    for (let i = 1; i <= columnCount; i++) {
-        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
-        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
-
-        const headerHtml = `
-            <th id="customheader${i}" width="${colWidth}">
-                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>
-                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>
-            </th>`;
-        headerRow.append(headerHtml);
-    }
-    headerRow.append(`
-        <th id="tagsheader">
-            <a>${I18N.IndexTags}</a>
-        </th>`);
-};
-
-
-/**
- * Update the Table Headers based on the custom namespaces set in localStorage.
- */
-Index.updateTableHeaders = function () {
-    let columnCount = Index.getColumnCount();
-    Index.generateTableHeaders(columnCount);
-
-    for (let i = 1; i <= columnCount; i++) {
-        const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
-        $(`#customcol${i}`).val(customColumn);
-
-        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
-    }
-};
+// #region Periodic checks (Update notifications, progression migration)
 
 /**
  * Check the GitHub API to see if an update was released.
@@ -712,6 +600,61 @@ Index.fetchChangelog = function () {
             .catch((error) => { LRR.showErrorToast(I18N.IndexUpdateError, error); });
     }
 };
+
+/**
+ * If server-side progress tracking is enabled, migrate local progression to the server.
+ */
+Index.migrateProgress = function () {
+    // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
+    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
+        return;
+    }
+
+    const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
+    if (localProgressKeys.length > 0) {
+        LRR.toast({
+            heading: I18N.LocalProgression,
+            text: I18N.LocalProgressionDesc + " ☕",
+            icon: "info",
+            hideAfter: 23000,
+        });
+
+        const promises = [];
+        localProgressKeys.forEach((id) => {
+            const progress = localStorage.getItem(`${id}-reader`);
+
+            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
+                .then((response) => response.json())
+                .then((data) => {
+                    // Don't migrate if the server progress is already further
+                    if (progress !== null
+                        && data !== undefined
+                        && data !== null
+                        && progress > data.progress) {
+                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
+                    }
+
+                    // Clear out localStorage'd progress
+                    localStorage.removeItem(`${id}-reader`);
+                    localStorage.removeItem(`${id}-totalPages`);
+                }));
+        });
+
+        Promise.all(promises).then(() => LRR.toast({
+            heading: I18N.LocalProgressionComplete + " 🎉",
+            text: I18N.LocalProgressionCompleteDesc,
+            icon: "success",
+            hideAfter: 13000,
+        }));
+    } else {
+        // eslint-disable-next-line no-console
+        console.log("No local reading progression to migrate");
+    }
+};
+
+// #endregion
+
+// #region Archive Context Menu
 
 /**
  * Load the categories a given ID belongs to.
@@ -871,48 +814,28 @@ Index.handleContextMenu = function (option, id) {
     }
 };
 
+// #endregion
+
+// #region Category buttons
+
 /**
- * Load tag suggestions for the tag search bar.
+ * Toggles a category filter.
+ * Sets the internal selectedCategory variable and changes the button's class.
+ * @param {*} button Button matching the category.
  */
-Index.loadTagSuggestions = function () {
-    // Query the tag cloud API to get the most used tags, excluding configured namespaces.
-    Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
-        (data) => {
-            // Get namespaces objects in the data array to fill the namespace-sortby combobox
-            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
-            namespacesSet.forEach((element) => {
-                if (element !== "") {
-                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
-                }
-            });
+Index.toggleCategory = function (button) {
+    // Add/remove class to button depending on the state
+    const categoryId = button.id;
+    if (Index.selectedCategory === categoryId) {
+        button.classList.remove("toggled");
+        Index.selectedCategory = "";
+    } else {
+        Index.selectedCategory = categoryId;
+        button.classList.add("toggled");
+    }
 
-            // Setup awesomplete for the tag search bar
-            Index.awesomplete = new Awesomplete("#search-input", {
-                list: data,
-                data(tag) {
-                    // Format tag objects from the API into a format awesomplete likes.
-                    let label = tag.text;
-                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
-
-                    return { label, value: tag.weight };
-                },
-                // Sort by weight
-                sort(a, b) {
-                    return b.value - a.value;
-                },
-                filter(text, input) {
-                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
-                },
-                item(text, input) {
-                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
-                },
-                replace(text) {
-                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
-                    this.input.value = `${before + text}$, `;
-                },
-            });
-        },
-    );
+    // Trigger search
+    IndexTable.doSearch();
 };
 
 /**
@@ -982,54 +905,154 @@ Index.loadCategories = function () {
     );
 };
 
+// #endregion
+
+// #region Custom Columns (Compact Mode)
+
 /**
- * If server-side progress tracking is enabled, migrate local progression to the server.
+ * Show a prompt to update the namespace of a column in compact mode.
+ * @param {*} column Index of the column to modify
  */
-Index.migrateProgress = function () {
-    // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
-    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
-        return;
+Index.promptCustomColumn = function (column) {
+    LRR.showPopUp({
+        title: I18N.CustomColumn,
+        text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
+        input: "text",
+        inputValue: localStorage.getItem(`customColumn${column}`),
+        inputPlaceholder: I18N.TagNamespace,
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return I18N.TagNamespaceError;
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (!LRR.isNullOrWhitespace(result.value)) {
+                const namespace = result.value.trim();
+                localStorage.setItem(`customColumn${column}`, namespace);
+
+                IndexTable.dataTable.settings()[0].aoColumns[column].sName = namespace;
+                // Update header text in-place to preserve DataTables sort handlers
+                $(`#header-${column}`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
+                IndexTable.doSearch();
+            }
+        }
+    });
+};
+
+/**
+ * Update table controls to reflect the current status.
+ * @param {*} currentSort Current sort column
+ * @param {*} currentOrder Current sort order
+ * @param {*} totalPages Total pages of the table
+ * @param {*} currentPage Current page of the table
+ */
+Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
+    $(".table-options").show();
+
+    $("#namespace-sortby").val(currentSort);
+    $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
+    $("#order-sortby")[0].classList.add(currentOrder === "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up");
+
+    if (localStorage.indexViewMode === "1") {
+        $(".thumbnail-options").show();
+        $(".compact-options").hide();
+    } else {
+        $(".thumbnail-options").hide();
+        $(".compact-options").show();
     }
 
-    const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
-    if (localProgressKeys.length > 0) {
-        LRR.toast({
-            heading: I18N.LocalProgression,
-            text: I18N.LocalProgressionDesc + " ☕",
-            icon: "info",
-            hideAfter: 23000,
-        });
+    // Page selector
+    const pageSelect = $("#page-select");
+    pageSelect.empty();
 
-        const promises = [];
-        localProgressKeys.forEach((id) => {
-            const progress = localStorage.getItem(`${id}-reader`);
+    for (let j = 1; j <= totalPages; j++) {
+        const oOption = document.createElement("option");
+        oOption.text = j;
+        oOption.value = j;
+        pageSelect[0].add(oOption, null);
+    }
 
-            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
-                .then((response) => response.json())
-                .then((data) => {
-                    // Don't migrate if the server progress is already further
-                    if (progress !== null
-                        && data !== undefined
-                        && data !== null
-                        && progress > data.progress) {
-                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
-                    }
+    pageSelect.val(currentPage);
+};
 
-                    // Clear out localStorage'd progress
-                    localStorage.removeItem(`${id}-reader`);
-                    localStorage.removeItem(`${id}-totalPages`);
-                }));
-        });
+Index.handleCustomSort = function () {
+    const namespace = $("#namespace-sortby").val();
+    const order = IndexTable.dataTable.order();
 
-        Promise.all(promises).then(() => LRR.toast({
-            heading: I18N.LocalProgressionComplete + " 🎉",
-            text: I18N.LocalProgressionCompleteDesc,
-            icon: "success",
-            hideAfter: 13000,
-        }));
+    // Special case for title sorting, as that uses column 0
+    if (namespace === "title") {
+        order[0][0] = 0;
     } else {
-        // eslint-disable-next-line no-console
-        console.log("No local reading progression to migrate");
+        // The order set in the combobox uses is offset from title by 1; 
+        // e.g. customColumn1 is offset from title by 1.
+        order[0][0] = 1;
+        localStorage.customColumn1 = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
+        // Update header text in-place to preserve DataTables sort handlers
+        $(`#header-1`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
+    }
+
+    IndexTable.dataTable.order(order);
+    IndexTable.dataTable.draw();
+};
+
+Index.handleColumnNum = function () {
+    const columnCountSelect = document.getElementById("columnCount");
+    const selectedCount = columnCountSelect.value;
+    localStorage.setItem("columnCount", selectedCount);
+    Index.updateTableHeaders();
+    document.location.reload(true);
+};
+
+/**
+ * Generate the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.generateTableHeaders = function (columnCount) {
+    const headerRow = $("#header-row");
+    headerRow.empty();
+    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`
+        <th id="titleheader" width="${headerWidth}">
+            <a>${I18N.IndexTitle}</a>
+        </th>`);
+
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
+
+        const headerHtml = `
+            <th id="customheader${i}" width="${colWidth}">
+                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>
+                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>
+            </th>`;
+        headerRow.append(headerHtml);
+    }
+    headerRow.append(`
+        <th id="tagsheader">
+            <a>${I18N.IndexTags}</a>
+        </th>`);
+};
+
+
+/**
+ * Update the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.updateTableHeaders = function () {
+    let columnCount = Index.getColumnCount();
+    Index.generateTableHeaders(columnCount);
+
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
+        $(`#customcol${i}`).val(customColumn);
+
+        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
     }
 };
 
@@ -1118,6 +1141,8 @@ Index.resizableColumns = function () {
 Index.getColumnCount = function () {
     return localStorage.getItem("columnCount") ? parseInt(localStorage.getItem("columnCount")) : 2;
 }
+
+// #endregion
 
 jQuery(() => {
     Index.initializeAll();
