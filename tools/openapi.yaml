@@ -681,15 +681,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
-        '500':
-          description: Redis error during registry creation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
 
   /registries/default:
     get:
+      security:
+        - api_key: []
       operationId: getDefaultRegistry
       x-mojo-to: api-registry#get_default_registry
       summary: Get default Registry
