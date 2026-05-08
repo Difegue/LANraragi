@@ -188,7 +188,10 @@ IndexTable.renderTitle = function (data, type) {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}
+                <a id="${data.arcid}"
+                   onmouseover="IndexTable.buildImageTooltip(this)" 
+                   href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
@@ -264,6 +267,11 @@ IndexTable.createdRow = function (row, data, dataIndex, cells) {
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
         $("#thumbs_container").append(LRR.buildThumbnailDiv(data));
+
+        // Apply selection highlight immediately if the archive is already selected
+        if (Index.isMultiSelectMode && Index.selectedArchives.has(data.arcid || data.id)) {
+            $(`#thumbs_container #${data.arcid || data.id}`).addClass("msm-selected");
+        }
     }
 };
 
@@ -323,6 +331,9 @@ IndexTable.drawCallback = function () {
         }
 
         Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
+
+        // Re-apply selection highlights after each draw
+        Index.applySelectionHighlights();
 
         // Clear potential leftover tooltips
         tippy.hideAll();

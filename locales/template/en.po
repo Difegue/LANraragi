@@ -42,8 +42,8 @@ msgstr "You can apply modifications to multiple archives in one go here."
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 
-msgid "Archives with no tags have been pre-checked."
-msgstr "Archives with no tags have been pre-checked."
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr "Archives with no tags or from your last selection have been pre-checked."
 
 msgid "Task :"
 msgstr "Task :"
@@ -795,6 +795,18 @@ msgstr "You\'re using the default password and that\'s super baka of you"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr "<a href=\"/login\">Login</a> with password \"kamimamita\" and <a href=\"/config\">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
+
+msgid "Select Archives"
+msgstr "Select Archives"
+
+msgid "Run Batch Operations on selection"
+msgstr "Run Batch Operations on selection"
+
+msgid "Clear selection"
+msgstr "Clear selection"
+
+msgid "Select All in Page"
+msgstr "Select All in Page"
 
 # ------End of Index.html.tt2------
 
@@ -1741,6 +1753,21 @@ msgstr "Error sending job to Minion"
 
 msgid "Go to page:"
 msgstr "Go to page:"
+
+msgid "Selection"
+msgstr "Selection"
+
+msgid "\${n} selected"
+msgstr "\${n} selected"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr "Click Archives to add them to the selection. Your selection carries over across searches."
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "Exit selection mode? Your current selection will be lost. "
+
+msgid "Hide completed Archives"
+msgstr "Hide completed Archives"
 
 # ------End of i18n.html.tt2------
 

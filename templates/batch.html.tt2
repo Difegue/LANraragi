@@ -42,7 +42,7 @@
 
 		[% c.lh("You can apply modifications to multiple archives in one go here.") %]<br><br>
 		[% c.lh("Select what you'd like to do, check archives you want to use it on, and get rolling!") %]<br>
-		[% c.lh("Archives with no tags have been pre-checked.") %]<br><br>
+		[% c.lh("Archives with no tags or from your last selection have been pre-checked.") %]<br><br>
 
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>

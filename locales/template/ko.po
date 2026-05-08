@@ -785,6 +785,18 @@ msgstr ""
 "\"/config\">좀 바꾸세요</a>.<br/> ...아니면 그냥 비활성화 하세요! <br/"
 ">비밀번호를 바꾸고 이왕 하는 김에 설정 옵션도 확인해 보는 것은 어때요? "
 
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
+
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."

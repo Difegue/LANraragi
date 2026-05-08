@@ -92,6 +92,7 @@
 					placeholder='[% c.lh("Search Title, Artist, Series, Language or Tags") %]' />
 				<input id='apply-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Apply Filter") %]' />
 				<input id='clear-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Clear Filter") %]' />
+				<input id='msm-toggle' class='searchbtn stdbtn' type='button' value='[% c.lh("Select Archives") %]' />
 			</div>
 
 			<ul class="collapsible index-carousel with-right-caret">
@@ -108,6 +109,16 @@
 							href="#" title="[% c.lh('Refresh Selection') %]"></a>
 						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
 							id="carousel-mode-menu" href="#" title="[% c.lh('Carousel Options') %]"></a>
+
+						<div id="msm-carousel-controls" style="margin-bottom: -4px; display:none">
+							<span id="msm-selection-count"></span>
+							<a id="msm-batch-ops" class="fa fa-2x fa-hammer" style="margin-left: 12px"
+								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
+							<a id="msm-clear" class="fa fa-2x fa-eject" style="margin-left: 12px" 
+								href="#" title="[% c.lh('Clear selection') %]"></a>
+							<a id="msm-select-page" class="fa fa-2x fa-check-double" style="margin-left: 12px" 
+								href="#" title="[% c.lh('Select All in Page') %]"></a>
+						</div>
 					</div>
 
 					<div class="collapsible-body" style="flex: 1 0 100%;overflow: hidden;box-sizing: border-box;">

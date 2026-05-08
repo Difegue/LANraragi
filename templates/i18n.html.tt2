@@ -91,6 +91,11 @@ I18N.CarouselOnDeck = "[% c.lh("On Deck") %]";
 I18N.CarouselError = "[% c.lh("Error getting carousel data!") %]";
 I18N.CarouselEmpty = "[% c.lh("No results here.") %]";
 
+I18N.MSMCarouselTitle = "[% c.lh("Selection") %]";
+I18N.MSMSelectionCount = (n) => `[% c.lh("\${n} selected") %]`;
+I18N.MSMSelectionHint = "[% c.lh("Click Archives to add them to the selection. Your selection carries over across searches.") %]";
+I18N.MSMConfirmExit = "[% c.lh("Exit selection mode? Your current selection will be lost. ") %]";
+
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";
 I18N.IndexTags = "[% c.lh("Tags") %]";

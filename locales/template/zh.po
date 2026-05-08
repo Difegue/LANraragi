@@ -746,6 +746,18 @@ msgstr ""
 "\"/config\">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/"
 ">为什么不顺便检查一下配置选项呢？"
 
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
+
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."

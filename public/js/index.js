@@ -14,6 +14,8 @@ Index.isProgressLocal = true;
 Index.isProgressAuthenticated = true;
 Index.pageSize = 100;
 Index.pseudoCopyBtn = undefined;
+Index.isMultiSelectMode = false;
+Index.selectedArchives = new Set();
 
 /**
  * Initialize the Archive Index.
@@ -35,6 +37,20 @@ Index.initializeAll = function () {
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("keydown.quick-search", Index.handleQuickSearch);
     $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
+
+    // MSM event bindings
+    $(document).on("click.msm-toggle", "#msm-toggle", Index.toggleMultiSelectMode);
+    $(document).on("click.msm-select-page", "#msm-select-page", Index.selectCurrentPage);
+    $(document).on("click.msm-batch-ops", "#msm-batch-ops", Index.openBatchOnSelection);
+    $(document).on("click.msm-clear", "#msm-clear", Index.clearSelection);
+    // Intercept reader-link clicks while MSM is active to toggle archive selection instead
+    $(document).on("click.msm-archive", "a[href*='/reader?id=']", function (e) {
+        if (!Index.isMultiSelectMode) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const id = $(this).closest("[id]").attr("id");
+        if (id) Index.toggleArchiveSelection(id);
+    });
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -371,7 +387,8 @@ Index.loadTagSuggestions = function () {
 // #region Carousel
 
 Index.toggleCarousel = function (e, updateLocalStorage = true) {
-    if (updateLocalStorage) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+    if (updateLocalStorage) 
+        localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!Index.carouselInitialized) {
         Index.carouselInitialized = true;
@@ -427,7 +444,6 @@ Index.updateCarousel = function (e) {
 
     // Don't overwrite the carousel while Multi-Select Mode is active
     if (Index.isMultiSelectMode) {
-        $("#carousel-loading").hide();
         return;
     }
 
@@ -497,6 +513,253 @@ Index.updateCarousel = function (e) {
             },
         );
     }
+};
+
+// #endregion
+
+// #region Multi-Select Mode in Carousel
+
+/**
+ * Toggle Multi-Select Mode on/off.
+ * In MSM, the carousel empties out and serves as a visual selection panel.
+ * Clicking archives adds/removes them from the selection instead of opening the reader.
+ */
+Index.toggleMultiSelectMode = function () {
+    Index.isMultiSelectMode = !Index.isMultiSelectMode;
+
+    if (Index.isMultiSelectMode) {
+        Index.enterSelectionCarouselMode();
+    } else {
+
+        if (Index.selectedArchives.size > 0) 
+            LRR.showPopUp({
+                text: I18N.MSMConfirmExit,
+                showCancelButton: true,
+                focusConfirm: false,
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Index.clearSelection();
+                    Index.exitSelectionCarouselMode();
+                }
+                else 
+                    Index.isMultiSelectMode = true; // Revert the toggle if user cancels 
+            });
+        else 
+            Index.exitSelectionCarouselMode();    
+    }
+};
+
+/**
+ * Switch the carousel into Selection Mode: clear slides, hide normal controls,
+ * show MSM controls, and update the header.
+ */
+Index.enterSelectionCarouselMode = function () {
+    // Initialize the carousel if it hasn't been opened yet
+    if (!Index.carouselInitialized) {
+        Index.toggleCarousel(null, false);
+    }
+
+    $("#msm-toggle").addClass("toggled");
+    // Open the carousel if it isn't already open
+    if (!$(".collapsible-title").hasClass("active")) {
+        $(".collapsible-title").trigger("click", [false]);
+    }
+
+    // Hide normal carousel controls
+    $("#reload-carousel").hide();
+    $("#carousel-mode-menu").hide();
+
+    // Update carousel header to reflect selection mode
+    $("#carousel-icon")[0].className = "fas fa-check-square";
+    $("#carousel-title").text(I18N.MSMCarouselTitle);
+
+    // Clear all existing slides
+    Index.swiper.virtual.removeAllSlides();
+    Index.swiper.virtual.update();
+
+    // Show selection hint as empty state
+    $("#carousel-empty-text").text(I18N.MSMSelectionHint);
+    $("#carousel-loading").hide();
+    $("#carousel-empty").show();
+    $(".swiper-wrapper").hide();
+
+    // Show MSM controls
+    $("#msm-carousel-controls").show();
+    Index.updateSelectionCount();
+};
+
+/**
+ * Restore the carousel to its normal mode: show normal controls, hide MSM controls,
+ * restore empty state text, and reload the carousel content.
+ */
+Index.exitSelectionCarouselMode = function () {
+    // Restore normal carousel controls
+    $("#reload-carousel").show();
+    $("#carousel-mode-menu").show();
+
+    $("#msm-toggle").removeClass("toggled");
+    // Close the carousel again if localStorage doesn't have the pref to keep it open
+    if (localStorage.carouselOpen !== "1") {
+        $(".collapsible-title").trigger("click", [false]);
+    }
+
+    // Restore empty state text
+    $("#carousel-empty-text").text(I18N.CarouselEmpty);
+
+    // Hide MSM controls
+    $("#msm-carousel-controls").hide();
+
+    // Reload normal carousel content
+    Index.updateCarousel();
+
+    // Remove all highlights from archives
+    $(".msm-selected").removeClass("msm-selected");
+};
+
+/**
+ * Toggle an archive in/out of the current MSM selection.
+ * Updates the carousel slides and index highlights accordingly.
+ * @param {string} id Archive ID
+ */
+Index.toggleArchiveSelection = function (id) {
+    if (Index.selectedArchives.has(id)) {
+        Index.selectedArchives.delete(id);
+        Index.removeArchiveFromSelection(id);
+    } else {
+        Index.selectedArchives.add(id);
+        // Find archive data from DataTables to build the carousel slide
+        const row = IndexTable.dataTable.row(`#${id}`);
+        const data = row.data();
+        if (data) {
+            Index.addArchiveToSelection(data);
+        }
+    }
+    Index.updateSelectionCount();
+};
+
+/**
+ * Build and add a carousel slide for the given archive.
+ * Clicking the slide removes the archive from the selection.
+ * @param {object} data Archive data object from DataTables
+ */
+Index.addArchiveToSelection = function (data) {
+    const id = data.arcid || data.id;
+    const slide = LRR.buildThumbnailDiv(data);
+    Index.swiper.virtual.appendSlide(slide);
+    Index.swiper.virtual.update();
+
+    // Add highlight classes to matching divs in compact and thumb mode 
+    $(`#thumbs_container #${id}`).addClass("msm-selected");
+    $(`tr#${id}.context-menu`).addClass("msm-selected");
+
+    // Bind click on newly added slide to deselect the archive
+    // Uses event delegation so it works even with virtual slides
+    $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`, 
+        function (e) {
+        if (!Index.isMultiSelectMode) return;
+        e.preventDefault();
+        Index.toggleArchiveSelection(id);
+    });
+};
+
+/**
+ * Remove an archive's slide from the MSM carousel.
+ * @param {string} id Archive ID to remove
+ */
+Index.removeArchiveFromSelection = function (id) {
+    // Find the slide index in the virtual slides array
+    const { slides } = Index.swiper.virtual;
+    const idx = slides.findIndex((html) => html.includes(`id="${id}"`));
+    if (idx !== -1) {
+        Index.swiper.virtual.removeSlide(idx);
+        Index.swiper.virtual.update();
+    }
+
+    // Remove highlight classes
+    $(`#thumbs_container #${id}`).removeClass("msm-selected");
+    $(`tr#${id}.context-menu`).removeClass("msm-selected");
+
+    $(document).off(`click.msm-carousel-${id}`);
+};
+
+/**
+ * Add all archives visible on the current DataTables page to the selection.
+ */
+Index.selectCurrentPage = function () {
+    const pageData = IndexTable.dataTable.rows({ page: "current" }).data();
+    pageData.each((data) => {
+        const id = data.arcid || data.id;
+        if (!Index.selectedArchives.has(id)) {
+            Index.selectedArchives.add(id);
+            Index.addArchiveToSelection(data);
+        }
+    });
+    Index.updateSelectionCount();
+};
+
+/**
+ * Clear the entire archive selection, reset the carousel to empty, and remove all highlights.
+ */
+Index.clearSelection = function () {
+    Index.selectedArchives.clear();
+
+    if (Index.carouselInitialized) {
+        Index.swiper.virtual.removeAllSlides();
+        Index.swiper.virtual.update();
+        $("#carousel-empty").show();
+        $(".swiper-wrapper").hide();
+    }
+
+    $(".msm-selected").removeClass("msm-selected");
+    Index.updateSelectionCount();
+};
+
+/**
+ * Update the count display for the current selection and save a copy to localStorage. 
+ * Also show/hide controls if applicable.
+ */
+Index.updateSelectionCount = function () {
+    const count = Index.selectedArchives.size;
+    localStorage.setItem("msmSelection", JSON.stringify([...Index.selectedArchives]));
+    if (count > 0) {
+        // Hide empty state, show slides
+        $("#carousel-empty").hide();
+        $(".swiper-wrapper").show();
+
+        $("#msm-selection-count").text(I18N.MSMSelectionCount(count));
+        if (LRR.isUserLogged())
+            $("#msm-batch-ops").show();
+        $("#msm-clear").show();
+    } else {
+        $("#carousel-empty").show();
+        $(".swiper-wrapper").hide();
+
+        $("#msm-selection-count").text("");
+        $("#msm-batch-ops").hide();
+        $("#msm-clear").hide();
+    }
+};
+
+/**
+ * Re-apply msm-selected CSS highlights for all selected archives currently in the DOM.
+ * Should be called after each DataTables draw.
+ */
+Index.applySelectionHighlights = function () {
+    if (!Index.isMultiSelectMode) return;
+    Index.selectedArchives.forEach((id) => {
+        $(`#thumbs_container #${id}`).addClass("msm-selected");
+        $(`tr#${id}.context-menu`).addClass("msm-selected");
+    });
+};
+
+/**
+ * Store the current MSM selection in localStorage and open the Batch Operations page
+ * in a new tab. The batch page reads the key and pre-checks those archives.
+ */
+Index.openBatchOnSelection = function () {
+    if (Index.selectedArchives.size === 0) return;
+    LRR.openInNewTab(new LRR.apiURL("/batch"));
 };
 
 // #endregion

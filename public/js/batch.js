@@ -29,6 +29,8 @@ Batch.initializeAll = function () {
     // Load all archives, showing a spinner while doing so
     $("#arclist").hide();
 
+    // TODO Do a partial load if we have msmSelection to avoid using this huge blocking call. 
+    // This would either require a chain of /api/archive/{id} calls or for msmSelection to carry the full archive objects. 
     Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
         (data) => {
             // Parse the archive list and add <li> elements to arclist
@@ -38,7 +40,7 @@ Batch.initializeAll = function () {
                 $("#arclist").append(html);
             });
 
-            Batch.checkUntagged();
+            Batch.preCheckArchives();
         },
     )
         .finally(() => {
@@ -73,24 +75,38 @@ Batch.showOverride = function () {
 };
 
 /**
- * Check untagged archives, using the matching API endpoint.
+ * Check untagged or selected archives, using the matching API endpoint.
  */
-Batch.checkUntagged = function () {
-    Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
+Batch.preCheckArchives = function () {
+
+    // Pre-check archives passed from Multi-Select Mode on the index page
+    const msmSelection = localStorage.getItem("msmSelection");
+    if (msmSelection) {
+        try {
+            preCheckInternal(JSON.parse(msmSelection));
+        } catch (e) {
+            console.warn("Failed to parse msmSelection:", e);
+        }
+    }
+    else Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
         (data) => {
             // Check untagged archives
-            data.forEach((id) => {
-                const checkbox = document.getElementById(id);
-
-                if (checkbox != null) {
-                    checkbox.checked = true;
-                    // Prepend matching <li> element to the top of the list
-                    checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
-                }
-            });
+            preCheckInternal(data);
         },
     );
 };
+
+preCheckInternal = function (ids) {
+    ids.forEach((id) => {
+        const checkbox = document.getElementById(id);
+
+        if (checkbox != null) {
+            checkbox.checked = true;
+            // Prepend matching <li> element to the top of the list
+            checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
+        }
+    });
+}
 
 /**
  * Pop up a confirm dialog if operation is destructive.

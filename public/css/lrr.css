@@ -10,6 +10,10 @@ td.itd {
   white-space: nowrap;
 }
 
+.searchbtn {
+  margin-top: 4px !important;
+}
+
 .itdc {
   min-width: 35px;
 }
@@ -165,6 +169,22 @@ table thead .sorting_disabled a:after {
 
 .index-carousel-container {
   margin-top: -10px;
+}
+
+/* Selection highlight for archives in thumbnail view */
+#thumbs_container .id1.msm-selected {
+  outline: 3px solid #f0a500;
+  outline-offset: -3px;
+}
+
+/* Selection highlight for archives in compact/list view */
+.datatables tbody tr.msm-selected td {
+  background-color: rgba(240, 165, 0, 0.15) !important;
+}
+
+#msm-selection-count {
+  font-weight: bold;
+  vertical-align: center;
 }
 
 .carousel-prev {
@@ -796,7 +816,7 @@ div.fullscreen img {
 }
 
 .fullscreen #display {
-    height: 100%;
+  height: 100%;
 }
 
 .fullscreen-infinite {

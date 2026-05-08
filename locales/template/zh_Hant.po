@@ -752,6 +752,18 @@ msgstr ""
 "href=\"/config\">改掉</a>。<br/"
 ">...或者乾脆關掉密碼功能！順便去查看其他設定選項也不錯？。 "
 
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
+
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
