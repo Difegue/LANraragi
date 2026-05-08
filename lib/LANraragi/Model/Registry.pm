@@ -368,13 +368,13 @@ sub fetch_registry_index {
         unless ( defined $res ) {
             my $error = "Cannot reach registry: $@";
             $logger->error($error);
-            return ( 500, undef, $error );
+            return ( 502, undef, $error );
         }
 
         unless ( $res->is_success ) {
             my $error = "Failed to fetch registry index: HTTP " . $res->code;
             $logger->error($error);
-            return ( 500, undef, $error );
+            return ( 502, undef, $error );
         }
 
         return ( 200, $res->body, undef );
