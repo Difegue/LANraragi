@@ -464,8 +464,7 @@ paths:
                     enum: 
                       - use_plugin
                   type:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                     enum: 
                       - download
                       - login
@@ -478,8 +477,7 @@ paths:
                       - 0
                       - 1
                   error:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                   data:
                     type: object
                     description: Arbitrary data returned by the Plugin.
@@ -513,10 +511,10 @@ paths:
         - name: priority
           in: query
           required: false
-          default: 0
           description: Priority of the Minion job. The higher the number, the more important the job is.
           schema:
             type: integer
+            default: 0
         - name: plugin
           in: query
           description: Namespace of the plugin to use.
@@ -582,9 +580,8 @@ paths:
                       - 0
                       - 1
                   error:
-                    type: string
+                    type: [string, "null"]
                     description: Error message if something went wrong during cleanup. (The call will still return 200)
-                    nullable: true
                   newsize:
                     type: integer
                     description: Current size of the temporary folder post-cleanup.
@@ -635,7 +632,6 @@ paths:
                 catid:
                   type: string
                   description: Category ID to add the downloaded URL to.
-                  type: string
                   minLength: 14
                   maxLength: 14
       responses:
@@ -654,8 +650,7 @@ paths:
                     type: string
                     description: URL queued for download
                   category:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                   success:
                     type: integer
                     enum:
@@ -1628,7 +1623,9 @@ paths:
         - name: path
           in: query
           required: true
-          description: Path to the image. 
+          description: Path to the image.
+          schema:
+            type: string
       responses:
         '200':
           description: Archive page
@@ -2095,7 +2092,6 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
-          default: false
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -2103,6 +2099,7 @@ paths:
             the archive IDs they contain.
           schema:
             type: boolean
+            default: false
       responses:
         '200':
           description: Search results
@@ -2175,7 +2172,6 @@ paths:
         - name: count
           in: query
           required: false
-          default: 5
           description: >-
             How many archives you want to pull randomly. Defaults to 5.  
 
@@ -2183,6 +2179,7 @@ paths:
             If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
           schema:
             type: integer
+            default: 5
         - name: newonly
           in: query
           required: false
@@ -2299,14 +2296,14 @@ paths:
                 type: array
                 items:
                   type: object
+                  required:
+                      - text
                   properties:
                     namespace:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       description: Namespace of the tag
                     text:
                       type: string
-                      required: true
                       description: The tag itself
                     weight:
                       type: integer
@@ -2756,13 +2753,10 @@ paths:
                       - finished
                       - failed
                   notes:
-                    type: object
+                    type: [object, "null"]
                     description: Arbitrary data attached to the Job.
-                    required: false
-                    nullable: true
                   error:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                 example:
                   state: finished
                   task: handle_upload
@@ -2862,10 +2856,10 @@ paths:
         - name: priority
           in: query
           required: false
-          default: 0
           description: Priority of the Minion job. The higher the number, the more important the job is.
           schema:
             type: integer
+            default: 0
       responses:
         '200':
           description: Enqueued job
@@ -3087,6 +3081,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
   /categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 14
+          maxLength: 14
     get:
       operationId: getCategory
       x-mojo-to: api-category#get_category
@@ -3094,14 +3096,6 @@ paths:
       description: Get the details of the specified category ID.
       tags:
         - categories
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            minLength: 14
-            maxLength: 14
       responses:
         '200':
           description: Category
@@ -3375,6 +3369,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}:
+    parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon desired
+          schema:
+            type: string
     get:
       operationId: getTankoubon
       x-mojo-to: api-tankoubon#get_tankoubon
@@ -3386,12 +3387,6 @@ paths:
       tags:
         - tankoubons
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the Tankoubon desired
-          schema:
-            type: string
         - name: include_full_data
           in: query
           required: false
@@ -3401,10 +3396,10 @@ paths:
         - name: page
           in: query
           required: false
-          default: 0
           description: Page of the Archives list. You can use -1 to return all archives if needed.  
           schema:
             type: integer
+            default: 0
       responses:
         '200':
           description: Tankoubon
@@ -3860,16 +3855,13 @@ components:
           type: string
           description: Version of the plugin
         oneshot_arg:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Description of the manual one-shot argument users can fill in for manual plugin calls
         url_regex:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: For downloader plugins, regex where it should be used
         login_from:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Namespace of the login plugin this plugin depends on
       example:
         author: Difegue
@@ -3892,9 +3884,8 @@ components:
       description: Parameter for a LRR Plugin.
       properties:
         name:
-          type: string
+          type: [string, "null"]
           description: Name of the parameter
-          nullable: true
         desc:
           type: string
           description: Description of the parameter
@@ -3906,9 +3897,8 @@ components:
               - int
               - string
         default_value:
-          type: string
+          type: [string, "null"]
           description: Default value of the parameter
-          nullable: true
       example:
         default_value: 0
         desc:	Force resampled archive download
@@ -3990,14 +3980,13 @@ components:
           type: string
           description: Comma-separated list of tags associated with the archive
         summary:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Summary description of the archive
         isnew:
           oneOf:
             - type: boolean
             - type: string
-          nullable: true
+            - type: "null"
           description: Whether the archive is newly added.
         extension:
           type: string
@@ -4065,9 +4054,8 @@ components:
             - 0
             - 1
         search:
-          type: string
+          type: [string, "null"]
           description: Category search filter (if this is a dynamic category, empty otherwise)
-          nullable: true
       example:
         id: SET_1613080290
         name: My great category
@@ -4123,12 +4111,10 @@ components:
           type: string
           description: Comma-separated list of tags associated with the archive
         summary:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Summary description of the archive
         thumbhash:
-          type: string
-          nullable: true
+          type: [string, "null"]
           minLength: 40
           maxLength: 40
           description: Thumbnail hash, or null if not set
