@@ -25,6 +25,7 @@ I18N.SaveError = "[% c.lh("Error saving data") %]";
 I18N.LoginRequired = (url) => `[% c.lh("<a href='\${url}'>Login</a> to toggle bookmark feature.") %]`;
 
 I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
+I18N.BatchSelectionBanner = (n) => `[% c.lh("Displaying \${n} Archives from previous selection.") %]`;
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";
 I18N.BatchFailHeader = "[% c.lh("An error occured during batch tagging!") %]";
 I18N.BatchFailBody = "[% c.lh("Please check application logs.") %]";
@@ -95,6 +96,8 @@ I18N.MSMCarouselTitle = "[% c.lh("Selection") %]";
 I18N.MSMSelectionCount = (n) => `[% c.lh("\${n} selected") %]`;
 I18N.MSMSelectionHint = "[% c.lh("Click Archives to add them to the selection. Your selection carries over across searches.") %]";
 I18N.MSMConfirmExit = "[% c.lh("Exit selection mode? Your current selection will be lost. ") %]";
+I18N.MSMAddToSelection = "[% c.lh("Add to selection") %]";
+I18N.MSMRemoveFromSelection = "[% c.lh("Remove from selection") %]";
 
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";

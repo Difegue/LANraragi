@@ -120,6 +120,12 @@ msgstr "Plugin Configuration"
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Discard Selection"
+msgstr "Discard Selection"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Displaying ${n} Archives from previous selection."
+
 # ------End of Batch.html.tt2------
 
 # ------Start of Category.html.tt2------
@@ -1765,6 +1771,12 @@ msgstr "Click Archives to add them to the selection. Your selection carries over
 
 msgid "Exit selection mode? Your current selection will be lost. "
 msgstr "Exit selection mode? Your current selection will be lost. "
+
+msgid "Add to selection"
+msgstr "Add to selection"
+
+msgid "Remove from selection"
+msgstr "Remove from selection"
 
 msgid "Hide completed Archives"
 msgstr "Hide completed Archives"
