@@ -397,6 +397,22 @@ note('testing validate_registry_index rejects plugin-level violations...');
 
 {
     my $idx = make_valid_index();
+    $idx->{plugins}{"SampleDownloader"} = delete $idx->{plugins}{"sample-downloader"};
+    $idx->{plugins}{"SampleDownloader"}{namespace} = "SampleDownloader";
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, "Invalid registry.json: plugin namespace 'SampleDownloader' must match ^[a-z0-9_-]+\$ (lowercase only).", "mixed-case namespace rejected" );
+}
+
+{
+    my $idx = make_valid_index();
+    $idx->{plugins}{"SAMPLE-DOWNLOADER"} = delete $idx->{plugins}{"sample-downloader"};
+    $idx->{plugins}{"SAMPLE-DOWNLOADER"}{namespace} = "SAMPLE-DOWNLOADER";
+    my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
+    is( $err, "Invalid registry.json: plugin namespace 'SAMPLE-DOWNLOADER' must match ^[a-z0-9_-]+\$ (lowercase only).", "uppercase namespace rejected" );
+}
+
+{
+    my $idx = make_valid_index();
     $idx->{plugins}{"sample-downloader"}{type} = "spreadsheet";
     my $err = LANraragi::Utils::Registry::validate_registry_index($idx);
     is( $err, "Invalid registry.json: plugin 'sample-downloader' has invalid type 'spreadsheet'.", "invalid type rejected" );

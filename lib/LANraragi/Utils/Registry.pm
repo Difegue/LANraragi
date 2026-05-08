@@ -173,6 +173,9 @@ sub validate_registry_index {
         unless ( defined $plugin->{namespace} && $plugin->{namespace} eq $namespace ) {
             return "Invalid registry.json: plugin key '$namespace' must match inner namespace.";
         }
+        unless ( $namespace =~ /\A[a-z0-9_-]+\z/ ) {
+            return "Invalid registry.json: plugin namespace '$namespace' must match ^[a-z0-9_-]+\$ (lowercase only).";
+        }
         unless ( defined $plugin->{type} && MANAGED_TYPE_DIRS->{ $plugin->{type} } ) {
             return "Invalid registry.json: plugin '$namespace' has invalid type '$plugin->{type}'.";
         }
