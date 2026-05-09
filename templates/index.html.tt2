@@ -123,9 +123,9 @@
 							<span id="msm-selection-count"></span>
 							<a class="fa fa-2x fa-hammer carousel-icon" style="margin-left: 12px" id="msm-batch-ops" 
 								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
-							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge" 
+							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge"
 								href="#" title="[% c.lh('Merge Archives into Tankoubon') %]"></a>
-							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear" 
+							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear"
 								href="#" title="[% c.lh('Clear selection') %]"></a>
 							<a class="fa fa-2x fa-check-double carousel-icon" style="margin-left: 12px" id="msm-select-page" 
 								href="#" title="[% c.lh('Select All in Page') %]"></a>
@@ -204,7 +204,7 @@
 
 	<script type="module">
 		import * as Index from "mod/index";
-		import * as I18N from "i18n";
+		import I18N from "i18n";
 
 		// Last few remains of JS using server-provided data
 		jQuery(() => {
@@ -254,8 +254,8 @@
 							},
 							[% IF userlogged %]
 							"sep1": "---------",
-							...(isTankoubon ? 
-								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } : 
+							...(isTankoubon ?
+								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } :
 								{ "edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } }),
 							"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
 								"rating": {
