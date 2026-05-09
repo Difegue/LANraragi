@@ -47,6 +47,7 @@
 * [Category API](api-documentation/category-api.md)
 * [Tankoubon API](api-documentation/tankoubon-api.md)
 * [Plugin API](api-documentation/plugin-api.md)
+* [Registry API](api-documentation/registry-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Minion API](api-documentation/minion-api.md)
 * [OPDS Catalog](api-documentation/opds-catalog.md)
