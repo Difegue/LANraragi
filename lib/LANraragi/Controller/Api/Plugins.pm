@@ -21,8 +21,49 @@ sub update_metadata_plugin_config {
             my $redis   = $self->LRR_CONF->get_redis_config;
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-            unless ( $redis->hexists( $namerds, "installed_path" ) ) {
-                $redis->quit();
+            my @fields;
+            push @fields, "enabled",  $body->{enabled} ? "1" : "0" if exists $body->{enabled};
+            push @fields, "hidden",   $body->{hidden}  ? "1" : "0" if exists $body->{hidden};
+            push @fields, "priority", $body->{priority}            if exists $body->{priority};
+
+            # Validate plugin state and apply field updates.
+            # Returns: 1 = ok, -1 = not installed, -2 = no type, -3 = not a metadata plugin.
+            my $script = <<'LUA';
+if redis.call("HEXISTS", KEYS[1], "installed_path") == 0 then
+    return -1
+end
+local t = redis.call("HGET", KEYS[1], "type")
+if not t then
+    return -2
+end
+if t ~= "metadata" then
+    return -3
+end
+for i = 1, #ARGV, 2 do
+    redis.call("HSET", KEYS[1], ARGV[i], ARGV[i + 1])
+end
+return 1
+LUA
+
+            my $result = eval { $redis->eval( $script, 1, $namerds, @fields ) };
+            my $err = $@;
+            $redis->quit();
+
+            if ($err) {
+                get_logger( "Plugin System", "lanraragi" )
+                    ->error("Redis error updating metadata config for '$namespace': $err");
+                $self->render(
+                    openapi => {
+                        operation => "update_metadata_plugin_config",
+                        error     => "Redis error while updating plugin config.",
+                        success   => 0,
+                    },
+                    status => 500
+                );
+                return;
+            }
+
+            if ( $result == -1 ) {
                 $self->render(
                     openapi => {
                         operation => "update_metadata_plugin_config",
@@ -34,11 +75,7 @@ sub update_metadata_plugin_config {
                 return;
             }
 
-            # Check that our type exists and is metadata.
-            # if no type, then something's very wrong ...
-            my $type = $redis->hget( $namerds, "type" );
-            unless ( defined $type ) {
-                $redis->quit();
+            if ( $result == -2 ) {
                 get_logger( "Plugin System", "lanraragi" )
                     ->error("Plugin '$namespace' is registered without a type.");
                 $self->render(
@@ -52,8 +89,7 @@ sub update_metadata_plugin_config {
                 return;
             }
 
-            if ( $type ne "metadata" ) {
-                $redis->quit();
+            if ( $result == -3 ) {
                 $self->render(
                     openapi => {
                         operation => "update_metadata_plugin_config",
@@ -64,21 +100,6 @@ sub update_metadata_plugin_config {
                 );
                 return;
             }
-
-            # TODO(REVIEW): transaction + error handling
-            if ( exists $body->{enabled} ) {
-                $redis->hset( $namerds, "enabled", $body->{enabled} ? "1" : "0" );
-            }
-
-            if ( exists $body->{hidden} ) {
-                $redis->hset( $namerds, "hidden", $body->{hidden} ? "1" : "0" );
-            }
-
-            if ( exists $body->{priority} ) {
-                $redis->hset( $namerds, "priority", $body->{priority} );
-            }
-
-            $redis->quit();
 
             render_api_response( $self, "update_metadata_plugin_config" );
         }
