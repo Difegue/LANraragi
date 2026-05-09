@@ -4980,6 +4980,8 @@ components:
         - id
         - name
         - type
+        - created
+        - updated
       properties:
         id:
           type: string
@@ -4995,6 +4997,12 @@ components:
             - git
             - local
           description: Registry source type.
+        created:
+          type: integer
+          description: Unix timestamp of registry creation.
+        updated:
+          type: integer
+          description: Unix timestamp of last update.
         provider:
           type: string
           enum:

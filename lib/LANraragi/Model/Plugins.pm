@@ -35,6 +35,7 @@ use LANraragi::Utils::Registry qw(
     validate_registry_artifact_path
     resolve_local_registry_artifact_path
     resolve_max_version
+    is_valid_registry
     MANAGED_TYPE_DIRS
 );
 
@@ -329,7 +330,7 @@ sub install_plugin {
     my $logger = get_logger( "Registry", "lanraragi" );
 
     # registry must exist
-    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+    unless ( is_valid_registry( $registry_id, $redis ) ) {
         return ( 404, undef, "This registry doesn't exist." );
     }
 
@@ -618,8 +619,6 @@ sub uninstall_plugin {
     my $source = infer_plugin_source( $namerds, $redis );
 
     # We don't touch builtin plugins!
-    # TODO(REVIEW) what if a builtin plugin gets added in the future via an update which coincidentally conflicts with a user's managed plugin?
-    # Will have to think about that...
     if ( $source eq "builtin" ) {
         return ( 403, undef, "Cannot uninstall built-in plugin '$namespace'." );
     }

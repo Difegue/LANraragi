@@ -12,6 +12,7 @@ use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(
     resolve_git_raw_url
     validate_registry_index
+    is_valid_registry
 );
 
 # Max registry index size for slurp (files will/should never reach this size anyways but stops OOM)
@@ -34,7 +35,6 @@ my %STALE_FIELDS = (
 
 # Create a registry entry with a generated REG_{timestamp} ID.
 # Returns ( $registry_id, undef ) or ( undef, $error_message ).
-# TODO(REVIEW) requires fields: created_date and updated_date.
 sub create_registry {
     my ( $config, $redis ) = @_;
     my %config = %{$config};
@@ -66,6 +66,9 @@ LUA
         push @field_args, $field, $config{$field};
     }
 
+    my $now = time;
+    push @field_args, "created", $now, "updated", $now;
+
     my $registry_id;
     my $offset = 0;
     until ($registry_id) {
@@ -91,8 +94,7 @@ LUA
 sub get_registry {
     my ( $registry_id, $redis ) = @_;
 
-    # TODO(REVIEW): pull out to sub: is_valid_registry(registry_id).
-    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+    unless ( is_valid_registry( $registry_id, $redis ) ) {
         get_logger( "Registry", "lanraragi" )->warn("Registry lookup failed for invalid or missing registry id '$registry_id'.");
         return ();
     }
@@ -127,7 +129,7 @@ sub update_registry {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Updating registry '$registry_id'");
 
-    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+    unless ( is_valid_registry( $registry_id, $redis ) ) {
         return ( 404, undef, "This registry doesn't exist." );
     }
 
@@ -193,6 +195,9 @@ sub update_registry {
         return ( 400, undef, "No valid fields to update for this registry type." );
     }
 
+    my $now = time;
+    push @fields_to_set, "updated", $now;
+
     my $indexkey = "";
     if ( $indexcleared ) {
         my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
@@ -220,8 +225,8 @@ LUA
         $redis->eval( $script, 2, $registry_id, $indexkey,
             scalar @fields_to_remove, @fields_to_remove, @fields_to_set );
     };
-    if ($@) { # TODO(REVIEW) same error var thing
-        $logger->error("Redis error during registry update for '$registry_id': $@");
+    if ( my $err = $@ ) {
+        $logger->error("Redis error during registry update for '$registry_id': $err");
         return ( 500, undef, "Redis error while updating registry." );
     }
 
@@ -238,7 +243,7 @@ sub delete_registry {
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    unless ( $registry_id =~ /^REG_\d{10}$/ && $redis->exists($registry_id) ) {
+    unless ( is_valid_registry( $registry_id, $redis ) ) {
         return ( 404, undef, "This registry doesn't exist." );
     }
 
