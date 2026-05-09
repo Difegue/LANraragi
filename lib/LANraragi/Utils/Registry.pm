@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 
 use Cwd qw(abs_path getcwd);
-use File::Spec; # TODO(REVIEW): why use this over Path? Check dev for consistency.
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
@@ -210,10 +209,10 @@ sub validate_registry_artifact_path {
     if ( index( $plugpath, "\0" ) >= 0 ) {
         return ( undef, "Invalid registry.json: artifact path contains a null byte." );
     }
-    if ( File::Spec->file_name_is_absolute($plugpath) ) {
+    if ( Mojo::File->new($plugpath)->is_abs ) {
         return ( undef, "Invalid registry.json: artifact path must be relative." );
     }
-    if ( grep { $_ eq "." || $_ eq ".." } File::Spec->splitdir($plugpath) ) {
+    if ( grep { $_ eq "." || $_ eq ".." } @{ Mojo::File->new($plugpath)->to_array } ) {
         return ( undef, "Invalid registry.json: artifact path must not contain '.' or '..' segments." );
     }
 
@@ -228,7 +227,7 @@ sub resolve_local_registry_artifact_path {
         return ( undef, undef, "Invalid local registry path: $registry_root" );
     }
 
-    my $candidate = File::Spec->catfile( $root_canon, File::Spec->splitdir($plugpath) );
+    my $candidate = Mojo::File->new($root_canon)->child( @{ Mojo::File->new($plugpath)->to_array } )->to_string;
     unless ( -e $candidate ) {
         return ( $root_canon, undef, "Plugin file not found: $candidate" );
     }
