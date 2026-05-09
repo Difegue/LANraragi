@@ -22,7 +22,7 @@ use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags);
+our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags update_tank_imputed_indexes);
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -308,6 +308,13 @@ sub update_archive_list ( $tank_id, $data ) {
         my @diff  = array_difference( \@tank_archives, \@origs );
         my @update;
 
+        # Collect tags from removed archives for index cleanup
+        my @removed_tags;
+        foreach my $arc_id (@diff) {
+            my $arc_tags_str = redis_decode( $redis->hget( $arc_id, "tags" ) ) // "";
+            push @removed_tags, split_tags_to_array($arc_tags_str);
+        }
+
         $redis->multi;
         $redis_search->multi;
 
@@ -347,6 +354,9 @@ sub update_archive_list ( $tank_id, $data ) {
 
         $redis->quit;
         $redis_search->quit;
+
+        # Update imputed tag indexes (handles both additions and removals)
+        update_tank_imputed_indexes( $tank_id, \@removed_tags );
 
         invalidate_cache();
         return ( 1, $err );
@@ -394,6 +404,9 @@ sub add_to_tankoubon ( $tank_id, $arc_id ) {
         $redis->sadd( "LRR_TANKGROUPED", $tank_id );    # Set elements are unique so no problem if the tank is already added here
         $redis->quit;
 
+        # Update imputed tag indexes for the tank (pure addition, no removed_tags)
+        update_tank_imputed_indexes($tank_id);
+
         invalidate_cache();
         return ( 1, $err );
     }
@@ -432,6 +445,10 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
             return ( 1, $err );
         }
 
+        # Get archive's tags before removal for index cleanup
+        my $arc_tags_str = redis_decode( $redis->hget( $arcid, "tags" ) ) // "";
+        my @arc_tags = split_tags_to_array($arc_tags_str);
+
         # Get all the elements after the one to remove to update the score
         my %toupdate = $redis->zrangebyscore( $tank_id, $score + 1, "+inf", "WITHSCORES" );
 
@@ -465,6 +482,9 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
             $redis->sadd( "LRR_TANKGROUPED", $arcid );
             $redis->quit;
         }
+
+        # Update imputed tag indexes for the tank (pass removed archive's tags for cleanup)
+        update_tank_imputed_indexes( $tank_id, \@arc_tags );
 
         invalidate_cache();
         return ( 1, $err );
@@ -668,6 +688,50 @@ sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
 
     return { own_tags => \@own_tags, imputed_tags => \@imputed_tags };
 }
+
+# update_tank_imputed_indexes(tank_id, removed_tags)
+#   Updates INDEX_* sets for a tank's unified tagset (its own + tags from contained archives).
+#   Does NOT update LRR_STATS (tags from existing archives shouldn't be duped).
+#
+#   $removed_tags - optional arrayref of tags that might need removal
+#                   (from removed archive or changed archive tags)
+sub update_tank_imputed_indexes ( $tank_id, $removed_tags = undef ) {
+
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis_search;
+
+    # Get current unified tagset (own + imputed)
+    my $unified  = get_tank_unified_tags($tank_id);
+    my @all_tags = ( @{ $unified->{own_tags} }, @{ $unified->{imputed_tags} } );
+
+    $redis->multi;
+
+    # Add tank to all current tag indexes 
+    foreach my $tag (@all_tags) {
+        my $encoded_tag = redis_encode( lc($tag) );
+        $redis->sadd( "INDEX_" . $encoded_tag, $tank_id );
+    }
+
+    # If removed_tags provided, srem tank from indexes for tags no longer in unified tagset
+    if ( $removed_tags && @$removed_tags ) {
+        my %current = map { lc($_) => 1 } @all_tags;
+
+        foreach my $tag (@$removed_tags) {
+            next unless defined $tag && $tag ne "";
+            my $tag_lc = lc($tag);
+            unless ( $current{$tag_lc} ) {
+                my $encoded_tag = redis_encode($tag_lc);
+                $redis->srem( "INDEX_" . $encoded_tag, $tank_id );
+            }
+        }
+    }
+
+    $redis->exec;
+    $redis->quit;
+
+    $logger->debug("Updated imputed tag indexes for $tank_id");
+}
+
 # tank_has_archive_in_set(tank_id, set_ref)
 #   Check if a tankoubon has any archive that exists in the given set.
 #   Used for filters like "newonly" where we want tanks containing new archives.

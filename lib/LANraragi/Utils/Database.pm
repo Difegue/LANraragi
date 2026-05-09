@@ -467,6 +467,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     my $redis   = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = LANraragi::Utils::Redis::redis_decode($oldtags);
+    my $original_oldtags = $oldtags // "";
 
     if ($append) {
 
@@ -489,6 +490,11 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
 
     $redis->hset( $id, "tags", LANraragi::Utils::Redis::redis_encode($newtags) );
     $redis->quit;
+
+    # Update imputed indexes for any tanks containing this archive
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
+        LANraragi::Model::Tankoubon::update_tank_imputed_indexes( $tank_id, [ split_tags_to_array($original_oldtags) ] );
+    }
 
     invalidate_cache();
 }
@@ -539,9 +545,9 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
     foreach my $tag (@oldtags) {
 
         unless ($is_tank) {
-        if ( $tag =~ /source:(.*)/i ) {
-            my $url = trim_url($1);
-            $redis->hdel( "LRR_URLMAP", $url );
+            if ( $tag =~ /source:(.*)/i ) {
+                my $url = trim_url($1);
+                $redis->hdel( "LRR_URLMAP", $url );
             }
         }
 
@@ -559,10 +565,10 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
         unless ($is_tank) {
-        # If the tag is a source: tag, add it to the URL index
-        if ( $tag =~ /source:(.*)/i ) {
-            my $url = trim_url($1);
-            $redis->hset( "LRR_URLMAP", $url, $id );
+            # If the tag is a source: tag, add it to the URL index
+            if ( $tag =~ /source:(.*)/i ) {
+                my $url = trim_url($1);
+                $redis->hset( "LRR_URLMAP", $url, $id );
             }
         }
 
@@ -575,10 +581,10 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 
     # Add or remove the ID from the untagged list (not applicable to tanks)
     unless ($is_tank) {
-    if ($has_tags) {
-        $redis->srem( "LRR_UNTAGGED", $id );
-    } else {
-        $redis->sadd( "LRR_UNTAGGED", $id );
+        if ($has_tags) {
+            $redis->srem( "LRR_UNTAGGED", $id );
+        } else {
+            $redis->sadd( "LRR_UNTAGGED", $id );
         }
     }
 
