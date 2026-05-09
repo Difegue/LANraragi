@@ -3,6 +3,7 @@
  */
 import * as LRR from "mod/common";
 import * as Index from "mod/index";
+import I18N from "i18n";
 
 export let dataTable = {};
 let originalTitle = document.title;

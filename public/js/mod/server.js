@@ -2,6 +2,8 @@
  * Functions for Generic API calls.
  */
 import * as LRR from "mod/common";
+import I18N from "i18n";
+
 let isScriptRunning = false;
 
 /**

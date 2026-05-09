@@ -6,6 +6,7 @@
 import * as LRR from "mod/common";
 import * as Server from "mod/server";
 import * as IndexTable from "mod/index_datatables";
+import I18N from "i18n";
 
 let selectedCategory = "";
 let awesomplete = {};

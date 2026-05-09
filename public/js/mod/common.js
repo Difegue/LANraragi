@@ -5,6 +5,7 @@
 import * as Index from "mod/index";
 import * as Server from "mod/server";
 import * as IndexTable from "mod/index_datatables";
+import I18N from "i18n";
 
 let toastsInitialized = false;
 let isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
