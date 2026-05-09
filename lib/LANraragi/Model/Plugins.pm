@@ -322,8 +322,8 @@ sub has_old_style_params (%params) {
 
 # Install a plugin from a registry whose index has been refreshed and cached.
 # namespace, registry_id, version are required to identify the plugin to install.
-# TODO(REVIEW) what if the signature of the plugin changes from one version to the next, or across provenance, in a way which is incompatible?
-# because uninstall plugin keeps configuration, this will require thought...
+# LRR assumes managed plugins are hash-style, and doesn't handle signature 
+# changes from one plugin version to another.
 sub install_plugin {
     my ( $namespace, $redis, $registry_id, $version ) = @_;
 
