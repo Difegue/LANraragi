@@ -633,7 +633,6 @@ paths:
                 catid:
                   type: string
                   description: Category ID to add the downloaded URL to.
-                  type: string
                   minLength: 14
                   maxLength: 14
       responses:
