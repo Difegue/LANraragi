@@ -128,7 +128,7 @@ sub update_registry {
                 return;
             }
 
-            my ( $status, $indexcleared, $message ) = LANraragi::Model::Registry::update_registry(
+            my ( $status, $indexcleared, $error ) = LANraragi::Model::Registry::update_registry(
                 $registry_id, $redis, %updated_registry
             );
             $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
@@ -136,9 +136,9 @@ sub update_registry {
             $redis->quit();
 
             unless ( $status == 200 ) {
-                $logger->warn("Update registry failed for '$registry_id': $message");
+                $logger->warn("Update registry failed for '$registry_id': $error");
                 $self->render(
-                    openapi => { operation => "update_registry", error => $message, success => 0 },
+                    openapi => { operation => "update_registry", error => $error, success => 0 },
                     status  => $status
                 );
                 return;
@@ -170,16 +170,15 @@ sub delete_registry {
         $registry_id,
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-            # TODO(REVIEW) 'message' is misleading, this is an error?
-            my ( $status, $success, $message ) = LANraragi::Model::Registry::delete_registry(
+            my ( $status, $success, $error ) = LANraragi::Model::Registry::delete_registry(
                 $registry_id, $redis
             );
             $redis->quit();
 
             unless ( $status == 200 ) {
-                $logger->warn("Delete registry failed for '$registry_id': $message");
+                $logger->warn("Delete registry failed for '$registry_id': $error");
                 $self->render(
-                    openapi => { operation => "delete_registry", error => $message, success => 0 },
+                    openapi => { operation => "delete_registry", error => $error, success => 0 },
                     status  => $status
                 );
                 return;
