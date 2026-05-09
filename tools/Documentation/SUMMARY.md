@@ -42,6 +42,28 @@
 
 * [🔑 Getting started](api-documentation/getting-started.md)
 * [Search API](api-documentation/search-api.md)
+* ```yaml
+  type: builtin:openapi
+  props:
+    models: true
+    downloadLink: true
+  dependencies:
+    spec:
+      ref:
+        kind: openapi
+        spec: lanraragi
+  ```
+* ```yaml
+  type: builtin:openapi
+  props:
+    models: true
+    downloadLink: true
+  dependencies:
+    spec:
+      ref:
+        kind: openapi
+        spec: lanraragi
+  ```
 * [Archive API](api-documentation/archive-api.md)
 * [Database API](api-documentation/database-api.md)
 * [Category API](api-documentation/category-api.md)
