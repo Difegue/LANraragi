@@ -134,7 +134,6 @@ sub update_registry {
             );
             $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
 
-            # TODO(REVIEW): check dev branch status check consistency (and all variants)
             unless ( $status == 200 ) {
                 $redis->quit();
                 $logger->warn("Update registry failed for '$registry_id': $message");
@@ -155,8 +154,8 @@ sub update_registry {
                     success       => 1,
                     error         => "",
                     id            => $registry_id,
-                    registry      => \%registry,                    # TODO(REVIEW): why ref here
-                    index_cleared => $indexcleared ? true : false,  # TODO(REVIEW): why fallback (variants)
+                    registry      => \%registry,
+                    index_cleared => $indexcleared ? true : false,
                 }
             );
         }

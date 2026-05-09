@@ -42,8 +42,6 @@ sub create_registry {
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Creating registry (type: $config{type})");
 
-    # TODO(REVIEW): maybe set default (first) registry to REG_0000000001?
-
     # Sanitize local registry path
     if ( $config{type} eq "local" && defined $config{path} ) {
         if ( index( $config{path}, "\0" ) >= 0 || $config{path} =~ /\.\./ ) {
@@ -51,7 +49,6 @@ sub create_registry {
         }
     }
 
-    # TODO(REVIEW): check stamps PR for offset consistency.
     # Atomically claim an unused REG_<ts> hash key and populate registry hash in one go.
     my $claim_script = <<'LUA';
     if redis.call("EXISTS", KEYS[1]) == 1 then
@@ -124,7 +121,6 @@ sub get_registry_list {
 }
 
 # Update mutable fields on an existing registry.
-# TODO(REVIEW) how much update_registry logic coincides with create-registry?
 sub update_registry {
     my ( $registry_id, $redis, %updated_registry ) = @_;
 
@@ -177,10 +173,9 @@ sub update_registry {
     }
 
     # If a type change is made, then registry may be left with stale or mixed type states, which we'll need to clean up.
-    # TODO(REVIEW) integration test coverage for mixed type registry updates? create git -> update git -> update local -> update local -> update git -> update local -> update git (AABBABAB)
     my @fields_to_remove;
     # type is always set on a valid registry (stored at creation)
-    if ( exists $updated_registry{type} && $updated_registry_type ne $current_registry_type ) { # TODO(REVIEW) is existence check required?
+    if ( exists $updated_registry{type} && $updated_registry_type ne $current_registry_type ) {
         $logger->info("Type change on '$registry_id': '$current_registry_type' -> '$target_registry_type'; removing stale fields.");
         @fields_to_remove = @{ $STALE_FIELDS{$target_registry_type} };
     }

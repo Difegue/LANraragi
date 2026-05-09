@@ -6,12 +6,11 @@ use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Update metadata plugin configuration.
-# TODO(REVIEW): what if the plugin does not exist on disk? If a plugin is not installed,
-# should its configs be updatable?
+# body may pass `enabled`, `hidden`, `priority` (optional).
 sub update_metadata_plugin_config {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
-    my $body        = $self->req->json; # TODO(REVIEW): document shape of body
+    my $body        = $self->req->json;
 
     return unless exec_with_lock(
         $self,

@@ -124,7 +124,6 @@ sub get_enabled_plugins {
 }
 
 #Look for a plugin by uc-normalized namespace for invokation.
-# TODO(REVIEW): explain how redis is being used.
 sub get_plugin {
 
     my $name    = shift;
@@ -154,7 +153,6 @@ sub get_plugin {
             record_load_success($name_uc);
             get_logger( "Plugin System", "lanraragi" )->info("Reloaded plugin '$name' in worker $$");
         } else {
-            # TODO(REVIEW): document when this would trigger
             record_load_failure($name_uc);
             get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name': $@");
             return 0;

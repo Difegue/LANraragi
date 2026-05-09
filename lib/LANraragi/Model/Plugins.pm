@@ -447,7 +447,7 @@ sub install_plugin {
     my $installdir      = $validated->{install_dir};
     my $installpath     = $validated->{install_path};
     my $incpath         = package_to_path( $validated->{package} );
-    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) ); # TODO(REVIEW) Paths compliance?
+    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) );
 
     make_path($installdir) unless -d $installdir;
 
@@ -508,7 +508,6 @@ sub install_plugin {
         $prior{$field} = $val if defined $val;
     }
 
-    # TODO(REVIEW) integration coverage for plugin install + metadata confirmation.
     my $provenance_script = <<~'LUA';
         if redis.call("EXISTS", KEYS[1]) == 0 then
             return 0
@@ -601,7 +600,6 @@ sub install_plugin {
 
 # Uninstall a plugin by deleting it from disk and cleaning up Redis.
 # Does not remove configuration settings.
-# TODO(REVIEW) sequence of install/uninstall integration tests + metadata verification?
 sub uninstall_plugin {
     my ( $namespace, $redis ) = @_;
 

@@ -100,37 +100,7 @@ sub find_namespace_conflict {
     );
 }
 
-
-# Scan Plugin/ directory for a .pm file matching the given criteria.
-# $skip_path: optional absolute filepath to exclude
-# $match_fn: coderef($filepath, $fh) -> bool; return true if filepath conflicts.
-# TODO(REVIEW): move to bottom.
-sub _find_conflict {
-    my ( $skip_path, $match_fn ) = @_;
-
-    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
-    my $conflict;
-
-    return unless -d $plugin_dir;
-
-    find_path(
-        sub {
-            return if $conflict;
-            return unless /\.pm$/; # TODO(REVIEW): why here? "for a .pm file"
-            return if $skip_path && $_ eq $skip_path;
-
-            if ( $match_fn->($_) ) {
-                $conflict = $_;
-            }
-        },
-        $plugin_dir
-    );
-
-    return $conflict;
-}
-
 # strictly check registry index satisfies a bunch of registry spec-related conditions...
-# TODO(REVIEW): group things together more logically
 sub validate_registry_index {
     my ($index) = @_;
 
@@ -291,6 +261,34 @@ sub resolve_max_version {
     my @keys = keys %{ $plugin_root->{versions} };
     my ($max) = sort { SemVer->new($b) <=> SemVer->new($a) } @keys;
     return $max;
+}
+
+
+# Scan Plugin/ directory for a .pm file matching the given criteria.
+# $skip_path: optional absolute filepath to exclude
+# $match_fn: coderef($filepath, $fh) -> bool; return true if filepath conflicts.
+sub _find_conflict {
+    my ( $skip_path, $match_fn ) = @_;
+
+    my $plugin_dir = getcwd() . "/lib/LANraragi/Plugin";
+    my $conflict;
+
+    return unless -d $plugin_dir;
+
+    find_path(
+        sub {
+            return if $conflict;
+            return unless /\.pm$/;
+            return if $skip_path && $_ eq $skip_path;
+
+            if ( $match_fn->($_) ) {
+                $conflict = $_;
+            }
+        },
+        $plugin_dir
+    );
+
+    return $conflict;
 }
 
 1;
