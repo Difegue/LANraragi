@@ -26,8 +26,8 @@ sub handle_datatables ($self) {
     my $sortkey   = $req->param("columns[$sortindex][name]");
 
     # Saner params we add manually
-    my $hidecompleted = $req->param('hidecompleted') || "false";
-    my $grouptanks = $req->param('grouptanks') || "true";
+    my $hidecompleted = $req->param('hidecompleted') // "false";
+    my $grouptanks = $req->param('grouptanks') // "true";
 
     # See if specific column searches were made
     my $i              = 0;
@@ -59,7 +59,6 @@ sub handle_datatables ($self) {
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
-    # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
     my ( $total, $filtered, @ids ) =
       LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 
         $grouptanks eq "true",
