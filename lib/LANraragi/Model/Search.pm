@@ -21,6 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
+use LANraragi::Model::Tankoubon qw(tank_has_archive_in_set);
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, hidecompleted)
 # Performs a search on the database.
@@ -160,8 +161,9 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
 
     # Check new filter
     if ($newonly) {
-        my @new = $redis->smembers("LRR_NEW");
-        @filtered = intersect_arrays( \@new, \@filtered, 0 );
+        my @new     = $redis->smembers("LRR_NEW");
+        my %new_set = map { $_ => 1 } @new;
+        @filtered = grep { /^TANK/ ? tank_has_archive_in_set( $_, \%new_set ) : $new_set{$_} } @filtered;
     }
 
     # Hide completed archives (Consider an archive read if progress is past 85 % of total)

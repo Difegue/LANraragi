@@ -89,14 +89,28 @@ sub build_stat_hashes {
         # Remove IDs contained in the tank from @keys
         @keys = intersect_arrays( \@tank_archives, \@keys, 1 );
 
-        foreach my $arcid (@tank_archives) {
-            index_tags_for_id( $redis, $redistx, $tank_id, $arcid );
+        # Index the tank's own tags (stored at ZSET score -2)
+        my @raw_tank_tags = $redis->zrangebyscore( $tank_id, -2, -2 );
+        if ( @raw_tank_tags && $raw_tank_tags[0] =~ /^tags_(.*)/ ) {
+            my $tank_tags_str = redis_decode($1) // "";
+            foreach my $tag ( split( /,\s?/, $tank_tags_str ) ) {
+                $tag = trim($tag);
+                next unless length $tag;
+                my $encoded_tag = redis_encode( lc($tag) );
+                $redistx->sadd( "INDEX_" . $encoded_tag, $tank_id );
+                $redistx->zincrby( "LRR_STATS", 1, $encoded_tag );
+            }
         }
 
-        # Decode and lowercase the title
-        $tank_title = trim($tank_title);
-        $tank_title = trim_CRLF($tank_title);
-        $tank_title = redis_encode($tank_title);
+        # Index imputed tags from member archives, and check if any archive is new
+        foreach my $arcid (@tank_archives) {
+            index_tags_for_id( $redis, $redistx, $tank_id, $arcid );
+
+            my $isnew = $redis->hget( $arcid, "isnew" );
+            if ( $isnew && $isnew eq "true" ) {
+                $redistx->sadd( "LRR_NEW", $arcid );
+            }
+        }
     }
 
     foreach my $id (@keys) {

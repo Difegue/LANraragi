@@ -22,7 +22,7 @@ use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(set_tank_tags);
+our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags);
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -667,6 +667,19 @@ sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
     }
 
     return { own_tags => \@own_tags, imputed_tags => \@imputed_tags };
+}
+# tank_has_archive_in_set(tank_id, set_ref)
+#   Check if a tankoubon has any archive that exists in the given set.
+#   Used for filters like "newonly" where we want tanks containing new archives.
+#   $set_ref is a hashref with archive IDs as keys.
+sub tank_has_archive_in_set ( $tank_id, $set_ref ) {
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+    $redis->quit;
+    for my $arc (@archives) {
+        return 1 if exists $set_ref->{$arc};
+    }
+    return 0;
 }
 
 1;
