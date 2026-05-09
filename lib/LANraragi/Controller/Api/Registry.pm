@@ -64,7 +64,6 @@ sub create_registry {
                     success   => 1,
                     error     => "",
                     id        => $registry_id,
-                    registry  => { id => $registry_id, %config },
                 }
             );
         }
@@ -134,8 +133,9 @@ sub update_registry {
             );
             $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
 
+            $redis->quit();
+
             unless ( $status == 200 ) {
-                $redis->quit();
                 $logger->warn("Update registry failed for '$registry_id': $message");
                 $self->render(
                     openapi => { operation => "update_registry", error => $message, success => 0 },
@@ -144,17 +144,12 @@ sub update_registry {
                 return;
             }
 
-            # TODO(REVIEW): why does registry need to be retrieved, instead of retrieving it from update_registry?
-            my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
-            $redis->quit();
-
             $self->render(
                 openapi => {
                     operation     => "update_registry",
                     success       => 1,
                     error         => "",
                     id            => $registry_id,
-                    registry      => \%registry,
                     index_cleared => $indexcleared ? true : false,
                 }
             );

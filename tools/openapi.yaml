@@ -669,8 +669,6 @@ paths:
                     description: Generated registry ID.
                     minLength: 14
                     maxLength: 14
-                  registry:
-                    $ref: '#/components/schemas/RegistryMetadata'
         '400':
           description: Registry creation failed (invalid path or required field)
           content:
@@ -933,8 +931,6 @@ paths:
                     type: string
                     minLength: 14
                     maxLength: 14
-                  registry:
-                    $ref: '#/components/schemas/RegistryMetadata'
                   index_cleared:
                     type: boolean
                     description: Whether the cached index was cleared due to source field changes.
