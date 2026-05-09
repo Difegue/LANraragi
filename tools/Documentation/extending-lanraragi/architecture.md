@@ -76,6 +76,7 @@ root/
 |        |- Plugins.pm <- Executes Plugins on archives
 |        |- Reader.pm  <- Archive Extraction
 |        |- Search.pm  <- Search Engine
+|        |- Stamp.pm   <- Save/Read archive stamps
 |        |- Stats.pm   <- Tag Cloud and Statistics
 |        +- Upload.pm  <- Handle incoming files (Download System)
 |     +- Plugin     <- LRR Plugins are stored here
@@ -185,6 +186,11 @@ The base architecture is as follows:
 |  |- **************************************** (1) <- First archive in the Tankoubon
 |  |- **************************************** (2) <- Second archive in the Tankoubon
 |  +- etc. (3, 4, 5...) 
+|
+|- STAMPS_x..._xxxxxxxxxxxxx <- A Stamp. STAMPS_<page>_<ts>. The length is variable depending on the page.
+|  |- content <- The text body of the stamp.
+|  |- position <- Normalized coordinates of the page. The coordinates are in 0-100 range with 0,0 being the top left of the image.
+|  |- archive_id <- ID of the archive the stamp belongs to. For reverse searches.
 |
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags

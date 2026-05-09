@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-03-23 13:12+0000\n"
+"PO-Revision-Date: 2026-05-07 17:24+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 5.17.1\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -674,6 +674,15 @@ msgstr "排序顺序"
 msgid "Crop thumbnails"
 msgstr "裁剪缩略图"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr "启用后，无法放入标准 A4 页面的缩略图将被裁剪，仅显示左侧部分。"
+
+msgid "Hide completed"
+msgstr "隐藏已读完"
+
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr "启用后，您已经读完的档案将从列表中隐藏。"
+
 msgid "Go to Page:"
 msgstr "跳转到页面："
 
@@ -736,6 +745,18 @@ msgstr ""
 "使用默认密码\"kamimamita\"<a href=\"/login\">登录</a><br/>然后立刻<a href="
 "\"/config\">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/"
 ">为什么不顺便检查一下配置选项呢？"
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1039,9 +1060,6 @@ msgstr "无极滚动"
 msgid "Display all images in a vertical view in the same page."
 msgstr "在同一页面中以垂直视图显示所有图片。"
 
-msgid "Reader Settings"
-msgstr "阅读器设置"
-
 msgid "Help"
 msgstr "帮助"
 
@@ -1155,6 +1173,15 @@ msgstr "还原备份成功！"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "恢复备份时出错。<br/>请查看服务器日志并检查JSON格式是否正确。"
+
+msgid "Backup generation in progress..."
+msgstr "正在生成备份..."
+
+msgid "Uploading backup file..."
+msgstr "正在上传备份文件..."
+
+msgid "Backup complete! Download will start automatically."
+msgstr "备份完成！将自动开始下载。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "无法加载完整档案列表！请刷新页面。"
@@ -1789,3 +1816,9 @@ msgstr "以逗号分隔的标签命名空间列表，用于从搜索建议和标
 
 msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
 msgstr "客户端将使用此列表从自动完成和标签云中过滤掉干扰标签。"
+
+msgid "G: go to page number"
+msgstr "G：跳转页码"
+
+msgid "Go to page:"
+msgstr "跳转页面："

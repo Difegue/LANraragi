@@ -10,6 +10,14 @@ td.itd {
   white-space: nowrap;
 }
 
+#category-container {
+  margin-bottom: 12px;
+}
+
+.searchbtn {
+  margin-top: 4px !important;
+}
+
 .itdc {
   min-width: 35px;
 }
@@ -165,6 +173,12 @@ table thead .sorting_disabled a:after {
 
 .index-carousel-container {
   margin-top: -10px;
+}
+
+
+#msm-selection-count {
+  font-weight: bold;
+  vertical-align: center;
 }
 
 .carousel-prev {
@@ -796,7 +810,7 @@ div.fullscreen img {
 }
 
 .fullscreen #display {
-    height: 100%;
+  height: 100%;
 }
 
 .fullscreen-infinite {

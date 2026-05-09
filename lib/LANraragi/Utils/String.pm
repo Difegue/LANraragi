@@ -9,7 +9,7 @@ use feature qw(signatures);
 use String::Similarity;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(clean_title trim trim_CRLF trim_url most_similar);
+our @EXPORT_OK = qw(clean_title trim trim_CRLF trim_url most_similar remove_separator);
 
 # Remove "junk" from titles, turning something like "(c12) [poop (butt)] hardcore handholding [monogolian] [recensored]" into "hardcore handholding"
 sub clean_title ($title) {
@@ -82,6 +82,19 @@ sub most_similar ( $tested_string, @values ) {
         }
     }
     return $best_index;
+}
+
+# Replaces $char for " " in the given string
+sub remove_separator {
+    my ($string, $char) = @_;
+    
+    # Escape special regex characters in $char
+    my $escaped_char = quotemeta($char);
+    
+    # Replace all occurrences with a space
+    $string =~ s/$escaped_char/ /g;
+    
+    return $string;
 }
 
 1;

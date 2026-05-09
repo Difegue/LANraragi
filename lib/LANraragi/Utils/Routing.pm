@@ -118,7 +118,6 @@ sub apply_routes {
     $logged_in->get('/edit')->to('edit#index');
 
     $logged_in->get('/backup')->to('backup#index');
-    $logged_in->post('/backup')->to('backup#restore');
 
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');

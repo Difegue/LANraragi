@@ -73,6 +73,15 @@ IndexTable.initializeAll = function () {
         ajax: {
             url: "search",
             cache: true,
+            data: (d) => {
+                if (localStorage.hidecompleted === "true") {
+                    d.hidecompleted = "true";
+                }
+                if (localStorage.grouptanks === "false") {
+                    d.grouptanks = "false";
+                }
+                return d;
+            },
         },
         deferRender: true,
         lengthChange: false,
@@ -81,7 +90,7 @@ IndexTable.initializeAll = function () {
         dom: `<"top"ip>rt<"bottom"p><"clear">`,
         language: {
             info: I18N.IndexPageCount,
-            infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
+            infoEmpty: `<h1><br/><i class="fas fa-4x fa-sad-cry"></i><br/><br/>
                         ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
             processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style="width: 80%;"></div></div></div>`,
         },
@@ -179,7 +188,10 @@ IndexTable.renderTitle = function (data, type) {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}
+                <a id="${data.arcid}"
+                   onmouseover="IndexTable.buildImageTooltip(this)" 
+                   href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
@@ -255,6 +267,11 @@ IndexTable.createdRow = function (row, data, dataIndex, cells) {
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
         $("#thumbs_container").append(LRR.buildThumbnailDiv(data));
+
+        // Apply selection highlight immediately if the archive is already selected
+        if (Index.isMultiSelectMode && Index.selectedArchives.has(data.arcid || data.id)) {
+            $(`#thumbs_container #${data.arcid || data.id}`).addClass("msm-selected");
+        }
     }
 };
 
@@ -281,8 +298,17 @@ IndexTable.drawCallback = function () {
             IndexTable.isComingFromPopstate = false;
         } else {
             let params = IndexTable.buildURLParameters();
-            if (params === "?") params = "/";
-            window.history.pushState(null, null, params);
+            // don't push duplicate state entries, because that would wipe out forward history and
+            // require multiple 'back' presses to go back)
+            if (params === "?") {
+                // special case for empty search params: window.location.search is "" if there are
+                // no search params, even if window.location ends with '?'
+                if (window.location.search !== "") {
+                    window.history.pushState(null, null, "/");
+                }
+            } else if (params !== window.location.search) {
+                window.history.pushState(null, null, params);
+            }
         }
 
         let currentSort = IndexTable.dataTable.order()[0][0];
@@ -292,7 +318,6 @@ IndexTable.drawCallback = function () {
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
 
-        // Using double equals here since the sort column can be either a string or an int
         // get current columns count, except title and tags
         const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
         // check currentSort, if out of range, back to use title
@@ -306,6 +331,9 @@ IndexTable.drawCallback = function () {
         }
 
         Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
+
+        // Re-apply selection highlights after each draw
+        Index.applySelectionHighlights();
 
         // Clear potential leftover tooltips
         tippy.hideAll();
@@ -342,17 +370,19 @@ IndexTable.consumeURLParameters = function () {
     // Get order from URL, fallback to localstorage if available
     const order = [[0, "asc"]];
 
+    // Query params and localStorage values are always strings, parse them so order[0][0] is always
+    // a number. (This lets us correctly compare to 0 using !== above.)
     if (params.has("sort")) {
-        order[0][0] = params.get("sort");
+        order[0][0] = parseInt(params.get("sort"), 10);
     } else if (localStorage.indexSort) {
-        order[0][0] = localStorage.indexSort;
+        order[0][0] = parseInt(localStorage.indexSort, 10);
     }
     // get current columns count, except title and tags
     const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
     // check currentSort, if out of range, back to use title
     if (localStorage.indexSort > currentCustomColumnCount) {
         localStorage.indexSort = 0;
-        order[0][0] = localStorage.indexSort;
+        order[0][0] = parseInt(localStorage.indexSort, 10);
     }
 
     if (params.has("sortdir")) {

@@ -58,7 +58,7 @@
 		<a href="[% c.url_for("/upload") %]">[% c.lh("Add Archives") %]</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/batch") %]">[% c.lh("Batch Operations") %]</a>
+		<a href="[% c.url_for("/duplicates") %]">[% c.lh("Duplicate Detection") %]</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="[% c.url_for("/config") %]">[% c.lh("Settings") %]</a>
@@ -88,10 +88,11 @@
 				<div id="category-container">
 					<!-- Categories go here -->
 				</div>
-				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
+				<input type='text' id='search-input' class='search stdinput'  
 					placeholder='[% c.lh("Search Title, Artist, Series, Language or Tags") %]' />
 				<input id='apply-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Apply Filter") %]' />
 				<input id='clear-search' class='searchbtn stdbtn' type='button' value='[% c.lh("Clear Filter") %]' />
+				<input id='msm-toggle' class='searchbtn stdbtn' type='button' value='[% c.lh("Select Archives") %]' />
 			</div>
 
 			<ul class="collapsible index-carousel with-right-caret">
@@ -104,10 +105,20 @@
 							title="[% c.lh('Click to show archives from the current search with the specified filter') %]">...</div>
 					</div>
 					<div class="collapsible-right">
-						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px; display:none" id="reload-carousel"
+						<a class="fa fa-2x fa-sync-alt carousel-icon" style="margin-bottom: -4px; display:none" id="reload-carousel"
 							href="#" title="[% c.lh('Refresh Selection') %]"></a>
-						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
+						<a class="fa fa-2x fa-ellipsis-h carousel-icon" style="margin-bottom: -4px; margin-left: 12px"
 							id="carousel-mode-menu" href="#" title="[% c.lh('Carousel Options') %]"></a>
+
+						<div id="msm-carousel-controls" style="margin-bottom: -4px; display:none">
+							<span id="msm-selection-count"></span>
+							<a class="fa fa-2x fa-hammer carousel-icon" style="margin-left: 12px" id="msm-batch-ops" 
+								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
+							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear" 
+								href="#" title="[% c.lh('Clear selection') %]"></a>
+							<a class="fa fa-2x fa-check-double carousel-icon" style="margin-left: 12px" id="msm-select-page" 
+								href="#" title="[% c.lh('Select All in Page') %]"></a>
+						</div>
 					</div>
 
 					<div class="collapsible-body" style="flex: 1 0 100%;overflow: hidden;box-sizing: border-box;">
@@ -121,8 +132,8 @@
 							</div>
 							<div id="carousel-empty"
 								style="height: 344px; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-								<i class="fa fa-4x fa-sad-cry"></i>
-								<span style="margin-top: 12px;">[% c.lh("No results here.") %]</span>
+								<i class="fa fa-4x fa-glasses"></i>
+								<span id="carousel-empty-text" style="margin-top: 12px;">[% c.lh("No results here.") %]</span>
 							</div>
 						</div>
 					</div>
@@ -137,11 +148,7 @@
 					</select>
 					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
 						title="[% c.lh('Sort Order') %]"></a>
-
-					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
-						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
-					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
-				</div>
+				</div>			
 				<div class="compact-options">[% c.lh("Columns:") %]
 					<select class="favtag-btn" id="columnCount">
 						<script>  
@@ -154,10 +161,8 @@
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
 					<select class="favtag-btn" id="page-select">
 					</select>
-					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
-						title="[% c.lh('Switch to Compact Mode') %]"></a>
-					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
-						title="[% c.lh('Switch to Thumbnail Mode') %]"></a>
+					<a class="fa fa-cog fa-2x table-option" id="settings-menu" href="#"
+						title="[% c.lh('Index Settings') %]"></a>
 				</div>
 			</div>
 
@@ -226,6 +231,12 @@
 							"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
 							"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
 							"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
+							"msm-toggle-archive": {
+								name: Index.selectedArchives.has($trigger.attr("id"))
+									? I18N.MSMRemoveFromSelection
+									: I18N.MSMAddToSelection,
+								icon: "fas fa-check-square"
+							},
 							[% IF userlogged %]
 							"sep1": "---------",
 							"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },

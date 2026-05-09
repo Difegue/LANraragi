@@ -6,7 +6,7 @@ use Encode;
 
 use LANraragi::Model::Category;
 use LANraragi::Model::Config;
-use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock get_item_title);
 
 sub get_category_list {
 
@@ -126,7 +126,7 @@ sub add_to_category {
             if ($result) {
                 my $successMessage = "Added $arcid to Category $catid!";
                 my %category       = LANraragi::Model::Category::get_category($catid);
-                my $title          = LANraragi::Model::Archive::get_title($arcid);
+                my $title          = get_item_title($arcid);
 
                 if ( %category && defined($title) ) {
                     $successMessage = "Added \"$title\" to category \"$category{name}\"!";
@@ -157,7 +157,7 @@ sub remove_from_category {
             if ($result) {
                 my $successMessage = "Removed $arcid from Category $catid!";
                 my %category       = LANraragi::Model::Category::get_category($catid);
-                my $title          = LANraragi::Model::Archive::get_title($arcid);
+                my $title          = get_item_title($arcid);
 
                 if ( %category && defined($title) ) {
                     $successMessage = "Removed \"$title\" from category \"$category{name}\"!";

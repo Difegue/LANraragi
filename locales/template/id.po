@@ -782,6 +782,15 @@ msgstr "Urutan Jenis"
 msgid "Crop thumbnails"
 msgstr "Pangkas keluku"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed"
+msgstr ""
+
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Pergi ke Halaman:"
 
@@ -847,6 +856,18 @@ msgstr ""
 "<a href=\"/login\">Log masuk</a> menggunakan kata sandi \"kamimamita\", lalu "
 "<a href=\"/config\">ganti secepatnya</a>.<br/>... Atau nonaktifkan saja "
 "fiturnya!<br/>Selagi di sana, periksa juga pilihan konfigurasi lainnya. "
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1182,9 +1203,6 @@ msgstr "Gulir Tanpa Batas"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Tampilkan semua gambar dalam tampilan vertikal di halaman yang sama."
 
-msgid "Reader Settings"
-msgstr "Pengaturan Pembaca"
-
 msgid "Help"
 msgstr "Bantuan"
 
@@ -1309,6 +1327,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Terjadi galat memulihkan cadangan.<br/> Harap periksa pencatatan peladen dan "
 "pastikan JSON Anda diformat dengan benar."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Tidak dapat memuat daftar arsip lengkap! Harap muat ulang halaman."

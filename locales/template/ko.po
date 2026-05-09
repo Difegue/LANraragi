@@ -713,6 +713,15 @@ msgstr "정렬 순서"
 msgid "Crop thumbnails"
 msgstr "섬네일 자르기"
 
+msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
+msgstr ""
+
+msgid "Hide completed"
+msgstr ""
+
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "페이지로 이동:"
 
@@ -775,6 +784,18 @@ msgstr ""
 "비밀번호 \"kamimamita\"로 <a href=\"/login\">로그인</a>하고 비밀번호 <a href="
 "\"/config\">좀 바꾸세요</a>.<br/> ...아니면 그냥 비활성화 하세요! <br/"
 ">비밀번호를 바꾸고 이왕 하는 김에 설정 옵션도 확인해 보는 것은 어때요? "
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1092,9 +1113,6 @@ msgstr "무한 스크롤"
 msgid "Display all images in a vertical view in the same page."
 msgstr "모든 이미지를 동일한 페이지에서 세로 뷰로 표시합니다."
 
-msgid "Reader Settings"
-msgstr "리더 설정"
-
 msgid "Help"
 msgstr "도움말"
 
@@ -1210,6 +1228,15 @@ msgstr "백업 복원됨!"
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "백업 복원 중 오류가 발생했습니다.<br/> 서버 로그를 확인하고 JSON 형식이 "
 "올바른지 확인하세요."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "완전한 아카이브 목록을 로드할 수 없습니다! 페이지를 새로고침하세요."

@@ -393,6 +393,22 @@ sub delete_archive ($id) {
         LANraragi::Model::Category::remove_from_category( $catid, $id );
     }
 
+    # Remove Stamps
+    my $stamps    = $redis->hget( $id, "stamps" );
+    my @stamps;
+
+    if ( $redis->hexists( $id, "stamps" )) {
+        eval { @stamps = @{ decode_json($stamps) } };
+        if ($@) {
+            die;
+        }
+        foreach my $stamp ( @stamps ) {
+            $redis->del($stamp);
+        }
+    } else {
+        # Stamps attribute was not set, do nothing.
+    }
+
     $redis->del($id);
     $redis->quit();
 

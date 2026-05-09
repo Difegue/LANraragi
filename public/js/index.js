@@ -14,6 +14,8 @@ Index.isProgressLocal = true;
 Index.isProgressAuthenticated = true;
 Index.pageSize = 100;
 Index.pseudoCopyBtn = undefined;
+Index.isMultiSelectMode = false;
+Index.selectedArchives = new Set();
 
 /**
  * Initialize the Archive Index.
@@ -24,9 +26,7 @@ Index.initializeAll = function () {
         const headerIndex = $(this).attr("id").split("-")[2];
         Index.promptCustomColumn(headerIndex);
     });
-    $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
-    $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
@@ -37,6 +37,20 @@ Index.initializeAll = function () {
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("keydown.quick-search", Index.handleQuickSearch);
     $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
+
+    // MSM event bindings
+    $(document).on("click.msm-toggle", "#msm-toggle", Index.toggleMultiSelectMode);
+    $(document).on("click.msm-select-page", "#msm-select-page", Index.selectCurrentPage);
+    $(document).on("click.msm-batch-ops", "#msm-batch-ops", Index.openBatchOnSelection);
+    $(document).on("click.msm-clear", "#msm-clear", Index.clearSelection);
+    // Intercept reader-link clicks while MSM is active to toggle archive selection instead
+    $(document).on("click.msm-archive", "a[href*='/reader?id=']", function (e) {
+        if (!Index.isMultiSelectMode) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const id = $(this).closest("[id]").attr("id");
+        if (id) Index.toggleArchiveSelection(id);
+    });
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -90,6 +104,88 @@ Index.initializeAll = function () {
                 untagged: { name: I18N.UntaggedArchives, icon: "fas fa-edit" },
             },
         }),
+    });
+
+    // Initialize settings menu (display mode, crop thumbnails, hide completed)
+    $.contextMenu({
+        selector: "#settings-menu",
+        zIndex: 10,
+        trigger: "left",
+        build: () => {
+            const isThumbnail = localStorage.indexViewMode === "1";
+            return {
+                items: {
+                    "header": {
+                        name: I18N.IndexSettingsDisplayMode,
+                        icon: "fas fa-table",
+                        disabled: true,
+                    },
+                    "mode-thumbnail": {
+                        name: I18N.IndexSettingsThumbnail,
+                        type: "radio",
+                        radio: "displayMode",
+                        value: "1",
+                        selected: isThumbnail,
+                        events: {
+                            click() {
+                                localStorage.indexViewMode = "1";
+                                IndexTable.dataTable.draw();
+                            },
+                        }
+                    },
+                    "mode-compact": {
+                        name: I18N.IndexSettingsCompact,
+                        type: "radio",
+                        radio: "displayMode",
+                        value: "0",
+                        selected: !isThumbnail,
+                        events: {
+                            click() {
+                                localStorage.indexViewMode = "0";
+                                IndexTable.dataTable.draw();
+                            },
+                        }
+                    },
+                    "sep1": "---------",
+                    "crop-thumbnails": {
+                        name: `<span title="${I18N.IndexSettingsCropDesc}">${I18N.IndexSettingsCropThumbs}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.cropthumbs === "true",
+                        events: {
+                            click() {
+                                localStorage.cropthumbs = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                    "hide-completed": {
+                        name: `<span title="${I18N.IndexSettingsHideCompletedDesc}">${I18N.IndexSettingsHideCompleted}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.hidecompleted === "true",
+                        events: {
+                            click() {
+                                localStorage.hidecompleted = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                    "group-tanks": {
+                        name: `<span title="${I18N.IndexSettingsGroupTanksDesc}">${I18N.IndexSettingsGroupTanks}</span>`,
+                        isHtmlName: true,
+                        type: "checkbox",
+                        selected: localStorage.grouptanks !== "false",
+                        events: {
+                            click() {
+                                localStorage.grouptanks = $(this).is(":checked");
+                                IndexTable.dataTable.draw();
+                            },
+                        },
+                    },
+                },
+            };
+        },
     });
 
     // Tell user about the context menu
@@ -162,6 +258,26 @@ Index.initializeAll = function () {
     });
 };
 
+Index.toggleOrder = function (e) {
+    e.preventDefault();
+    const order = IndexTable.dataTable.order();
+    order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
+    IndexTable.dataTable.order(order);
+    IndexTable.dataTable.draw();
+};
+
+/**
+ * Handle escape key to close overlays.
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleEscapeKey = function (e) {
+    if (e.key !== "Escape") return;
+    if (e.target.tagName === "INPUT") return;
+    LRR.closeOverlay();
+};
+
+// #region Bookmark/Favorite Icon
+
 // Turn bookmark icons to OFF for all archives.
 Index.bookmarkIconOff = function (arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
@@ -202,6 +318,10 @@ Index.toggleBookmarkStatusByIcon = function (e) {
     }
 };
 
+// #endregion
+
+// #region Search and Suggestions 
+
 /**
  * Handle quick search functionality. If user is in index page and
  * presses "/" key, focus to search input. If the release overlay
@@ -219,22 +339,56 @@ Index.handleQuickSearch = function (e) {
 };
 
 /**
- * Handle escape key to close overlays.
- * @param {KeyboardEvent} e - The keyboard event
+ * Load tag suggestions for the tag search bar.
  */
-Index.handleEscapeKey = function (e) {
-    if (e.key !== "Escape") return;
-    if (e.target.tagName === "INPUT") return;
-    LRR.closeOverlay();
+Index.loadTagSuggestions = function () {
+    // Query the tag cloud API to get the most used tags, excluding configured namespaces.
+    Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
+        (data) => {
+            // Get namespaces objects in the data array to fill the namespace-sortby combobox
+            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
+            namespacesSet.forEach((element) => {
+                if (element !== "") {
+                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
+                }
+            });
+
+            // Setup awesomplete for the tag search bar
+            Index.awesomplete = new Awesomplete("#search-input", {
+                list: data,
+                data(tag) {
+                    // Format tag objects from the API into a format awesomplete likes.
+                    let label = tag.text;
+                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
+
+                    return { label, value: tag.weight };
+                },
+                // Sort by weight
+                sort(a, b) {
+                    return b.value - a.value;
+                },
+                filter(text, input) {
+                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
+                },
+                item(text, input) {
+                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
+                },
+                replace(text) {
+                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
+                    this.input.value = `${before + text}$, `;
+                },
+            });
+        },
+    );
 };
 
-Index.toggleMode = function () {
-    localStorage.indexViewMode = (localStorage.indexViewMode === "1") ? "0" : "1";
-    IndexTable.dataTable.draw();
-};
+// #endregion
+
+// #region Carousel
 
 Index.toggleCarousel = function (e, updateLocalStorage = true) {
-    if (updateLocalStorage) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+    if (updateLocalStorage) 
+        localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!Index.carouselInitialized) {
         Index.carouselInitialized = true;
@@ -285,140 +439,14 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
     }
 };
 
-Index.toggleCrop = function () {
-    localStorage.cropthumbs = $("#thumbnail-crop")[0].checked;
-    IndexTable.dataTable.draw();
-};
-
-Index.toggleOrder = function (e) {
-    e.preventDefault();
-    const order = IndexTable.dataTable.order();
-    order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
-    IndexTable.dataTable.order(order);
-    IndexTable.dataTable.draw();
-};
-
-/**
- * Toggles a category filter.
- * Sets the internal selectedCategory variable and changes the button's class.
- * @param {*} button Button matching the category.
- */
-Index.toggleCategory = function (button) {
-    // Add/remove class to button depending on the state
-    const categoryId = button.id;
-    if (Index.selectedCategory === categoryId) {
-        button.classList.remove("toggled");
-        Index.selectedCategory = "";
-    } else {
-        Index.selectedCategory = categoryId;
-        button.classList.add("toggled");
-    }
-
-    // Trigger search
-    IndexTable.doSearch();
-};
-
-/**
- * Show a prompt to update the namespace of a column in compact mode.
- * @param {*} column Index of the column to modify, either 1 or 2
- */
-Index.promptCustomColumn = function (column) {
-    LRR.showPopUp({
-        title: I18N.CustomColumn,
-        text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
-        input: "text",
-        inputValue: localStorage.getItem(`customColumn${column}`),
-        inputPlaceholder: I18N.TagNamespace,
-        inputAttributes: {
-            autocapitalize: "off",
-        },
-        showCancelButton: true,
-        reverseButtons: true,
-        inputValidator: (value) => {
-            if (!value) {
-                return I18N.TagNamespaceError;
-            }
-            return undefined;
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (!LRR.isNullOrWhitespace(result.value)) {
-                const namespace = result.value.trim();
-                localStorage.setItem(`customColumn${column}`, namespace);
-
-                IndexTable.dataTable.settings()[0].aoColumns[column].sName = namespace;
-                // Update header text in-place to preserve DataTables sort handlers
-                $(`#header-${column}`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
-                IndexTable.doSearch();
-            }
-        }
-    });
-};
-
-/**
- * Update table controls to reflect the current status.
- * @param {*} currentSort Current sort column
- * @param {*} currentOrder Current sort order
- * @param {*} totalPages Total pages of the table
- * @param {*} currentPage Current page of the table
- */
-Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
-    $(".table-options").show();
-    $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
-
-    $("#namespace-sortby").val(currentSort);
-    $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
-    $("#order-sortby")[0].classList.add(currentOrder === "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up");
-
-    if (localStorage.indexViewMode === "1") {
-        $(".thumbnail-options").show();
-        $(".thumbnail-toggle").show();
-        $(".compact-options").hide();
-        $(".compact-toggle").hide();
-    } else {
-        $(".thumbnail-options").hide();
-        $(".thumbnail-toggle").hide();
-        $(".compact-options").show();
-        $(".compact-toggle").show();
-    }
-
-    // Page selector
-    const pageSelect = $("#page-select");
-    pageSelect.empty();
-
-    for (let j = 1; j <= totalPages; j++) {
-        const oOption = document.createElement("option");
-        oOption.text = j;
-        oOption.value = j;
-        pageSelect[0].add(oOption, null);
-    }
-
-    pageSelect.val(currentPage);
-};
-
-Index.handleCustomSort = function () {
-    const namespace = $("#namespace-sortby").val();
-    const order = IndexTable.dataTable.order();
-
-    // Special case for title sorting, as that uses column 0
-    if (namespace === "title") {
-        order[0][0] = 0;
-    } else {
-        // The order set in the combobox uses is offset from title by 1; 
-        // e.g. customColumn1 is offset from title by 1.
-        order[0][0] = 1;
-        localStorage.customColumn1 = namespace;
-        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
-        // Update header text in-place to preserve DataTables sort handlers
-        $(`#header-1`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
-    }
-
-    IndexTable.dataTable.order(order);
-    IndexTable.dataTable.draw();
-};
-
 Index.updateCarousel = function (e) {
     e?.preventDefault();
+
+    // Don't overwrite the carousel while Multi-Select Mode is active
+    if (Index.isMultiSelectMode) {
+        return;
+    }
+
     $("#carousel-empty").hide();
     $("#carousel-loading").show();
     $(".swiper-wrapper").hide();
@@ -487,58 +515,256 @@ Index.updateCarousel = function (e) {
     }
 };
 
-Index.handleColumnNum = function () {
-    const columnCountSelect = document.getElementById("columnCount");
-    const selectedCount = columnCountSelect.value;
-    localStorage.setItem("columnCount", selectedCount);
-    Index.updateTableHeaders();
-    document.location.reload(true);
+// #endregion
+
+// #region Multi-Select Mode in Carousel
+
+/**
+ * Toggle Multi-Select Mode on/off.
+ * In MSM, the carousel empties out and serves as a visual selection panel.
+ * Clicking archives adds/removes them from the selection instead of opening the reader.
+ */
+Index.toggleMultiSelectMode = function () {
+    Index.isMultiSelectMode = !Index.isMultiSelectMode;
+
+    if (Index.isMultiSelectMode) {
+        Index.enterSelectionCarouselMode();
+    } else {
+
+        if (Index.selectedArchives.size > 0) 
+            LRR.showPopUp({
+                text: I18N.MSMConfirmExit,
+                showCancelButton: true,
+                focusConfirm: false,
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Index.clearSelection();
+                    Index.exitSelectionCarouselMode();
+                }
+                else 
+                    Index.isMultiSelectMode = true; // Revert the toggle if user cancels 
+            });
+        else 
+            Index.exitSelectionCarouselMode();    
+    }
 };
 
 /**
- * Generate the Table Headers based on the custom namespaces set in localStorage.
+ * Switch the carousel into Selection Mode: clear slides, hide normal controls,
+ * show MSM controls, and update the header.
  */
-Index.generateTableHeaders = function (columnCount) {
-    const headerRow = $("#header-row");
-    headerRow.empty();
-    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`
-        <th id="titleheader" width="${headerWidth}">
-            <a>${I18N.IndexTitle}</a>
-        </th>`);
-
-    for (let i = 1; i <= columnCount; i++) {
-        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
-        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
-
-        const headerHtml = `
-            <th id="customheader${i}" width="${colWidth}">
-                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>
-                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>
-            </th>`;
-        headerRow.append(headerHtml);
+Index.enterSelectionCarouselMode = function () {
+    // Initialize the carousel if it hasn't been opened yet
+    if (!Index.carouselInitialized) {
+        Index.toggleCarousel(null, false);
     }
-    headerRow.append(`
-        <th id="tagsheader">
-            <a>${I18N.IndexTags}</a>
-        </th>`);
-};
 
+    $("#msm-toggle").addClass("toggled");
+    // Open the carousel if it isn't already open
+    if (!$(".collapsible-title").hasClass("active")) {
+        $(".collapsible-title").trigger("click", [false]);
+    }
+
+    // Hide normal carousel controls
+    $("#reload-carousel").hide();
+    $("#carousel-mode-menu").hide();
+
+    // Update carousel header to reflect selection mode
+    $("#carousel-icon")[0].className = "fas fa-check-square";
+    $("#carousel-title").text(I18N.MSMCarouselTitle);
+
+    // Clear all existing slides
+    Index.swiper.virtual.removeAllSlides();
+    Index.swiper.virtual.update();
+
+    // Show selection hint as empty state
+    $("#carousel-empty-text").text(I18N.MSMSelectionHint);
+    $("#carousel-loading").hide();
+    $("#carousel-empty").show();
+    $(".swiper-wrapper").hide();
+
+    // Show MSM controls
+    $("#msm-carousel-controls").show();
+    Index.updateSelectionCount();
+};
 
 /**
- * Update the Table Headers based on the custom namespaces set in localStorage.
+ * Restore the carousel to its normal mode: show normal controls, hide MSM controls,
+ * restore empty state text, and reload the carousel content.
  */
-Index.updateTableHeaders = function () {
-    let columnCount = Index.getColumnCount();
-    Index.generateTableHeaders(columnCount);
+Index.exitSelectionCarouselMode = function () {
+    // Restore normal carousel controls
+    $("#reload-carousel").show();
+    $("#carousel-mode-menu").show();
 
-    for (let i = 1; i <= columnCount; i++) {
-        const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
-        $(`#customcol${i}`).val(customColumn);
+    $("#msm-toggle").removeClass("toggled");
+    // Close the carousel again if localStorage doesn't have the pref to keep it open
+    if (localStorage.carouselOpen !== "1") {
+        $(".collapsible-title").trigger("click", [false]);
+    }
 
-        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
+    // Restore empty state text
+    $("#carousel-empty-text").text(I18N.CarouselEmpty);
+
+    // Hide MSM controls
+    $("#msm-carousel-controls").hide();
+
+    // Reload normal carousel content
+    Index.updateCarousel();
+
+    // Remove all highlights from archives
+    $(".msm-selected").removeClass("msm-selected");
+};
+
+/**
+ * Toggle an archive in/out of the current MSM selection.
+ * Updates the carousel slides and index highlights accordingly.
+ * @param {string} id Archive ID
+ */
+Index.toggleArchiveSelection = function (id) {
+    if (Index.selectedArchives.has(id)) {
+        Index.selectedArchives.delete(id);
+        Index.removeArchiveFromSelection(id);
+    } else {
+        Index.selectedArchives.add(id);
+        // Find archive data from DataTables to build the carousel slide
+        const row = IndexTable.dataTable.row(`#${id}`);
+        const data = row.data();
+        if (data) {
+            Index.addArchiveToSelection(data);
+        }
+    }
+    Index.updateSelectionCount();
+};
+
+/**
+ * Build and add a carousel slide for the given archive.
+ * Clicking the slide removes the archive from the selection.
+ * @param {object} data Archive data object from DataTables
+ */
+Index.addArchiveToSelection = function (data) {
+    const id = data.arcid || data.id;
+    const slide = LRR.buildThumbnailDiv(data);
+    Index.swiper.virtual.appendSlide(slide);
+    Index.swiper.virtual.update();
+
+    // Add highlight classes to matching divs in compact and thumb mode 
+    $(`#thumbs_container #${id}`).addClass("msm-selected");
+    $(`tr#${id}.context-menu`).addClass("msm-selected");
+
+    // Bind click on newly added slide to deselect the archive
+    // Uses event delegation so it works even with virtual slides
+    $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`, 
+        function (e) {
+        if (!Index.isMultiSelectMode) return;
+        e.preventDefault();
+        Index.toggleArchiveSelection(id);
+    });
+};
+
+/**
+ * Remove an archive's slide from the MSM carousel.
+ * @param {string} id Archive ID to remove
+ */
+Index.removeArchiveFromSelection = function (id) {
+    // Find the slide index in the virtual slides array
+    const { slides } = Index.swiper.virtual;
+    const idx = slides.findIndex((html) => html.includes(`id="${id}"`));
+    if (idx !== -1) {
+        Index.swiper.virtual.removeSlide(idx);
+        Index.swiper.virtual.update();
+    }
+
+    // Remove highlight classes
+    $(`#thumbs_container #${id}`).removeClass("msm-selected");
+    $(`tr#${id}.context-menu`).removeClass("msm-selected");
+
+    $(document).off(`click.msm-carousel-${id}`);
+};
+
+/**
+ * Add all archives visible on the current DataTables page to the selection.
+ */
+Index.selectCurrentPage = function () {
+    const pageData = IndexTable.dataTable.rows({ page: "current" }).data();
+    pageData.each((data) => {
+        const id = data.arcid || data.id;
+        if (!Index.selectedArchives.has(id)) {
+            Index.selectedArchives.add(id);
+            Index.addArchiveToSelection(data);
+        }
+    });
+    Index.updateSelectionCount();
+};
+
+/**
+ * Clear the entire archive selection, reset the carousel to empty, and remove all highlights.
+ */
+Index.clearSelection = function () {
+    Index.selectedArchives.clear();
+
+    if (Index.carouselInitialized) {
+        Index.swiper.virtual.removeAllSlides();
+        Index.swiper.virtual.update();
+        $("#carousel-empty").show();
+        $(".swiper-wrapper").hide();
+    }
+
+    $(".msm-selected").removeClass("msm-selected");
+    Index.updateSelectionCount();
+};
+
+/**
+ * Update the count display for the current selection and save a copy to localStorage. 
+ * Also show/hide controls if applicable.
+ */
+Index.updateSelectionCount = function () {
+    const count = Index.selectedArchives.size;
+    localStorage.setItem("msmSelection", JSON.stringify([...Index.selectedArchives]));
+    if (count > 0) {
+        // Hide empty state, show slides
+        $("#carousel-empty").hide();
+        $(".swiper-wrapper").show();
+
+        $("#msm-selection-count").text(I18N.MSMSelectionCount(count));
+        if (LRR.isUserLogged())
+            $("#msm-batch-ops").show();
+        $("#msm-clear").show();
+    } else {
+        $("#carousel-empty").show();
+        $(".swiper-wrapper").hide();
+
+        $("#msm-selection-count").text("");
+        $("#msm-batch-ops").hide();
+        $("#msm-clear").hide();
     }
 };
+
+/**
+ * Re-apply msm-selected CSS highlights for all selected archives currently in the DOM.
+ * Should be called after each DataTables draw.
+ */
+Index.applySelectionHighlights = function () {
+    if (!Index.isMultiSelectMode) return;
+    Index.selectedArchives.forEach((id) => {
+        $(`#thumbs_container #${id}`).addClass("msm-selected");
+        $(`tr#${id}.context-menu`).addClass("msm-selected");
+    });
+};
+
+/**
+ * Store the current MSM selection in localStorage and open the Batch Operations page
+ * in a new tab. The batch page reads the key and pre-checks those archives.
+ */
+Index.openBatchOnSelection = function () {
+    if (Index.selectedArchives.size === 0) return;
+    LRR.openInNewTab(new LRR.apiURL("/batch"));
+};
+
+// #endregion
+
+// #region Periodic checks (Update notifications, progression migration)
 
 /**
  * Check the GitHub API to see if an update was released.
@@ -639,28 +865,59 @@ Index.fetchChangelog = function () {
 };
 
 /**
- * Load the categories a given ID belongs to.
- * @param {*} id The ID of the archive to check
- * @returns Categories
+ * If server-side progress tracking is enabled, migrate local progression to the server.
  */
-Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
-        (data) => {
-            const items = {};
+Index.migrateProgress = function () {
+    // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
+    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
+        return;
+    }
 
-            for (let i = 0; i < data.categories.length; i++) {
-                const cat = data.categories[i];
-                items[`delcat-${cat.id}`] = { name: cat.name, icon: "fas fa-stream" };
-            }
+    const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
+    if (localProgressKeys.length > 0) {
+        LRR.toast({
+            heading: I18N.LocalProgression,
+            text: I18N.LocalProgressionDesc + " ☕",
+            icon: "info",
+            hideAfter: 23000,
+        });
 
-            if (Object.keys(items).length === 0) {
-                items.noop = { name: I18N.IndexArcInNoCats, icon: "far fa-sad-cry" };
-            }
+        const promises = [];
+        localProgressKeys.forEach((id) => {
+            const progress = localStorage.getItem(`${id}-reader`);
 
-            return items;
-        },
-    );
+            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
+                .then((response) => response.json())
+                .then((data) => {
+                    // Don't migrate if the server progress is already further
+                    if (progress !== null
+                        && data !== undefined
+                        && data !== null
+                        && progress > data.progress) {
+                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
+                    }
+
+                    // Clear out localStorage'd progress
+                    localStorage.removeItem(`${id}-reader`);
+                    localStorage.removeItem(`${id}-totalPages`);
+                }));
+        });
+
+        Promise.all(promises).then(() => LRR.toast({
+            heading: I18N.LocalProgressionComplete + " 🎉",
+            text: I18N.LocalProgressionCompleteDesc,
+            icon: "success",
+            hideAfter: 13000,
+        }));
+    } else {
+        // eslint-disable-next-line no-console
+        console.log("No local reading progression to migrate");
+    }
 };
+
+// #endregion
+
+// #region Archive Context Menu
 
 /**
  * Build category list for contextMenu and checkoff the ones the given ID belongs to.
@@ -791,53 +1048,37 @@ Index.handleContextMenu = function (option, id) {
             Index.pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`).toString()}`);
             Index.pseudoCopyBtn.click()
             break;
+        case "msm-toggle-archive":
+            if (!Index.isMultiSelectMode) Index.toggleMultiSelectMode();
+            Index.toggleArchiveSelection(id);
+            break;
         default:
             break;
     }
 };
 
+// #endregion
+
+// #region Category buttons
+
 /**
- * Load tag suggestions for the tag search bar.
+ * Toggles a category filter.
+ * Sets the internal selectedCategory variable and changes the button's class.
+ * @param {*} button Button matching the category.
  */
-Index.loadTagSuggestions = function () {
-    // Query the tag cloud API to get the most used tags, excluding configured namespaces.
-    Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
-        (data) => {
-            // Get namespaces objects in the data array to fill the namespace-sortby combobox
-            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
-            namespacesSet.forEach((element) => {
-                if (element !== "") {
-                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
-                }
-            });
+Index.toggleCategory = function (button) {
+    // Add/remove class to button depending on the state
+    const categoryId = button.id;
+    if (Index.selectedCategory === categoryId) {
+        button.classList.remove("toggled");
+        Index.selectedCategory = "";
+    } else {
+        Index.selectedCategory = categoryId;
+        button.classList.add("toggled");
+    }
 
-            // Setup awesomplete for the tag search bar
-            Index.awesomplete = new Awesomplete("#search-input", {
-                list: data,
-                data(tag) {
-                    // Format tag objects from the API into a format awesomplete likes.
-                    let label = tag.text;
-                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
-
-                    return { label, value: tag.weight };
-                },
-                // Sort by weight
-                sort(a, b) {
-                    return b.value - a.value;
-                },
-                filter(text, input) {
-                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
-                },
-                item(text, input) {
-                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
-                },
-                replace(text) {
-                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
-                    this.input.value = `${before + text}$, `;
-                },
-            });
-        },
-    );
+    // Trigger search
+    IndexTable.doSearch();
 };
 
 /**
@@ -907,54 +1148,154 @@ Index.loadCategories = function () {
     );
 };
 
+// #endregion
+
+// #region Custom Columns (Compact Mode)
+
 /**
- * If server-side progress tracking is enabled, migrate local progression to the server.
+ * Show a prompt to update the namespace of a column in compact mode.
+ * @param {*} column Index of the column to modify
  */
-Index.migrateProgress = function () {
-    // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
-    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
-        return;
+Index.promptCustomColumn = function (column) {
+    LRR.showPopUp({
+        title: I18N.CustomColumn,
+        text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
+        input: "text",
+        inputValue: localStorage.getItem(`customColumn${column}`),
+        inputPlaceholder: I18N.TagNamespace,
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return I18N.TagNamespaceError;
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (!LRR.isNullOrWhitespace(result.value)) {
+                const namespace = result.value.trim();
+                localStorage.setItem(`customColumn${column}`, namespace);
+
+                IndexTable.dataTable.settings()[0].aoColumns[column].sName = namespace;
+                // Update header text in-place to preserve DataTables sort handlers
+                $(`#header-${column}`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
+                IndexTable.doSearch();
+            }
+        }
+    });
+};
+
+/**
+ * Update table controls to reflect the current status.
+ * @param {*} currentSort Current sort column
+ * @param {*} currentOrder Current sort order
+ * @param {*} totalPages Total pages of the table
+ * @param {*} currentPage Current page of the table
+ */
+Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
+    $(".table-options").show();
+
+    $("#namespace-sortby").val(currentSort);
+    $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
+    $("#order-sortby")[0].classList.add(currentOrder === "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up");
+
+    if (localStorage.indexViewMode === "1") {
+        $(".thumbnail-options").show();
+        $(".compact-options").hide();
+    } else {
+        $(".thumbnail-options").hide();
+        $(".compact-options").show();
     }
 
-    const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
-    if (localProgressKeys.length > 0) {
-        LRR.toast({
-            heading: I18N.LocalProgression,
-            text: I18N.LocalProgressionDesc + " ☕",
-            icon: "info",
-            hideAfter: 23000,
-        });
+    // Page selector
+    const pageSelect = $("#page-select");
+    pageSelect.empty();
 
-        const promises = [];
-        localProgressKeys.forEach((id) => {
-            const progress = localStorage.getItem(`${id}-reader`);
+    for (let j = 1; j <= totalPages; j++) {
+        const oOption = document.createElement("option");
+        oOption.text = j;
+        oOption.value = j;
+        pageSelect[0].add(oOption, null);
+    }
 
-            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
-                .then((response) => response.json())
-                .then((data) => {
-                    // Don't migrate if the server progress is already further
-                    if (progress !== null
-                        && data !== undefined
-                        && data !== null
-                        && progress > data.progress) {
-                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
-                    }
+    pageSelect.val(currentPage);
+};
 
-                    // Clear out localStorage'd progress
-                    localStorage.removeItem(`${id}-reader`);
-                    localStorage.removeItem(`${id}-totalPages`);
-                }));
-        });
+Index.handleCustomSort = function () {
+    const namespace = $("#namespace-sortby").val();
+    const order = IndexTable.dataTable.order();
 
-        Promise.all(promises).then(() => LRR.toast({
-            heading: I18N.LocalProgressionComplete + " 🎉",
-            text: I18N.LocalProgressionCompleteDesc,
-            icon: "success",
-            hideAfter: 13000,
-        }));
+    // Special case for title sorting, as that uses column 0
+    if (namespace === "title") {
+        order[0][0] = 0;
     } else {
-        // eslint-disable-next-line no-console
-        console.log("No local reading progression to migrate");
+        // The order set in the combobox uses is offset from title by 1; 
+        // e.g. customColumn1 is offset from title by 1.
+        order[0][0] = 1;
+        localStorage.customColumn1 = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
+        // Update header text in-place to preserve DataTables sort handlers
+        $(`#header-1`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
+    }
+
+    IndexTable.dataTable.order(order);
+    IndexTable.dataTable.draw();
+};
+
+Index.handleColumnNum = function () {
+    const columnCountSelect = document.getElementById("columnCount");
+    const selectedCount = columnCountSelect.value;
+    localStorage.setItem("columnCount", selectedCount);
+    Index.updateTableHeaders();
+    document.location.reload(true);
+};
+
+/**
+ * Generate the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.generateTableHeaders = function (columnCount) {
+    const headerRow = $("#header-row");
+    headerRow.empty();
+    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`
+        <th id="titleheader" width="${headerWidth}">
+            <a>${I18N.IndexTitle}</a>
+        </th>`);
+
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
+
+        const headerHtml = `
+            <th id="customheader${i}" width="${colWidth}">
+                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>
+                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>
+            </th>`;
+        headerRow.append(headerHtml);
+    }
+    headerRow.append(`
+        <th id="tagsheader">
+            <a>${I18N.IndexTags}</a>
+        </th>`);
+};
+
+
+/**
+ * Update the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.updateTableHeaders = function () {
+    let columnCount = Index.getColumnCount();
+    Index.generateTableHeaders(columnCount);
+
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
+        $(`#customcol${i}`).val(customColumn);
+
+        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
     }
 };
 
@@ -1043,6 +1384,8 @@ Index.resizableColumns = function () {
 Index.getColumnCount = function () {
     return localStorage.getItem("columnCount") ? parseInt(localStorage.getItem("columnCount")) : 2;
 }
+
+// #endregion
 
 jQuery(() => {
     Index.initializeAll();

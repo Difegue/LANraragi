@@ -21,6 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
+use LANraragi::Model::Tankoubon qw(tank_has_archive_in_set);
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, hidecompleted)
 # Performs a search on the database.
@@ -160,8 +161,9 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
 
     # Check new filter
     if ($newonly) {
-        my @new = $redis->smembers("LRR_NEW");
-        @filtered = intersect_arrays( \@new, \@filtered, 0 );
+        my @new     = $redis->smembers("LRR_NEW");
+        my %new_set = map { $_ => 1 } @new;
+        @filtered = grep { /^TANK/ ? tank_has_archive_in_set( $_, \%new_set ) : $new_set{$_} } @filtered;
     }
 
     # Hide completed archives (Consider an archive read if progress is past 85 % of total)
@@ -486,37 +488,40 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
     if ( $sortkey eq "lastread" ) {
 
-        # Prepare a Lua script to retrieve the lastreadtime for all IDs
+        # Prepare a Lua script to retrieve the lastreadtime for both tanks (via ZRANGEBYSCORE of member archives)
+        # and regular archives (via HGET)
         my $script = <<'LUA';
         local result = {}
-        for i=1,#ARGV do
+        for i = 1, #ARGV do
             local id = ARGV[i]
-            local value = redis.call('HGET', id, 'lastreadtime')
-            result[i] = {id, value or "0"}
+            local value
+            if string.sub(id, 1, 4) == "TANK" then
+                local members = redis.call('ZRANGEBYSCORE', id, 1, '+inf')
+                local max_time = 0
+                for j = 1, #members do
+                    local t = tonumber(redis.call('HGET', members[j], 'lastreadtime') or "0") or 0
+                    if t > max_time then max_time = t end
+                end
+                value = tostring(max_time)
+            else
+                value = redis.call('HGET', id, 'lastreadtime') or "0"
+            end
+            result[i] = {id, value}
         end
         return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
         my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
-        };
+        eval { $sha = $redis->script_load($script); };
         if ($@) {
             $logger->error("Failed to load Lua script: $@");
-
-            # Fallback to running individual hget operations for each ID
-            %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+            _fallback_lastread( $redis, \%tmpfilter, @filtered );
         } else {
             my $result = $redis->evalsha( $sha, 0, @filtered );
             my $data   = eval { decode_json($result) };
             if ($@) {
                 $logger->error("Failed to decode JSON from Lua script: $@");
-
-                # Revert to the original methodology
-                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+                _fallback_lastread( $redis, \%tmpfilter, @filtered );
             } else {
 
                 # Convert the results into a hash table
@@ -532,43 +537,54 @@ LUA
           grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
           @filtered;                                 # List of IDs
+
+        if ($sortorder) {
+            @sorted = reverse @sorted;
+        }
+
+        my $total_time = time() - $start_time;
+        $logger->debug("[PERF] sort_results completed in ${total_time}s");
+
+        # lastread: all returned archives are keyed (nil timestamps excluded)
+        return ( -1, @sorted );
+
     } else {
 
-        # Prepare a Lua script to retrieve all ID-associated tags
+        # Prepare a Lua script to retrieve all tags for both tanks (tags stored in ZSET at score -2)
+        # and regular archives (tags stored in HGET)
         my $script = <<'LUA';
         local result = {}
-        for i=1,#ARGV do
+        for i = 1, #ARGV do
             local id = ARGV[i]
-            local tags = redis.call('HGET', id, 'tags') or ""
+            local tags
+            if string.sub(id, 1, 4) == "TANK" then
+                local raw = redis.call('ZRANGEBYSCORE', id, -2, -2)
+                if #raw > 0 and string.sub(raw[1], 1, 5) == "tags_" then
+                    tags = string.sub(raw[1], 6)
+                else
+                    tags = ""
+                end
+            else
+                tags = redis.call('HGET', id, 'tags') or ""
+            end
             result[i] = {id, tags}
         end
         return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
+        my $re  = qr/$sortkey/;
         my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
-        };
+        eval { $sha = $redis->script_load($script); };
         if ($@) {
             $logger->error("Failed to load Lua script: $@");
-
-            # Revert to the original methodology
-            my $re = qr/$sortkey/;
-            %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+            _fallback_tags( $redis, \%tmpfilter, $re, @filtered );
         } else {
             my $result = $redis->evalsha( $sha, 0, @filtered );
             my $data   = eval { decode_json($result) };
             if ($@) {
                 $logger->error("Failed to decode JSON from Lua script: $@");
-
-                # Revert to the original methodology
-                my $re = qr/$sortkey/;
-                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+                _fallback_tags( $redis, \%tmpfilter, $re, @filtered );
             } else {
-                my $re = qr/$sortkey/;
                 foreach my $item (@$data) {
                     my $id   = $item->[0];
                     my $tags = $item->[1];
@@ -580,7 +596,7 @@ LUA
             }
         }
 
-        # Partition: archives with the sort namespace vs those without it
+        # Partition: IDs that have the sort namespace vs those that don't
         my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
         my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
 
@@ -594,22 +610,53 @@ LUA
             @sorted = reverse @sorted;
         }
 
-        # Archives missing the sort namespace always go to the back
+        # IDs missing the sort namespace always go to the back
         push @sorted, @unkeyed_ids;
 
         my $total_time = time() - $start_time;
         $logger->debug("[PERF] sort_results completed in ${total_time}s");
         return ( scalar @keyed_ids, @sorted );
     }
+}
 
-    if ( $sortkey eq "lastread" && $sortorder ) {
-        @sorted = reverse @sorted;
+# Fallback for lastread sorting when Lua is unavailable.
+# Fetches lastreadtime manually for each ID, computing max across member archives for tanks.
+sub _fallback_lastread ( $redis, $tmpfilter, @filtered ) {
+    my @tank_ids    = grep { /^TANK/ } @filtered;
+    my @archive_ids = grep { !/^TANK/ } @filtered;
+
+    foreach my $tank_id (@tank_ids) {
+        my @arc_ids  = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+        my $max_time = 0;
+        foreach my $arc_id (@arc_ids) {
+            my $t = $redis->hget( $arc_id, "lastreadtime" ) // 0;
+            $max_time = $t if $t > $max_time;
+        }
+        $tmpfilter->{$tank_id} = $max_time;
     }
-    my $total_time = time() - $start_time;
-    $logger->debug("[PERF] sort_results completed in ${total_time}s");
 
-    # lastread: all returned archives are keyed (nil timestamps filtered out)
-    return ( -1, @sorted );
+    %$tmpfilter = ( %$tmpfilter, map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids );
+}
+
+# Fallback for tag-based sorting when Lua is unavailable.
+# Fetches tags via ZRANGEBYSCORE for tanks and HGET for archives, then extracts the sort key value.
+sub _fallback_tags ( $redis, $tmpfilter, $re, @filtered ) {
+    my @tank_ids    = grep { /^TANK/ } @filtered;
+    my @archive_ids = grep { !/^TANK/ } @filtered;
+
+    foreach my $tank_id (@tank_ids) {
+        my @raw      = $redis->zrangebyscore( $tank_id, -2, -2 );
+        my $tags_str = "";
+        if ( @raw && $raw[0] =~ /^tags_(.*)/ ) {
+            $tags_str = redis_decode($1) // "";
+        }
+        $tmpfilter->{$tank_id} = ( $tags_str =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz";
+    }
+
+    %$tmpfilter = (
+        %$tmpfilter,
+        map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @archive_ids
+    );
 }
 
 1;

@@ -25,6 +25,8 @@ tags:
     description: Endpoints related to OPDS catalog generation and serving.
   - name: misc
     description: Other APIs that don't fit a dedicated theme.
+  - name: stamps
+    description: Stamps.
 
 paths:
   /opds:
@@ -2648,6 +2650,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps:
+    get:
+      operationId: stampedPages
+      x-mojo-to: api-stamp#get_stamped_pages
+      summary: 🔑 Get pages that contain at least one stamp in the archive
+      description: Get pages that contain at least one stamp in the archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps/{index}:
+    get:
+      operationId: stampsByPage
+      x-mojo-to: api-stamp#get_stamps_by_page
+      summary: 🔑 Get the stamps linked to the page
+      description: Get the stamps linked to the page.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: addStamp
+      x-mojo-to: api-stamp#add_stamp
+      summary: 🔑 Add a stamp annotation
+      description: Add a new Stamp to the page at the given coordinates.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - add_stamp
+                  stamp_id:
+                    type: string
+                    description: Stamp ID
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /search:
     get:
@@ -2763,7 +2892,7 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
-          default: false
+          default: true
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -2872,6 +3001,7 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
+          default: true
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -3001,6 +3131,7 @@ paths:
       summary: 🔑 Get a backup JSON
       description: >-
         Scans the entire database and returns a backup in JSON form.  
+        Consider using the POST variant if your database is large, as this basic GET endpoint might time out if it takes too long to generate the backup.  
 
         This backup can be reimported manually through the Backup and Restore feature.
       tags:
@@ -3053,6 +3184,137 @@ paths:
                       archives:
                         - 28697b96f0ac5858be2614ed10ca47742c9522fd
                         - d1858d5dc36925aa66be072a97817650d39de166
+    post:
+      security:
+        - api_key: []
+      operationId: queueBackupJob
+      x-mojo-to: api-database#queue_backup
+      summary: 🔑 Queue a backup job
+      description: >-
+        Queues a Minion job to generate a backup JSON file.  
+
+        Use the returned job ID to check progress and download the file once complete.
+      tags:
+        - database
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - queue_backup
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 42
+                  operation: queue_backup
+                  success: 1
+  /database/backup/{jobid}:
+    get:
+      security:
+        - api_key: []
+      operationId: downloadBackup
+      x-mojo-to: api-database#download_backup
+      summary: 🔑 Download backup JSON from completed job
+      description: >-
+        Downloads the backup JSON file generated by a completed backup job.
+      tags:
+        - database
+      parameters:
+        - name: jobid
+          in: path
+          required: true
+          description: ID of the completed backup job.
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: false
+          description: >-
+            Format of the returned backup. Defaults to `file`. `json` will return the backup as a JSON response.
+          schema:
+            type: string
+            enum:
+              - json
+              - file
+      responses:
+        '200':
+          description: Backup JSON file
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Job not found or not completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /database/restore:
+    post:
+      security:
+        - api_key: []
+      operationId: queueRestoreJob
+      x-mojo-to: api-database#queue_restore
+      summary: 🔑 Queue a restore job
+      description: >-
+        Queues a Minion job to restore from a backup JSON file.  
+
+        Use the returned job ID to check progress.
+      tags:
+        - database
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Backup JSON file to restore
+              required:
+                - file
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - queue_restore
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 43
+                  operation: queue_restore
+                  success: 1
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
   /database/isnew:
     delete:
       security:
@@ -3747,7 +4009,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Archive ID to add.
+          description: Category ID to add to.
           required: true
           schema:
             type: string
@@ -3758,7 +4020,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':
@@ -3796,7 +4058,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':
@@ -4160,6 +4422,122 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /stamps/{id}:
+    get:
+      operationId: getStamp
+      x-mojo-to: api-stamp#get_stamp
+      summary: Get Stamp
+      description: Get a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateStamp
+      x-mojo-to: api-stamp#update_stamp
+      summary: 🔑 Update Stamp
+      description: Update a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteStamp
+      x-mojo-to: api-stamp#delete_stamp
+      summary: 🔑 Delete Stamp
+      description: Remove a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
           content:
             application/json:
               schema:
@@ -4639,5 +5017,31 @@ components:
         path:
           type: string
           description: Local filesystem path to the registry. Required when type is 'local'.
+    StampsData:
+      type: object
+      description: JSON object for the Stamp model
+      required:
+        - position
+        - content
+      properties:
+        id:
+          type: string
+          description: ID of the stamp
+        position:
+          type: string
+          description: Position of the stamp in the page in normalized coordinates (0-100)
+        content:
+          type: string
+          description: Text of the stamp
+      example:
+        position: 12,34
+        content: Lorem ipsum dolore
+    StampsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: string
 servers:
   - url: https://lrr.tvc-16.science/api

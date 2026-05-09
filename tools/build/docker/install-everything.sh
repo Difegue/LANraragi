@@ -32,7 +32,7 @@ export MAKEFLAGS="-j"
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 
-cd /home/koyomi/lanraragi/tools
+cd ./tools
 
 # Manually download and patch modules
 cpanm --notest --installdeps Crypt::DES -M https://cpan.metacpan.org

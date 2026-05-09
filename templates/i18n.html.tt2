@@ -2,6 +2,10 @@ const I18N = {};
 
 I18N.BackupRestored = "[% c.lh("Backup restored!") %]";
 I18N.BackupFailed = "[% c.lh("An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted.") %]";
+I18N.BackupGenerating = "[% c.lh("Backup generation in progress...") %]";
+I18N.BackupUploading = "[% c.lh("Uploading backup file...") %]";
+I18N.BackupRestoring = "[% c.lh("Restoring your backup ...") %]";
+I18N.BackupComplete = "[% c.lh("Backup complete! Download will start automatically.") %]";
 
 I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
 I18N.TagStatsLoadFailure = "[% c.lh("Couldn't load the tag statistics! Please reload the page.") %]";
@@ -21,6 +25,7 @@ I18N.SaveError = "[% c.lh("Error saving data") %]";
 I18N.LoginRequired = (url) => `[% c.lh("<a href='\${url}'>Login</a> to toggle bookmark feature.") %]`;
 
 I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
+I18N.BatchSelectionBanner = (n) => `[% c.lh("Displaying \${n} Archives from previous selection.") %]`;
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";
 I18N.BatchFailHeader = "[% c.lh("An error occured during batch tagging!") %]";
 I18N.BatchFailBody = "[% c.lh("Please check application logs.") %]";
@@ -85,6 +90,15 @@ I18N.NewArchives = "[% c.lh("New Archives") %]";
 I18N.UntaggedArchives = "[% c.lh("Untagged Archives") %]";
 I18N.CarouselOnDeck = "[% c.lh("On Deck") %]";
 I18N.CarouselError = "[% c.lh("Error getting carousel data!") %]";
+I18N.CarouselEmpty = "[% c.lh("No results here.") %]";
+
+I18N.MSMCarouselTitle = "[% c.lh("Selection") %]";
+I18N.MSMSelectionCount = (n) => `[% c.lh("\${n} selected") %]`;
+I18N.MSMSelectionHint = "[% c.lh("Click Archives to add them to the selection. Your selection carries over across searches.") %]";
+I18N.MSMConfirmExit = "[% c.lh("Exit selection mode? Your current selection will be lost. ") %]";
+I18N.MSMAddToSelection = "[% c.lh("Add to selection") %]";
+I18N.MSMRemoveFromSelection = "[% c.lh("Remove from selection") %]";
+
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";
 I18N.IndexTags = "[% c.lh("Tags") %]";
@@ -100,6 +114,19 @@ I18N.IndexCopyLinkFail = "[% c.lh("Copy failed.") %]";
 I18N.IndexArcInNoCats = "[% c.lh("This archive isn't in any category.") %]";
 I18N.IndexNoCategories = "[% c.lh("No Categories yet...") %]";
 I18N.IndexRemoveRating = "[% c.lh("Remove rating") %]";
+
+I18N.IndexSettingsTooltip = "[% c.lh("Index Settings") %]";
+I18N.IndexSettingsDisplayMode = "[% c.lh("Display Mode") %]";
+I18N.IndexSettingsThumbnail = "[% c.lh("Thumbnail") %]";
+I18N.IndexSettingsCompact = "[% c.lh("Compact") %]";
+I18N.IndexSettingsCropThumbs = "[% c.lh("Crop thumbnails") %]";
+I18N.IndexSettingsCropDesc = "[% c.lh("If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.") %]";
+I18N.IndexSettingsHideCompleted = "[% c.lh("Hide completed Archives") %]";
+I18N.IndexSettingsHideCompletedDesc = "[% c.lh("If enabled, Archives you've already completed will be hidden from the list.") %]";
+I18N.IndexSettingsGroupTanks = "[% c.lh("Group Tankoubons") %]";
+I18N.IndexSettingsGroupTanksDesc = "[% c.lh("If enabled, Archives belonging to a Tankoubon will show as a single item.") %]";
+
+
 I18N.NewArchiveDesc = "[% c.lh("Click here to display new archives only.") %]";
 I18N.UntaggedArcDesc = "[% c.lh("Click here to display untagged archives only.") %]";
 I18N.CategoryDesc = "[% c.lh("Click here to display archives in this category only.") %]";
@@ -140,6 +167,7 @@ I18N.ReaderTocAdded = "[% c.lh("Chapter added!") %]";
 I18N.ReaderTocError = "[% c.lh("Error adding/removing chapter:") %]";
 I18N.ReaderClearRating = "[% c.lh("Clear Rating") %]";
 I18N.UntitledChapter = "[% c.lh("Untitled Chapter") %]";
+I18N.GoToPage = "[% c.lh("Go to page:") %]";
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
 I18N.ScriptRunningDesc = "[% c.lh("Please wait for it to finish before starting a new one.") %]";
