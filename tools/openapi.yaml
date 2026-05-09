@@ -4048,7 +4048,7 @@ components:
           type: string
           description: Name of the category
         pinned:
-          type: integer
+          type: [integer, string]
           description: Whether this category should be pinned in the UI
           enum:
             - 0
