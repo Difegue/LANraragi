@@ -36,9 +36,9 @@ sub do_test_search {
 }
 
 do_test_search();
-is( $filtered, 9, qq(Empty search(full index)) );
+is( $filtered, 13, qq(Empty search(full index)) );
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0, 0 );
-is( $filtered, 9, qq(Empty search(tank grouping off)) );
+is( $filtered, 13, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
@@ -112,7 +112,8 @@ $search = qq("character:segata");
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0, 0 );
-ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
+# Two archives are now new: e4c422fd10943dc169e3489a38cdbf57101a5f7e and 28697b96f0ac5858be2666ed10ca47742c955555
+is( $filtered, 2, qq(Search with new filter applied) );
 
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0, 0 );
 ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
@@ -159,12 +160,16 @@ my %expected_unkeyed = map { $_ => 1 } (
     "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "28697b96f0ac5777be2614ed10ca47742c9522fa",
     "28697b96f0ac5858be2666ed10ca47742c955555",
+    "d0be2dc421be4fcd0172e5afceea3970e2f3d940",
+    "250e77f12a5ab6972a0895d290c4792f0a326ea8",
+    "7e41c6480852a4a914e48c7a3a4084f193e963d9",
+    "af8978b1797b72acfff9595a5a2a373ec3d9106d",
 );
 
 {
     # Sort by artist, ascending: shirow masamune < wada rco < yoshiyuki sadamoto
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 0, 0, 0, 0, 0 );
-    is( $filtered, 9, 'Artist sort should return all archives' );
+    is( $filtered, 13, 'Artist sort should return all archives' );
 
     # Keyed partition (positions 0-3): boundary positions are deterministic
     is( $ids[0], "4857fd2e7c00db8b0af0337b94055d8445118630",
@@ -174,9 +179,9 @@ my %expected_unkeyed = map { $_ => 1 } (
     is_deeply( { map { $_ => 1 } @ids[0..3] }, \%expected_keyed,
         'Artist asc keyed partition should contain all artist-tagged archives' );
 
-    # Unkeyed partition (positions 4-8): archives without artist tag
-    is_deeply( { map { $_ => 1 } @ids[4..8] }, \%expected_unkeyed,
-        'Artist asc should place all unkeyed archives at positions 5-9' );
+    # Unkeyed partition (positions 4-12): archives without artist tag
+    is_deeply( { map { $_ => 1 } @ids[4..12] }, \%expected_unkeyed,
+        'Artist asc should place all unkeyed archives at positions 5-13' );
 }
 
 {
@@ -192,8 +197,8 @@ my %expected_unkeyed = map { $_ => 1 } (
         'Artist desc keyed partition should contain all artist-tagged archives' );
 
     # Unkeyed partition still at back
-    is_deeply( { map { $_ => 1 } @ids[4..8] }, \%expected_unkeyed,
-        'Artist desc should keep all unkeyed archives at positions 5-9' );
+    is_deeply( { map { $_ => 1 } @ids[4..12] }, \%expected_unkeyed,
+        'Artist desc should keep all unkeyed archives at positions 5-13' );
 }
 
 note('testing hidecompleted filter...');
@@ -202,12 +207,12 @@ note('testing hidecompleted filter...');
 #   e69e43e1...ebf: pagecount=2,   progress=10 => 10/2  = 5.00  => completed
 #   4857fd2e...630: pagecount=34,  progress=34 => 34/34 = 1.00  => completed
 #   2810d5e0...eb3: pagecount=34,  progress=34 => 34/34 = 1.00  => completed
-# Not completed: 6 remaining archives
+# Not completed: 10 remaining archives (13 total - 3 completed)
 
 {
     # Basic hidecompleted test (no tank grouping)
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 0, 0, 1 );
-    is( $filtered, 6, 'hidecompleted should remove 3 completed archives (9 - 3 = 6)' );
+    is( $filtered, 10, 'hidecompleted should remove 3 completed archives (13 - 3 = 10)' );
 
     my %returned = map { $_ => 1 } @ids;
     ok( !exists $returned{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"},
@@ -244,10 +249,14 @@ note('testing hidecompleted filter...');
 
 {
     # hidecompleted combined with newonly
+    # Both new archives (e4c422fd... and 28697b96...55) have no progress, so neither is completed
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0, 1 );
-    is( $filtered, 1, 'hidecompleted + newonly should return only new non-completed archives' );
-    is( $ids[0], "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
-        'hidecompleted + newonly should return Rohan Kishibe (new and not completed)' );
+    is( $filtered, 2, 'hidecompleted + newonly should return both new non-completed archives' );
+    my %new_returned = map { $_ => 1 } @ids;
+    ok( exists $new_returned{"e4c422fd10943dc169e3489a38cdbf57101a5f7e"},
+        'hidecompleted + newonly should include Rohan Kishibe (new and not completed)' );
+    ok( exists $new_returned{"28697b96f0ac5858be2666ed10ca47742c955555"},
+        'hidecompleted + newonly should include All about Egypt (new and not completed)' );
 }
 
 {
