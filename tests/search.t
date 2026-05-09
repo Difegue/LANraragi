@@ -269,4 +269,71 @@ note('testing hidecompleted filter...');
         'hidecompleted + lastread should return Saturn American Manual (read but not completed)' );
 }
 
+note('testing tag sort with tanks (grouptanks=1) -- exercises _fallback_tags since evalsha is not mocked...');
+
+{
+    # TANK_1589141306 tags: "series:hello world"       => keyed (hello world)
+    # TANK_1589138380 tags: ""                         => unkeyed
+    # be447b58...484  tags: "series:Neon Genesis Evangelion, ..." => keyed (neon genesis evangelion)
+    # All other archives have no series tag            => unkeyed
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "series", 0, 0, 0, 1, 0 );
+    is( $filtered, 13, 'tank tag sort: series asc should return all 13 items' );
+    is( $ids[0], "TANK_1589141306",
+        'tank tag sort: series asc puts TANK_1589141306 first (series:hello world < neon genesis evangelion)' );
+    is( $ids[1], "be447b58ea66137c415ee306ee2ac44b308ee484",
+        'tank tag sort: series asc puts NGE archive second (series:Neon Genesis Evangelion)' );
+
+    my %remaining = map { $_ => 1 } @ids[ 2 .. 12 ];
+    ok( exists $remaining{"TANK_1589138380"},
+        'tank tag sort: TANK_1589138380 (no series tag) goes to unkeyed partition' );
+    ok( !exists $remaining{"TANK_1589141306"},
+        'tank tag sort: TANK_1589141306 is not in unkeyed partition' );
+}
+
+{
+    # Descending: keyed partition reverses
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "series", 1, 0, 0, 1, 0 );
+    is( $ids[0], "be447b58ea66137c415ee306ee2ac44b308ee484",
+        'tank tag sort: series desc puts NGE archive first' );
+    is( $ids[1], "TANK_1589141306",
+        'tank tag sort: series desc puts TANK_1589141306 second' );
+}
+
+note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_lastread since evalsha is not mocked...');
+
+{
+    # Give Computer Room (a member of both tanks) a non-zero lastreadtime so both tanks
+    # appear in the lastread sort results.  Restore the value after the block.
+    $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 1589038279 );
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "lastread", 0, 0, 0, 1, 0 );
+
+    # Standalones with lastreadtime > 0 in LRR_TANKGROUPED:
+    #   Saturn USA (1589038281), Saturn JP (1589038280), Ghost (1589038280), FGO MEMO 2 (1589038280)
+    # Tanks with max member lastreadtime > 0:
+    #   TANK_1589141306: max(Egypt=0, Computer Room=1589038279) = 1589038279
+    #   TANK_1589138380: max(Computer Room=1589038279) = 1589038279
+    is( $filtered, 6, 'tank lastread sort: both tanks with a read member archive should appear' );
+    is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+        'tank lastread sort: Saturn JP (highest lastreadtime 1589038281) should be first' );
+
+    my %lrt = map { $_ => 1 } @ids;
+    ok( exists $lrt{"TANK_1589141306"},
+        'tank lastread sort: TANK_1589141306 present (member Computer Room was read)' );
+    ok( exists $lrt{"TANK_1589138380"},
+        'tank lastread sort: TANK_1589138380 present (member Computer Room was read)' );
+    ok( !exists $lrt{"28697b96f0ac5777be2614ed10ca47742c9522fa"},
+        'tank lastread sort grouptanks=1: Computer Room itself not present (grouped into its tanks)' );
+
+    # Ascending: oldest-read archives first, so tanks (1589038279) precede Saturn JP (1589038281)
+    my ( $total2, $filtered2, @ids2 ) = LANraragi::Model::Search::do_search( "", "", -1, "lastread", 1, 0, 0, 1, 0 );
+    is( $ids2[-1], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+        'tank lastread sort asc: Saturn JP (most recently read) should be last' );
+    my %pos2 = map { $ids2[$_] => $_ } 0 .. $#ids2;
+    ok( $pos2{"TANK_1589141306"} < $pos2{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"},
+        'tank lastread sort asc: TANK_1589141306 appears before Saturn JP' );
+
+    $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 0 );
+}
+
 done_testing();
