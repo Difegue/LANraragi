@@ -75,9 +75,9 @@ sub build_stat_hashes {
         my $tank_title    = lc( %$tank{name} );
         my @tank_archives = @{ %$tank{archives} };
 
-        # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
-        # (This does nothing if the tank is empty, as it won't be in LRR_TANKGROUPED)
-        $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
+        # Encode the title for storage in LRR_TITLES (lowercase so it matches search queries)
+        my $encoded_title = redis_encode( trim( trim_CRLF($tank_title) ) );
+        $redistx->zadd( "LRR_TITLES", 0, "$encoded_title\0$tank_id" );
 
         if ( scalar @tank_archives == 0 ) {
             $logger->warn("Tank $tank_id has no archives in it. Skipping.");

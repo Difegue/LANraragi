@@ -89,15 +89,14 @@ sub create_tankoubon ( $name, $tank_id ) {
         }
     }
 
-    # Default values for new group
-    # Score 0 will be reserved for the name of the tank
-    my $tank_title = redis_encode($name);
-
     # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
-    $redis_search->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
+    # Title must be lowercased to match how search queries are processed.
+    my $tank_title_lower = lc($name);
+    $redis_search->zadd( "LRR_TITLES", 0, "$tank_title_lower\0$tank_id" );
 
-    # Init metadata
-    $redis->zadd( $tank_id, $TANK_METADATA{"name"},    redis_encode("name_${tank_title}") );
+    # Default values for metadata
+    # Score 0 is reserved for the name of the tank
+    $redis->zadd( $tank_id, $TANK_METADATA{"name"},    redis_encode("name_${name}") );
     $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "summary_" );
     $redis->zadd( $tank_id, $TANK_METADATA{"tags"},    "tags_" );
 
@@ -190,10 +189,21 @@ sub delete_tankoubon ($tank_id) {
     }
 
     if ( $redis->exists($tank_id) ) {
+
+        # Get archives in the tank before deleting, so we can re-add them to LRR_TANKGROUPED
+        my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+
         $redis->del($tank_id);
 
         # The ID will remain in LRR_TITLES until the next stats compute, but this'll prevent it from appearing in search.
         $redis_search->srem( "LRR_TANKGROUPED", $tank_id );
+
+        # Re-add archives to LRR_TANKGROUPED if they're not in any other tank
+        foreach my $arc_id (@archives) {
+            unless ( get_tankoubons_containing_archive($arc_id) ) {
+                $redis_search->sadd( "LRR_TANKGROUPED", $arc_id );
+            }
+        }
 
         $redis->quit;
         $redis_search->quit;
