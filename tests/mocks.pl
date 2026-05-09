@@ -123,15 +123,19 @@ sub setup_redis_mock {
             "lastreadtime": 0,
             "stamps": "[\\\"STAMPS_0_1777224824660\\\", \\\"STAMPS_0_1777224824661\\\", \\\"STAMPS_1_1777224824662\\\", \\\"STAMPS_2_1777224824663\\\", \\\"STAMPS_3_1777224824664\\\"]"
         },
-        "TANK_1589141306": [
-            "name_Hello",
-            "28697b96f0ac5858be2666ed10ca47742c955555",
-            "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ],
-        "TANK_1589138380":[
-            "name_World",
-            "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ],
+        "TANK_1589141306": {
+            "name_Hello": 0,
+            "summary_A test tankoubon": -1,
+            "tags_series:hello world": -2,
+            "28697b96f0ac5858be2666ed10ca47742c955555": 1,
+            "28697b96f0ac5777be2614ed10ca47742c9522fa": 2
+        },
+        "TANK_1589138380": {
+            "name_World": 0,
+            "summary_": -1,
+            "tags_": -2,
+            "28697b96f0ac5777be2614ed10ca47742c9522fa": 1
+        },
         "STAMPS_0_1777224824660": {
             "content": "Lorem",
             "position": "0,0",

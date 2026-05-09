@@ -38,8 +38,8 @@ my %expected_backup =
           {"archives":[],"catid":"SET_1589138380","name":"AMERICA ONRY","search":"American"}
         ],
         "tankoubons":[
-          {"archives":["28697b96f0ac5858be2666ed10ca47742c955555", "28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589141306","name":"Hello"},
-          {"archives":["28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589138380","name":"World"}
+          {"archives":["28697b96f0ac5858be2666ed10ca47742c955555", "28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589141306","name":"Hello","summary":"A test tankoubon","tags":"series:hello world"},
+          {"archives":["28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589138380","name":"World","summary":"","tags":""}
         ],
         "stamps":[
           {"archive_id":"be447b58ea66137c415ee306ee2ac44b308ee484","content":"Lorem","position":"0,0","stamp_id":"STAMPS_0_1777224824660"},
