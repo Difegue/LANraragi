@@ -446,8 +446,7 @@ sub install_plugin {
 
     my $installdir      = $validated->{install_dir};
     my $installpath     = $validated->{install_path};
-    my $incpath         = package_to_path( $validated->{package} );
-    my $install_relpath = substr( $installpath, length( getcwd() . "/lib/" ) );
+    my $install_relpath = package_to_path( $validated->{package} );
 
     make_path($installdir) unless -d $installdir;
 
@@ -562,12 +561,12 @@ sub install_plugin {
         },
     ];
 
-    delete $INC{$incpath};
-    eval { require $incpath };
+    delete $INC{$install_relpath};
+    eval { require $install_relpath };
     my $require_error = $@;
 
     if ($require_error) {
-        delete $INC{$incpath}; # clear out undef resulting from require failure
+        delete $INC{$install_relpath}; # clear out undef resulting from require failure
         if ( my @resp = $do_rollback->("Plugin '$namespace' failed to load: $require_error") ) {
             return @resp;
         }
@@ -729,8 +728,6 @@ sub scan_plugins {
             next; # skip if database already tracks said path and type
         }
 
-        # Self-heal stale or missing installed_path/type: discovery is the source of truth.
-        # TODO(REVIEW): when a plugin is discovered and not present in database, wouldn't this be considered a spontaneous "installation"?
         $logger->debug("Plugin '$ns': setting installed_path to '$filepath' (type=$type).");
         register_plugin( $redis, $ns, $filepath, $type );
     }

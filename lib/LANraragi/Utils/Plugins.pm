@@ -135,7 +135,7 @@ sub get_plugin {
     # TODO(REVIEW): this counts as validation logic; does it belong in get_plugin? Who are the callers
     # it looks more like it should be for plugin invokation?
     my $redis          = LANraragi::Model::Config->get_redis_config;
-    my $installed_path = read_registered_plugins( $redis, $name );
+    my $installed_path = read_registered_plugin_path( $redis, $name );
     unless ($installed_path) {
         $redis->quit();
         return 0;
@@ -233,7 +233,11 @@ sub get_plugin_parameters {
 # Register a validated plugin into the database.
 # A plugin should be registered after any type of discovery or installation,
 sub register_plugin {
-    my ( $redis, $namespace, $installed_path, $type ) = @_;
+    my $redis           = shift;
+    my $namespace       = shift;
+    my $installed_path  = shift;
+    my $type            = shift;
+
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
     $redis->hset( $namerds, "installed_path", $installed_path, "type", $type );
@@ -245,8 +249,9 @@ sub register_plugin {
 # Should be called during removal of a plugin or when the plugin
 # could no longer be found.
 sub unregister_plugin {
-    my ( $redis, $namespace ) = @_;
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+    my $redis       = shift;
+    my $namespace   = shift;
+    my $namerds     = "LRR_PLUGIN_" . uc($namespace);
 
     $redis->hdel(
         $namerds,
@@ -258,16 +263,11 @@ sub unregister_plugin {
     );
 }
 
+# Return a map of namespace -> installed_path of all registered plugins.
 sub read_registered_plugins {
-    my ( $redis, $namespace ) = @_;
+    my $redis   = shift;
 
-    if ( defined $namespace ) {
-        my $namerds = "LRR_PLUGIN_" . uc($namespace);
-        return unless $redis->hexists( $namerds, "installed_path" );
-        return $redis->hget( $namerds, "installed_path" );
-    }
-
-    my @keys = $redis->keys("LRR_PLUGIN_*");
+    my @keys    = $redis->keys("LRR_PLUGIN_*");
     my %registered;
     foreach my $key (@keys) {
         next unless $redis->hexists( $key, "installed_path" );
@@ -277,6 +277,16 @@ sub read_registered_plugins {
     }
 
     return %registered;
+}
+
+# Return the installed_path for a registered plugin.
+sub read_registered_plugin_path {
+    my $redis       = shift;
+    my $namespace   = shift;
+
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
+    return unless $redis->hexists( $namerds, "installed_path" );
+    return $redis->hget( $namerds, "installed_path" );
 }
 
 sub is_plugin_enabled {
