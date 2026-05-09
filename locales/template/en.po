@@ -193,6 +193,18 @@ msgstr "New Static Category"
 msgid "New Dynamic Category"
 msgstr "New Dynamic Category"
 
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "No Tankoubons in your library yet."
+msgstr "No Tankoubons in your library yet."
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "No Archives in your library yet."
+msgstr "No Archives in your library yet."
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
