@@ -366,7 +366,7 @@ sub process_upload {
 
                 # Register installed_path so infer_plugin_source works before next scan_plugins.
                 my $redis = $self->LRR_CONF->get_redis_config;
-                register_plugin( $redis, $ns, $install_relpath );
+                register_plugin( $redis, $ns, $install_relpath, $pluginfo{type} );
                 signal_updated( $ns, $redis );
                 record_load_success($ns);
                 $redis->quit();
