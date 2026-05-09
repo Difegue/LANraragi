@@ -17,7 +17,8 @@ our @EXPORT_OK = qw(
     should_skip_reload
 );
 
-# For handling various cases related to plugin registration and usability states.
+# Utilities for handling various cases related to plugin registration and usability states.
+# When a plugin is added/removed from LRR, its status must be synchronized across workers.
 
 my %LOADED_GEN;
 my %LOAD_FAILED;
