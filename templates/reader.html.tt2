@@ -117,7 +117,7 @@
 
                     <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
                     <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
-                    <input id="set-stamp" class='stdbtn' type='button' value="[% c.lh("Set stamp") %]"/>
+                    <input id="set-stamp" class='stdbtn' type='button' value="[% c.lh("Set Stamp") %]"/>
                     <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
 
                     <h2>[% c.lh("Categories") %]</h2>
@@ -289,7 +289,7 @@
 </div>
 
 <div id="toggle-stamps-visibility">
-    <h2 class="config-panel"> [% c.lh('Toggle stamps') %]</h2>
+    <h2 class="config-panel"> [% c.lh('Toggle Stamps') %]</h2>
     <input id="toggle-stamps" class="favtag-btn config-btn" type="checkbox" value="[% c.lh('Disabled') %]">
 </div>
 
