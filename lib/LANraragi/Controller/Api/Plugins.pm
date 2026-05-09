@@ -86,14 +86,16 @@ sub update_metadata_plugin_config {
     );
 }
 
+# Install a managed plugin.
 sub install_plugin {
-    my $self              = shift->openapi->valid_input or return;
-    my $body              = $self->req->json;
+    my $self        = shift->openapi->valid_input or return;
+    my $body        = $self->req->json;
     my $namespace   = $body->{namespace};
     my $registry_id = $body->{registry};
     my $version     = $body->{version};
     my $force       = $body->{force} // 0;              # upgrade path
 
+    # TODO: maybe consider extending TTL for this sub to 60s if it's not enough.
     return unless exec_with_lock(
         $self,
         "plugin-write:" . uc($namespace),
@@ -171,7 +173,6 @@ sub install_plugin {
                 }
             );
         },
-        60,
     );
 }
 
