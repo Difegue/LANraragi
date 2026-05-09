@@ -23,6 +23,8 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
+	[% INCLUDE common/importmap %]
+
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/jquery.dataTables.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
@@ -43,10 +45,18 @@
 	<script src="[% c.url_for("/js/vendor/clipboard.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/index.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/index_datatables.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script type="module">
+		import * as Index from "mod/index";
+		import * as IndexTable from "mod/index_datatables";
+		import * as LRR from "mod/common";
+
+		jQuery(() => {
+			Index.initializeAll();
+			window.Index = Index;
+			window.IndexTable = IndexTable;
+			window.LRR = LRR;
+		});
+	</script>
 
 </head>
 
@@ -193,7 +203,8 @@
 
 	<button id="pseudo-copy-btn" data-clipboard-text="" style="display: none">click me</button>
 
-	<script>
+	<script type="module">
+		import * as Index from "mod/index";
 
 		// Last few remains of JS using server-provided data
 		jQuery(() => {

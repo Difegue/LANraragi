@@ -1,13 +1,15 @@
 /**
  * Plugins Operations
- * @global
  */
+import * as Server from "mod/server";
+import * as LRR from "mod/common";
+
 const Plugins = {};
 
 Plugins.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.save", "#save", () => Server.saveFormData("#editPluginForm"));
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
 
     // Handler for file uploading.
     $("#fileupload").fileupload({

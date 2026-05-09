@@ -2,6 +2,9 @@
  * Batch Operations
  * @global
  */
+import * as LRR from "mod/common";
+import * as Server from "mod/server";
+
 const Batch = {};
 
 Batch.socket = {};
@@ -19,9 +22,9 @@ Batch.initializeAll = function () {
     $(document).on("click.start-batch", "#start-batch", Batch.startBatchCheck);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
-    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.apiURL("/config")));
-    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.apiURL("/config/plugins")));
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.ApiURL("/config")));
+    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.ApiURL("/config/plugins")));
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
     $(document).on("click.batch-reset-selection", "#batch-reset-selection", Batch.loadAllArchives);
 
     Batch.selectOperation();
@@ -166,7 +169,7 @@ Batch.loadAllArchives = function () {
 };
 
 
-preCheckInternal = function (ids) {
+function preCheckInternal(ids) {
     ids.forEach((id) => {
         const checkbox = document.getElementById(id);
 
@@ -254,7 +257,7 @@ Batch.startBatch = function () {
 
     let wsProto = "ws://";
     if (document.location.protocol === "https:") wsProto = "wss://";
-    let socket_path = new LRR.apiURL("/batch/socket");
+    let socket_path = new LRR.ApiURL("/batch/socket");
     Batch.socket = new WebSocket(`${wsProto + window.location.host}${socket_path}`);
 
     Batch.socket.onopen = function () {

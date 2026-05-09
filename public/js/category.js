@@ -1,12 +1,15 @@
 /**
  * Category Operations
- * @global
  */
+
+import * as LRR from "mod/common";
+import * as Server from "mod/server";
+
 const Category = {};
 
 Category.categories = [];
 
-Category.initializeAll = function () {
+export function initializeAll() {
 
     Server.loadBookmarkCategoryId().then(_ => {
         Category.loadCategories();
@@ -22,7 +25,7 @@ Category.initializeAll = function () {
     $(document).on("click.new-dynamic", "#new-dynamic", () => Category.addNewCategory(true));
     $(document).on("click.predicate-help", "#predicate-help", Category.predicateHelp);
     $(document).on("click.delete", "#delete", Category.deleteSelectedCategory);
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
 
 };
 
@@ -59,7 +62,7 @@ Category.addNewCategory = function (isDynamic) {
 };
 
 Category.loadCategories = function (selectedID) {
-    fetch(new LRR.apiURL("/api/categories"))
+    fetch(new LRR.ApiURL("/api/categories"))
         .then((response) => response.json())
         .then((data) => {
             // Save data clientside for reference in later functions
@@ -200,7 +203,7 @@ Category.updateBookmarkLink = function () {
     }
 };
 
-Category.updateArchiveInCategory = function (id, checked) {
+export function updateArchiveInCategory(id, checked) {
     const categoryID = document.getElementById("category").value;
     Category.indicateSaving();
     // PUT/DELETE api/categories/catID/archiveID
@@ -252,7 +255,3 @@ Category.predicateHelp = function () {
         hideAfter: 20000,
     });
 };
-
-jQuery(() => {
-    Category.initializeAll();
-});
