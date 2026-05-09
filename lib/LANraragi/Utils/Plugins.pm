@@ -230,6 +230,8 @@ sub get_plugin_parameters {
     return %args;
 }
 
+# Register a validated plugin into the database.
+# A plugin should be registered after any type of discovery or installation,
 sub register_plugin {
     my ( $redis, $namespace, $installed_path, $type ) = @_;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
@@ -239,6 +241,9 @@ sub register_plugin {
     return $installed_path;
 }
 
+# Unregister a registered plugin from the database.
+# Should be called during removal of a plugin or when the plugin
+# could no longer be found.
 sub unregister_plugin {
     my ( $redis, $namespace ) = @_;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
