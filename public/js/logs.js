@@ -3,6 +3,7 @@
  * @global
  */
 import * as LRR from "mod/common";
+import I18N from "i18n";
 
 const Logs = {};
 

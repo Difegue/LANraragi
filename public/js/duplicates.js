@@ -3,6 +3,7 @@
  */
 import * as LRR from "mod/common";
 import * as Server from "mod/server";
+import I18N from "i18n";
 
 const Duplicates = {};
 

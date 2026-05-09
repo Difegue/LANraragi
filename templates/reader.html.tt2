@@ -33,8 +33,6 @@
     <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 
-    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-
     <script type="module">
         import * as Reader from "[% c.url_for("/js/reader.js?$version") %]";
 
