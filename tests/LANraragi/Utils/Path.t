@@ -28,4 +28,21 @@ note('testing package_to_path...');
     is( $result, "Single.pm", "single-segment package" );
 }
 
+note('testing path_to_package...');
+
+{
+    my $result = LANraragi::Utils::Path::path_to_package("LANraragi/Plugin/Metadata/Example.pm");
+    is( $result, "LANraragi::Plugin::Metadata::Example", "multi-segment path" );
+}
+
+{
+    my $result = LANraragi::Utils::Path::path_to_package("Foo/Bar.pm");
+    is( $result, "Foo::Bar", "two-segment path" );
+}
+
+{
+    my $result = LANraragi::Utils::Path::path_to_package("Single.pm");
+    is( $result, "Single", "single-segment path" );
+}
+
 done_testing();

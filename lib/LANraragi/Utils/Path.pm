@@ -15,7 +15,7 @@ use POSIX qw(strerror);
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_path create_path_or_die open_path open_path_or_die date_modified compat_path unlink_path find_path get_archive_path rename_path move_path package_to_path);
+our @EXPORT_OK = qw(create_path create_path_or_die open_path open_path_or_die date_modified compat_path unlink_path find_path get_archive_path rename_path move_path package_to_path path_to_package);
 
 BEGIN {
     if ( !IS_UNIX ) {
@@ -111,6 +111,14 @@ sub get_archive_path ( $redis, $id ) {
 # Convert a Perl package name to a filesystem path (e.g. "LANraragi::Plugin::Foo" -> "LANraragi/Plugin/Foo.pm").
 sub package_to_path( $package ) {
     return join( "/", split( /::/, $package ) ) . ".pm";
+}
+
+# Convert a filesystem path to a Perl package name (e.g. "LANraragi/Plugin/Foo.pm" -> "LANraragi::Plugin::Foo").
+sub path_to_package( $path ) {
+    my $package = $path;
+    $package =~ s/\.pm$//;
+    $package =~ s|/|::|g;
+    return $package;
 }
 
 # Build the error message for a failed file operation containing details about the file's properties

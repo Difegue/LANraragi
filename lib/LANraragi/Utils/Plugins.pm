@@ -12,6 +12,7 @@ use LANraragi::Utils::PluginState qw(
     record_load_success
     should_skip_reload
 );
+use LANraragi::Utils::Path     qw(path_to_package);
 use LANraragi::Utils::Redis    qw(redis_decode);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
@@ -24,7 +25,7 @@ use Exporter 'import';
 our @EXPORT_OK =
   qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled is_plugin_hidden get_plugin_priority use_plugin register_plugin unregister_plugin read_registered_plugins);
 
-# Get metadata of all plugins with the defined type. Returns an array of hashes.
+# Get metadata of all registered plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
 
     my $type    = shift;
@@ -36,9 +37,7 @@ sub get_plugins {
     # Skip plugins which are not registered by Redis.
     foreach my $ns_uc ( sort keys %registered ) {
         my $installed_path = $registered{$ns_uc};
-        my $plugin         = $installed_path;
-        $plugin =~ s/\.pm$//;
-        $plugin =~ s|/|::|g;
+        my $plugin         = path_to_package($installed_path);
 
         if ( plugin_needs_reload($ns_uc) && !should_skip_reload($ns_uc) ) {
             delete $INC{$installed_path};
@@ -101,6 +100,7 @@ sub get_downloader_for_url {
     return;
 }
 
+# Get enabled plugins and return them sorted by priority in ascending order.
 sub get_enabled_plugins {
 
     my $type    = shift;
@@ -123,17 +123,16 @@ sub get_enabled_plugins {
     return @enabled;
 }
 
-#Look for a plugin by uc-normalized namespace for invokation.
+# Look for (and optionally reloads) a registered plugin by uc-normalized namespace for invokation.
 sub get_plugin {
 
     my $name    = shift;
     my $name_uc = uc($name);
+    my $logger  = get_logger( "Plugin System", "lanraragi" );
 
     # Plugin must have a discovered installed_path to be callable.
     # Uninstall hdels installed_path while preserving user config; gating on
     # key-existence alone would let uninstalled namespaces remain callable.
-    # TODO(REVIEW): this counts as validation logic; does it belong in get_plugin? Who are the callers
-    # it looks more like it should be for plugin invokation?
     my $redis          = LANraragi::Model::Config->get_redis_config;
     my $installed_path = read_registered_plugin_path( $redis, $name );
     unless ($installed_path) {
@@ -142,7 +141,8 @@ sub get_plugin {
     }
     $redis->quit();
 
-    if ( $installed_path && plugin_needs_reload($name_uc) && !should_skip_reload($name_uc) ) {
+    # Check if plugin needs (re)loading.
+    if ( plugin_needs_reload($name_uc) && !should_skip_reload($name_uc) ) {
         delete $INC{$installed_path};
         my $ok = eval {
             no warnings 'redefine';
@@ -151,18 +151,15 @@ sub get_plugin {
         };
         if ($ok) {
             record_load_success($name_uc);
-            get_logger( "Plugin System", "lanraragi" )->info("Reloaded plugin '$name' in worker $$");
+            $logger->info("Reloaded plugin '$name' in worker $$");
         } else {
             record_load_failure($name_uc);
-            get_logger( "Plugin System", "lanraragi" )->warn("Failed to reload plugin '$name': $@");
+            $logger->warn("Failed to reload plugin '$name': $@");
             return 0;
         }
     }
 
-    my $plugin = $installed_path;
-    $plugin =~ s/\.pm$//;
-    $plugin =~ s|/|::|g;
-    return $plugin;
+    return path_to_package($installed_path);
 }
 
 # Get the parameters for the specified plugin, either default values or input by the user in the settings page.
