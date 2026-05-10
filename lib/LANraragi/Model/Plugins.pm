@@ -655,8 +655,6 @@ sub scan_plugins {
     my @discovered = LANraragi::Utils::Plugins::plugins();
 
     # Build namespace -> [class, file_path] map, detect duplicates
-    # TODO(REVIEW): ns_map needs an explanation of derivation process (and when derivation stops) and usage.
-    # preferably: ns_map construction stop stage needs to be detailed and when reads are made != when writes are made.
     my %ns_map;
 
     foreach my $class (@discovered) {
