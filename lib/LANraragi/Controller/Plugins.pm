@@ -9,13 +9,9 @@ use Encode;
 use Mojo::JSON qw(encode_json);
 use Cwd;
 
-use File::Basename;
-use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
-use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled register_plugin);
-use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::PluginState qw(record_load_success signal_updated);
-use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
-use LANraragi::Model::Plugins;
+use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # This action will render a template
 sub index {
