@@ -728,8 +728,16 @@ Index.updateSelectionCount = function () {
         $(".swiper-wrapper").show();
 
         $("#msm-selection-count").text(I18N.MSMSelectionCount(count));
-        if (LRR.isUserLogged())
+        if (LRR.isUserLogged()) {
             $("#msm-batch-ops").show();
+
+            // Don't show merge option if more than 2 tanks are in the selection
+            const tankCount = [...Index.selectedArchives].filter((id) => id.startsWith("TANK_")).length;
+            if (tankCount <= 2)
+                $("#msm-merge").show();
+            else
+                $("#msm-merge").hide();
+        }
         $("#msm-clear").show();
     } else {
         $("#carousel-empty").show();
@@ -737,6 +745,7 @@ Index.updateSelectionCount = function () {
 
         $("#msm-selection-count").text("");
         $("#msm-batch-ops").hide();
+        $("#msm-merge").hide();
         $("#msm-clear").hide();
     }
 };
@@ -760,6 +769,64 @@ Index.applySelectionHighlights = function () {
 Index.openBatchOnSelection = function () {
     if (Index.selectedArchives.size === 0) return;
     LRR.openInNewTab(new LRR.apiURL("/batch"));
+};
+
+/**
+ * Merge the current selection into a Tankoubon, then reload the search.
+ * If exactly one Tankoubon is already in the selection, fold the archives into it directly. 
+ * Otherwise, prompt for a name and create a new Tankoubon containing the selection.
+ */
+Index.mergeSelectionIntoTankoubon = function () {
+    if (Index.selectedArchives.size === 0) return;
+
+    const allIds = [...Index.selectedArchives];
+    const tankIds = allIds.filter((id) => id.startsWith("TANK_"));
+    const archiveIds = allIds.filter((id) => !id.startsWith("TANK_"));
+
+    if (tankIds.length === 1) {
+        // Fold non-tank archives into the existing tankoubon
+        Index.addArchivesToTank(tankIds[0], archiveIds);
+    } else {
+        // Prompt for a name and create a new tankoubon
+        LRR.showPopUp({
+            title: I18N.MSMMergePromptTitle,
+            text: I18N.MSMMergePromptText,
+            input: "text",
+            inputAttributes: { autocapitalize: "off" },
+            showCancelButton: true,
+            reverseButtons: true,
+            inputValidator: (value) => {
+                if (!value) return I18N.MSMMergeNameRequired;
+                return undefined;
+            },
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            Server.callAPI(`/api/tankoubons?name=${encodeURIComponent(result.value)}`, "PUT",
+                null, I18N.MSMMergeError,
+                (data) => Index.addArchivesToTank(data.tankoubon_id, archiveIds)
+            );
+        });
+    }
+};
+
+/**
+ * Add the given archive IDs to a tankoubon via chained Promises
+ */
+Index.addArchivesToTank = function (tankId, arcIds) {
+    arcIds.reduce((chain, arcId) =>
+        chain.then(() =>
+            Server.callAPI(`/api/tankoubons/${tankId}/${arcId}`, "PUT",
+                null, I18N.MSMMergeAddError, null)
+        ),
+    Promise.resolve()
+    ).then(() => {
+        const successMsg = I18N.MSMMergeSuccess(arcIds.length, tankId);
+        LRR.toast({ heading: successMsg, icon: "success" });
+        Index.clearSelection();
+        Index.exitSelectionCarouselMode();
+        IndexTable.doSearch();
+    });
 };
 
 // #endregion

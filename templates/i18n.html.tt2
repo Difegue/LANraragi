@@ -102,6 +102,12 @@ I18N.MSMSelectionHint = "[% c.lh("Click Archives to add them to the selection. Y
 I18N.MSMConfirmExit = "[% c.lh("Exit selection mode? Your current selection will be lost. ") %]";
 I18N.MSMAddToSelection = "[% c.lh("Add to selection") %]";
 I18N.MSMRemoveFromSelection = "[% c.lh("Remove from selection") %]";
+I18N.MSMMergePromptTitle = "[% c.lh("Enter a name for the new Tankoubon.") %]";
+I18N.MSMMergePromptText = "[% c.lh("This will contain all the selected Archives as a single item in your Library.") %]";
+I18N.MSMMergeNameRequired = "[% c.lh("Please enter a name.") %]";
+I18N.MSMMergeSuccess = (n, tank) => `[% c.lh("Added \${n} Archives to \${tank}!") %]`;
+I18N.MSMMergeError = "[% c.lh("Error creating Tankoubon") %]";
+I18N.MSMMergeAddError = "[% c.lh("Error adding archives to Tankoubon") %]";
 
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";

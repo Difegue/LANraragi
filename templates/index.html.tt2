@@ -115,7 +115,7 @@
 							<a class="fa fa-2x fa-hammer carousel-icon" style="margin-left: 12px" id="msm-batch-ops" 
 								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
 							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge" 
-								href="#" title="[% c.lh('Merge') %]"></a>
+								href="#" title="[% c.lh('Merge Archives into Tankoubon') %]"></a>
 							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear" 
 								href="#" title="[% c.lh('Clear selection') %]"></a>
 							<a class="fa fa-2x fa-check-double carousel-icon" style="margin-left: 12px" id="msm-select-page" 
