@@ -114,6 +114,8 @@
 							<span id="msm-selection-count"></span>
 							<a class="fa fa-2x fa-hammer carousel-icon" style="margin-left: 12px" id="msm-batch-ops" 
 								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
+							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge" 
+								href="#" title="[% c.lh('Merge') %]"></a>
 							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear" 
 								href="#" title="[% c.lh('Clear selection') %]"></a>
 							<a class="fa fa-2x fa-check-double carousel-icon" style="margin-left: 12px" id="msm-select-page" 
@@ -223,33 +225,37 @@
 			$.contextMenu({
 				selector: '.context-menu',
 				build: ($trigger, e) => {
+					const id = $trigger.attr("id");
+					const isTankoubon = id && id.startsWith("TANK_");
 					return {
 						callback: function (key, options) {
 							Index.handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
 							"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
-							"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
+							...(!isTankoubon ? { "download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" } } : {}),
 							"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
 							"msm-toggle-archive": {
-								name: Index.selectedArchives.has($trigger.attr("id"))
+								name: Index.selectedArchives.has(id)
 									? I18N.MSMRemoveFromSelection
 									: I18N.MSMAddToSelection,
 								icon: "fas fa-check-square"
 							},
 							[% IF userlogged %]
 							"sep1": "---------",
-							"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
+							...(isTankoubon ? 
+								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } : 
+								{ "edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } }),
 							"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
-							"rating": {
-							    "name": "[% c.lh('Add Rating') %]",
-							    "icon": "fas fa-star",
-							    "items": Index.loadContextMenuRatings($trigger.attr("id"))
-							},
+								"rating": {
+								    "name": "[% c.lh('Add Rating') %]",
+								    "icon": "fas fa-star",
+								    "items": LRR.loadContextMenuRatings(id)
+								},
 							"collections": {
 								"name": "[% c.lh('Add to Category') %]",
 								"icon": "fas fa-search-plus",
-								"items": Index.loadContextMenuCategories(catList, $trigger.attr("id"))
+								"items": LRR.loadContextMenuCategories(catList, id)
 							}
 							[% END %]
 						}

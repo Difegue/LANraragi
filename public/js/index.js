@@ -10,8 +10,6 @@ Index.carouselInitialized = false;
 Index.swiper = {};
 Index.serverVersion = "";
 Index.debugMode = false;
-Index.isProgressLocal = true;
-Index.isProgressAuthenticated = true;
 Index.pageSize = 100;
 Index.pseudoCopyBtn = undefined;
 Index.isMultiSelectMode = false;
@@ -42,6 +40,7 @@ Index.initializeAll = function () {
     $(document).on("click.msm-toggle", "#msm-toggle", Index.toggleMultiSelectMode);
     $(document).on("click.msm-select-page", "#msm-select-page", Index.selectCurrentPage);
     $(document).on("click.msm-batch-ops", "#msm-batch-ops", Index.openBatchOnSelection);
+    $(document).on("click.msm-merge", "#msm-merge", Index.mergeSelectionIntoTankoubon);
     $(document).on("click.msm-clear", "#msm-clear", Index.clearSelection);
     // Intercept reader-link clicks while MSM is active to toggle archive selection instead
     $(document).on("click.msm-archive", "a[href*='/reader?id=']", function (e) {
@@ -91,6 +90,7 @@ Index.initializeAll = function () {
     // Initialize carousel mode menu
     $.contextMenu({
         selector: "#carousel-mode-menu",
+        zIndex: 10,
         trigger: "left",
         build: () => ({
             callback(key) {
@@ -205,8 +205,8 @@ Index.initializeAll = function () {
         (data) => {
             Index.serverVersion = data.version;
             Index.debugMode = !!data.debug_mode;
-            Index.isProgressLocal = !data.server_tracks_progress;
-            Index.isProgressAuthenticated = data.authenticated_progress;
+            LRR.isProgressLocal = !data.server_tracks_progress;
+            LRR.isProgressAuthenticated = data.authenticated_progress;
             Index.pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
@@ -869,7 +869,7 @@ Index.fetchChangelog = function () {
  */
 Index.migrateProgress = function () {
     // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
-    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
+    if (LRR.isProgressLocal || (LRR.isProgressAuthenticated && !LRR.isUserLogged())) {
         return;
     }
 
@@ -920,99 +920,6 @@ Index.migrateProgress = function () {
 // #region Archive Context Menu
 
 /**
- * Build category list for contextMenu and checkoff the ones the given ID belongs to.
- * @param {*} catList The list of categories, obtained statically
- * @param {*} id The ID of the archive to check
- * @returns Categories
- */
-Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
-    (data) => {
-        const items = {};
-
-        for (let i = 0; i < catList.length; i++) {
-            const catId = catList[i].id;
-
-            // If the category is also in the API results,
-            // we can pre-check it when creating the checkbox
-            const isSelected = data.categories.map((x) => x.id).includes(catId);
-            items[catId] = { name: catList[i].name, type: "checkbox" };
-            if (isSelected) { items[catId].selected = true; }
-
-            items[catId].events = {
-                click() {
-                    if ($(this).is(":checked")) {
-                        Server.addArchiveToCategory(id, catId);
-                        if (catId === localStorage.getItem("bookmarkCategoryId")) {
-                            Index.bookmarkIconOn(id);
-                        }
-                    } else {
-                        Server.removeArchiveFromCategory(id, catId);
-                        if (catId === localStorage.getItem("bookmarkCategoryId")) {
-                            Index.bookmarkIconOff(id);
-                        }
-                    }
-                },
-            };
-        }
-
-        if (Object.keys(items).length === 0) {
-            items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
-        }
-
-        return items;
-    },
-);
-
-/**
- * Build rating options for contextMenu and select the one for the current ID.
- * @param {*} id The ID of the archive to check
- * @returns Ratings
- */
-Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
-    (data) => {
-        const items = {};
-        const ratings = [{
-            name: I18N.IndexRemoveRating
-        }, {
-            name: "⭐",
-        }, {
-            name: "⭐⭐",
-        }, {
-            name: "⭐⭐⭐",
-        }, {
-            name: "⭐⭐⭐⭐",
-        }, {
-            name: "⭐⭐⭐⭐⭐",
-        }];
-        const tags = LRR.splitTagsByNamespace(data.tags);
-        const hasRating = Object.keys(tags).some(x => x === "rating");
-        const ratingValue = hasRating ? tags["rating"] : [0];
-
-        for (let i = 0; i < ratings.length; i++) {
-            items[i] = ratings[i];
-            items[i].type = "checkbox";
-
-            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
-            items[i].events = {
-                click() {
-                    if (i === 0) delete tags["rating"];
-                    else tags["rating"] = [ratings[i].name];
-
-                    Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
-
-                    // Update the rating info without reload but have to refresh everything.
-                    IndexTable.dataTable.ajax.reload(null, false);
-                    Index.updateCarousel();
-                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
-                },
-            };
-        }
-
-        return items;
-    },
-);
-
-/**
  * Handle context menu clicks.
  * @param {*} option The clicked option
  * @param {*} id The Archive ID
@@ -1023,6 +930,8 @@ Index.handleContextMenu = function (option, id) {
         case "edit":
             LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
             break;
+        case "edit-tank":
+            LRR.openInNewTab(new LRR.apiURL(`/tankoubon?arcid=${id}`));
         case "delete":
             LRR.showPopUp({
                 text: I18N.ConfirmArchiveDeletion,

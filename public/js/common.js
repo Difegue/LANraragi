@@ -4,6 +4,9 @@
  */
 const LRR = {};
 
+LRR.isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
+LRR.isProgressAuthenticated = true;  // Whether progress requires authentication
+
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
     let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
@@ -281,6 +284,24 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
+ * Build a tooltip when hovering over a tag div, then display it.
+ * @param {*} target The target tags div
+ */
+LRR.buildTagTooltip = function (target) {
+    tippy(target, {
+        content: $(target).next("div").attr("style", "")[0],
+        delay: 0,
+        placement: "auto-start",
+        maxWidth: "none",
+        interactive: true,
+        appendTo: document.body,
+    }).show();
+
+    $(target).attr("onmouseover", "");
+};
+
+
+/**
  * Build bookmark icon for an archive.
  * @param {*} id
  * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
@@ -311,6 +332,14 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
+    // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+    // If thumb_archive is empty string (empty tank), show noThumb.png directly
+    // If thumb_archive is undefined (regular archive), use the item's own ID
+    const thumbId = data.thumb_archive || id;
+    const thumbSrc = data.thumb_archive === ""
+        ? new LRR.apiURL("/img/noThumb.png")
+        : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
+
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
@@ -321,7 +350,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
                         <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
+                        <img src="${thumbSrc}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
@@ -329,7 +358,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                 </div>
                 <div class="id4">
                         ${LRR.buildPageCountDiv(data)}
-                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
+                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"LRR.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
                         ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
             </div>`;
@@ -343,14 +372,31 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
 LRR.buildStatusDiv = function (arcdata) {
     const { isnew } = arcdata;
     let { progress, pagecount } = LRR.getProgress(arcdata);
+    const isTank = arcdata.arcid.startsWith("TANK_");
 
+    let statuses = [];
+
+    // New indicator
     if (isnew === "true") {
-        return "<div class='isnew'>🆕</div>";
-    } else if (pagecount > 0 && (progress / pagecount) > 0.85) { // Consider an archive read if progress is past 85% of total
-        return "<div class='isnew'>👑</div>";
+        statuses.push(`<span title="${I18N.StatusNew}">🆕</span>`);
     }
-    // If there wasn't sufficient data, return an empty string
-    return "";
+
+    // Read indicator - consider read if progress is past 85% of total
+    // For archives: only show if not new (mutually exclusive)
+    // For tankoubons: can show alongside new (tank can have new archives AND be mostly read)
+    if (pagecount > 0 && (progress / pagecount) > 0.85) {
+        if (isTank || isnew !== "true") {
+            statuses.push(`<span title="${I18N.StatusRead}">👑</span>`);
+    }
+    }
+
+    // Tankoubon indicator (last)
+    if (isTank) {
+        statuses.push(`<span title="${I18N.StatusTankoubon}">📚</span>`);
+    }
+
+    if (statuses.length === 0) return "";
+    return `<div class='isnew status-icons'>${statuses.join("")}</div>`;
 };
 
 LRR.buildPageCountDiv = function (arcdata) {
@@ -419,7 +465,7 @@ LRR.getProgress = function (arcdata) {
     const pagecount = parseInt(arcdata.pagecount || 0, 10);
     let progress = -1;
 
-    if (Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
+    if (LRR.isProgressLocal && !(LRR.isProgressAuthenticated && LRR.isUserLogged())) {
         progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
     } else {
         progress = parseInt(arcdata.progress || 0, 10);
@@ -511,6 +557,107 @@ LRR.toast = function (c) {
             };
         })());
 };
+
+// #region Context Menu Functions
+
+/**
+ * Build category list for contextMenu and checkoff the ones the given ID belongs to.
+ * @param {*} catList The list of categories, obtained statically
+ * @param {*} id The ID of the archive or tankoubon to check
+ * @returns Categories
+ */
+LRR.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
+    (data) => {
+        const items = {};
+
+        for (let i = 0; i < catList.length; i++) {
+            const catId = catList[i].id;
+
+            // If the category is also in the API results,
+            // we can pre-check it when creating the checkbox
+            const isSelected = data.categories.map((x) => x.id).includes(catId);
+            items[catId] = { name: catList[i].name, type: "checkbox" };
+            if (isSelected) { items[catId].selected = true; }
+
+            items[catId].events = {
+                click() {
+                    if ($(this).is(":checked")) {
+                        Server.addArchiveToCategory(id, catId);
+                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                            Index.bookmarkIconOn(id);
+                        }
+                    } else {
+                        Server.removeArchiveFromCategory(id, catId);
+                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                            Index.bookmarkIconOff(id);
+                        }
+                    }
+                },
+            };
+        }
+
+        if (Object.keys(items).length === 0) {
+            items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
+        }
+
+        return items;
+    },
+);
+
+/**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @param {*} refreshCallback Optional callback to refresh the view after rating change
+ * @returns Ratings
+ */
+LRR.loadContextMenuRatings = (id, refreshCallback) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
+    (data) => {
+        const items = {};
+        const ratings = [{
+            name: I18N.IndexRemoveRating
+        }, {
+            name: "⭐",
+        }, {
+            name: "⭐⭐",
+        }, {
+            name: "⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐⭐",
+        }];
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
+            items[i].events = {
+                click() {
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
+
+                    Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
+
+                    if (refreshCallback) {
+                        refreshCallback();
+                    } else if (typeof IndexTable !== "undefined" && IndexTable.dataTable) {
+                        IndexTable.dataTable.ajax.reload(null, false);
+                        if (typeof Index !== "undefined") Index.updateCarousel();
+                    }
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+// #endregion
 
 jQuery(() => {
     // Initialize toast.
