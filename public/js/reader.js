@@ -1749,7 +1749,6 @@ window.addEventListener("resize", () => {
 });
 
 jQuery(() => {
-    // Initialize context menu
     $.contextMenu({
         selector: '.marker-context-menu',
         build: ($trigger, e) => {
