@@ -586,7 +586,7 @@ sub install_plugin {
     }
 
     signal_updated( $namespace, $redis );
-    record_load_success($namespace);
+    record_load_success( $namespace, $redis );
 
     my %installed_meta = (
         name               => $plugin_metadata->{name},

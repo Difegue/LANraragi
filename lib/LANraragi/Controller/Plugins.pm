@@ -368,7 +368,7 @@ sub process_upload {
                 my $redis = $self->LRR_CONF->get_redis_config;
                 register_plugin( $redis, $ns, $install_relpath, $pluginfo{type} );
                 signal_updated( $ns, $redis );
-                record_load_success($ns);
+                record_load_success( $ns, $redis );
                 $redis->quit();
 
                 $self->render(
