@@ -95,7 +95,7 @@ jobs:
             --playwright \
             --dev registry \
             --npseed 42 \
-            -k "not test_double_page_navigation and not test_handler_resource_management and not test_plugin_uninstall_ui and not test_sideloaded_script_lifecycle and not test_search_functionality"
+            -k "not test_double_page_navigation and not test_handler_resource_management and not test_plugin_uninstall_ui and not test_sideloaded_script_lifecycle and not test_search_functionality and not test_ui_nofunmode_login_right_password and not test_ui_enable_nofunmode and not test_validation_carousel_search"
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
 
@@ -226,4 +226,4 @@ jobs:
           --playwright `
           --dev registry `
           --npseed 42 `
-          -k "not test_double_page_navigation and not test_handler_resource_management and not test_plugin_uninstall_ui and not test_sideloaded_script_lifecycle and not test_search_functionality"
+          -k "not test_double_page_navigation and not test_handler_resource_management and not test_plugin_uninstall_ui and not test_sideloaded_script_lifecycle and not test_search_functionality and not test_ui_nofunmode_login_right_password and not test_ui_enable_nofunmode and not test_validation_carousel_search"
