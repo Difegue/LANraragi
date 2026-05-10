@@ -177,7 +177,7 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
-    my $filename = basename( $file->filename );
+    my $filename = $file->filename;
 
     my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
@@ -206,146 +206,65 @@ sub process_upload {
             return;
         }
 
-        # Extract package name for conflict checks
-        my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
-        my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
+        my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
+        unless ( -e $dir ) {
+            mkdir $dir;
+        }
 
-        unless ($ns) {
-            my $errormess = "Could not find a namespace declaration in the plugin \"$filename\"!";
-            $logger->error($errormess);
+        my $output_file = $dir . $filename;
+
+        $logger->info("Uploading new plugin $filename to $output_file ...");
+
+        #Delete module if it already exists
+        if ( -e $output_file ) {
+            unlink($output_file);
+
+            # Remove the existing file from @INC to avoid the require call below croaking
+            delete( $INC{$output_file} );
+        }
+
+        $file->move_to($output_file);
+
+        #Load the plugin dynamically.
+        my $pluginclass = "LANraragi::Plugin::${plugintype}::" . substr( $filename, 0, -3 );
+
+        #Per Module::Pluggable rules, the plugin class matches the filename
+        eval {
+            #@INC is not refreshed mid-execution, so we use the full filepath
+            require $output_file;
+            $pluginclass->plugin_info();
+        };
+
+        if ($@) {
+            $logger->error("Could not instantiate plugin at namespace $pluginclass!");
+            $logger->error($@);
+
+            # Cleanup this shameful attempt
+            unlink($output_file);
+            delete( $INC{$output_file} );
+
             $self->render(
                 json => {
                     operation => "upload_plugin",
                     name      => $file->filename,
                     success   => 0,
-                    error     => $errormess
+                    error     => "Could not load namespace $pluginclass! "
+                      . "Your Plugin might not be compiling properly. <br/>"
+                      . "Here's an error log: <pre>$@</pre>"
                 }
             );
+
             return;
         }
 
-        my $dir = getcwd() . "/lib/LANraragi/Plugin/Sideloaded/";
-        unless ( -e $dir ) {
-            mkdir $dir;
-        }
+        #We can now try to query it for metadata.
+        my %pluginfo = $pluginclass->plugin_info();
 
-        my $output_file     = $dir . $filename;
-        my $install_relpath = "LANraragi/Plugin/Sideloaded/$filename";
-        my $namerds         = "LRR_PLUGIN_" . uc($ns);
-        my $pluginclass     = "LANraragi::Plugin::${plugintype}::" . substr( $filename, 0, -3 );
-
-        # Serialize against managed install/uninstall on the same namespace.
-        return unless exec_with_lock(
-            $self,
-            "plugin-write:" . uc($ns),
-            "upload_plugin",
-            $ns,
-            sub {
-                if ($pkg) {
-                    my $conflict = find_package_conflict( $pkg, $output_file );
-                    if ($conflict) {
-                        $self->render(
-                            json => {
-                                operation => "upload_plugin",
-                                name      => $file->filename,
-                                success   => 0,
-                                error     => "Package '$pkg' conflicts with existing plugin at $conflict."
-                            }
-                        );
-                        return;
-                    }
-                }
-
-                my $nsconflict = find_namespace_conflict( $ns, $output_file );
-                if ($nsconflict) {
-                    $self->render(
-                        json => {
-                            operation => "upload_plugin",
-                            name      => $file->filename,
-                            success   => 0,
-                            error     => "Namespace '$ns' conflicts with existing plugin at $nsconflict."
-                        }
-                    );
-                    return;
-                }
-
-                $logger->info("Uploading new plugin $filename to $output_file ...");
-
-                #Delete module if it already exists
-                if ( -e $output_file ) {
-                    unlink($output_file);
-
-                    # Clear both %INC key forms: absolute (legacy sideload pattern) and
-                    # lib-relative (matches Module::Pluggable and get_plugin's reload path).
-                    delete( $INC{$output_file} );
-                    delete( $INC{$install_relpath} );
-                }
-
-                $file->move_to($output_file);
-
-                # Lib-relative require matches Module::Pluggable's %INC key form, so
-                # get_plugin's coherence reload (which uses installed_path from Redis,
-                # i.e. the lib-relative form) evicts the same key this path populates.
-                eval {
-                    require $install_relpath;
-                    $pluginclass->plugin_info();
-                };
-
-                if ($@) {
-                    $logger->error("Could not instantiate plugin at namespace $pluginclass!");
-                    $logger->error($@);
-
-                    # Cleanup this shameful attempt
-                    unlink($output_file);
-                    delete( $INC{$output_file} );
-                    delete( $INC{$install_relpath} );
-
-                    $self->render(
-                        json => {
-                            operation => "upload_plugin",
-                            name      => $file->filename,
-                            success   => 0,
-                            error     => "Could not load namespace $pluginclass! "
-                              . "Your Plugin might not be compiling properly. <br/>"
-                              . "Here's an error log: <pre>$@</pre>"
-                        }
-                    );
-
-                    return;
-                }
-
-                my %pluginfo = $pluginclass->plugin_info();
-
-                unless ( uc( $pluginfo{namespace} ) eq uc($ns) ) {
-                    unlink($output_file);
-                    delete( $INC{$output_file} );
-                    delete( $INC{$install_relpath} );
-
-                    $self->render(
-                        json => {
-                            operation => "upload_plugin",
-                            name      => $file->filename,
-                            success   => 0,
-                            error     => "Namespace mismatch: file text declares '$ns' but plugin_info() returned '$pluginfo{namespace}'."
-                        }
-                    );
-                    return;
-                }
-
-                # Register installed_path so infer_plugin_source works before next scan_plugins.
-                my $redis = $self->LRR_CONF->get_redis_config;
-                register_plugin( $redis, $ns, $install_relpath, $pluginfo{type} );
-                signal_updated( $ns, $redis );
-                record_load_success( $ns, $redis );
-                $redis->quit();
-
-                $self->render(
-                    json => {
-                        operation => "upload_plugin",
-                        name      => $pluginfo{name},
-                        success   => 1
-                    }
-                );
+        $self->render(
+            json => {
+                operation => "upload_plugin",
+                name      => $pluginfo{name},
+                success   => 1
             }
         );
 
