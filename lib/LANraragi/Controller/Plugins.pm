@@ -11,7 +11,7 @@ use Cwd;
 
 use File::Basename;
 use LANraragi::Utils::Generic qw(generate_themes_header exec_with_lock);
-use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled get_plugin_priority register_plugin);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled register_plugin);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::PluginState qw(record_load_success signal_updated);
 use LANraragi::Utils::Registry qw(find_package_conflict find_namespace_conflict);
@@ -28,49 +28,17 @@ sub index {
     my @scriptplugins   = get_plugins("script");
     my @downloadplugins = get_plugins("download");
 
-    # Enrich all plugins with source and metadata plugins with priority
-    my $redis = $self->LRR_CONF->get_redis_config;
-
-    my $meta_all    = craft_plugin_array(@metaplugins);
-    my $downloaders = craft_plugin_array(@downloadplugins);
-    my $logins      = craft_plugin_array(@loginplugins);
-    my $scripts     = craft_plugin_array(@scriptplugins);
-
-    # Add source and priority to all plugins
-    for my $list ( $meta_all, $downloaders, $logins, $scripts ) {
-        for my $plugin (@$list) {
-            my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
-            $plugin->{source} = LANraragi::Model::Plugins::infer_plugin_source( $namerds, $redis );
-        }
-    }
-
-    # Split metadata into enabled (sorted by priority) and disabled
-    my @meta_enabled;
-    my @meta_disabled;
-    for my $plugin (@$meta_all) {
-        $plugin->{priority} = get_plugin_priority( $plugin->{namespace}, $redis );
-        if ( $plugin->{enabled} ) {
-            push @meta_enabled, $plugin;
-        } else {
-            push @meta_disabled, $plugin;
-        }
-    }
-    @meta_enabled = sort { $a->{priority} <=> $b->{priority} } @meta_enabled;
-
-    $redis->quit();
-
     $self->render(
-        template        => "plugins",
-        title           => $self->LRR_CONF->get_htmltitle,
-        descstr         => $self->LRR_DESC,
-        replacetitles   => $self->LRR_CONF->can_replacetitles,
-        meta_enabled    => \@meta_enabled,
-        meta_disabled   => \@meta_disabled,
-        downloaders     => $downloaders,
-        logins          => $logins,
-        scripts         => $scripts,
-        csshead         => generate_themes_header($self),
-        version         => $self->LRR_VERSION
+        template      => "plugins",
+        title         => $self->LRR_CONF->get_htmltitle,
+        descstr       => $self->LRR_DESC,
+        replacetitles => $self->LRR_CONF->can_replacetitles,
+        metadata      => craft_plugin_array(@metaplugins),
+        downloaders   => craft_plugin_array(@downloadplugins),
+        logins        => craft_plugin_array(@loginplugins),
+        scripts       => craft_plugin_array(@scriptplugins),
+        csshead       => generate_themes_header($self),
+        version       => $self->LRR_VERSION
     );
 
 }

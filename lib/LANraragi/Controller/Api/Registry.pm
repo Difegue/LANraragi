@@ -70,6 +70,7 @@ sub create_registry {
     );
 }
 
+# Get registry by its registry ID.
 sub get_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
@@ -116,23 +117,21 @@ sub update_registry {
         "update_registry",
         $registry_id,
         sub {
-            my $redis = $self->LRR_CONF->get_redis_config;
             my %updated_registry;
             for my $field (qw(name type provider url ref path)) {
                 $updated_registry{$field} = $body->{$field} if exists $body->{$field};
             }
 
             unless ( %updated_registry ) {
-                $redis->quit();
                 render_api_response( $self, "update_registry", "Nothing to update." );
                 return;
             }
 
+            my $redis = $self->LRR_CONF->get_redis_config;
             my ( $status, $indexcleared, $error ) = LANraragi::Model::Registry::update_registry(
                 $registry_id, $redis, %updated_registry
             );
             $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
-
             $redis->quit();
 
             unless ( $status == 200 ) {
@@ -157,6 +156,7 @@ sub update_registry {
     );
 }
 
+# Delete registry by its registry ID.
 sub delete_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
@@ -256,6 +256,7 @@ sub remove_default_registry {
     );
 }
 
+# Refresh registry and return registry.json index.
 sub refresh_registry {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');

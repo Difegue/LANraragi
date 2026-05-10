@@ -7,6 +7,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Update metadata plugin configuration.
 # body may pass `enabled`, `hidden`, `priority` (optional).
+# TODO(REVIEW) might consider moving business logic to model..
 sub update_metadata_plugin_config {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
@@ -27,17 +28,16 @@ sub update_metadata_plugin_config {
             push @fields, "priority", $body->{priority}            if exists $body->{priority};
 
             # Validate plugin state and apply field updates.
-            # Returns: 1 = ok, -1 = not installed, -2 = no type, -3 = not a metadata plugin.
             my $script = <<'LUA';
 if redis.call("HEXISTS", KEYS[1], "installed_path") == 0 then
-    return -1
+    return 404
 end
 local t = redis.call("HGET", KEYS[1], "type")
 if not t then
-    return -2
+    return 500
 end
 if t ~= "metadata" then
-    return -3
+    return 400
 end
 for i = 1, #ARGV, 2 do
     redis.call("HSET", KEYS[1], ARGV[i], ARGV[i + 1])
@@ -45,7 +45,7 @@ end
 return 1
 LUA
 
-            my $result = eval { $redis->eval( $script, 1, $namerds, @fields ) };
+            my $status = eval { $redis->eval( $script, 1, $namerds, @fields ) };
             my $err = $@;
             $redis->quit();
 
@@ -63,19 +63,19 @@ LUA
                 return;
             }
 
-            if ( $result == -1 ) {
+            if ( $status == 404 ) {
                 $self->render(
                     openapi => {
                         operation => "update_metadata_plugin_config",
                         error     => "Plugin '$namespace' is not installed.",
                         success   => 0,
                     },
-                    status => 404
+                    status => $status
                 );
                 return;
             }
 
-            if ( $result == -2 ) {
+            if ( $status == 500 ) {
                 get_logger( "Plugin System", "lanraragi" )
                     ->error("Plugin '$namespace' is registered without a type.");
                 $self->render(
@@ -84,19 +84,19 @@ LUA
                         error     => "Plugin '$namespace' has no recorded type.",
                         success   => 0,
                     },
-                    status => 500
+                    status => $status
                 );
                 return;
             }
 
-            if ( $result == -3 ) {
+            if ( $status == 400 ) {
                 $self->render(
                     openapi => {
                         operation => "update_metadata_plugin_config",
                         error     => "Plugin '$namespace' is not a metadata plugin; enabled/hidden/priority do not apply.",
                         success   => 0,
                     },
-                    status => 400
+                    status => $status
                 );
                 return;
             }
@@ -113,7 +113,7 @@ sub install_plugin {
     my $namespace   = $body->{namespace};
     my $registry_id = $body->{registry};
     my $version     = $body->{version};
-    my $force       = $body->{force} // 0;              # upgrade path
+    my $force       = $body->{force} // 0;
 
     # TODO: maybe consider extending TTL for this sub to 60s if it's not enough.
     return unless exec_with_lock(
@@ -133,6 +133,7 @@ sub install_plugin {
                 my $currentreg = $redis->hget( $namerds, "installed_registry" );
                 my $currentver = $redis->hget( $namerds, "installed_version" );
 
+                # only managed plugins can be upgraded.
                 if ( $source ne "managed" ) {
                     $redis->quit();
                     render_api_response(
@@ -143,8 +144,9 @@ sub install_plugin {
                     return;
                 }
 
-                my $is_installed = $currentreg && $currentreg ne $registry_id;
-                if ( $is_installed && !$force ) {
+                # cross-registry overwrites require force installation.
+                my $is_cross_registry = $currentreg && $currentreg ne $registry_id;
+                if ( $is_cross_registry && !$force ) {
                     $redis->quit();
                     render_api_response(
                         $self,
@@ -196,6 +198,7 @@ sub install_plugin {
     );
 }
 
+# Uninstall a managed plugin.
 sub uninstall_plugin {
     my $self      = shift->openapi->valid_input or return;
     my $namespace = $self->stash('plugin_namespace');
