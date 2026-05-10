@@ -592,7 +592,7 @@ paths:
       operationId: createRegistry
       x-mojo-to: api-registry#create_registry
       summary: 🔑 Create a Registry
-      description: Add a new plugin registry.
+      description: Add a new registry.
       tags:
         - registries
       requestBody:
@@ -819,7 +819,7 @@ paths:
       operationId: getRegistry
       x-mojo-to: api-registry#get_registry
       summary: 🔑 Get a Registry
-      description: Get configuration for a specific registry.
+      description: Get configuration data for a specific registry.
       tags:
         - registries
       parameters:
@@ -1059,7 +1059,7 @@ paths:
                     nullable: true
                     description: Parsed registry.json content
         '400':
-          description: Refresh failed (invalid registry.json, missing version/plugins)
+          description: Refresh failed (invalid registry.json, missing version/plugins, validation failure)
           content:
             application/json:
               schema:
@@ -1127,10 +1127,10 @@ paths:
                 version:
                   type: string
                   minLength: 1
-                  description: Explicit version key to install. If omitted, LRR installs the SemVer-max version from the registry index.
+                  description: Explicit version key to install. If omitted, LRR installs the max version from the registry index.
                 force:
                   type: boolean
-                  description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten — remove them first.
+                  description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten.
       responses:
         '200':
           description: Plugin installed
