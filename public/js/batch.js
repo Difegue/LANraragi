@@ -22,31 +22,28 @@ Batch.initializeAll = function () {
     $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.apiURL("/config")));
     $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.apiURL("/config/plugins")));
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.batch-reset-selection", "#batch-reset-selection", Batch.loadAllArchives);
 
     Batch.selectOperation();
     Batch.showOverride();
 
-    // Load all archives, showing a spinner while doing so
-    $("#arclist").hide();
 
-    // TODO Do a partial load if we have msmSelection to avoid using this huge blocking call. 
-    // This would either require a chain of /api/archive/{id} calls or for msmSelection to carry the full archive objects. 
-    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
-        (data) => {
-            // Parse the archive list and add <li> elements to arclist
-            data.forEach((archive) => {
-                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
-                const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
-                $("#arclist").append(html);
-            });
+    // If a selected subset of archives is present, load only those archives.
+    // Otherwise load the full archive list.
+    const msmSelection = localStorage.getItem("msmSelection");
+    if (msmSelection) {
+        try {
+            const ids = JSON.parse(msmSelection);
+            if (Array.isArray(ids) && ids.length > 0) {
+                Batch.loadSelectionOnly(ids);
+                return;
+            }
+        } catch (e) {
+            console.warn("Failed to parse msmSelection:", e);
+        }
+    }
 
-            Batch.preCheckArchives();
-        },
-    )
-        .finally(() => {
-            $("#arclist").show();
-            $("#loading-placeholder").hide();
-        });
+    Batch.loadAllArchives();
 };
 
 /**
@@ -75,26 +72,67 @@ Batch.showOverride = function () {
 };
 
 /**
- * Check untagged or selected archives, using the matching API endpoint.
+ * Load only the archives from the MSM selection, fetching each archive's metadata individually.
+ * Shows the MSM selection banner and pre-checks all loaded archives.
+ * @param {string[]} ids Array of archive IDs from msmSelection
  */
-Batch.preCheckArchives = function () {
+Batch.loadSelectionOnly = function (ids) {
 
-    // Pre-check archives passed from Multi-Select Mode on the index page
-    const msmSelection = localStorage.getItem("msmSelection");
-    if (msmSelection) {
-        try {
-            preCheckInternal(JSON.parse(msmSelection));
-        } catch (e) {
-            console.warn("Failed to parse msmSelection:", e);
-        }
-    }
-    else Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
-        (data) => {
-            // Check untagged archives
-            preCheckInternal(data);
-        },
+    const fetches = ids.map((id) =>
+        Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, null, (data) => data)
+            .catch(() => null),
     );
+
+    Promise.all(fetches).then((results) => {
+        results.forEach((archive) => {
+            if (!archive) return;
+            const arcId = archive.arcid || archive.id;
+            const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+            const html = `<li><input type='checkbox' name='archive' id='${arcId}' class='archive' checked><label for='${arcId}'>${escapedTitle}</label></li>`;
+            $("#arclist").append(html);
+        });
+
+        // Show the MSM selection banner
+        $("#msm-banner-count").text(I18N.BatchSelectionBanner(ids.length));
+        $("#msm-banner").show();
+    }).finally(() => {
+        $("#arclist").show();
+        $("#loading-placeholder").hide();
+    });
 };
+
+/**
+ * Load the full archive list from the API.
+ * Hides the selection banner (if present) and prechecks untagged archives.
+ */
+Batch.loadAllArchives = function () {
+    $("#arclist").html("");
+    $("#msm-banner").html("");
+    $("#arclist").hide();
+    $("#loading-placeholder").show();
+
+    // Clear selection if present
+    localStorage.removeItem("msmSelection");
+
+    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
+        (data) => {
+            data.forEach((archive) => {
+                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+                const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
+                $("#arclist").append(html);
+            });
+
+            Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
+                (data) => { preCheckInternal(data); },
+    );
+        },
+    ).finally(() => {
+        $("#arclist").show();
+        $("#check-uncheck").show();
+        $("#loading-placeholder").hide();
+    });
+};
+
 
 preCheckInternal = function (ids) {
     ids.forEach((id) => {

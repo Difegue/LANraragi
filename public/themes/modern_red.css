@@ -212,6 +212,14 @@ table.itc {
   color: #BE234B !important;
 }
 
+.searchbtn.toggled {
+  background-color: #BE234B !important;
+}
+
+.searchbtn.toggled:hover {
+  color: #E9A53A !important;
+}
+
 /* options flyout menus */
 .option-flyout {
   background: #D7D4C5;
@@ -263,6 +271,11 @@ tr.gtr1 {
 
 .stdbtn:hover {
   background-color: #BE234B;
+}
+
+#search-input {
+  height: 26px;
+  width: 100vw;
 }
 
 .stdinput {
@@ -377,22 +390,13 @@ td.itdc {
   color: #ed2553;
 }
 
-#reload-carousel {
+.carousel-icon {
   color: #414135;
 }
 
-#reload-carousel:hover {
+.carousel-icon:hover {
   color: #ed2553;
 }
-
-#carousel-mode-menu {
-  color: #414135;
-}
-
-#carousel-mode-menu:hover {
-  color: #ed2553;
-}
-
 
 div.sni {
   background-color: #D83B66;
@@ -481,7 +485,7 @@ div.idi {
   border-collapse: collapse;
   border-radius: 9px;
   margin: 0 auto 25px;
-  padding: 15px;
+  padding: 8px;
   text-align: center;
 }
 
@@ -710,4 +714,14 @@ div.id4 a:hover {
 
 .archive-summary {
   border-top: 2px dotted;
+}
+
+/** Archive selection highlight **/
+#thumbs_container .id1.msm-selected {
+  outline: 3px solid #E9A53A;
+  outline-offset: -3px;
+}
+
+.datatables tbody tr.msm-selected td {
+  background-color: rgba(216, 59, 102, 0.2) !important;
 }

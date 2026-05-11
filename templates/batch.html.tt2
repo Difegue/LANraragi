@@ -173,11 +173,19 @@
 					</table>
 				</div>
 
-				<div class="tag-options" style="text-align:center">
+				<!-- Shown when arriving with a premade selection of IDs -->
+				<div id="msm-banner" style="display:none; text-align:center;">
+					<br />
+					<b id="msm-banner-count"></b>
 					<br /><br />
+					<input type='button' id="batch-reset-selection" value='[% c.lh("Discard Selection") %]' class='stdbtn' />
 					<input type='button' id="check-uncheck" value='[% c.lh("Check/Uncheck all") %]' class='stdbtn' checked='false'>
-					<input type='button' id="start-batch" value='[% c.lh("Start Task") %]' class='stdbtn'>
+				</div>
 
+				<div class="tag-options" style="text-align:center">
+					<br />
+					<input type='button' style="display:none" id="check-uncheck" value='[% c.lh("Check/Uncheck all") %]' class='stdbtn' checked='false'>
+					<input type='button' id="start-batch" value='[% c.lh("Start Task") %]' class='stdbtn'>
 				</div>
 
 				<div class="job-status" style="display:none; text-align:center">
@@ -198,7 +206,7 @@
 
 			<div class="id1 right-column"
 				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
-				<ul class='checklist' id="arclist">
+				<ul class='checklist' id="arclist" style="display:none">
 				</ul>
 
 				<div id="loading-placeholder"

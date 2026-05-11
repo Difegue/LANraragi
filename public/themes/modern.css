@@ -276,7 +276,8 @@ tr.gtr1 {
 }
 
 #search-input {
-  height: 24px;
+  height: 26px;
+  width: 50vw;
 }
 
 .stdinput {
@@ -455,9 +456,8 @@ div.idi {
   border-collapse: collapse;
   border-radius: 9px;
   margin: 0 auto 25px;
-  padding: 15px;
+  padding: 8px;
   text-align: center;
-  /*width: 598px;*/
 }
 
 div#toppane {
@@ -626,4 +626,14 @@ div.id4 {
 .swal2-popup {
   background: #43464e;
   color: #dddddd;
+}
+
+/** Archive selection highlight **/
+#thumbs_container .id1.msm-selected {
+  outline: 3px solid #3b97ea;
+  outline-offset: -3px;
+}
+
+.datatables tbody tr.msm-selected td {
+  background-color: rgba(59, 151, 234, 0.2) !important;
 }

@@ -31,15 +31,19 @@ my %expected_backup =
           {"arcid":"28697b96f0ac5858be2614ed10ca47742c9522fd","filename":null,"tags":"parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too","thumbhash":null,"title":"Fate GO MEMO", "summary":"", "stamps":null},
           {"arcid":"2810d5e0a8d027ecefebca6237031a0fa7b91eb3","filename":null,"tags":"parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color","thumbhash":null,"title":"Fate GO MEMO 2", "summary":"", "stamps":null},
           {"arcid":"28697b96f0ac5777be2614ed10ca47742c9522fa","filename":null,"tags":"year of shadow, character:vector the crocodile","thumbhash":null,"title":"Find the Computer Room", "summary":"", "stamps":null},
-          {"arcid":"28697b96f0ac5858be2666ed10ca47742c955555","filename":null,"tags":"medjed, character:doubles guy, character:king of GETs, check this 5","thumbhash":null,"title":"All about Egypt", "summary":"CURSE OF RA", "stamps":null}
+          {"arcid":"28697b96f0ac5858be2666ed10ca47742c955555","filename":null,"tags":"medjed, character:doubles guy, character:king of GETs, check this 5","thumbhash":null,"title":"All about Egypt", "summary":"CURSE OF RA", "stamps":null},
+          {"arcid":"d0be2dc421be4fcd0172e5afceea3970e2f3d940","filename":null,"tags":"fruit:apple","thumbhash":null,"title":"Apple Archive", "summary":"", "stamps":null},
+          {"arcid":"250e77f12a5ab6972a0895d290c4792f0a326ea8","filename":null,"tags":"fruit:banana","thumbhash":null,"title":"Banana Archive", "summary":"", "stamps":null},
+          {"arcid":"7e41c6480852a4a914e48c7a3a4084f193e963d9","filename":null,"tags":"fruit:cherry","thumbhash":null,"title":"Cherry Archive", "summary":"", "stamps":null},
+          {"arcid":"af8978b1797b72acfff9595a5a2a373ec3d9106d","filename":null,"tags":"fruit:dragon","thumbhash":null,"title":"Dragon Fruit Archive", "summary":"", "stamps":null}
         ],
         "categories":[
           {"archives":["e69e43e1355267f7d32a4f9b7f2fe108d2401ebf","e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"],"catid":"SET_1589141306","name":"Segata Sanshiro","search":""},
           {"archives":[],"catid":"SET_1589138380","name":"AMERICA ONRY","search":"American"}
         ],
         "tankoubons":[
-          {"archives":["28697b96f0ac5858be2666ed10ca47742c955555", "28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589141306","name":"Hello"},
-          {"archives":["28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589138380","name":"World"}
+          {"archives":["28697b96f0ac5858be2666ed10ca47742c955555", "28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589141306","name":"Hello","summary":"A test tankoubon","tags":"series:hello world"},
+          {"archives":["28697b96f0ac5777be2614ed10ca47742c9522fa"],"tankid":"TANK_1589138380","name":"World","summary":"","tags":""}
         ],
         "stamps":[
           {"archive_id":"be447b58ea66137c415ee306ee2ac44b308ee484","content":"Lorem","position":"0,0","stamp_id":"STAMPS_0_1777224824660"},

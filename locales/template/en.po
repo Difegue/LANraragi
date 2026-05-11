@@ -120,6 +120,12 @@ msgstr "Plugin Configuration"
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Discard Selection"
+msgstr "Discard Selection"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Displaying ${n} Archives from previous selection."
+
 # ------End of Batch.html.tt2------
 
 # ------Start of Category.html.tt2------
@@ -186,6 +192,18 @@ msgstr "New Static Category"
 
 msgid "New Dynamic Category"
 msgstr "New Dynamic Category"
+
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "No Tankoubons in your library yet."
+msgstr "No Tankoubons in your library yet."
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "No Archives in your library yet."
+msgstr "No Archives in your library yet."
 
 # ------End of Category.html.tt2------
 
@@ -802,6 +820,9 @@ msgstr "Select Archives"
 msgid "Run Batch Operations on selection"
 msgstr "Run Batch Operations on selection"
 
+msgid "Merge Archives into Tankoubon"
+msgstr "Merge Archives into Tankoubon"
+
 msgid "Clear selection"
 msgstr "Clear selection"
 
@@ -1402,6 +1423,15 @@ msgstr "Writing a Predicate"
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 
@@ -1765,6 +1795,33 @@ msgstr "Click Archives to add them to the selection. Your selection carries over
 
 msgid "Exit selection mode? Your current selection will be lost. "
 msgstr "Exit selection mode? Your current selection will be lost. "
+
+msgid "Add to selection"
+msgstr "Add to selection"
+
+msgid "Remove from selection"
+msgstr "Remove from selection"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "Enter a name for the new Tankoubon."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "This will contain all the selected Archives as a single item in your Library."
+
+msgid "Please enter a name."
+msgstr "Please enter a name."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "Added \${n} Archives to \${tank}!"
+
+msgid "Error creating Tankoubon"
+msgstr "Error creating Tankoubon"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "Error adding archives to Tankoubon"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "Merge selection into a Tankoubon"
 
 msgid "Hide completed Archives"
 msgstr "Hide completed Archives"

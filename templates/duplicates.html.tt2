@@ -126,7 +126,7 @@
                             <td class="date-added">[% archive.date_added %]</td>
 
                             <td>
-                                <span class="tag-tooltip" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv('[% archive.tags %]'); IndexTable.buildTagTooltip(this)" 
+                                <span class="tag-tooltip" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv('[% archive.tags %]'); LRR.buildTagTooltip(this)" 
                                       style="text-overflow:ellipsis;">
                                     <i class="fa-solid fa-tag"></i>
                                     [% archive.tags.split(",").size %]

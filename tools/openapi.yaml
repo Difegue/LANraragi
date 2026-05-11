@@ -2099,7 +2099,7 @@ paths:
             the archive IDs they contain.
           schema:
             type: boolean
-            default: false
+            default: true
       responses:
         '200':
           description: Search results
@@ -2201,6 +2201,7 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
+          default: true
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -3205,7 +3206,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Archive ID to add.
+          description: Category ID to add to.
           required: true
           schema:
             type: string
@@ -3216,7 +3217,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':
@@ -3254,7 +3255,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':

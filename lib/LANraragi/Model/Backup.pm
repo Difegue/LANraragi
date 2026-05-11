@@ -77,11 +77,15 @@ sub build_backup_JSON {
 
         my $tank_id       = %$tank{id};
         my $tank_title    = %$tank{name};
+        my $tank_summary  = %$tank{summary} // "";
+        my $tank_tags     = %$tank{tags}    // "";
         my @tank_archives = @{ %$tank{archives} };
 
         my %tank = (
             tankid   => $tank_id,
             name     => $tank_title,
+            summary  => $tank_summary,
+            tags     => $tank_tags,
             archives => \@tank_archives
         );
 
@@ -247,9 +251,19 @@ sub restore_from_JSON {
         $logger->info("Restoring Tankoubon $tank_id...");
 
         my $name     = redis_encode( $tank->{"name"} );
+        my $summary  = $tank->{"summary"} // "";
+        my $tags     = $tank->{"tags"}    // "";
         my @archives = @{ $tank->{"archives"} };
 
         LANraragi::Model::Tankoubon::create_tankoubon( $name, $tank_id );
+
+        # Restore summary and tags if present
+        if ( $summary ne "" ) {
+            LANraragi::Model::Tankoubon::update_metadata( $tank_id, undef, $summary, undef );
+        }
+        if ( $tags ne "" ) {
+            LANraragi::Model::Tankoubon::set_tank_tags( $tank_id, $tags );
+        }
 
         # Backups use the same data structure as tank updates, so we can just pass the data object as-is.
         LANraragi::Model::Tankoubon::update_archive_list( $tank_id, $tank );
