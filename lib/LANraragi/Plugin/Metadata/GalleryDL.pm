@@ -129,8 +129,9 @@ sub get_tags {
 sub tags_from_gdl_json {
 
     my ( $hash ) = @_;
-    my $return = "";
     my $logger = get_plugin_logger();
+    my @parsed_tags;
+    my %seen_tags;
 
     #Tags are in tags -> one array per namespace
     my $tags = $hash->{"tags"};
@@ -146,16 +147,16 @@ sub tags_from_gdl_json {
             # Get the array for this namespace and iterate on it
             my $members = $tags->{$namespace};
             foreach my $tag (@$members) {
-                $return .= ", " unless $return eq "";
-                $return .= $namespace . ":" . $tag;
+                push_tag( \@parsed_tags, \%seen_tags, $namespace, $tag );
             }
         }
     }
     elsif ( $tagstype eq ref []) {
         #An array of key:value strings is our 'native' format, so we can go straight to chopping it up for processing
         $logger->info("Parsing array-style tags");
-        my @taglist = @$tags;
-        $return .= join( ', ', @taglist );
+        foreach my $tag (@$tags) {
+            push_tag( \@parsed_tags, \%seen_tags, undef, $tag );
+        }
     }
     else {
         my $message = "Tags are in an unexpected structure, can't be parsed";
@@ -163,18 +164,76 @@ sub tags_from_gdl_json {
         die "${message}\n";
     }
 
+    push_mapped_fields( \@parsed_tags, \%seen_tags, $hash );
+
     # Add source and category tag if possible
     my $source    = $hash->{"source"};
     my $category  = $hash->{"category"};
 
     if ($category) {
-        $return .= ", category:$category";
+        push_tag( \@parsed_tags, \%seen_tags, "category", $category );
     }
 
     if ( $source ) {
-        $return .= ", source:$source";
+        push_tag( \@parsed_tags, \%seen_tags, "source", $source );
     }
 
-    return ( $return, $title );
+    return ( join( ', ', @parsed_tags ), $title );
+}
+
+sub push_mapped_fields {
+
+    my ( $parsed_tags, $seen_tags, $hash ) = @_;
+
+    my @field_map = (
+        [ "artist",     "artist" ],
+        [ "group",      "group" ],
+        [ "parody",     "parody" ],
+        [ "character",  "character" ],
+        [ "characters", "character" ],
+        [ "language",   "language" ],
+        [ "type",       "type" ]
+    );
+
+    foreach my $mapping (@field_map) {
+        my ( $field, $namespace ) = @{$mapping};
+        if ( $field eq "language" ) {
+            if ( exists $hash->{"language"} ) {
+                push_tag( $parsed_tags, $seen_tags, "language", $hash->{"language"} );
+            } elsif ( exists $hash->{"lang"} ) {
+                push_tag( $parsed_tags, $seen_tags, "language", $hash->{"lang"} );
+            }
+        } else {
+            next unless exists $hash->{$field};
+            push_tag( $parsed_tags, $seen_tags, $namespace, $hash->{$field} );
+        }
+    }
+}
+
+sub push_tag {
+
+    my ( $parsed_tags, $seen_tags, $namespace, $value ) = @_;
+
+    return unless defined $value;
+
+    if ( ref $value eq ref [] ) {
+        foreach my $member ( @{$value} ) {
+            push_tag( $parsed_tags, $seen_tags, $namespace, $member );
+        }
+        return;
+    }
+
+    return if ref $value;
+
+    my $tag = trim($value);
+    return if $tag eq "";
+
+    $tag = $namespace ? "${namespace}:$tag" : $tag;
+
+    my $dedupe_key = lc $tag;
+    return if $seen_tags->{$dedupe_key};
+
+    push @{$parsed_tags}, $tag;
+    $seen_tags->{$dedupe_key} = 1;
 }
 1;
