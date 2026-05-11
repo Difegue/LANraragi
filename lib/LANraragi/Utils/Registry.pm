@@ -8,6 +8,7 @@ use Cwd qw(abs_path getcwd);
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
+use Mojo::UserAgent;
 use SemVer;
 
 use LANraragi::Utils::Path    qw(find_path);
@@ -16,6 +17,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK = qw(
     resolve_git_raw_url
+    resolve_cdn_artifact_url
+    fetch_registry_resource
     find_package_conflict
     find_namespace_conflict
     validate_registry_index
@@ -78,6 +81,87 @@ sub resolve_git_raw_url {
 
     $logger->error("Unknown provider '$provider' for URL: $url");
     return;
+}
+
+# Resolve a CDN registry base URL plus a registry-relative path into a fetchable URL.
+# Accepts http:// or https://. Trailing slashes on the base are tolerated.
+sub resolve_cdn_artifact_url {
+    my ( $base_url, $path ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+
+    unless ( defined $base_url && $base_url =~ m{^https?://}i ) {
+        $logger->error( "CDN base URL must use http or https scheme: " . ( $base_url // "" ) );
+        return;
+    }
+
+    ( my $base = $base_url ) =~ s{/+\z}{};
+    my $epath = join( "/", map { url_escape($_) } grep { length $_ } split( m{/}, $path ) );
+    return "$base/$epath";
+}
+
+# Transport adapter: fetch a registry-relative resource from any registry type.
+# Returns ( $status, $body, $error ) — $status 200 on success.
+# Callers (refresh_registry, install_plugin) supply the relpath and an optional
+# byte cap; the per-type transport details are confined here.
+sub fetch_registry_resource {
+    my ( $registry_config, $relpath, $max_size ) = @_;
+
+    my $logger = get_logger( "Registry", "lanraragi" );
+    my $type   = $registry_config->{type};
+
+    if ( $type eq "local" ) {
+        my ( undef, $file_canon, $resolve_error ) =
+            resolve_local_registry_artifact_path( $registry_config->{path}, $relpath );
+        if ($resolve_error) {
+            $logger->warn("Local registry resolution failed for '$relpath': $resolve_error");
+            return ( 400, undef, $resolve_error );
+        }
+        unless ( -f $file_canon ) {
+            return ( 400, undef, "Resource is not a regular file: $file_canon" );
+        }
+        my $filesize = -s $file_canon;
+        if ( $filesize == 0 ) {
+            return ( 400, undef, "Resource is empty: $file_canon" );
+        }
+        if ( defined $max_size && $filesize > $max_size ) {
+            return ( 400, undef, "Resource too large: $file_canon ($filesize bytes, max $max_size)" );
+        }
+        my $content = eval { Mojo::File->new($file_canon)->slurp };
+        unless ( defined $content ) {
+            return ( 500, undef, "Cannot read resource: $@" );
+        }
+        return ( 200, $content, undef );
+    }
+
+    if ( $type eq "git" || $type eq "cdn" ) {
+        my $url;
+        if ( $type eq "git" ) {
+            $url = resolve_git_raw_url(
+                $registry_config->{provider}, $registry_config->{url},
+                $registry_config->{ref},      $relpath
+            );
+        } else {
+            $url = resolve_cdn_artifact_url( $registry_config->{url}, $relpath );
+        }
+        unless ($url) {
+            return ( 400, undef, "Cannot resolve $type URL for $relpath" );
+        }
+
+        $logger->info("Fetching registry resource from $url");
+        my $ua = Mojo::UserAgent->new;
+        $ua->max_response_size($max_size) if defined $max_size;
+        my $res = eval { $ua->get($url)->result };
+        unless ( defined $res ) {
+            return ( 502, undef, "Cannot reach registry: $@" );
+        }
+        unless ( $res->is_success ) {
+            return ( 502, undef, "Failed to fetch resource: HTTP " . $res->code );
+        }
+        return ( 200, $res->body, undef );
+    }
+
+    return ( 400, undef, "Unknown registry type: $type" );
 }
 
 # Scan Plugin/ for a .pm file declaring the given package name

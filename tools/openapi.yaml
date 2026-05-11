@@ -613,6 +613,7 @@ paths:
                   type: string
                   enum:
                     - git
+                    - cdn
                     - local
                   description: Registry source type.
                 provider:
@@ -625,8 +626,10 @@ paths:
                 url:
                   type: string
                   format: uri
-                  pattern: "^https://"
-                  description: Git repository HTTPS URL. Required when type is 'git'.
+                  description: |
+                    Registry URL. For 'git', must be an HTTPS git repository URL.
+                    For 'cdn', must be an http:// or https:// base URL of a folder
+                    serving registry.json and artifacts.
                 ref:
                   type: string
                   description: Git ref (branch, tag, or commit). Defaults to 'main'.
@@ -634,17 +637,41 @@ paths:
                   type: string
                   minLength: 1
                   description: Local filesystem path. Required when type is 'local'.
-              if:
-                properties:
-                  type:
-                    const: git
-              then:
-                required:
-                  - url
-                  - provider
-              else:
-                required:
-                  - path
+              allOf:
+                - if:
+                    required:
+                      - type
+                    properties:
+                      type:
+                        const: git
+                  then:
+                    required:
+                      - url
+                      - provider
+                    properties:
+                      url:
+                        pattern: "^https://"
+                - if:
+                    required:
+                      - type
+                    properties:
+                      type:
+                        const: cdn
+                  then:
+                    required:
+                      - url
+                    properties:
+                      url:
+                        pattern: "^https?://"
+                - if:
+                    required:
+                      - type
+                    properties:
+                      type:
+                        const: local
+                  then:
+                    required:
+                      - path
       responses:
         '200':
           description: Registry created
@@ -893,6 +920,7 @@ paths:
                   type: string
                   enum:
                     - git
+                    - cdn
                     - local
                 provider:
                   type: string
@@ -903,11 +931,32 @@ paths:
                 url:
                   type: string
                   format: uri
-                  pattern: "^https://"
+                  pattern: "^https?://"
                 ref:
                   type: string
                 path:
                   type: string
+              allOf:
+                - if:
+                    required:
+                      - type
+                    properties:
+                      type:
+                        const: git
+                  then:
+                    properties:
+                      url:
+                        pattern: "^https://"
+                - if:
+                    required:
+                      - type
+                    properties:
+                      type:
+                        const: cdn
+                  then:
+                    properties:
+                      url:
+                        pattern: "^https?://"
       responses:
         '200':
           description: Registry updated
@@ -1059,19 +1108,13 @@ paths:
                     nullable: true
                     description: Parsed registry.json content
         '400':
-          description: Refresh failed (invalid registry.json, missing version/plugins, validation failure)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '403':
-          description: Cannot read registry file
+          description: Refresh failed (invalid registry.json, missing file, validation failure)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
         '404':
-          description: Registry not found or registry file not found
+          description: Registry not found
           content:
             application/json:
               schema:
@@ -1083,7 +1126,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
         '500':
-          description: Redis error during refresh
+          description: Redis error or read-failure during refresh
           content:
             application/json:
               schema:
@@ -4995,6 +5038,7 @@ components:
           type: string
           enum:
             - git
+            - cdn
             - local
           description: Registry source type.
         created:
@@ -5013,14 +5057,27 @@ components:
         url:
           type: string
           format: uri
-          pattern: "^https://"
-          description: Git repository URL. Required when type is 'git'.
+          pattern: "^https?://"
+          description: |
+            Registry URL. HTTPS git repository URL for 'git', or http://-or-https://
+            CDN base URL for 'cdn'.
         ref:
           type: string
           description: Git ref (branch, tag, or commit). Defaults to 'main'.
         path:
           type: string
           description: Local filesystem path to the registry. Required when type is 'local'.
+      allOf:
+        - if:
+            required:
+              - type
+            properties:
+              type:
+                const: git
+          then:
+            properties:
+              url:
+                pattern: "^https://"
     StampsData:
       type: object
       description: JSON object for the Stamp model

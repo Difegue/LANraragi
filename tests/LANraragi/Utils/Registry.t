@@ -5,6 +5,7 @@ use utf8;
 use Cwd qw(abs_path getcwd);
 use File::Path qw(make_path);
 use File::Temp qw(tempdir);
+use Mojo::File;
 use Test::More;
 
 my $cwd = getcwd();
@@ -141,6 +142,143 @@ note('testing resolve_git_raw_url with invalid input...');
 {
     my $result = LANraragi::Utils::Registry::resolve_git_raw_url( "unknown", "https://example.com/owner/repo.git", "main", "registry.json" );
     is( $result, undef, "unknown provider returns undef" );
+}
+
+note('testing resolve_cdn_artifact_url accepts https and http schemes...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "https://cdn.example.com/registry", "registry.json"
+    );
+    is( $result, "https://cdn.example.com/registry/registry.json", "https base joins relpath" );
+}
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "http://cdn.example.com/registry", "registry.json"
+    );
+    is( $result, "http://cdn.example.com/registry/registry.json", "http base accepted for CDN" );
+}
+
+note('testing resolve_cdn_artifact_url tolerates trailing slashes...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "https://cdn.example.com/registry/", "registry.json"
+    );
+    is( $result, "https://cdn.example.com/registry/registry.json", "single trailing slash stripped" );
+}
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "https://cdn.example.com/registry///", "registry.json"
+    );
+    is( $result, "https://cdn.example.com/registry/registry.json", "multiple trailing slashes stripped" );
+}
+
+note('testing resolve_cdn_artifact_url url-escapes path segments...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "https://cdn.example.com/r", "artifacts/Foo Bar/1.0.0/Plug In.pm"
+    );
+    is( $result, "https://cdn.example.com/r/artifacts/Foo%20Bar/1.0.0/Plug%20In.pm", "spaces in path are percent-encoded per segment" );
+}
+
+note('testing resolve_cdn_artifact_url filters empty path segments...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url(
+        "https://cdn.example.com/r", "/registry.json"
+    );
+    is( $result, "https://cdn.example.com/r/registry.json", "leading slash on path does not produce double slash" );
+}
+
+note('testing resolve_cdn_artifact_url rejects invalid scheme...');
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url( "ftp://cdn.example.com/r", "registry.json" );
+    is( $result, undef, "ftp scheme rejected" );
+}
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url( "file:///etc", "registry.json" );
+    is( $result, undef, "file scheme rejected" );
+}
+
+{
+    my $result = LANraragi::Utils::Registry::resolve_cdn_artifact_url( undef, "registry.json" );
+    is( $result, undef, "undef base url rejected" );
+}
+
+note('testing fetch_registry_resource (local) reads existing file...');
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    Mojo::File->new("$tmp/registry.json")->spew('{"version":1}');
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "local", path => $tmp }, "registry.json", 1024
+    );
+    is( $status, 200, "local fetch succeeds" );
+    is( $body,   '{"version":1}', "local fetch returns file content" );
+    is( $err,    undef, "no error on success" );
+}
+
+note('testing fetch_registry_resource (local) returns 400 for missing file...');
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "local", path => $tmp }, "registry.json", 1024
+    );
+    is( $status, 400, "missing file returns 400 (consistent with install path)" );
+    is( $body,   undef, "no body on missing file" );
+    like( $err, qr/not found/i, "error mentions not found" );
+}
+
+note('testing fetch_registry_resource (local) rejects oversized file...');
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    Mojo::File->new("$tmp/registry.json")->spew( "x" x 100 );
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "local", path => $tmp }, "registry.json", 10
+    );
+    is( $status, 400, "oversized file returns 400" );
+    is( $body,   undef, "no body on oversized" );
+    like( $err, qr/too large/i, "error mentions too large" );
+}
+
+note('testing fetch_registry_resource (local) rejects empty file...');
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    Mojo::File->new("$tmp/registry.json")->spew("");
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "local", path => $tmp }, "registry.json", 1024
+    );
+    is( $status, 400, "empty file returns 400" );
+    like( $err, qr/empty/i, "error mentions empty" );
+}
+
+note('testing fetch_registry_resource returns 400 for unknown type...');
+
+{
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "unknown" }, "registry.json", 1024
+    );
+    is( $status, 400, "unknown type returns 400" );
+    like( $err, qr/unknown registry type/i, "error mentions unknown type" );
+}
+
+note('testing fetch_registry_resource (cdn) returns 400 on invalid scheme...');
+
+{
+    my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
+        { type => "cdn", url => "ftp://cdn.example.com/r" }, "registry.json", 1024
+    );
+    is( $status, 400, "cdn with non-http(s) scheme returns 400" );
+    like( $err, qr/cannot resolve cdn url/i, "error mentions cdn URL resolution failure" );
 }
 
 note('testing is_valid_registry_timestamp accepts spec format...');
