@@ -197,12 +197,16 @@ sub push_mapped_fields {
 
     foreach my $mapping (@field_map) {
         my ( $field, $namespace ) = @{$mapping};
-        next unless exists $hash->{$field};
-        push_tag( $parsed_tags, $seen_tags, $namespace, $hash->{$field} );
-    }
-
-    if ( !exists $hash->{"language"} && exists $hash->{"lang"} ) {
-        push_tag( $parsed_tags, $seen_tags, "language", $hash->{"lang"} );
+        if ( $field eq "language" ) {
+            if ( exists $hash->{"language"} ) {
+                push_tag( $parsed_tags, $seen_tags, "language", $hash->{"language"} );
+            } elsif ( exists $hash->{"lang"} ) {
+                push_tag( $parsed_tags, $seen_tags, "language", $hash->{"lang"} );
+            }
+        } else {
+            next unless exists $hash->{$field};
+            push_tag( $parsed_tags, $seen_tags, $namespace, $hash->{$field} );
+        }
     }
 }
 
