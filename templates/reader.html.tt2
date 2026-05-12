@@ -168,8 +168,6 @@
         [% INCLUDE config %]
     </div>
 
-    <canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
-
     <div id="reader-help" style="display: none;">
         <div class="navigation-help-toast">
             [% c.lh("You can navigate between pages using:") %]
