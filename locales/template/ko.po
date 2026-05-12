@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-05-10 22:41+0000\n"
+"PO-Revision-Date: 2026-05-12 10:11+0000\n"
 "Last-Translator: on9686 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -1942,3 +1942,36 @@ msgstr "선택 항목에서 제거"
 
 msgid "Hide completed Archives"
 msgstr "완결된 아카이브 숨기기"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "단행본에 아카이브 병합"
+
+msgid "New archive"
+msgstr "새 아카이브"
+
+msgid "Archive read"
+msgstr "아카이브 읽기"
+
+msgid "Tankoubon (collection)"
+msgstr "단행본(컬렉션)"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "새 단행본의 이름을 입력하십시오."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "선택한 모든 아카이브가 라이브러의 단일 항목에 포함됩니다."
+
+msgid "Please enter a name."
+msgstr "이름을 입력하십시오."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "${n} 아카이브를 ${tank}에 추가했습니다!"
+
+msgid "Error creating Tankoubon"
+msgstr "단행본 생성 오류"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "단행본에 아카이브 추가 중 오류"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "선택한 항목을 단행본에 병합"
