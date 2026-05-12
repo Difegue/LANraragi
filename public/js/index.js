@@ -999,6 +999,7 @@ Index.handleContextMenu = function (option, id) {
             break;
         case "edit-tank":
             LRR.openInNewTab(new LRR.apiURL(`/tankoubon?arcid=${id}`));
+            break;
         case "delete":
             LRR.showPopUp({
                 text: I18N.ConfirmArchiveDeletion,
