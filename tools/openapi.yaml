@@ -851,10 +851,6 @@ paths:
                   error:
                     type: string
                     nullable: true
-                  id:
-                    type: string
-                    minLength: 14
-                    maxLength: 14
                   registry:
                     $ref: '#/components/schemas/RegistryMetadata'
         '404':

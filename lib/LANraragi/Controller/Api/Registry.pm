@@ -96,7 +96,6 @@ sub get_registry {
             operation => "get_registry",
             success   => 1,
             error     => "",
-            id        => $registry_id,
             registry  => \%registry,
         }
     );
