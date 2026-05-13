@@ -629,6 +629,7 @@ paths:
                   description: Git repository HTTPS URL. Required when type is 'git'.
                 ref:
                   type: string
+                  minLength: 1
                   description: Git ref (branch, tag, or commit). Defaults to 'main'.
                 path:
                   type: string
@@ -906,8 +907,10 @@ paths:
                   pattern: "^https://"
                 ref:
                   type: string
+                  minLength: 1
                 path:
                   type: string
+                  minLength: 1
       responses:
         '200':
           description: Registry updated
@@ -5017,9 +5020,11 @@ components:
           description: Git repository URL. Required when type is 'git'.
         ref:
           type: string
+          minLength: 1
           description: Git ref (branch, tag, or commit). Defaults to 'main'.
         path:
           type: string
+          minLength: 1
           description: Local filesystem path to the registry. Required when type is 'local'.
     StampsData:
       type: object
