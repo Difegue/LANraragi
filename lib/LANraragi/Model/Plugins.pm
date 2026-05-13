@@ -27,7 +27,7 @@ use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
 use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin);
 use LANraragi::Utils::PluginState qw(record_load_success signal_uninstalled signal_updated);
 use LANraragi::Utils::Redis    qw(redis_decode);
-use LANraragi::Utils::Path     qw(create_path unlink_path rename_path package_to_path);
+use LANraragi::Utils::Path     qw(create_path package_to_path);
 use LANraragi::Utils::Registry qw(
     resolve_git_raw_url
     find_package_conflict
@@ -472,15 +472,15 @@ sub install_plugin {
     my $backup_path;
     if ( -e $installpath ) {
         $backup_path = "$installpath.lrr-rollback";
-        unlink_path($backup_path) if -e $backup_path;
-        unless ( rename_path( $installpath, $backup_path ) ) {
+        unlink $backup_path if -e $backup_path;
+        unless ( rename $installpath, $backup_path ) {
             my $err = "$!";
             $logger->error("Cannot back up existing artifact at $installpath: $err");
             return ( 500, undef, "Cannot back up existing artifact for transactional install: $err" );
         }
         push @undo, [
             "restore prior artifact from $backup_path",
-            sub { rename_path( $backup_path, $installpath ) ? undef : "$!" },
+            sub { rename( $backup_path, $installpath ) ? undef : "$!" },
         ];
     }
 
@@ -496,7 +496,7 @@ sub install_plugin {
         "unlink artifact at $installpath",
         sub {
             return unless -e $installpath;
-            unlink_path($installpath) ? undef : "$!";
+            unlink($installpath) ? undef : "$!";
         },
     ];
 
@@ -576,13 +576,13 @@ sub install_plugin {
 
     @undo = ();
     if ( $backup_path && -e $backup_path ) {
-        unlink_path($backup_path) or $logger->warn("Could not remove rollback backup at $backup_path: $!");
+        unlink $backup_path or $logger->warn("Could not remove rollback backup at $backup_path: $!");
     }
 
     # If the upgrade landed at a new path (type-change between published versions, in violation
     # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
     if ( defined $currentpath && $currentpath ne $installpath && -e $currentpath ) {
-        unlink_path($currentpath) or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
+        unlink $currentpath or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
     }
 
     signal_updated( $namespace, $redis );
@@ -631,7 +631,7 @@ sub uninstall_plugin {
             return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
         }
 
-        unlink_path($canonpath) or do {
+        unlink $canonpath or do {
             return ( 500, undef, "Couldn't delete plugin file: $!" );
         };
         $logger->info("Deleted plugin file: $canonpath");

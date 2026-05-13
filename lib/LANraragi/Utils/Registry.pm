@@ -5,12 +5,12 @@ use warnings;
 use utf8;
 
 use Cwd qw(abs_path getcwd);
+use File::Find;
 use Mojo::Util qw(url_escape);
 
 use Mojo::File;
 use SemVer;
 
-use LANraragi::Utils::Path    qw(find_path);
 use LANraragi::Utils::Logging qw(get_logger);
 
 use Exporter 'import';
@@ -283,15 +283,18 @@ sub _find_conflict {
 
     return unless -d $plugin_dir;
 
-    find_path(
-        sub {
-            return if $conflict;
-            return unless /\.pm$/;
-            return if $skip_path && $_ eq $skip_path;
+    find(
+        {   wanted => sub {
+                return if $conflict;
+                return unless /\.pm$/;
+                return if $skip_path && $_ eq $skip_path;
 
-            if ( $match_fn->($_) ) {
-                $conflict = $_;
-            }
+                if ( $match_fn->($_) ) {
+                    $conflict = $_;
+                }
+            },
+            no_chdir    => 1,
+            follow_fast => 1,
         },
         $plugin_dir
     );
