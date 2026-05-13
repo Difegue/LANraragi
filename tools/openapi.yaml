@@ -712,7 +712,7 @@ paths:
                     type: integer
                     enum:
                       - 1
-                  registry_id:
+                  id:
                     description: Designated default registry id, or empty string if unset.
                     anyOf:
                       - type: string
@@ -749,7 +749,7 @@ paths:
                     type: integer
                     enum:
                       - 1
-                  registry_id:
+                  id:
                     description: Id of the previously-designated registry.
                     anyOf:
                       - type: string
@@ -796,7 +796,7 @@ paths:
                     type: integer
                     enum:
                       - 1
-                  registry_id:
+                  id:
                     type: string
                     minLength: 14
                     maxLength: 14

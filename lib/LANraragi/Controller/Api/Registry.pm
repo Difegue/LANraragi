@@ -200,7 +200,7 @@ sub get_default_registry {
         openapi => {
             operation   => "get_default_registry",
             success     => 1,
-            registry_id => $registry_id,
+            id          => $registry_id,
         }
     );
 }
@@ -221,7 +221,7 @@ sub update_default_registry {
             openapi => {
                 operation   => "update_default_registry",
                 success     => 0,
-                registry_id => $reg_id,
+                id          => $reg_id,
                 error       => $message,
             },
             status => $status,
@@ -232,7 +232,7 @@ sub update_default_registry {
         openapi => {
             operation   => "update_default_registry",
             success     => 1,
-            registry_id => $reg_id,
+            id          => $reg_id,
         },
         status => 200,
     );
@@ -251,7 +251,7 @@ sub remove_default_registry {
         openapi => {
             operation   => "remove_default_registry",
             success     => 1,
-            registry_id => $registry_id,
+            id          => $registry_id,
         }
     );
 }
