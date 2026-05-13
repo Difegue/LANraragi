@@ -393,12 +393,12 @@ li {
   height: 480px;
   overflow: auto;
   text-align: left;
-  margin-left: -30px;
+  margin-left: 10px;
   margin-right: 5px;
   font-size: 9pt;
 }
 
-.checklist>li {
+.checklist li {
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;

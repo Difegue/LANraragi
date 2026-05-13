@@ -716,7 +716,7 @@ paths:
       x-mojo-to: api-archive#serve_archivelist
       summary: Get all Archives
       description: > 
-        Returns a list of all archives in the database. 
+        Returns a list of all archives in the database. This doesn't include Tankoubons. 
         You can use the IDs of this JSON with the other endpoints.
       tags:
         - archives

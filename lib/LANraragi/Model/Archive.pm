@@ -45,6 +45,7 @@ sub get_title ($id) {
 # Functions used when dealing with archives.
 
 # Generates an array of all the archive JSONs in the database that have existing files.
+# This doesn't include Tanks. 
 sub generate_archive_list {
 
     my $redis = LANraragi::Model::Config->get_redis;

@@ -84,19 +84,32 @@ Batch.loadSelectionOnly = function (ids) {
     );
 
     Promise.all(fetches).then((results) => {
+        let hasTanks = false;
+        let hasArchives = false;
+
         results.forEach((archive) => {
             if (!archive) return;
             const arcId = archive.arcid || archive.id;
             const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
             const html = `<li><input type='checkbox' name='archive' id='${arcId}' class='archive' checked><label for='${arcId}'>${escapedTitle}</label></li>`;
-            $("#arclist").append(html);
+
+            if (arcId.startsWith("TANK_")) {
+                $("#tankoubonlist").append(html);
+                hasTanks = true;
+            } else {
+                $("#archivelist").append(html);
+                hasArchives = true;
+            }
         });
+
+        if (hasTanks) $("#no-tankoubons-msg").hide();
+        if (hasArchives) $("#no-archives-msg").hide();
 
         // Show the MSM selection banner
         $("#msm-banner-count").text(I18N.BatchSelectionBanner(ids.length));
         $("#msm-banner").show();
     }).finally(() => {
-        $("#arclist").show();
+        $("#arclist-container").show();
         $("#loading-placeholder").hide();
     });
 };
@@ -106,28 +119,47 @@ Batch.loadSelectionOnly = function (ids) {
  * Hides the selection banner (if present) and prechecks untagged archives.
  */
 Batch.loadAllArchives = function () {
-    $("#arclist").html("");
+    $("#tankoubonlist").empty();
+    $("#archivelist").empty();
+    $("#no-tankoubons-msg").show();
+    $("#no-archives-msg").show();
     $("#msm-banner").html("");
-    $("#arclist").hide();
+    $("#arclist-container").hide();
     $("#loading-placeholder").show();
 
     // Clear selection if present
     localStorage.removeItem("msmSelection");
 
-    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
+    const archivePromise = Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
         (data) => {
             data.forEach((archive) => {
                 const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
                 const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
-                $("#arclist").append(html);
+                $("#archivelist").append(html);
             });
+
+            if (data.length > 0) $("#no-archives-msg").hide();
 
             Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
                 (data) => { preCheckInternal(data); },
-    );
+            );
         },
-    ).finally(() => {
-        $("#arclist").show();
+    );
+
+    const tankPromise = Server.callAPI("/api/tankoubons?page=-1", "GET", null, null,
+        (data) => {
+            data.result.forEach((tank) => {
+                const escapedTitle = LRR.encodeHTML(tank.name);
+                const html = `<li><input type='checkbox' name='archive' id='${tank.id}' class='archive' ><label for='${tank.id}'>${escapedTitle}</label></li>`;
+                $("#tankoubonlist").append(html);
+            });
+
+            if (data.result.length > 0) $("#no-tankoubons-msg").hide();
+        },
+    );
+
+    Promise.all([archivePromise, tankPromise]).finally(() => {
+        $("#arclist-container").show();
         $("#check-uncheck").show();
         $("#loading-placeholder").hide();
     });
