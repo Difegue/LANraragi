@@ -886,6 +886,7 @@ paths:
               properties:
                 name:
                   type: string
+                  minLength: 1
                 type:
                   type: string
                   enum:
@@ -4989,6 +4990,7 @@ components:
           maxLength: 14
         name:
           type: string
+          minLength: 1
           description: User-friendly alias for this registry.
         type:
           type: string
