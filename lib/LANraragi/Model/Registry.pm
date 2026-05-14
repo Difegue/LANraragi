@@ -4,13 +4,11 @@ use strict;
 use warnings;
 use utf8;
 
-use Mojo::File;
 use Mojo::JSON qw(decode_json);
-use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(
-    resolve_git_raw_url
+    fetch_registry_resource
     validate_registry_index
     is_valid_registry
 );
@@ -24,12 +22,14 @@ my @SOURCE_FIELDS = qw(type provider url ref path);
 # Fields valid per registry type.
 my %TYPE_FIELDS = (
     git   => [qw(name type provider url ref)],
+    cdn   => [qw(name type url)],
     local => [qw(name type path)],
 );
 
 # Fields that must be removed when switching types.
 my %STALE_FIELDS = (
     git   => [qw(path)],
+    cdn   => [qw(provider ref path)],
     local => [qw(provider url ref)],
 );
 
@@ -142,7 +142,7 @@ sub update_registry {
 
     my %current_registry = $redis->hgetall($registry_id);
 
-    # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
+    # type enum is validated by OpenAPI (enum: [git, cdn, local]) on the request body.
     my $updated_registry_type = $updated_registry{type};
     my $current_registry_type = $current_registry{type};
     my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
@@ -173,6 +173,10 @@ sub update_registry {
         }
         unless ( $merged{provider} ) {
             return ( 400, undef, "Git registry needs a provider." );
+        }
+    } elsif ( $target_registry_type eq "cdn" ) {
+        unless ( $merged{url} ) {
+            return ( 400, undef, "CDN registry needs a URL." );
         }
     } elsif ( $target_registry_type eq "local" ) {
         unless ( $merged{path} ) {
@@ -307,83 +311,7 @@ sub remove_default_registry {
 # Fetch registry.json from a configured registry source.
 sub fetch_registry_index {
     my %registry_config = @_;
-
-    my $logger = get_logger( "Registry", "lanraragi" );
-    my $registry_type = $registry_config{type};
-
-    if ( $registry_type eq "local" ) {
-        my $path = $registry_config{path};
-
-        if ( index( $path, "\0" ) >= 0 || $path =~ /\.\./ ) {
-            my $error = "Invalid registry path (null byte or traversal).";
-            $logger->error($error);
-            return ( 400, undef, $error );
-        }
-
-        my $file = "$path/registry.json";
-
-        unless ( -e $file ) {
-            my $error = "Registry file not found: $file";
-            $logger->error($error);
-            return ( 404, undef, $error );
-        }
-
-        my $filesize = -s $file;
-        if ( $filesize == 0 ) {
-            my $error = "Registry file is empty: $file";
-            $logger->error($error);
-            return ( 400, undef, $error );
-        }
-        if ( $filesize > MAX_REGISTRY_INDEX_SIZE ) {
-            my $error = "Registry file too large: $file ($filesize bytes, max " . MAX_REGISTRY_INDEX_SIZE . ")";
-            $logger->error($error);
-            return ( 400, undef, $error );
-        }
-
-        my $content = eval { Mojo::File->new($file)->slurp };
-        unless ( defined $content ) {
-            my $error = "Cannot read registry file: $@";
-            $logger->error($error);
-            return ( 403, undef, $error );
-        }
-
-        return ( 200, $content, undef );
-    }
-
-    if ( $registry_type eq "git" ) {
-
-        # resolve_git_raw_url returns undef when the URL format or provider is unrecognized
-        my $rawurl = resolve_git_raw_url(
-            $registry_config{provider}, $registry_config{url}, $registry_config{ref}, "registry.json"
-        );
-
-        unless ($rawurl) {
-            my $error = "Cannot resolve git URL: $registry_config{url}";
-            $logger->error($error);
-            return ( 400, undef, $error );
-        }
-
-        $logger->info("Fetching registry index from $rawurl");
-
-        my $ua = Mojo::UserAgent->new;
-        $ua->max_response_size(MAX_REGISTRY_INDEX_SIZE);
-        my $res = eval { $ua->get($rawurl)->result };
-        unless ( defined $res ) {
-            my $error = "Cannot reach registry: $@";
-            $logger->error($error);
-            return ( 502, undef, $error );
-        }
-
-        unless ( $res->is_success ) {
-            my $error = "Failed to fetch registry index: HTTP " . $res->code;
-            $logger->error($error);
-            return ( 502, undef, $error );
-        }
-
-        return ( 200, $res->body, undef );
-    }
-
-    return ( 400, undef, "Unknown registry type: $registry_type" );
+    return fetch_registry_resource( \%registry_config, "registry.json", MAX_REGISTRY_INDEX_SIZE );
 }
 
 sub refresh_registry {

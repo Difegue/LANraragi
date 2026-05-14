@@ -23,8 +23,9 @@ sub list_registries {
     );
 }
 
-# create a registry, which can be of type either git or local.
+# create a registry, which can be of type git, cdn, or local.
 # git type: requires provider, url, ref (default "main").
+# cdn type: requires url (http or https base URL).
 # local type: requires path (to local registry.json)
 sub create_registry {
     my $self    = shift->openapi->valid_input or return;
@@ -46,6 +47,8 @@ sub create_registry {
                 $config{provider} = $body->{provider};
                 $config{url}      = $body->{url};
                 $config{ref}      = $body->{ref} // "main";
+            } elsif ( $type eq "cdn" ) {
+                $config{url} = $body->{url};
             } elsif ( $type eq "local" ) {
                 $config{path} = $body->{path};
             }

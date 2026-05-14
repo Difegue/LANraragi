@@ -29,11 +29,10 @@ use LANraragi::Utils::PluginState qw(record_load_success signal_uninstalled sign
 use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Path     qw(create_path package_to_path);
 use LANraragi::Utils::Registry qw(
-    resolve_git_raw_url
+    fetch_registry_resource
     find_package_conflict
     find_namespace_conflict
     validate_registry_artifact_path
-    resolve_local_registry_artifact_path
     resolve_max_version
     is_valid_registry
     MANAGED_TYPE_DIRS
@@ -387,8 +386,7 @@ sub install_plugin {
         return ( 400, undef, $artifact_error );
     }
 
-    my %registry_config  = $redis->hgetall($registry_id);
-    my $registry_type    = $registry_config{type};
+    my %registry_config = $redis->hgetall($registry_id);
 
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
     my $currentpath;
@@ -397,57 +395,13 @@ sub install_plugin {
         $currentpath = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
-    my $plugin_content;
-
-    if ( $registry_type eq "local" ) {
-        my ( $root_canon, $file_canon, $resolve_error ) =
-            resolve_local_registry_artifact_path( $registry_config{path}, $plugpath );
-        if ($resolve_error) {
-            return ( 400, undef, $resolve_error );
-        }
-
-        unless ( -e $file_canon ) {
-            return ( 404, undef, "Plugin file not found: $file_canon" );
-        }
-
-        unless ( -f $file_canon ) {
-            return ( 400, undef, "Plugin artifact is not a regular file: $file_canon" );
-        }
-
-        my $filesize = -s $file_canon;
-        if ( $filesize > MAX_PLUGIN_FILE_SIZE ) {
-            return ( 400, undef, "Plugin file too large: $file_canon ($filesize bytes)" );
-        }
-
-        $plugin_content = eval { Mojo::File->new($file_canon)->slurp };
-        unless ( defined $plugin_content ) {
-            return ( 500, undef, "Cannot read plugin file: $@" );
-        }
-
-    } elsif ( $registry_type eq "git" ) {
-        my $rawurl = resolve_git_raw_url( $registry_config{provider}, $registry_config{url}, $registry_config{ref}, $plugpath );
-
-        unless ($rawurl) {
-            return ( 400, undef, "Can't resolve download URL for $plugpath" );
-        }
-
-        $logger->info("Downloading plugin from $rawurl");
-
-        my $ua = Mojo::UserAgent->new;
-        $ua->max_response_size(MAX_PLUGIN_FILE_SIZE);
-        my $res = $ua->get($rawurl)->result;
-
-        unless ( $res->is_success ) {
-            my $error = "Download failed: HTTP " . $res->code;
-            $logger->error($error);
-            return ( 502, undef, $error );
-        }
-
-        $plugin_content = $res->body;
-    } else {
-        # check against type just in case
-        $logger->error("Unknown registry type '$registry_type' while installing plugin '$namespace' from registry '$registry_id'.");
-        return ( 400, undef, "Unknown registry type: $registry_type" );
+    my ( $fetch_status, $plugin_content, $fetch_error ) =
+        fetch_registry_resource( \%registry_config, $plugpath, MAX_PLUGIN_FILE_SIZE );
+    unless ( $fetch_status == 200 ) {
+        $logger->warn(
+            "Failed to fetch plugin artifact '$plugpath' for '$namespace' from registry '$registry_id': $fetch_error"
+        );
+        return ( $fetch_status, undef, $fetch_error );
     }
 
     # Check that plugins are installed under "Plugins/Managed/".
