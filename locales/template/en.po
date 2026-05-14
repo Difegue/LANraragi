@@ -1432,6 +1432,12 @@ msgstr "Archive read"
 msgid "Tankoubon (collection)"
 msgstr "Tankoubon (collection)"
 
+msgid "Pages read / Total pages"
+msgstr "Pages read / Total pages"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "Pages read / Total pages / Archives in Tankoubon"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 

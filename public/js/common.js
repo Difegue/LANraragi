@@ -387,7 +387,7 @@ LRR.buildStatusDiv = function (arcdata) {
     if (pagecount > 0 && (progress / pagecount) > 0.85) {
         if (isTank || isnew !== "true") {
             statuses.push(`<span title="${I18N.StatusRead}">👑</span>`);
-    }
+        }
     }
 
     // Tankoubon indicator (last)
@@ -401,10 +401,16 @@ LRR.buildStatusDiv = function (arcdata) {
 
 LRR.buildPageCountDiv = function (arcdata) {
 
-    // TODO - This might evolve with Tanks to show the amount of IDs in the tank with total pagecount on hover
+    const isTank = arcdata.arcid.startsWith("TANK_");
     let { progress, pagecount } = LRR.getProgress(arcdata);
+
+    if (isTank && pagecount > 0) {
+        const archiveCount = arcdata.archive_count ?? 0;
+        return `<div class='isnew'><sup title="${I18N.TankPageCount}">${progress}/${pagecount}/${archiveCount}</sup></div>`;
+    }
+
     if (pagecount > 0) {
-        return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
+        return `<div class='isnew'><sup title="${I18N.PageCount}">${progress}/${pagecount}</sup></div>`;
     }
     return "";
 };
