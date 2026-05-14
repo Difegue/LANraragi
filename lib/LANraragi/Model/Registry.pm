@@ -142,6 +142,17 @@ sub update_registry {
 
     my %current_registry = $redis->hgetall($registry_id);
 
+    # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
+    my $updated_registry_type = $updated_registry{type};
+    my $current_registry_type = $current_registry{type};
+    my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
+
+    my %valid_set = map { $_ => 1 } @{ $TYPE_FIELDS{$target_registry_type} };
+    my @invalid_fields = sort grep { !$valid_set{$_} } keys %updated_registry;
+    if (@invalid_fields) {
+        return ( 400, undef, "Fields not valid for type '$target_registry_type': " . join( ", ", @invalid_fields ) );
+    }
+
     # Determine if source fields are changing
     my $indexcleared = 0;
     foreach my $field (@SOURCE_FIELDS) {
@@ -152,11 +163,6 @@ sub update_registry {
             last;
         }
     }
-
-    # type enum is validated by OpenAPI (enum: [git, local]) on the request body.
-    my $updated_registry_type = $updated_registry{type};
-    my $current_registry_type = $current_registry{type};
-    my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
 
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
@@ -182,11 +188,8 @@ sub update_registry {
         @fields_to_remove = @{ $STALE_FIELDS{$target_registry_type} };
     }
 
-    my @valid_fields = @{ $TYPE_FIELDS{$target_registry_type} };
-    my %valid_set    = map { $_ => 1 } @valid_fields;
     my @fields_to_set;
     foreach my $field ( keys %updated_registry ) {
-        next unless $valid_set{$field};
         $logger->debug("Setting field '$field' on '$registry_id'");
         push @fields_to_set, $field, $updated_registry{$field};
     }
