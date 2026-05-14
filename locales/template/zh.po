@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-05-12 10:11+0000\n"
+"PO-Revision-Date: 2026-05-15 02:11+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.5-dev\n"
+"X-Generator: Weblate 2026.5.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1915,3 +1915,9 @@ msgstr "将选择合并为单行本"
 
 msgid "Hide completed Archives"
 msgstr "隐藏已读完的档案"
+
+msgid "Pages read / Total pages"
+msgstr "已读页数 / 总页数"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "已读页数 / 总页数 / 单行本档案数"
