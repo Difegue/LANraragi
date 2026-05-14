@@ -7,7 +7,7 @@ use Redis;
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
 use LANraragi::Utils::Generic    qw(render_api_response);
-use LANraragi::Utils::Plugins    qw(get_plugin get_plugins is_plugin_hidden get_plugin_priority use_plugin);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;
@@ -100,9 +100,6 @@ sub list_plugins {
             }
             $plugin->{parameters} = \@parameters_array;
         }
-
-        $plugin->{hidden}   = is_plugin_hidden( $plugin->{namespace}, $redis ) ? true : false;
-        $plugin->{priority} = get_plugin_priority( $plugin->{namespace}, $redis );
 
         my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
         foreach my $field (qw(installed_version installed_sha256 installed_registry)) {
