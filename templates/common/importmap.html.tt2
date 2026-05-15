@@ -5,7 +5,8 @@
             "mod/server": "[% c.url_for("/js/mod/server.js?$version") %]",
             "mod/index": "[% c.url_for("/js/mod/index.js?$version") %]",
             "mod/index_datatables": "[% c.url_for("/js/mod/index_datatables.js?$version") %]",
-            "i18n": "[% c.url_for("/js/i18n.js?$version") %]"
+            "i18n": "[% c.url_for("/js/i18n.js?$version") %]",
+            "fscreen": "[% c.url_for("/js/vendor/fscreen.esm.js") %]"
         }
     }
 </script>
