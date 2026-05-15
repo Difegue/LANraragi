@@ -35,15 +35,14 @@
 
     <script type="module">
         import * as Reader from "[% c.url_for("/js/reader.js?$version") %]";
+        import fscreen from "fscreen";
 
-        import('[% c.url_for("/js/vendor/fscreen.esm.js") %]').then(r => {
-            window.fscreen = r.default;
+        window.fscreen = fscreen;
 
-            const trackProgressLocally = "[% use_local %]" === "1";
-            const authenticateProgress = "[% auth_progress %]" === "1";
+        const trackProgressLocally = "[% use_local %]" === "1";
+        const authenticateProgress = "[% auth_progress %]" === "1";
 
-            Reader.initializeAll(trackProgressLocally, authenticateProgress);
-        })
+        Reader.initializeAll(trackProgressLocally, authenticateProgress);
     </script>
 </head>
 
