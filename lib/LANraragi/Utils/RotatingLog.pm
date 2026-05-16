@@ -317,10 +317,13 @@ sub get_win32_fh {
 
 # Check whether filesystem supports flock.
 # https://github.com/Difegue/LANraragi/issues/1556
+our $SUPPORTED;
 sub is_supported {
-    my $tempdir     = shift;
+    return $SUPPORTED if defined $SUPPORTED;
+
+    my $lockdir     = shift;
     my $supported   = 0;
-    my $probe_path  = "$tempdir/.lrr-flock-probe.$$";
+    my $probe_path  = "$lockdir/.lrr-flock-probe.$$";
 
     # do a flock hit
     if ( open( my $fh, '>', $probe_path ) ) {
@@ -329,7 +332,8 @@ sub is_supported {
         unlink $probe_path;
     }
 
-    return $supported;
+    $SUPPORTED = $supported;
+    return $SUPPORTED;
 }
 
 1;
