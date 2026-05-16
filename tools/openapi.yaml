@@ -464,8 +464,9 @@ paths:
                     enum: 
                       - use_plugin
                   type:
-                    type: [string, "null"]
-                    enum: 
+                    type: string
+                    description: Plugin type. Omitted when the plugin is not found.
+                    enum:
                       - download
                       - login
                       - metadata
