@@ -198,6 +198,8 @@ Reader.initializeAll = function () {
                         Reader.renderMarkers();
                     }
                 );
+            } else {
+                Reader.renderMarkers();
             }
         });
         e.stopPropagation();
@@ -209,6 +211,7 @@ Reader.initializeAll = function () {
         if (e.key === "Escape" && Reader.markerMode) {
             $("#overlay-page").hide();
             Reader.markerMode = false;
+            Reader.renderMarkers();
             Reader.toggleArchiveOverlay();
             Reader.pageNaviState = true;
             $(".reader-image").css("cursor", "");
@@ -822,6 +825,7 @@ Reader.toggleHelp = function () {
 Reader.addStamp = function () {
     Reader.markerMode = true;
     LRR.closeOverlay(); 
+    Reader.clearMarkers();
     $(".reader-image").css("cursor", "cell");
     $("#overlay-page").show();
 };
@@ -941,6 +945,11 @@ Reader.renderMarkers = function () {
     Reader.markers.forEach((markerData, index) => {
         Reader.createMarkerElement(markerData, index);
     });
+}
+
+Reader.clearMarkers = function () {
+    const existing = document.querySelectorAll(".marker");
+    existing.forEach(el => el.remove());
 }
 
 Reader.toggleStamps = function () {
