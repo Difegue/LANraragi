@@ -20,7 +20,7 @@ BEGIN {
 }
 
 has 'logfile';
-has 'tempdir';  # Where to store lockfiles
+has 'lockdir';  # Where to store lockfiles
 has 'lockpid';  # Track which PID opened the current lock file handle.
 
 has counter => sub { 0 }; # number of logs emitted
@@ -45,7 +45,7 @@ has lockpath => sub {
     my $path        = $self->path;
     my $mf          = Mojo::File->new($path);
     my $base        = $mf->basename;
-    my $lockpath    = $self->tempdir . "/$base.lock";
+    my $lockpath    = $self->lockdir . "/$base.lock";
     return $lockpath;
 };
 

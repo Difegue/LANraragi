@@ -89,7 +89,7 @@ sub get_logger {
                         path    => $logpath,
                         level   => 'info',
                         logfile => $logfile,
-                        tempdir => $tempdir
+                        lockdir => $tempdir
                     );
                 };
                 $retry_error = $@;
