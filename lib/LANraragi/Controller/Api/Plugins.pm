@@ -89,8 +89,8 @@ sub install_plugin {
                     name               => $plugmeta->{name},
                     namespace          => $namespace,
                     version            => $plugmeta->{version},
-                    installed_registry => $plugmeta->{installed_registry},
-                    installed_sha256   => $plugmeta->{installed_sha256},
+                    registry           => $plugmeta->{registry},
+                    sha256             => $plugmeta->{sha256},
                 }
             );
         },

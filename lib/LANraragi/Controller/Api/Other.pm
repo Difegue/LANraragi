@@ -7,6 +7,7 @@ use Redis;
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
 use LANraragi::Utils::Generic    qw(render_api_response);
+use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 sub serve_serverinfo {
@@ -91,6 +92,7 @@ sub list_plugins {
 
     my @plugins = get_plugins($type);
     my $redis   = $self->LRR_CONF->get_redis_config;
+    my $logger  = get_logger( "Plugins", "lanraragi" );
 
     foreach my $plugin (@plugins) {
         if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
@@ -101,9 +103,17 @@ sub list_plugins {
             $plugin->{parameters} = \@parameters_array;
         }
 
-        my $namerds = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
-        foreach my $field (qw(installed_version installed_sha256 installed_registry)) {
-            $plugin->{$field} = $redis->hget( $namerds, $field );
+        my $namerds         = "LRR_PLUGIN_" . uc( $plugin->{namespace} );
+        $plugin->{registry} = $redis->hget( $namerds, "installed_registry" );
+        $plugin->{sha256}   = $redis->hget( $namerds, "installed_sha256" );
+
+        # Usually installed_version shouldn't be different from version.
+        my $installed_version   = $redis->hget( $namerds, "installed_version" );
+        my $plugin_version      = $plugin->{version};
+        if ( defined $installed_version && $installed_version ne $plugin_version ) {
+            $logger->warn(
+                "Plugin $plugin installed_version='$installed_version' but plugin->version='$plugin_version'"
+            );
         }
     }
 

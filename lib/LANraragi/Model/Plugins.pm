@@ -557,8 +557,8 @@ sub install_plugin {
     my %installed_meta = (
         name               => $plugin_metadata->{name},
         version            => $plugin_metadata->{version},
-        installed_registry => $registry_id,
-        installed_sha256   => $plugin_metadata->{sha256},
+        registry           => $registry_id,
+        sha256             => $plugin_metadata->{sha256},
     );
 
     return ( 200, \%installed_meta, undef );

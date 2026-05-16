@@ -1184,10 +1184,10 @@ paths:
                     type: string
                   version:
                     type: string
-                  installed_registry:
+                  registry:
                     type: string
                     description: Registry ID the plugin was installed from.
-                  installed_sha256:
+                  sha256:
                     type: string
                     description: SHA-256 of the installed artifact.
         '400':
@@ -4615,15 +4615,11 @@ components:
           type: string
           nullable: true
           description: Namespace of the login plugin this plugin depends on
-        installed_registry:
+        registry:
           type: string
           nullable: true
           description: Registry ID the plugin was installed from, or null if not registry-managed
-        installed_version:
-          type: string
-          nullable: true
-          description: Installed version recorded in Redis, or null if not registry-managed
-        installed_sha256:
+        sha256:
           type: string
           nullable: true
           description: SHA-256 recorded for the installed artifact, or null if not registry-managed
