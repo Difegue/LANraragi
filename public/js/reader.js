@@ -1588,6 +1588,25 @@ Reader.updateArchiveOverlay = function (forceUpdate = false) {
         htmlBlob += thumbnail;
     }
 
+    // Inititialize the tabs
+    document.querySelectorAll(".tab-btn").forEach(button => {
+        button.addEventListener("click", () => {
+
+            const target = button.dataset.tab;
+
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+            document.querySelectorAll(".tab-panel").forEach(panel => {
+                panel.classList.remove("active");
+            });
+
+            button.classList.add("active");
+            document.getElementById(target).classList.add("active");
+        });
+    });
+
     // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
     $("#pages-section").html(htmlBlob);
     $("#archivePagesOverlay").attr("loaded", "true");
