@@ -72,8 +72,8 @@ sub get_logger {
         undef $log;
     }
 
-    my $tempdir         = get_temp();
-    my $rlog_supported  = LANraragi::Utils::RotatingLog::is_supported($tempdir);
+    my $lockdir         = $ENV{LRR_LOG_LOCK_DIRECTORY} // get_temp();
+    my $rlog_supported  = LANraragi::Utils::RotatingLog::is_supported($lockdir);
 
     my $tries           = 0;
     my $first_error;
@@ -89,7 +89,7 @@ sub get_logger {
                         path    => $logpath,
                         level   => 'info',
                         logfile => $logfile,
-                        lockdir => $tempdir
+                        lockdir => $lockdir
                     );
                 };
                 $retry_error = $@;
@@ -119,7 +119,7 @@ sub get_logger {
         if ( !$rlog_supported ) {
             $LOGGER_CACHE{$cache_key} = $log;
             unless ( $RLOG_UNSUPPORTED_WARNED ) {
-                $log->warn("RotatingLog not supported on $tempdir; using Mojo::Log without log rotation.");
+                $log->warn("RotatingLog not supported on $lockdir; using Mojo::Log without log rotation.");
                 $RLOG_UNSUPPORTED_WARNED = 1;
             }
         } else {
