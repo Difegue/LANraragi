@@ -52,10 +52,10 @@ my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type versions);
 my @ALLOWED_VERSION_FIELDS  = qw(version name author description artifact sha256 published_at);
 my @REQUIRED_VERSION_FIELDS = qw(name author description artifact sha256 published_at);
 
-# Resolve a git URL to a raw file URL for a given type
-# (Should) support github, gitlab, and gitea/codeberg types but who knows
+# Resolve a git URL to a raw file URL for a given provider
+# (Should) support github, gitlab, and gitea/codeberg providers but who knows
 sub resolve_git_raw_url {
-    my ( $type, $url, $ref, $path ) = @_;
+    my ( $provider, $url, $ref, $path ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
@@ -71,15 +71,15 @@ sub resolve_git_raw_url {
     my $epath = join( "/", map { url_escape($_) } split( m{/}, $path ) );
     my $eref  = url_escape($ref);
 
-    if ( $type eq "github" ) {
+    if ( $provider eq "github" ) {
         return "https://raw.githubusercontent.com/$owner/$repo/$eref/$epath";
-    } elsif ( $type eq "gitlab" ) {
+    } elsif ( $provider eq "gitlab" ) {
         return "https://$host/$owner/$repo/-/raw/$eref/$epath";
-    } elsif ( $type eq "gitea" ) {
+    } elsif ( $provider eq "gitea" ) {
         return "https://$host/api/v1/repos/$owner/$repo/raw/$epath?ref=$eref";
     }
 
-    $logger->error("Unknown registry type '$type' for URL: $url");
+    $logger->error("Unknown registry provider '$provider' for URL: $url");
     return;
 }
 
@@ -100,15 +100,15 @@ sub resolve_cdn_artifact_url {
     return "$base/$epath";
 }
 
-# Transport adapter: fetch a registry-relative resource from any registry type.
+# Transport adapter: fetch a registry-relative resource from any registry provider.
 # Returns ( $status, $body, $error ) — $status 200 on success.
 sub fetch_registry_resource {
     my ( $registry_config, $relpath, $max_size ) = @_;
 
-    my $logger = get_logger( "Registry", "lanraragi" );
-    my $type   = $registry_config->{type};
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    my $provider    = $registry_config->{provider};
 
-    if ( $type eq "local" ) {
+    if ( $provider eq "local" ) {
         my ( undef, $file_canon, $resolve_error ) =
             resolve_local_registry_artifact_path( $registry_config->{path}, $relpath );
         if ($resolve_error) {
@@ -132,9 +132,9 @@ sub fetch_registry_resource {
         return ( 200, $content, undef );
     }
 
-    if ( $type eq "github" || $type eq "gitlab" || $type eq "gitea" ) {
+    if ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) {
         my $url = resolve_git_raw_url(
-            $type, $registry_config->{url},
+            $provider, $registry_config->{url},
             $registry_config->{ref}, $relpath
         );
         unless ($url) {
@@ -154,7 +154,7 @@ sub fetch_registry_resource {
         return ( 200, $res->body, undef );
     }
 
-    if ( $type eq "cdn" ) {
+    if ( $provider eq "cdn" ) {
         my $url = resolve_cdn_artifact_url( $registry_config->{url}, $relpath );
         unless ($url) {
             return ( 400, undef, "Cannot resolve CDN URL for $relpath" );
@@ -173,7 +173,7 @@ sub fetch_registry_resource {
         return ( 200, $res->body, undef );
     }
 
-    return ( 400, undef, "Unknown registry type: $type" );
+    return ( 400, undef, "Unknown registry provider: $provider" );
 }
 
 # Scan Plugin/ for a .pm file declaring the given package name

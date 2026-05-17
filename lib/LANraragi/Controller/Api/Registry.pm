@@ -23,16 +23,16 @@ sub list_registries {
     );
 }
 
-# create a registry, which can be of type github, gitlab, gitea, cdn, or local.
-# git types (github/gitlab/gitea): require url (https) and ref.
-# cdn type: requires url (http or https base URL).
-# local type: requires path (to local registry directory)
+# create a registry, which can be of provider github, gitlab, gitea, cdn, or local.
+# git providers (github/gitlab/gitea): require url (https) and ref.
+# cdn provider: requires url (http or https base URL).
+# local provider: requires path (to local registry directory)
 sub create_registry {
-    my $self    = shift->openapi->valid_input or return;
-    my $body    = $self->req->json;
-    my $type    = $body->{type};
-    my $logger  = get_logger( "Registry", "lanraragi" );
-    $logger->info("Create registry requested (type: " . ( defined $type ? $type : "<undef>" ) . ").");
+    my $self        = shift->openapi->valid_input or return;
+    my $body        = $self->req->json;
+    my $provider    = $body->{provider};
+    my $logger      = get_logger( "Registry", "lanraragi" );
+    $logger->info("Create registry requested (provider: " . ( defined $provider ? $provider : "<undef>" ) . ").");
 
     return unless exec_with_lock(
         $self,
@@ -41,14 +41,14 @@ sub create_registry {
         "registry",
         sub {
             my $redis = $self->LRR_CONF->get_redis_config;
-            my %config = ( name => $body->{name}, type => $type );
+            my %config = ( name => $body->{name}, provider => $provider );
 
-            if ( $type eq "github" || $type eq "gitlab" || $type eq "gitea" ) {
+            if ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) {
                 $config{url} = $body->{url};
                 $config{ref} = $body->{ref};
-            } elsif ( $type eq "cdn" ) {
+            } elsif ( $provider eq "cdn" ) {
                 $config{url} = $body->{url};
-            } elsif ( $type eq "local" ) {
+            } elsif ( $provider eq "local" ) {
                 $config{path} = $body->{path};
             }
 
@@ -119,7 +119,7 @@ sub update_registry {
         $registry_id,
         sub {
             my %updated_registry;
-            for my $field (qw(name type url ref path)) {
+            for my $field (qw(name provider url ref path)) {
                 $updated_registry{$field} = $body->{$field} if exists $body->{$field};
             }
 

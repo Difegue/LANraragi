@@ -141,7 +141,7 @@ note('testing resolve_git_raw_url with invalid input...');
 
 {
     my $result = LANraragi::Utils::Registry::resolve_git_raw_url( "unknown", "https://example.com/owner/repo.git", "main", "registry.json" );
-    is( $result, undef, "unknown type returns undef" );
+    is( $result, undef, "unknown provider returns undef" );
 }
 
 note('testing resolve_cdn_artifact_url accepts https and http schemes...');
@@ -217,7 +217,7 @@ note('testing fetch_registry_resource (local) reads existing file...');
     my $tmp = tempdir( CLEANUP => 1 );
     Mojo::File->new("$tmp/registry.json")->spew('{"version":1}');
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "local", path => $tmp }, "registry.json", 1024
+        { provider => "local", path => $tmp }, "registry.json", 1024
     );
     is( $status, 200, "local fetch succeeds" );
     is( $body,   '{"version":1}', "local fetch returns file content" );
@@ -229,7 +229,7 @@ note('testing fetch_registry_resource (local) returns 400 for missing file...');
 {
     my $tmp = tempdir( CLEANUP => 1 );
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "local", path => $tmp }, "registry.json", 1024
+        { provider => "local", path => $tmp }, "registry.json", 1024
     );
     is( $status, 400, "missing file returns 400 (consistent with install path)" );
     is( $body,   undef, "no body on missing file" );
@@ -242,7 +242,7 @@ note('testing fetch_registry_resource (local) rejects oversized file...');
     my $tmp = tempdir( CLEANUP => 1 );
     Mojo::File->new("$tmp/registry.json")->spew( "x" x 100 );
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "local", path => $tmp }, "registry.json", 10
+        { provider => "local", path => $tmp }, "registry.json", 10
     );
     is( $status, 400, "oversized file returns 400" );
     is( $body,   undef, "no body on oversized" );
@@ -255,29 +255,29 @@ note('testing fetch_registry_resource (local) rejects empty file...');
     my $tmp = tempdir( CLEANUP => 1 );
     Mojo::File->new("$tmp/registry.json")->spew("");
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "local", path => $tmp }, "registry.json", 1024
+        { provider => "local", path => $tmp }, "registry.json", 1024
     );
     is( $status, 400, "empty file returns 400" );
     is( $body,   undef, "no body on empty file" );
     like( $err, qr/empty/i, "error mentions empty" );
 }
 
-note('testing fetch_registry_resource returns 400 for unknown type...');
+note('testing fetch_registry_resource returns 400 for unknown provider...');
 
 {
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "unknown" }, "registry.json", 1024
+        { provider => "unknown" }, "registry.json", 1024
     );
-    is( $status, 400, "unknown type returns 400" );
-    is( $body,   undef, "no body on unknown type" );
-    like( $err, qr/unknown registry type/i, "error mentions unknown type" );
+    is( $status, 400, "unknown provider returns 400" );
+    is( $body,   undef, "no body on unknown provider" );
+    like( $err, qr/unknown registry provider/i, "error mentions unknown provider" );
 }
 
 note('testing fetch_registry_resource (cdn) returns 400 on invalid scheme...');
 
 {
     my ( $status, $body, $err ) = LANraragi::Utils::Registry::fetch_registry_resource(
-        { type => "cdn", url => "ftp://cdn.example.com/r" }, "registry.json", 1024
+        { provider => "cdn", url => "ftp://cdn.example.com/r" }, "registry.json", 1024
     );
     is( $status, 400, "cdn with non-http(s) scheme returns 400" );
     is( $body,   undef, "no body on cdn invalid scheme" );

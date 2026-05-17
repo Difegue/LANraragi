@@ -17,18 +17,18 @@ use LANraragi::Utils::Registry qw(
 use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
 
 # Source fields that, when changed, invalidate the cached index.
-my @SOURCE_FIELDS = qw(type url ref path);
+my @SOURCE_FIELDS = qw(provider url ref path);
 
-# Fields valid per registry type.
-my %TYPE_FIELDS = (
-    github  => [qw(name type url ref)],
-    gitlab  => [qw(name type url ref)],
-    gitea   => [qw(name type url ref)],
-    cdn     => [qw(name type url)],
-    local   => [qw(name type path)],
+# Fields valid per registry provider.
+my %PROVIDER_FIELDS = (
+    github  => [qw(name provider url ref)],
+    gitlab  => [qw(name provider url ref)],
+    gitea   => [qw(name provider url ref)],
+    cdn     => [qw(name provider url)],
+    local   => [qw(name provider path)],
 );
 
-# Fields that must be removed when switching kinds.
+# Fields that must be removed when switching providers.
 my %STALE_FIELDS = (
     github  => [qw(path)],
     gitlab  => [qw(path)],
@@ -44,10 +44,10 @@ sub create_registry {
     my %config = %{$config};
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    $logger->info("Creating registry (type: $config{type})");
+    $logger->info("Creating registry (provider: $config{provider})");
 
     # Sanitize local registry path
-    if ( $config{type} eq "local" && defined $config{path} ) {
+    if ( $config{provider} eq "local" && defined $config{path} ) {
         if ( index( $config{path}, "\0" ) >= 0 || $config{path} =~ /\.\./ ) {
             return ( undef, "Invalid registry path." );
         }
@@ -62,8 +62,8 @@ sub create_registry {
     return 1
 LUA
 
-    my $registry_type = $config{type};
-    my @valid_fields  = @{ $TYPE_FIELDS{$registry_type} };
+    my $registry_provider   = $config{provider};
+    my @valid_fields        = @{ $PROVIDER_FIELDS{$registry_provider} };
     my @field_args;
     foreach my $field (@valid_fields) {
         next unless defined $config{$field};
@@ -89,7 +89,7 @@ LUA
         }
     }
 
-    $logger->info("Created registry '$registry_id' (name: $config{name}, type: $registry_type)");
+    $logger->info("Created registry '$registry_id' (name: $config{name}, provider: $registry_provider)");
 
     return ( $registry_id, undef );
 }
@@ -146,15 +146,15 @@ sub update_registry {
 
     my %current_registry = $redis->hgetall($registry_id);
 
-    # type enum is validated by OpenAPI (enum: [github, gitlab, gitea, cdn, local]) on the request body.
-    my $updated_registry_type = $updated_registry{type};
-    my $current_registry_type = $current_registry{type};
-    my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
+    # provider enum is validated by OpenAPI (enum: [github, gitlab, gitea, cdn, local]) on the request body.
+    my $updated_registry_provider   = $updated_registry{provider};
+    my $current_registry_provider   = $current_registry{provider};
+    my $target_registry_provider    = defined $updated_registry_provider ? $updated_registry_provider : $current_registry_provider;
 
-    my %valid_set = map { $_ => 1 } @{ $TYPE_FIELDS{$target_registry_type} };
+    my %valid_set = map { $_ => 1 } @{ $PROVIDER_FIELDS{$target_registry_provider} };
     my @invalid_fields = sort grep { !$valid_set{$_} } keys %updated_registry;
     if (@invalid_fields) {
-        return ( 400, undef, "Fields not valid for type '$target_registry_type': " . join( ", ", @invalid_fields ) );
+        return ( 400, undef, "Fields not valid for provider '$target_registry_provider': " . join( ", ", @invalid_fields ) );
     }
 
     # Determine if source fields are changing
@@ -171,21 +171,21 @@ sub update_registry {
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
 
-    if ( $target_registry_type eq "github" || $target_registry_type eq "gitlab" || $target_registry_type eq "gitea" ) {
+    if ( $target_registry_provider eq "github" || $target_registry_provider eq "gitlab" || $target_registry_provider eq "gitea" ) {
         return ( 400, undef, "Git registry needs a URL." ) unless $merged{url};
         return ( 400, undef, "Git registry needs a ref." ) unless $merged{ref};
-    } elsif ( $target_registry_type eq "cdn" ) {
+    } elsif ( $target_registry_provider eq "cdn" ) {
         return ( 400, undef, "CDN registry needs a URL." ) unless $merged{url};
-    } elsif ( $target_registry_type eq "local" ) {
+    } elsif ( $target_registry_provider eq "local" ) {
         return ( 400, undef, "Local registry needs a path." ) unless $merged{path};
     }
 
-    # If a type change is made, then registry may be left with stale or mixed type states, which we'll need to clean up.
+    # If a provider change is made, then registry may be left with stale or mixed provider states, which we'll need to clean up.
     my @fields_to_remove;
-    # type is always set on a valid registry (stored at creation)
-    if ( exists $updated_registry{type} && $updated_registry_type ne $current_registry_type ) {
-        $logger->info("Type change on '$registry_id': '$current_registry_type' -> '$target_registry_type'; removing stale fields.");
-        @fields_to_remove = @{ $STALE_FIELDS{$target_registry_type} };
+    # provider is always set on a valid registry (stored at creation)
+    if ( exists $updated_registry{provider} && $updated_registry_provider ne $current_registry_provider ) {
+        $logger->info("Provider change on '$registry_id': '$current_registry_provider' -> '$target_registry_provider'; removing stale fields.");
+        @fields_to_remove = @{ $STALE_FIELDS{$target_registry_provider} };
     }
 
     my @fields_to_set;
@@ -195,7 +195,7 @@ sub update_registry {
     }
 
     if ( !@fields_to_set && !@fields_to_remove ) {
-        return ( 400, undef, "No valid fields to update for this registry type." );
+        return ( 400, undef, "No valid fields to update for this registry provider." );
     }
 
     my $now = time;

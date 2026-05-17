@@ -603,13 +603,13 @@ paths:
               type: object
               required:
                 - name
-                - type
+                - provider
               properties:
                 name:
                   type: string
                   minLength: 1
                   description: User-friendly alias for this registry.
-                type:
+                provider:
                   type: string
                   enum:
                     - github
@@ -617,29 +617,29 @@ paths:
                     - gitea
                     - cdn
                     - local
-                  description: Registry source type.
+                  description: Registry source provider.
                 url:
                   type: string
                   format: uri
                   pattern: "^https?://"
                   description: |
-                    Registry URL. For git types (github, gitlab, gitea), must be an HTTPS git
+                    Registry URL. For git providers (github, gitlab, gitea), must be an HTTPS git
                     repository URL. For 'cdn', must be an http:// or https:// base URL of a
                     folder serving registry.json and artifacts.
                 ref:
                   type: string
                   minLength: 1
-                  description: Git ref (branch, tag, or commit). Required for git types.
+                  description: Git ref (branch, tag, or commit). Required for git providers.
                 path:
                   type: string
                   minLength: 1
-                  description: Local filesystem path. Required when type is 'local'.
+                  description: Local filesystem path. Required when provider is 'local'.
               allOf:
                 - if:
                     required:
-                      - type
+                      - provider
                     properties:
-                      type:
+                      provider:
                         enum:
                           - github
                           - gitlab
@@ -653,18 +653,18 @@ paths:
                         pattern: "^https://"
                 - if:
                     required:
-                      - type
+                      - provider
                     properties:
-                      type:
+                      provider:
                         const: cdn
                   then:
                     required:
                       - url
                 - if:
                     required:
-                      - type
+                      - provider
                     properties:
-                      type:
+                      provider:
                         const: local
                   then:
                     required:
@@ -910,7 +910,7 @@ paths:
                 name:
                   type: string
                   minLength: 1
-                type:
+                provider:
                   type: string
                   enum:
                     - github
@@ -931,9 +931,9 @@ paths:
               allOf:
                 - if:
                     required:
-                      - type
+                      - provider
                     properties:
-                      type:
+                      provider:
                         enum:
                           - github
                           - gitlab
@@ -4915,7 +4915,7 @@ components:
       required:
         - id
         - name
-        - type
+        - provider
         - created
         - updated
       properties:
@@ -4928,7 +4928,7 @@ components:
           type: string
           minLength: 1
           description: User-friendly alias for this registry.
-        type:
+        provider:
           type: string
           enum:
             - github
@@ -4936,7 +4936,7 @@ components:
             - gitea
             - cdn
             - local
-          description: Registry source type.
+          description: Registry source provider.
         created:
           type: integer
           description: Unix timestamp of registry creation.
@@ -4948,22 +4948,22 @@ components:
           format: uri
           pattern: "^https?://"
           description: |
-            Registry URL. HTTPS git repository URL for git types (github, gitlab, gitea),
+            Registry URL. HTTPS git repository URL for git providers (github, gitlab, gitea),
             or http://-or-https:// CDN base URL for 'cdn'.
         ref:
           type: string
           minLength: 1
-          description: Git ref (branch, tag, or commit). Present for git types.
+          description: Git ref (branch, tag, or commit). Present for git providers.
         path:
           type: string
           minLength: 1
-          description: Local filesystem path to the registry. Present when type is 'local'.
+          description: Local filesystem path to the registry. Present when provider is 'local'.
       allOf:
         - if:
             required:
-              - type
+              - provider
             properties:
-              type:
+              provider:
                 enum:
                   - github
                   - gitlab
