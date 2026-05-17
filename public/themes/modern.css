@@ -269,15 +269,9 @@ tr.gtr1 {
 .caption-tags>*>*>.stdbtn {
   background-color: #4F535B;
 }
-.caption-tags>.tab-panel>*>*>.stdbtn {
-  background-color: #4F535B;
-}
 
 .option-td>.stdbtn:hover,
 .caption-tags>*>*>.stdbtn:hover {
-  background-color: #43464E;
-}
-.caption-tags>.tab-panel>*>*>.stdbtn:hover {
   background-color: #43464E;
 }
 

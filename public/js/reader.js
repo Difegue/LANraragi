@@ -187,7 +187,7 @@ Reader.initializeAll = function () {
         }).then((result) => {
             $("#overlay-page").hide();
             Reader.markerMode = false;
-            Reader.toggleArchiveOverlay();
+            //Reader.toggleArchiveOverlay();
             if (result.isConfirmed && result.value.trim() !== "") {
                 Server.callAPI(`/api/archives/${Reader.id}/stamps/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError, 
                     (data) => {
@@ -212,12 +212,10 @@ Reader.initializeAll = function () {
             $("#overlay-page").hide();
             Reader.markerMode = false;
             Reader.renderMarkers();
-            Reader.toggleArchiveOverlay();
             Reader.pageNaviState = true;
             $(".reader-image").css("cursor", "");
         }
     });
-    $(document).on("click.set-stamp", "#set-stamp", Reader.addStamp);
     $(document).on("click.filter-stamped", "#filter-stamped", Reader.filterStampedOverlay);
 
     
@@ -532,7 +530,7 @@ Reader.initializeSettings = function () {
     Reader.containerWidth = localStorage.containerWidth;
     if (Reader.containerWidth) { $("#container-width-input").val(Reader.containerWidth); }
     
-    Reader.markersVisible = JSON.parse(localStorage.markersVisible);
+    Reader.markersVisible = localStorage.markersVisible === "true" || false;
     $("#toggle-stamps").prop("checked", Reader.markersVisible);
 };
 
@@ -676,6 +674,9 @@ Reader.handleShortcuts = function (e) {
         case 82: // r
             if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
             document.location.href = new LRR.apiURL("/random");
+            break;
+        case 83: // s
+            Reader.addStamp();
             break;
         default:
             break;
@@ -824,7 +825,6 @@ Reader.toggleHelp = function () {
 
 Reader.addStamp = function () {
     Reader.markerMode = true;
-    LRR.closeOverlay(); 
     Reader.clearMarkers();
     $(".reader-image").css("cursor", "cell");
     $("#overlay-page").show();
@@ -1489,16 +1489,17 @@ Reader.toggleFullScreen = function () {
 };
 
 Reader.handleFullScreen = function (enableFullscreen = false) {
-    if (Reader.markersVisible && enableFullscreen) {
-        Reader.toggleStamps();
-    }
     if (window.fscreen.inFullscreen() || enableFullscreen === true) {
+        if (Reader.markersVisible) {
+            Reader.clearMarkers();
+        }
         if ($("body").hasClass("infinite-scroll")) {
             $("div#i3").addClass("fullscreen-infinite");
         } else {
             $("div#i3").addClass("fullscreen");
         }
     } else {
+        Reader.renderMarkers();
         if ($("body").hasClass("infinite-scroll")) {
             $("div#i3").removeClass("fullscreen-infinite");
         } else {
@@ -1597,68 +1598,46 @@ Reader.updateArchiveOverlay = function (forceUpdate = false) {
         htmlBlob += thumbnail;
     }
 
-    // Inititialize the tabs
-    document.querySelectorAll(".tab-btn").forEach(button => {
-        button.addEventListener("click", () => {
-
-            const target = button.dataset.tab;
-
-            document.querySelectorAll(".tab-btn").forEach(btn => {
-                btn.classList.remove("active");
-            });
-
-            document.querySelectorAll(".tab-panel").forEach(panel => {
-                panel.classList.remove("active");
-            });
-
-            button.classList.add("active");
-            document.getElementById(target).classList.add("active");
-        });
-    });
-
     // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
     $("#pages-section").html(htmlBlob);
     $("#archivePagesOverlay").attr("loaded", "true");
+    Reader.checkStampedPages();
 };
 
+Reader.checkStampedPages = function () {
+    Server.callAPI(`/api/archives/${Reader.id}/stamps/`, "GET", null, I18N.ServerInfoError, 
+        (data) => {
+            $("#extract-spinner").hide();
+            let pages = data.result.sort();
+            let elements = $("div.id3.quick-thumbnail");
+
+            for (let element of elements) {
+                let page = parseInt(element.getAttribute("page"));
+                if (pages.includes((page+1).toString())) {
+                    element.dataset.stamped = true;
+                }
+            }
+        }
+    );
+}
+
 Reader.filterStampedOverlay = function () {
+    let elements = $("div.id3.quick-thumbnail");
+
     if (Reader.overlayFiltered) {
         Reader.overlayFiltered = false;
-        Reader.updateArchiveOverlay(true);
+        for (let element of elements) {
+            element.style.display = 'inline-block';
+        }
     } else {
-        Server.callAPI(`/api/archives/${Reader.id}/stamps/`, "GET", null, I18N.ServerInfoError, 
-            (data) => {
-                $("#extract-spinner").hide();
-                let pages = data.result.sort();
-
-                // For each link in the pages array, craft a div and jam it in the overlay.
-                let htmlBlob = "";
-                for (let page = 0; page < pages.length; page++) {
-                    const index = parseInt(pages[page]);
-
-                    const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${index}`);
-                    
-                    let thumbnail = `
-                        <div class='${thumbCss} quick-thumbnail' page='${index-1}' style='display: inline-block; cursor: pointer'>
-                            <span class='page-number'>${I18N.ReaderPage(index)}</span>
-                            <img src="${thumbnailUrl}" id="${index-1}_thumb" loading="lazy" />`;
-
-                    if (Reader.pageThumbnails.includes(index)) thumbnail += 
-                        `</div>`;
-                    else thumbnail += 
-                            `<i id="${index-1}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
-                        </div>`;
-
-                    htmlBlob += thumbnail;
-                }
-
-                // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
-                $("#pages-section").html(htmlBlob);
-                $("#archivePagesOverlay").attr("loaded", "true");
-                Reader.overlayFiltered = true;
+        Reader.overlayFiltered = true;
+        for (let element of elements) {
+            console.log(element);
+            console.log(element.dataset.stamped);
+            if (!element.dataset.stamped) {
+                element.style.display = 'none';
             }
-        );
+        }
     }
 }
 

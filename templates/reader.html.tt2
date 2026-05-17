@@ -103,74 +103,53 @@
     <div id="overlay-shade"></div>
     <div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
         <h2 class="ih" id="archive-title-overlay" style="text-align:center">[% c.lh("Archive Overview") %]</h2>
-        <div class="tabs-buttons">
-            <button class="tab-btn active" data-tab="tab-archive">Archive</button>
-            <button class="tab-btn" data-tab="tab-options">Options</button>
-        </div>
         <div id="tagContainer" class="caption caption-tags caption-reader">
-            <div id="tab-archive" class="tab-panel active">
-                <br>
-                <div style="margin-bottom:16px;">
-                    <div class="id3 nocrop reader-thumbnail">
-                        <img src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
-                    </div>
+            <br>
+            <div style="margin-bottom:16px;">
+                <div class="id3 nocrop reader-thumbnail">
+                    <img src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
+                </div>
 
-                    [% IF userlogged %]
-                    <div style="display:inline-block; vertical-align: middle;">
+                [% IF userlogged %]
+                <div style="display:inline-block; vertical-align: middle;">
 
-                        <h2>[% c.lh("Admin Options") %]</h2>
+                    <h2>[% c.lh("Admin Options") %]</h2>
 
-                        <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
-                        <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
+                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
+                    <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
 
-                        <h2>[% c.lh("Categories") %]</h2>
+                    <h2>[% c.lh("Categories") %]</h2>
 
-                        <div id="archive-categories" style="display:inline-block">
-                            [% FOREACH arc_categories %]
-                            <div class="gt" style="font-size:14px; padding:4px">
-                                <a href="[% c.url_for("/").query("c=$id") %]">
-                                    <span class="label">[% name %]</span>
-                                </a>
-                                <a href="#" class="remove-category" data-id="[% id %]"
-                                    style="margin-left:4px; margin-right:2px">×</a>
-                                </a>
-                            </div>
-                            [% END %]
+                    <div id="archive-categories" style="display:inline-block">
+                        [% FOREACH arc_categories %]
+                        <div class="gt" style="font-size:14px; padding:4px">
+                            <a href="[% c.url_for("/").query("c=$id") %]">
+                                <span class="label">[% name %]</span>
+                            </a>
+                            <a href="#" class="remove-category" data-id="[% id %]"
+                                style="margin-left:4px; margin-right:2px">×</a>
+                            </a>
                         </div>
-
-                        <br />
-                        <span>[% c.lh("Add to : ") %]</span>
-                        <select id="category" class="favtag-btn" style="width:200px">
-                            <option selected value="">[% c.lh(" -- No Category -- ") %]</option>
-                            [% FOREACH categories %]
-                            <option value="[% id %]">[% name %]</option>
-                            [% END %]
-                        </select>
-                        <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
-
-                        <h2>[% c.lh("Rating") %]</h2>
-                        <div data-raty></div>
-                    
+                        [% END %]
                     </div>
-                    [% END %]
+
+                    <br />
+                    <span>[% c.lh("Add to : ") %]</span>
+                    <select id="category" class="favtag-btn" style="width:200px">
+                        <option selected value="">[% c.lh(" -- No Category -- ") %]</option>
+                        [% FOREACH categories %]
+                        <option value="[% id %]">[% name %]</option>
+                        [% END %]
+                    </select>
+                    <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
+
+                    <h2>[% c.lh("Rating") %]</h2>
+                    <div data-raty></div>
+                
                 </div>
+                [% END %]
             </div>
-
-            <div id="tab-options" class="tab-panel">
-                <br>
-                <div style="margin-bottom:16px;">
-                    <div class="id3 nocrop reader-thumbnail">
-                        <img src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
-                    </div>
-
-                    <div style="display:inline-block; vertical-align: middle;">
-                        <input id="set-stamp" class='stdbtn' type='button' value="[% c.lh("Set Stamp") %]"/>
-                        <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
-                    
-                    </div>
-                </div>
-            </div>
-
         </div>
 
         <br><br>
@@ -216,6 +195,7 @@
                 <li>[% c.lh("B: toggle bookmark") %]</li>
                 <li>[% c.lh("N: toggle auto next page") %]</li>
                 <li>[% c.lh("G: go to page number") %]</li>
+                <li>[% c.lh("S: set a Stamp") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
@@ -309,7 +289,7 @@
 
 <div id="toggle-stamps-visibility">
     <h2 class="config-panel"> [% c.lh('Toggle Stamps') %]</h2>
-    <input id="toggle-stamps" class="favtag-btn config-btn" type="checkbox" value="[% c.lh('Disabled') %]">
+    <input id="toggle-stamps" class="fa" type="checkbox" value="[% c.lh('Disabled') %]">
 </div>
 
 [% END %]
