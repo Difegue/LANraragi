@@ -1,9 +1,9 @@
 https://github.com/jhthorsen/json-validator/pull/289
 diff --git a/lib/JSON/Validator/Schema/OpenAPIv3.pm b/lib/JSON/Validator/Schema/OpenAPIv3.pm
-index 7325eb7..493d804 100644
+index 7325eb7..1ca92fb 100644
 --- a/lib/JSON/Validator/Schema/OpenAPIv3.pm
 +++ b/lib/JSON/Validator/Schema/OpenAPIv3.pm
-@@ -279,22 +279,33 @@ sub _validate_body {
+@@ -279,22 +279,35 @@ sub _validate_body {
      $val->{valid}        = $val->{content_type} ? 1 : 0;
      return E "/header/Accept", [join(', ', @{$param->{accepts}}), type => $val->{accept}] unless $val->{valid};
    }
@@ -29,6 +29,8 @@ index 7325eb7..493d804 100644
 +    # Mutate request content-type if one was not set
 +    $val->{content_type} //= $negotiated_content_type;
 +
++    return if $val->{content_type} =~ m!^multipart/form-data!;
++
      local $self->{coerce}{arrays} = 1
 -      if $val->{content_type} =~ m!^(application/x-www-form-urlencoded|multipart/form-data)$!;
 +      if $val->{content_type} =~ m!^(application/x-www-form-urlencoded|multipart/form-data)\s*(;|$)!;
@@ -43,7 +45,7 @@ index 7325eb7..493d804 100644
      $val->{valid} = @errors ? 0 : 1;
      return @errors;
    }
-@@ -528,4 +539,4 @@ Shares the same interface as L<JSON::Validator::Schema::OpenAPIv2/validate_respo
+@@ -528,4 +541,4 @@ Shares the same interface as L<JSON::Validator::Schema::OpenAPIv2/validate_respo
  L<JSON::Validator::Schema>, L<JSON::Validator::Schema::OpenAPIv2> and and
  L<JSON::Validator>.
  
