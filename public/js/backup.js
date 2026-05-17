@@ -1,6 +1,5 @@
 /**
  * Backup Operations
- * @global
  */
 import * as Server from "mod/server";
 import * as LRR from "mod/common";

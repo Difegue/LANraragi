@@ -6,7 +6,18 @@
             "mod/index": "[% c.url_for("/js/mod/index.js?$version") %]",
             "mod/index_datatables": "[% c.url_for("/js/mod/index_datatables.js?$version") %]",
             "i18n": "[% c.url_for("/js/i18n.js?$version") %]",
-            "fscreen": "[% c.url_for("/js/vendor/fscreen.esm.js") %]"
+            "fscreen": "[% c.url_for("/js/vendor/fscreen.esm.js") %]",
+
+            "preact": "[% c.url_for("/js/vendor/preact.module.js") %]",
+            "preact/hooks": "[% c.url_for("/js/vendor/hooks.module.js") %]",
+            "preact/compat": "[% c.url_for("/js/vendor/compat.module.js") %]",
+            "clsx": "[% c.url_for("/js/vendor/clsx.m.js") %]",
+            "react-toastify": "[% c.url_for("/js/vendor/react-toastify.esm.js") %]",
+
+			"react": "[% c.url_for("/js/vendor/compat.module.js") %]",
+			"react-dom": "[% c.url_for("/js/vendor/compat.module.js") %]",
+
+			"sweetalert2": "[% c.url_for("/js/vendor/sweetalert2.esm.min.js") %]"
         }
     }
 </script>

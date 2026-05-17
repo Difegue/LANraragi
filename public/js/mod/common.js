@@ -1,7 +1,10 @@
 /**
  * Functions that get used in multiple pages but don't really depend on networking.
- * @global
  */
+import { createElement, render } from "preact";
+import Swal from "sweetalert2";
+import { ToastContainer, toast as emitToast } from "react-toastify";
+
 import * as Index from "mod/index";
 import * as Server from "mod/server";
 import * as IndexTable from "mod/index_datatables";
@@ -473,7 +476,7 @@ export function getProgress(arcdata) {
  * @param {*} error Error message
  */
 export function showErrorToast(header, error) {
-    toast({
+    emitToast({
         heading: header,
         text: error,
         icon: "error",
@@ -496,7 +499,7 @@ export function showPopUp(c) {
     if (c.icon === "warning" && !c.title) {
         c.title = I18N.ConfirmDestructive;
     }
-    return window.Swal.fire(c);
+    return Swal.fire(c);
 }
 
 /**
@@ -528,8 +531,8 @@ export function toast(c) {
         initializeToasts();
     }
 
-    return window.reactToastify.toast(
-        window.React.createElement("div", { dangerouslySetInnerHTML: { __html: `${c.heading ? `<h2>${c.heading}</h2>` : ""}${c.text ?? ""}` } }), (() => {
+    return emitToast(
+        createElement("div", { dangerouslySetInnerHTML: { __html: `${c.heading ? `<h2>${c.heading}</h2>` : ""}${c.text ?? ""}` } }), (() => {
             const toastType = c.icon || c.typel;
             const isWarningOrError = (toastType === "warning") || (toastType === "error");
             const autoCloseTime = {
@@ -665,8 +668,8 @@ export function initializeToasts() {
     const toastDiv = document.createElement("div");
     document.body.appendChild(toastDiv);
     toastDiv.style.textAlign = "initial";
-    window.React.render(
-        window.React.createElement(window.reactToastify.ToastContainer, {
+    render(
+        createElement(ToastContainer, {
             style: {},
             limit: 7,
             theme: "light",

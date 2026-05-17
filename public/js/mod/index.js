@@ -1,7 +1,6 @@
 /**
  * Non-DataTables Index functions.
  * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
- * @global
  */
 import * as LRR from "mod/common";
 import * as Server from "mod/server";

@@ -1,7 +1,6 @@
 /**
  * Functions to navigate in reader with the keyboard.
  * Also handles the thumbnail archive explorer.
- * @global
  */
 import * as Server from "mod/server";
 import * as LRR from "mod/common";

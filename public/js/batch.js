@@ -1,6 +1,5 @@
 /**
  * Batch Operations
- * @global
  */
 import * as LRR from "mod/common";
 import * as Server from "mod/server";
