@@ -1,0 +1,54 @@
+https://github.com/jhthorsen/json-validator/pull/289
+diff --git a/lib/JSON/Validator/Schema/OpenAPIv3.pm b/lib/JSON/Validator/Schema/OpenAPIv3.pm
+index 7325eb7..1ca92fb 100644
+--- a/lib/JSON/Validator/Schema/OpenAPIv3.pm
++++ b/lib/JSON/Validator/Schema/OpenAPIv3.pm
+@@ -279,22 +279,35 @@ sub _validate_body {
+     $val->{valid}        = $val->{content_type} ? 1 : 0;
+     return E "/header/Accept", [join(', ', @{$param->{accepts}}), type => $val->{accept}] unless $val->{valid};
+   }
++  my $negotiated_content_type;
+   if (@{$param->{accepts}} and $val->{content_type}) {
+-    my $negotiated = negotiate_content_type($param->{accepts}, $val->{content_type});
+-    $val->{valid} = $negotiated ? 1 : 0;
+-    return E "/$param->{name}", [join(', ', @{$param->{accepts}}) => type => $val->{content_type}] unless $negotiated;
++    $negotiated_content_type = negotiate_content_type($param->{accepts}, $val->{content_type});
++    $val->{valid} = $negotiated_content_type ? 1 : 0;
++    return E "/$param->{name}", [join(', ', @{$param->{accepts}}) => type => $val->{content_type}] unless $negotiated_content_type;
+   }
+   if ($param->{required} and !$val->{exists}) {
+     $val->{valid} = 0;
+     return E "/$param->{name}", [qw(object required)];
+   }
+   if ($val->{exists}) {
+-    $val->{content_type} //= $param->{accepts}[0];
++    # Ensures we have a valid content-type so we can select a schema
++    # This can happen if the negotiation fails (e.g. content-type is empty)
++    $negotiated_content_type //= $param->{accepts}[0];
++
++    # Mutate request content-type if one was not set
++    $val->{content_type} //= $negotiated_content_type;
++
++    return if $val->{content_type} =~ m!^multipart/form-data!;
++
+     local $self->{coerce}{arrays} = 1
+-      if $val->{content_type} =~ m!^(application/x-www-form-urlencoded|multipart/form-data)$!;
++      if $val->{content_type} =~ m!^(application/x-www-form-urlencoded|multipart/form-data)\s*(;|$)!;
++
+     local $self->{"validate_$direction"} = 1;
++
++    my $body_params = $param->{content}{$negotiated_content_type};
+     my @errors = map { $_->path(_prefix_error_path($param->{name}, $_->path)); $_ }
+-      $self->validate($val->{value}, $param->{content}{$val->{content_type}}{schema});
++      $self->validate($val->{value}, $body_params->{schema});
++
+     $val->{valid} = @errors ? 0 : 1;
+     return @errors;
+   }
+@@ -528,4 +541,4 @@ Shares the same interface as L<JSON::Validator::Schema::OpenAPIv2/validate_respo
+ L<JSON::Validator::Schema>, L<JSON::Validator::Schema::OpenAPIv2> and and
+ L<JSON::Validator>.
+ 
+-=cut
++=cut
+\ No newline at end of file
