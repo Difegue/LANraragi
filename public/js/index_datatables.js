@@ -160,7 +160,8 @@ IndexTable.renderColumn = function (namespace, type, data) {
                 // If namespace is a date, consider the contents are a UNIX timestamp
                 if (namespace === "date_added" || namespace === "timestamp") {
                     tagText = LRR.convertTimestamp(tagText);
-                } else {
+                } else if (namespace !== "source") {
+                    // Skip capitalization for source: values are URLs and must not be modified
                     tagText = tagText.replace(/\b./g, (m) => m.toUpperCase());
                 }
                 tagLinks += `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, tagText)}">${tagText}</a>, `;
