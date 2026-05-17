@@ -42,6 +42,13 @@ patch -p1 < ../perl-Crypt-DES-fedora-c99.patch
 perl Makefile.PL && make install
 cd ../ && rm -rf Crypt-DES-2.07
 
+cpanm --notest --installdeps JSON::Validator -M https://cpan.metacpan.org
+curl -L -s https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.15.tar.gz | tar -xz
+cd JSON-Validator-5.15
+patch -p1 < ../perl-JSON-Validator.patch
+perl Makefile.PL && make install
+cd ../ && rm -rf JSON-Validator-5.15
+
 # Install the LRR dependencies proper
 cpanm --notest --installdeps . -M https://cpan.metacpan.org
 

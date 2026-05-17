@@ -78,10 +78,10 @@ sub handle_api {
     my $start         = $req->param('start')    || 0;
     my $sortkey       = $req->param('sortby');
     my $sortorder     = $req->param('order');
-    my $newfilter     = $req->param('newonly')       || "false";
-    my $untaggedf     = $req->param('untaggedonly')  || "false";
-    my $grouptanks    = $req->param('groupby_tanks') || "true";
-    my $hidecompleted = $req->param('hidecompleted') || "false";
+    my $newfilter     = $req->param('newonly')       // "false";
+    my $untaggedf     = $req->param('untaggedonly')  // "false";
+    my $grouptanks    = $req->param('groupby_tanks') // "true";
+    my $hidecompleted = $req->param('hidecompleted') // "false";
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
@@ -120,10 +120,10 @@ sub get_random_archives {
 
     my $filter        = $req->param('filter');
     my $category      = $req->param('category')      || "";
-    my $newfilter     = $req->param('newonly')       || "false";
-    my $untaggedf     = $req->param('untaggedonly')  || "false";
-    my $grouptanks    = $req->param('groupby_tanks') || "false";
-    my $hidecompleted = $req->param('hidecompleted') || "false";
+    my $newfilter     = $req->param('newonly')       // "false";
+    my $untaggedf     = $req->param('untaggedonly')  // "false";
+    my $grouptanks    = $req->param('groupby_tanks') // "false";
+    my $hidecompleted = $req->param('hidecompleted') // "false";
     my $random_count  = $req->param('count')         || 5;
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data

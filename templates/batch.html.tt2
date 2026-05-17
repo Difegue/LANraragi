@@ -206,8 +206,18 @@
 
 			<div class="id1 right-column"
 				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
-				<ul class='checklist' id="arclist" style="display:none">
-				</ul>
+				<div id="arclist-container" style="display:none; overflow-y: auto; height: 100%;">
+					<div id="tankoubonsection" style="margin-bottom: 10px;">
+						<h3 style="margin-top: 0;">[% c.lh("Tankoubons") %]</h3>
+						<ul class="checklist" id="tankoubonlist" style="list-style: none; padding-left: 0; margin: 0;"></ul>
+						<p id="no-tankoubons-msg" style="font-style: italic;">[% c.lh("No Tankoubons in your library yet.") %]</p>
+					</div>
+					<div id="archivesection">
+						<h3>[% c.lh("Archives") %]</h3>
+						<ul class="checklist" id="archivelist" style="list-style: none; padding-left: 0; margin: 0;"></ul>
+						<p id="no-archives-msg" style="font-style: italic;">[% c.lh("No Archives in your library yet.") %]</p>
+					</div>
+				</div>
 
 				<div id="loading-placeholder"
 					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">

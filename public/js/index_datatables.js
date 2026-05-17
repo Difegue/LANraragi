@@ -160,7 +160,8 @@ IndexTable.renderColumn = function (namespace, type, data) {
                 // If namespace is a date, consider the contents are a UNIX timestamp
                 if (namespace === "date_added" || namespace === "timestamp") {
                     tagText = LRR.convertTimestamp(tagText);
-                } else {
+                } else if (namespace !== "source") {
+                    // Skip capitalization for source: values are URLs and must not be modified
                     tagText = tagText.replace(/\b./g, (m) => m.toUpperCase());
                 }
                 tagLinks += `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, tagText)}">${tagText}</a>, `;
@@ -169,7 +170,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
             const spanTags = tagLinks.slice(0, -2); // remove the last comma and space
             const popupTags = matches.map((match) => match[0]).join(","); //
             return `
-                <span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
+                <span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
                 <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(popupTags)}</div>
             `;
         } else return "";
@@ -185,17 +186,23 @@ IndexTable.renderColumn = function (namespace, type, data) {
  */
 IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
+        const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
-        const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}
+        // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+        const thumbId = data.thumb_archive || data.arcid;
+        const thumbSrc = data.thumb_archive === ""
+            ? new LRR.apiURL("/img/noThumb.png")
+            : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
+
+        return `${LRR.buildStatusDiv(data)}${LRR.buildPageCountDiv(data)}${bookmarkIcon}
                 <a id="${data.arcid}"
-                   onmouseover="IndexTable.buildImageTooltip(this)" 
+                   onmouseover="IndexTable.buildImageTooltip(this)"
                    href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
-                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`)}"
+                    <img style="height:300px" src="${thumbSrc}"
                          onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
                 </div>`;
     }
@@ -211,7 +218,7 @@ IndexTable.renderTitle = function (data, type) {
  */
 IndexTable.renderTags = function (data, type) {
     if (type === "display") {
-        return `<span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+        return `<span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
                     ${LRR.colorCodeTags(data)}
                 </span>
                 <div class="caption caption-tags" style="display: none;" >
@@ -420,22 +427,4 @@ IndexTable.buildImageTooltip = function (target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", ""); // Don't trigger this function again for this element
-};
-
-/**
- * Build a tooltip when hovering over a tag div, then display it.
- * @param {*} target The target tags div
- */
-IndexTable.buildTagTooltip = function (target) {
-    tippy(target, {
-        content: $(target).next("div").attr("style", "")[0],
-        delay: 0,
-        placement: "auto-start",
-        maxWidth: "none",
-        interactive: true,
-        // Have to be outside so that it is not hidden by other elements.
-        appendTo: document.body,
-    }).show(); // Call show() so that the tooltip shows now
-
-    $(target).attr("onmouseover", "");
 };

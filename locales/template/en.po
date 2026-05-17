@@ -820,6 +820,9 @@ msgstr "Select Archives"
 msgid "Run Batch Operations on selection"
 msgstr "Run Batch Operations on selection"
 
+msgid "Merge Archives into Tankoubon"
+msgstr "Merge Archives into Tankoubon"
+
 msgid "Clear selection"
 msgstr "Clear selection"
 
@@ -1420,6 +1423,21 @@ msgstr "Writing a Predicate"
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
+msgid "Pages read / Total pages"
+msgstr "Pages read / Total pages"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "Pages read / Total pages / Archives in Tankoubon"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 
@@ -1789,6 +1807,27 @@ msgstr "Add to selection"
 
 msgid "Remove from selection"
 msgstr "Remove from selection"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "Enter a name for the new Tankoubon."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "This will contain all the selected Archives as a single item in your Library."
+
+msgid "Please enter a name."
+msgstr "Please enter a name."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "Added \${n} Archives to \${tank}!"
+
+msgid "Error creating Tankoubon"
+msgstr "Error creating Tankoubon"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "Error adding archives to Tankoubon"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "Merge selection into a Tankoubon"
 
 msgid "Hide completed Archives"
 msgstr "Hide completed Archives"

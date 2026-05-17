@@ -57,6 +57,12 @@ I18N.BookmarkLinkError = "[% c.lh("Error linking bookmark button:") %]";
 I18N.BookmarkUnlinkError = "[% c.lh("Error unlinking bookmark button:") %]";
 I18N.GetBookmarkError = "[% c.lh("Error getting bookmark category:") %]";
 
+I18N.StatusNew = "[% c.lh("New archive") %]";
+I18N.StatusRead = "[% c.lh("Archive read") %]";
+I18N.StatusTankoubon = "[% c.lh("Tankoubon (collection)") %]";
+I18N.PageCount = "[% c.lh("Pages read / Total pages") %]";
+I18N.TankPageCount = "[% c.lh("Pages read / Total pages / Archives in Tankoubon") %]";
+
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";
@@ -98,6 +104,12 @@ I18N.MSMSelectionHint = "[% c.lh("Click Archives to add them to the selection. Y
 I18N.MSMConfirmExit = "[% c.lh("Exit selection mode? Your current selection will be lost. ") %]";
 I18N.MSMAddToSelection = "[% c.lh("Add to selection") %]";
 I18N.MSMRemoveFromSelection = "[% c.lh("Remove from selection") %]";
+I18N.MSMMergePromptTitle = "[% c.lh("Enter a name for the new Tankoubon.") %]";
+I18N.MSMMergePromptText = "[% c.lh("This will contain all the selected Archives as a single item in your Library.") %]";
+I18N.MSMMergeNameRequired = "[% c.lh("Please enter a name.") %]";
+I18N.MSMMergeSuccess = (n, tank) => `[% c.lh("Added \${n} Archives to \${tank}!") %]`;
+I18N.MSMMergeError = "[% c.lh("Error creating Tankoubon") %]";
+I18N.MSMMergeAddError = "[% c.lh("Error adding archives to Tankoubon") %]";
 
 I18N.IndexEditColumn = "[% c.lh("Edit this column") %]";
 I18N.IndexTitle = "[% c.lh("Title") %]";

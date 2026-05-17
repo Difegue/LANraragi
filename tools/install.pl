@@ -14,7 +14,8 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 #Vendor dependencies
 my @vendor_css = (
-    "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
+    "/blueimp-file-upload/css/jquery.fileupload.css",
+    [ "/\@fortawesome/fontawesome-free/css/all.min.css", "fontawesome-all.min.css" ],
     "/jqcloud2/dist/jqcloud.min.css",                      "/react-toastify/dist/ReactToastify.min.css",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
     "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
@@ -196,9 +197,6 @@ if ( $front || $full ) {
         cp_node_module( $css, "/public/css/vendor/" );
     }
 
-    #Rename the fontawesome css to something a bit more explanatory
-    copy( getcwd . "/public/css/vendor/all.min.css", getcwd . "/public/css/vendor/fontawesome-all.min.css" );
-
     for my $js (@vendor_js) {
         cp_node_module( $js, "/public/js/vendor/" );
     }
@@ -221,9 +219,20 @@ sub cp_node_module {
 
     my ( $item, $newpath ) = @_;
 
-    my $nodename = getcwd . "/node_modules" . $item;
-    $item =~ /([^\/]+$)/;
-    my $newname     = getcwd . $newpath . $&;
+    my ( $nodename, $newname );
+
+    if ( ref($item) eq 'ARRAY' ) {
+        # First element = source filename
+        # Second element = target filename
+        $nodename = getcwd . "/node_modules" . $item->[0];
+        $newname  = getcwd . $newpath . $item->[1];
+    } else {
+        # Reuse source filename as target filename
+        $nodename = getcwd . "/node_modules" . $item;
+        $item =~ /([^\/]+$)/;
+        $newname = getcwd . $newpath . $&;
+    }
+
     my $nodemapname = $nodename . ".map";
     my $newmapname  = $newname . ".map";
 
