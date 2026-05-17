@@ -117,7 +117,6 @@
 
                     <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
                     <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
-                    <input id="filter-stamped" class='stdbtn' type='button' value="[% c.lh("Filter stamped pages") %]"/>
 
                     <h2>[% c.lh("Categories") %]</h2>
 
@@ -155,7 +154,9 @@
         <br><br>
 
         <div class="overlay-bar">
-            <div class="overlay-bar-left"></div>
+            <div class="overlay-bar-left">
+                <a class="fas fa-stamp" id="filter-stamped" href="#" style="padding:12px" title="[% c.lh("Filter stamped pages") %]"></a>
+            </div>
             <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
             <div class="chapter-selector"></div>
         </div>

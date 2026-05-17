@@ -1632,8 +1632,6 @@ Reader.filterStampedOverlay = function () {
     } else {
         Reader.overlayFiltered = true;
         for (let element of elements) {
-            console.log(element);
-            console.log(element.dataset.stamped);
             if (!element.dataset.stamped) {
                 element.style.display = 'none';
             }
