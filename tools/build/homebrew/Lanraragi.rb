@@ -30,6 +30,11 @@ class Lanraragi < Formula
     sha256 "bc54137346c1d45626e7075015f7d1dae813394af885457499f54878cfc19e0b"
   end
 
+  resource "JSON::Validator" do
+    url "https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.15.tar.gz"
+    sha256 "eab57676bd3c7c318bc99118754e7f973259792f1ca13099e041938dd515bc05"
+  end
+
   def install
     ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
     ENV["OPENSSL_PREFIX"] = Formula["openssl@3"].opt_prefix
@@ -42,6 +47,13 @@ class Lanraragi < Formula
                 "/usr/local/include/ImageMagick-#{imagemagick.version.major}",
                 "#{imagemagick.opt_include}/ImageMagick-#{imagemagick.version.major}"
 
+      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
+      system "make"
+      system "make", "install"
+    end
+
+    resource("JSON::Validator").stage do
+      system "patch", "-p1", "-i", buildpath/"tools/build/all/perl-JSON-Validator.patch"
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
       system "make"
       system "make", "install"
