@@ -17,20 +17,24 @@ use LANraragi::Utils::Registry qw(
 use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
 
 # Source fields that, when changed, invalidate the cached index.
-my @SOURCE_FIELDS = qw(type provider url ref path);
+my @SOURCE_FIELDS = qw(type url ref path);
 
 # Fields valid per registry type.
 my %TYPE_FIELDS = (
-    git   => [qw(name type provider url ref)],
-    cdn   => [qw(name type url)],
-    local => [qw(name type path)],
+    github  => [qw(name type url ref)],
+    gitlab  => [qw(name type url ref)],
+    gitea   => [qw(name type url ref)],
+    cdn     => [qw(name type url)],
+    local   => [qw(name type path)],
 );
 
-# Fields that must be removed when switching types.
+# Fields that must be removed when switching kinds.
 my %STALE_FIELDS = (
-    git   => [qw(path)],
-    cdn   => [qw(provider ref path)],
-    local => [qw(provider url ref)],
+    github  => [qw(path)],
+    gitlab  => [qw(path)],
+    gitea   => [qw(path)],
+    cdn     => [qw(ref path)],
+    local   => [qw(url ref)],
 );
 
 # Create a registry entry with a generated REG_{timestamp} ID.
@@ -142,7 +146,7 @@ sub update_registry {
 
     my %current_registry = $redis->hgetall($registry_id);
 
-    # type enum is validated by OpenAPI (enum: [git, cdn, local]) on the request body.
+    # type enum is validated by OpenAPI (enum: [github, gitlab, gitea, cdn, local]) on the request body.
     my $updated_registry_type = $updated_registry{type};
     my $current_registry_type = $current_registry{type};
     my $target_registry_type  = defined $updated_registry_type ? $updated_registry_type : $current_registry_type;
@@ -167,21 +171,13 @@ sub update_registry {
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
 
-    if ( $target_registry_type eq "git" ) {
-        unless ( $merged{url} ) {
-            return ( 400, undef, "Git registry needs a URL." );
-        }
-        unless ( $merged{provider} ) {
-            return ( 400, undef, "Git registry needs a provider." );
-        }
+    if ( $target_registry_type eq "github" || $target_registry_type eq "gitlab" || $target_registry_type eq "gitea" ) {
+        return ( 400, undef, "Git registry needs a URL." ) unless $merged{url};
+        return ( 400, undef, "Git registry needs a ref." ) unless $merged{ref};
     } elsif ( $target_registry_type eq "cdn" ) {
-        unless ( $merged{url} ) {
-            return ( 400, undef, "CDN registry needs a URL." );
-        }
+        return ( 400, undef, "CDN registry needs a URL." ) unless $merged{url};
     } elsif ( $target_registry_type eq "local" ) {
-        unless ( $merged{path} ) {
-            return ( 400, undef, "Local registry needs a path." );
-        }
+        return ( 400, undef, "Local registry needs a path." ) unless $merged{path};
     }
 
     # If a type change is made, then registry may be left with stale or mixed type states, which we'll need to clean up.

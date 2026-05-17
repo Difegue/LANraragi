@@ -612,29 +612,24 @@ paths:
                 type:
                   type: string
                   enum:
-                    - git
-                    - cdn
-                    - local
-                  description: Registry source type.
-                provider:
-                  type: string
-                  enum:
                     - github
                     - gitlab
                     - gitea
-                  description: Git hosting provider. Required when type is 'git'.
+                    - cdn
+                    - local
+                  description: Registry source type.
                 url:
                   type: string
                   format: uri
                   pattern: "^https?://"
                   description: |
-                    Registry URL. For 'git', must be an HTTPS git repository URL.
-                    For 'cdn', must be an http:// or https:// base URL of a folder
-                    serving registry.json and artifacts.
+                    Registry URL. For git types (github, gitlab, gitea), must be an HTTPS git
+                    repository URL. For 'cdn', must be an http:// or https:// base URL of a
+                    folder serving registry.json and artifacts.
                 ref:
                   type: string
                   minLength: 1
-                  description: Git ref (branch, tag, or commit). Defaults to 'main'.
+                  description: Git ref (branch, tag, or commit). Required for git types.
                 path:
                   type: string
                   minLength: 1
@@ -645,11 +640,14 @@ paths:
                       - type
                     properties:
                       type:
-                        const: git
+                        enum:
+                          - github
+                          - gitlab
+                          - gitea
                   then:
                     required:
                       - url
-                      - provider
+                      - ref
                     properties:
                       url:
                         pattern: "^https://"
@@ -915,15 +913,11 @@ paths:
                 type:
                   type: string
                   enum:
-                    - git
-                    - cdn
-                    - local
-                provider:
-                  type: string
-                  enum:
                     - github
                     - gitlab
                     - gitea
+                    - cdn
+                    - local
                 url:
                   type: string
                   format: uri
@@ -940,7 +934,10 @@ paths:
                       - type
                     properties:
                       type:
-                        const: git
+                        enum:
+                          - github
+                          - gitlab
+                          - gitea
                   then:
                     properties:
                       url:
@@ -4934,7 +4931,9 @@ components:
         type:
           type: string
           enum:
-            - git
+            - github
+            - gitlab
+            - gitea
             - cdn
             - local
           description: Registry source type.
@@ -4944,35 +4943,31 @@ components:
         updated:
           type: integer
           description: Unix timestamp of last update.
-        provider:
-          type: string
-          enum:
-            - github
-            - gitlab
-            - gitea
-          description: Git hosting provider. Required when type is 'git'.
         url:
           type: string
           format: uri
           pattern: "^https?://"
           description: |
-            Registry URL. HTTPS git repository URL for 'git', or http://-or-https://
-            CDN base URL for 'cdn'.
+            Registry URL. HTTPS git repository URL for git types (github, gitlab, gitea),
+            or http://-or-https:// CDN base URL for 'cdn'.
         ref:
           type: string
           minLength: 1
-          description: Git ref (branch, tag, or commit). Defaults to 'main'.
+          description: Git ref (branch, tag, or commit). Present for git types.
         path:
           type: string
           minLength: 1
-          description: Local filesystem path to the registry. Required when type is 'local'.
+          description: Local filesystem path to the registry. Present when type is 'local'.
       allOf:
         - if:
             required:
               - type
             properties:
               type:
-                const: git
+                enum:
+                  - github
+                  - gitlab
+                  - gitea
           then:
             properties:
               url:

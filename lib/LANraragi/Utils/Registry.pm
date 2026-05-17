@@ -52,10 +52,10 @@ my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type versions);
 my @ALLOWED_VERSION_FIELDS  = qw(version name author description artifact sha256 published_at);
 my @REQUIRED_VERSION_FIELDS = qw(name author description artifact sha256 published_at);
 
-# Resolve a git URL to a raw file URL for a given provider
-# (Should) support github, gitlab, and gitea/codeberg providers but who knows
+# Resolve a git URL to a raw file URL for a given type
+# (Should) support github, gitlab, and gitea/codeberg types but who knows
 sub resolve_git_raw_url {
-    my ( $provider, $url, $ref, $path ) = @_;
+    my ( $type, $url, $ref, $path ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
@@ -71,15 +71,15 @@ sub resolve_git_raw_url {
     my $epath = join( "/", map { url_escape($_) } split( m{/}, $path ) );
     my $eref  = url_escape($ref);
 
-    if ( $provider eq "github" ) {
+    if ( $type eq "github" ) {
         return "https://raw.githubusercontent.com/$owner/$repo/$eref/$epath";
-    } elsif ( $provider eq "gitlab" ) {
+    } elsif ( $type eq "gitlab" ) {
         return "https://$host/$owner/$repo/-/raw/$eref/$epath";
-    } elsif ( $provider eq "gitea" ) {
+    } elsif ( $type eq "gitea" ) {
         return "https://$host/api/v1/repos/$owner/$repo/raw/$epath?ref=$eref";
     }
 
-    $logger->error("Unknown provider '$provider' for URL: $url");
+    $logger->error("Unknown registry type '$type' for URL: $url");
     return;
 }
 
@@ -132,18 +132,32 @@ sub fetch_registry_resource {
         return ( 200, $content, undef );
     }
 
-    if ( $type eq "git" || $type eq "cdn" ) {
-        my $url;
-        if ( $type eq "git" ) {
-            $url = resolve_git_raw_url(
-                $registry_config->{provider}, $registry_config->{url},
-                $registry_config->{ref},      $relpath
-            );
-        } else {
-            $url = resolve_cdn_artifact_url( $registry_config->{url}, $relpath );
-        }
+    if ( $type eq "github" || $type eq "gitlab" || $type eq "gitea" ) {
+        my $url = resolve_git_raw_url(
+            $type, $registry_config->{url},
+            $registry_config->{ref}, $relpath
+        );
         unless ($url) {
-            return ( 400, undef, "Cannot resolve $type URL for $relpath" );
+            return ( 400, undef, "Cannot resolve git URL for $relpath" );
+        }
+
+        $logger->info("Fetching registry resource from $url");
+        my $ua = Mojo::UserAgent->new;
+        $ua->max_response_size($max_size) if defined $max_size;
+        my $res = eval { $ua->get($url)->result };
+        unless ( defined $res ) {
+            return ( 502, undef, "Cannot reach registry: $@" );
+        }
+        unless ( $res->is_success ) {
+            return ( 502, undef, "Failed to fetch resource: HTTP " . $res->code );
+        }
+        return ( 200, $res->body, undef );
+    }
+
+    if ( $type eq "cdn" ) {
+        my $url = resolve_cdn_artifact_url( $registry_config->{url}, $relpath );
+        unless ($url) {
+            return ( 400, undef, "Cannot resolve CDN URL for $relpath" );
         }
 
         $logger->info("Fetching registry resource from $url");

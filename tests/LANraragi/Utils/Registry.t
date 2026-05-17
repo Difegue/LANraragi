@@ -107,7 +107,7 @@ note('testing resolve_git_raw_url for gitea...');
     is( $result, "https://git.local/api/v1/repos/owner/repo/raw/Plugin/Scripts/Baz.pm?ref=v1.0", "gitea self-hosted plugin path" );
 }
 
-note('testing resolve_git_raw_url enforces HTTPS for gitlab/gitea...');
+note('testing resolve_git_raw_url outputs https regardless of input scheme for gitlab/gitea...');
 
 {
     my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
@@ -141,7 +141,7 @@ note('testing resolve_git_raw_url with invalid input...');
 
 {
     my $result = LANraragi::Utils::Registry::resolve_git_raw_url( "unknown", "https://example.com/owner/repo.git", "main", "registry.json" );
-    is( $result, undef, "unknown provider returns undef" );
+    is( $result, undef, "unknown type returns undef" );
 }
 
 note('testing resolve_cdn_artifact_url accepts https and http schemes...');

@@ -23,10 +23,10 @@ sub list_registries {
     );
 }
 
-# create a registry, which can be of type git, cdn, or local.
-# git type: requires provider, url, ref (default "main").
+# create a registry, which can be of type github, gitlab, gitea, cdn, or local.
+# git types (github/gitlab/gitea): require url (https) and ref.
 # cdn type: requires url (http or https base URL).
-# local type: requires path (to local registry.json)
+# local type: requires path (to local registry directory)
 sub create_registry {
     my $self    = shift->openapi->valid_input or return;
     my $body    = $self->req->json;
@@ -43,10 +43,9 @@ sub create_registry {
             my $redis = $self->LRR_CONF->get_redis_config;
             my %config = ( name => $body->{name}, type => $type );
 
-            if ( $type eq "git" ) {
-                $config{provider} = $body->{provider};
-                $config{url}      = $body->{url};
-                $config{ref}      = $body->{ref} // "main";
+            if ( $type eq "github" || $type eq "gitlab" || $type eq "gitea" ) {
+                $config{url} = $body->{url};
+                $config{ref} = $body->{ref};
             } elsif ( $type eq "cdn" ) {
                 $config{url} = $body->{url};
             } elsif ( $type eq "local" ) {
@@ -120,7 +119,7 @@ sub update_registry {
         $registry_id,
         sub {
             my %updated_registry;
-            for my $field (qw(name type provider url ref path)) {
+            for my $field (qw(name type url ref path)) {
                 $updated_registry{$field} = $body->{$field} if exists $body->{$field};
             }
 
