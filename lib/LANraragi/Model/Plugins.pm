@@ -423,10 +423,10 @@ sub install_plugin {
     };
 
     my $backup_path;
+    my $require_attempted = 0;
     if ( -e $install_path ) {
         # stage: create backup of plugin
-        # rollback: restore from backup
-        # TODO(REVIEW): if the plugin was restored from backup, shouldn't we re-require it?
+        # rollback: restore from backup; if require was attempted, reload old plugin
         $backup_path = "$install_path.rollback";
         unlink $backup_path if -e $backup_path;
         unless ( rename $install_path, $backup_path ) {
@@ -436,7 +436,13 @@ sub install_plugin {
         }
         push @undo, [
             "restore old_plugin_metadata artifact from $backup_path",
-            sub { rename( $backup_path, $install_path ) ? undef : "$!" },
+            sub {
+                return "$!"     unless rename( $backup_path, $install_path );
+                return undef    unless $require_attempted;
+                delete $INC{$install_relpath};
+                my $ok = eval { no warnings 'redefine'; require $install_relpath; 1 };
+                $ok ? undef : "$@";
+            },
         ];
     }
 
@@ -524,6 +530,7 @@ sub install_plugin {
     ];
 
     # stage: reload plugin module
+    $require_attempted = 1;
     delete $INC{$install_relpath};
     eval { require $install_relpath };
     my $require_error = $@;
