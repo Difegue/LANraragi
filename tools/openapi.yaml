@@ -963,9 +963,6 @@ paths:
                     type: string
                     minLength: 14
                     maxLength: 14
-                  index_cleared:
-                    type: boolean
-                    description: Whether the cached index was cleared due to source field changes.
         '400':
           description: Update failed (missing required fields, invalid path)
           content:

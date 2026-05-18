@@ -1,8 +1,6 @@
 package LANraragi::Controller::Api::Registry;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(true false);
-
 use LANraragi::Model::Registry;
 use LANraragi::Utils::Generic  qw(render_api_response exec_with_lock);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -129,10 +127,10 @@ sub update_registry {
             }
 
             my $redis = $self->LRR_CONF->get_redis_config;
-            my ( $status, $indexcleared, $error ) = LANraragi::Model::Registry::update_registry(
+            my ( $status, $error ) = LANraragi::Model::Registry::update_registry(
                 $registry_id, $redis, %updated_registry
             );
-            $logger->info("Update registry result for '$registry_id': status=$status, index_cleared=$indexcleared");
+            $logger->info("Update registry result for '$registry_id': status=$status");
             $redis->quit();
 
             unless ( $status == 200 ) {
@@ -150,7 +148,6 @@ sub update_registry {
                     success       => 1,
                     error         => "",
                     id            => $registry_id,
-                    index_cleared => $indexcleared ? true : false,
                 }
             );
         }

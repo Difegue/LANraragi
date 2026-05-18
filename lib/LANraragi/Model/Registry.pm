@@ -16,9 +16,6 @@ use LANraragi::Utils::Registry qw(
 # Max registry index size for slurp (files will/should never reach this size anyways but stops OOM)
 use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
 
-# Source fields that, when changed, invalidate the cached index.
-my @SOURCE_FIELDS = qw(provider url ref path);
-
 # Fields valid per registry provider.
 my %PROVIDER_FIELDS = (
     github  => [qw(name provider url ref)],
@@ -41,43 +38,40 @@ my %STALE_FIELDS = (
 # Returns ( $registry_id, undef ) or ( undef, $error_message ).
 sub create_registry {
     my ( $config, $redis ) = @_;
-    my %config = %{$config};
+    my $name     = $config->{name};
+    my $provider = $config->{provider};
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    $logger->info("Creating registry (provider: $config{provider})");
+    $logger->debug("Creating registry (provider: $provider)");
 
-    # Sanitize local registry path
-    if ( $config{provider} eq "local" && defined $config{path} ) {
-        if ( index( $config{path}, "\0" ) >= 0 || $config{path} =~ /\.\./ ) {
-            return ( undef, "Invalid registry path." );
-        }
-    }
+    # Atomically claim an unused ID and populate registry hash in one go.
+    my $script = <<~'LUA';
+        if redis.call("EXISTS", KEYS[1]) == 1 then
+            return 0
+        end
+        redis.call("HSET", KEYS[1], unpack(ARGV))
+        return 1
+        LUA
 
-    # Atomically claim an unused REG_<ts> hash key and populate registry hash in one go.
-    my $claim_script = <<'LUA';
-    if redis.call("EXISTS", KEYS[1]) == 1 then
-        return 0
-    end
-    redis.call("HSET", KEYS[1], unpack(ARGV))
-    return 1
-LUA
-
-    my $registry_provider   = $config{provider};
-    my @valid_fields        = @{ $PROVIDER_FIELDS{$registry_provider} };
+    # Prepare fields
     my @field_args;
+    my @valid_fields = @{ $PROVIDER_FIELDS{$provider} };
     foreach my $field (@valid_fields) {
-        next unless defined $config{$field};
-        push @field_args, $field, $config{$field};
+        next unless defined $config->{$field};
+        push @field_args, $field, $config->{$field};
     }
-
     my $now = time;
     push @field_args, "created", $now, "updated", $now;
 
+    # Start running script until a registry is created
     my $registry_id;
     my $offset = 0;
-    until ($registry_id) {
-        my $candidate = "REG_" . ( time() + $offset );
-        my $claimed   = eval { $redis->eval( $claim_script, 1, $candidate, @field_args ) };
+    until ( $registry_id ) {
+        my $candidate   = "REG_" . ( time() + $offset );
+        my $claimed     = eval { $redis->eval(
+            $script, 1, $candidate,
+            @field_args
+        ) };
         if ($@) {
             $logger->error("Redis error during registry id claim: $@");
             return ( undef, "Redis error while creating registry." );
@@ -88,9 +82,7 @@ LUA
             $offset++;
         }
     }
-
-    $logger->info("Created registry '$registry_id' (name: $config{name}, provider: $registry_provider)");
-
+    $logger->info("Created registry '$registry_id' (name: $name, provider: $provider)");
     return ( $registry_id, undef );
 }
 
@@ -109,135 +101,115 @@ sub get_registry {
     return %config;
 }
 
-# List all registries.
 sub get_registry_list {
     my ($redis) = @_;
 
-    my @reg_ids = $redis->keys("REG_??????????");
-
-    my @result;
-
     # Sort by timestamp for deterministic order across multiple registries.
+    my @result;
+    my @reg_ids = $redis->keys("REG_??????????");
     foreach my $key ( sort @reg_ids ) {
         my %config = get_registry( $key, $redis );
-        push @result, \%config if %config;    # skip if deleted between keys() and hgetall
+        push @result, \%config if %config; # skip if deleted between keys() and hgetall
     }
 
     return @result;
 }
 
 # Update mutable fields on an existing registry.
+# Partial updates through updated_registry are accepted.
 sub update_registry {
     my ( $registry_id, $redis, %updated_registry ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
-    $logger->info("Updating registry '$registry_id'");
+    $logger->debug("Updating registry '$registry_id'");
 
+    # Argument validation
+    if ( !%updated_registry ) {
+        return ( 400, "No fields provided to update.");
+    }
+
+    # Target registry existence validation
     unless ( is_valid_registry( $registry_id, $redis ) ) {
-        return ( 404, undef, "This registry doesn't exist." );
+        return ( 404, "This registry is invalid or doesn't exist." );
     }
+    my ($suffix)                    = $registry_id =~ /^REG_(\d{10})$/;
+    my $registry_index_key          = "REG_INDEX_$suffix";
 
-    # Sanitize local registry path if provided
-    if ( defined $updated_registry{path} ) {
-        if ( index( $updated_registry{path}, "\0" ) >= 0 || $updated_registry{path} =~ /\.\./ ) {
-            return ( 400, undef, "Invalid registry path." );
-        }
-    }
-
-    my %current_registry = $redis->hgetall($registry_id);
-
-    # provider enum is validated by OpenAPI (enum: [github, gitlab, gitea, cdn, local]) on the request body.
+    # Source registry field validation
+    my %current_registry            = $redis->hgetall($registry_id);
     my $updated_registry_provider   = $updated_registry{provider};
     my $current_registry_provider   = $current_registry{provider};
     my $target_registry_provider    = defined $updated_registry_provider ? $updated_registry_provider : $current_registry_provider;
-
-    my %valid_set = map { $_ => 1 } @{ $PROVIDER_FIELDS{$target_registry_provider} };
-    my @invalid_fields = sort grep { !$valid_set{$_} } keys %updated_registry;
+    my %valid_set                   = map { $_ => 1 } @{ $PROVIDER_FIELDS{$target_registry_provider} };
+    my @invalid_fields              = sort grep { !$valid_set{$_} } keys %updated_registry;
     if (@invalid_fields) {
-        return ( 400, undef, "Fields not valid for provider '$target_registry_provider': " . join( ", ", @invalid_fields ) );
-    }
-
-    # Determine if source fields are changing
-    my $indexcleared = 0;
-    foreach my $field (@SOURCE_FIELDS) {
-        next unless exists $updated_registry{$field};
-        if ( !defined $current_registry{$field} || $current_registry{$field} ne $updated_registry{$field} ) {
-            $logger->info("Source field '$field' changed on '$registry_id'; will clear cached index.");
-            $indexcleared = 1;
-            last;
-        }
+        return ( 400, "Fields not valid for provider '$target_registry_provider': " . join( ", ", @invalid_fields ) );
     }
 
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
-
     if ( $target_registry_provider eq "github" || $target_registry_provider eq "gitlab" || $target_registry_provider eq "gitea" ) {
-        return ( 400, undef, "Git registry needs a URL." ) unless $merged{url};
-        return ( 400, undef, "Git registry needs a ref." ) unless $merged{ref};
+        return ( 400, "Git registry needs a URL." )      unless $merged{url};
+        return ( 400, "Git registry needs a ref." )      unless $merged{ref};
     } elsif ( $target_registry_provider eq "cdn" ) {
-        return ( 400, undef, "CDN registry needs a URL." ) unless $merged{url};
+        return ( 400, "CDN registry needs a URL." )      unless $merged{url};
     } elsif ( $target_registry_provider eq "local" ) {
-        return ( 400, undef, "Local registry needs a path." ) unless $merged{path};
+        return ( 400, "Local registry needs a path." )   unless $merged{path};
     }
 
-    # If a provider change is made, then registry may be left with stale or mixed provider states, which we'll need to clean up.
-    my @fields_to_remove;
-    # provider is always set on a valid registry (stored at creation)
+    # Prepare fields to remove/set.
+    my @fields_to_remove;   # remove stale fields whenever provider changes
+    my @fields_to_set;      # apply only changes from updated_registry
     if ( exists $updated_registry{provider} && $updated_registry_provider ne $current_registry_provider ) {
         $logger->info("Provider change on '$registry_id': '$current_registry_provider' -> '$target_registry_provider'; removing stale fields.");
         @fields_to_remove = @{ $STALE_FIELDS{$target_registry_provider} };
     }
-
-    my @fields_to_set;
     foreach my $field ( keys %updated_registry ) {
+        my $updated_value = $updated_registry{$field};
+        my $current_value = $current_registry{$field};
+        if ( defined $current_value && $current_value eq $updated_value ) {
+            $logger->debug("Skipping unchanged field '$field' on '$registry_id'");
+            next;
+        }
         $logger->debug("Setting field '$field' on '$registry_id'");
-        push @fields_to_set, $field, $updated_registry{$field};
+        push @fields_to_set, $field, $updated_value;
     }
-
     if ( !@fields_to_set && !@fields_to_remove ) {
-        return ( 400, undef, "No valid fields to update for this registry provider." );
+        $logger->debug("No fields to update.");
+        return ( 200, undef );
     }
+    push @fields_to_set, "updated", time;
 
-    my $now = time;
-    push @fields_to_set, "updated", $now;
-
-    my $indexkey = "";
-    if ( $indexcleared ) {
-        my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-        $indexkey = "REG_INDEX_$suffix";
-    }
-
-    my $script = <<'LUA';
-    local ndel = tonumber(ARGV[1])
-    local idx = 2
-    for _ = 1, ndel do
-        redis.call("HDEL", KEYS[1], ARGV[idx])
-        idx = idx + 1
-    end
-    while idx + 1 <= #ARGV do
-        redis.call("HSET", KEYS[1], ARGV[idx], ARGV[idx + 1])
-        idx = idx + 2
-    end
-    if KEYS[2] ~= "" then
+    # Remove from fields_to_remove,
+    # set from fields_to_set,
+    # remove index.
+    my $script = <<~'LUA';
+        local remove_count  = tonumber(ARGV[1])
+        local idx           = 2
+        for _ = 1, remove_count do
+            redis.call("HDEL", KEYS[1], ARGV[idx])
+            idx = idx + 1
+        end
+        while idx + 1 <= #ARGV do
+            redis.call("HSET", KEYS[1], ARGV[idx], ARGV[idx + 1])
+            idx = idx + 2
+        end
         redis.call("DEL", KEYS[2])
-    end
-    return 1
-LUA
-
+        LUA
     eval {
-        $redis->eval( $script, 2, $registry_id, $indexkey,
-            scalar @fields_to_remove, @fields_to_remove, @fields_to_set );
+        $redis->eval(
+            $script, 2, $registry_id, $registry_index_key,
+            scalar @fields_to_remove,
+            @fields_to_remove,
+            @fields_to_set
+        );
     };
     if ( my $err = $@ ) {
         $logger->error("Redis error during registry update for '$registry_id': $err");
-        return ( 500, undef, "Redis error while updating registry." );
+        return ( 500, "Redis error while updating registry." );
     }
 
-    if ( $indexcleared ) {
-        $logger->info("Cleared cached index for '$registry_id' due to source field change.");
-    }
-
-    return ( 200, $indexcleared, undef );
+    return ( 200, undef );
 }
 
 # Delete a registry and its cached index.
@@ -254,11 +226,10 @@ sub delete_registry {
     my $registry_index_key      = "REG_INDEX_$suffix";
 
     # Delete registry + index key
-    my $script = <<'LUA';
-    redis.call("DEL", KEYS[1])
-    redis.call("DEL", KEYS[2])
-    return 1
-LUA
+    my $script = <<~'LUA';
+        redis.call("DEL", KEYS[1])
+        redis.call("DEL", KEYS[2])
+        LUA
 
     eval { $redis->eval( $script, 2, $registry_id, $registry_index_key ) };
     if ($@) {
@@ -304,79 +275,37 @@ sub remove_default_registry {
     return $registry_id;
 }
 
-# Fetch registry.json from a configured registry source.
-sub fetch_registry_index {
-    my %registry_config = @_;
-    return fetch_registry_resource( \%registry_config, "registry.json", MAX_REGISTRY_INDEX_SIZE );
-}
-
 sub refresh_registry {
     my ( $registry_id, $redis ) = @_;
 
-    my $logger = get_logger( "Registry", "lanraragi" );
-    my %config = get_registry( $registry_id, $redis );
+    my $logger  = get_logger( "Registry", "lanraragi" );
 
+    # TODO(REVIEW): refactor preferred.
+    my %config  = get_registry( $registry_id, $redis );
     unless (%config) {
         return ( 404, undef, "This registry doesn't exist." );
     }
+    my ($suffix)            = $registry_id =~ /^REG_(\d{10})$/;
+    my $registry_index_key  = "REG_INDEX_$suffix";
 
+    # Fetch and validate registry index
     my ( $status, $registry_content, $message ) = fetch_registry_index(%config);
     unless ( $status == 200 ) {
         return ( $status, undef, $message );
     }
-
     my $registry_index = eval { decode_json($registry_content) };
     if ($@) {
         my $error = "Invalid registry.json: $@";
         $logger->warn("Registry '$registry_id': failed to decode registry index: $@");
         return ( 400, undef, $error );
     }
-
     my $validation_error = validate_registry_index($registry_index);
     if ($validation_error) {
         $logger->warn("Registry '$registry_id': registry index failed validation: $validation_error");
         return ( 400, undef, $validation_error );
     }
 
-    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-    my $registry_index_key = "REG_INDEX_$suffix";
-
-    # Spec-contract checks against the previously cached index, if any.
-    # Removed versions and cross-refresh type changes are publisher-contract
-    # violations the spec asks LRR to surface where practical.
-    my $previous_registry_content = $redis->get($registry_index_key);
-    if ( defined $previous_registry_content && $previous_registry_content ne "" ) {
-        my $previous_registry_index = eval { decode_json($previous_registry_content) };
-        if ($@) {
-            $logger->warn("Registry '$registry_id': cached previous registry index could not be decoded: $@");
-        }
-        if ( ref $previous_registry_index eq "HASH" && ref $previous_registry_index->{plugins} eq "HASH" ) {
-            my $previous_plugin_map = $previous_registry_index->{plugins};
-            my $current_plugin_map  = $registry_index->{plugins};
-            foreach my $ns ( sort keys %{$previous_plugin_map} ) {
-                unless ( exists $current_plugin_map->{$ns} ) {
-                    $logger->warn("Registry $registry_id: plugin '$ns' removed from registry");
-                    next;
-                }
-                if (   defined $previous_plugin_map->{$ns}{type}
-                    && defined $current_plugin_map->{$ns}{type}
-                    && $previous_plugin_map->{$ns}{type} ne $current_plugin_map->{$ns}{type} )
-                {
-                    $logger->warn(
-                        "Registry $registry_id: plugin '$ns' type changed from '$previous_plugin_map->{$ns}{type}' to '$current_plugin_map->{$ns}{type}' (spec invariant violation)"
-                    );
-                }
-                my $previous_plugin_versions = $previous_plugin_map->{$ns}{versions} || {};
-                my $current_plugin_versions  = $current_plugin_map->{$ns}{versions} || {};
-                foreach my $ver ( sort keys %{$previous_plugin_versions} ) {
-                    unless ( exists $current_plugin_versions->{$ver} ) {
-                        $logger->warn("Registry $registry_id: plugin '$ns' version '$ver' removed from registry");
-                    }
-                }
-            }
-        }
-    }
-
+    # Update registry index
     eval { $redis->set( $registry_index_key, $registry_content ) };
     if ($@) {
         $logger->error("Redis error during registry refresh for '$registry_id': $@");
@@ -384,6 +313,12 @@ sub refresh_registry {
     }
 
     return ( 200, $registry_index, undef );
+}
+
+# Fetch registry.json from a configured registry source.
+sub fetch_registry_index {
+    my %registry_config = @_;
+    return fetch_registry_resource( \%registry_config, "registry.json", MAX_REGISTRY_INDEX_SIZE );
 }
 
 1;

@@ -30,12 +30,12 @@ sub _registered_generation {
     return $redis->hget( $namerds, "installed_generation" );
 }
 
-# signal_updated( $namespace, $redis )
+# signal_updated( $redis, $namespace )
 # If a namespace is updated, the updated survivor should synchronize to all workers.
 # Workers must update to the new plugin via INC reload.
 # Workers which previously failed to load plugin may re-attempt to load the updated plugin.
 sub signal_updated {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $namerds      = "LRR_PLUGIN_" . $namespace_uc;
 
@@ -45,11 +45,11 @@ sub signal_updated {
     delete $LOAD_FAILED{$namespace_uc};
 }
 
-# signal_uninstalled( $namespace, $redis )
+# signal_uninstalled( $redis, $namespace )
 # If a namespace is uninstalled, synchronize to all workers.
-# Workers may no longer load the plugin even if it is present in INC cache.
+# Workers may no longer load the plugin even if it is present in INC cache, and are expected to drop the plugin from cache.
 sub signal_uninstalled {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $namerds      = "LRR_PLUGIN_" . $namespace_uc;
 
@@ -59,11 +59,11 @@ sub signal_uninstalled {
     delete $LOAD_FAILED{$namespace_uc};
 }
 
-# record_load_success( $namespace, $redis )
+# record_load_success( $redis, $namespace )
 # If a plugin loaded successfully, update local worker cache.
 # Future reload attempts for the current registered plugin will be skipped.
 sub record_load_success {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation( $namespace_uc, $redis );
 
@@ -73,11 +73,11 @@ sub record_load_success {
     delete $LOAD_FAILED{$namespace_uc};
 }
 
-# record_load_failure( $namespace, $redis )
+# record_load_failure( $redis, $namespace )
 # If a plugin failed to load, update local worker cache.
 # Future attempts to load plugin will be skipped.
 sub record_load_failure {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation( $namespace_uc, $redis );
 
@@ -86,10 +86,10 @@ sub record_load_failure {
     $LOAD_FAILED{$namespace_uc} = $generation;
 }
 
-# plugin_needs_reload( $namespace, $redis )
+# plugin_needs_reload( $redis, $namespace )
 # Check if a plugin requires a INC-reload.
 sub plugin_needs_reload {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation( $namespace_uc, $redis );
 
@@ -98,11 +98,11 @@ sub plugin_needs_reload {
     return ( $LOADED_GEN{$namespace_uc} // -1 ) != $generation;
 }
 
-# should_skip_reload( $namespace, $redis )
+# should_skip_reload( $redis, $namespace )
 # Check if a plugin failed to load.
 # Failure state is reset on plugin updates.
 sub should_skip_reload {
-    my ( $namespace, $redis ) = @_;
+    my ( $redis, $namespace ) = @_;
     my $namespace_uc = uc($namespace);
     my $generation   = _registered_generation( $namespace_uc, $redis );
 

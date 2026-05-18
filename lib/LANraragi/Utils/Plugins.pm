@@ -39,7 +39,7 @@ sub get_plugins {
         my $installed_path = $registered{$ns_uc};
         my $plugin         = path_to_package($installed_path);
 
-        if ( plugin_needs_reload( $ns_uc, $redis ) && !should_skip_reload( $ns_uc, $redis ) ) {
+        if ( plugin_needs_reload( $redis, $ns_uc ) && !should_skip_reload( $redis, $ns_uc ) ) {
             delete $INC{$installed_path};
         }
 
@@ -49,11 +49,11 @@ sub get_plugins {
             1;
         };
         unless ($loaded) {
-            record_load_failure( $ns_uc, $redis );
+            record_load_failure( $redis, $ns_uc );
             $logger->warn("Skipping plugin '$plugin' while listing type '$type': require '$installed_path' failed: $@");
             next;
         }
-        record_load_success( $ns_uc, $redis );
+        record_load_success( $redis, $ns_uc );
 
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
@@ -133,7 +133,7 @@ sub get_plugin {
     }
 
     # Check if plugin needs (re)loading.
-    if ( plugin_needs_reload( $name_uc, $redis ) && !should_skip_reload( $name_uc, $redis ) ) {
+    if ( plugin_needs_reload( $redis, $name_uc ) && !should_skip_reload( $redis, $name_uc ) ) {
         delete $INC{$installed_path};
         my $ok = eval {
             no warnings 'redefine';
@@ -141,10 +141,10 @@ sub get_plugin {
             1;
         };
         if ($ok) {
-            record_load_success( $name_uc, $redis );
+            record_load_success( $redis, $name_uc );
             $logger->info("Reloaded plugin '$name' in worker $$");
         } else {
-            record_load_failure( $name_uc, $redis );
+            record_load_failure( $redis, $name_uc );
             $logger->warn("Failed to reload plugin '$name': $@");
             $redis->quit();
             return 0;

@@ -28,7 +28,7 @@ sub install_plugin {
             # by the same namespace.
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
             if ( $redis->hexists( $namerds, "installed_path" ) ) {
-                my $source     = LANraragi::Model::Plugins::infer_plugin_source( $namerds, $redis );
+                my $source     = LANraragi::Model::Plugins::infer_plugin_origin( $namerds, $redis );
                 my $currentreg = $redis->hget( $namerds, "installed_registry" );
                 my $currentver = $redis->hget( $namerds, "installed_version" );
 

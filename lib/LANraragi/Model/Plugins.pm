@@ -337,88 +337,76 @@ sub has_old_style_params (%params) {
 # changes from one plugin version to another.
 sub install_plugin {
     my ( $namespace, $redis, $registry_id, $version ) = @_;
+    my $logger  = get_logger( "Registry", "lanraragi" );
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    my $logger = get_logger( "Registry", "lanraragi" );
-
-    # registry must exist
+    # registry validation
+    # check that registry exists, and that registry index exists.
     unless ( is_valid_registry( $registry_id, $redis ) ) {
         return ( 404, undef, "This registry doesn't exist." );
     }
-
-    # registry index must exist, otherwise require a refresh.
-    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
-    my $registry_index_key = "REG_INDEX_$suffix";
+    my ($registry_timestamp) = $registry_id =~ /^REG_(\d{10})$/;
+    my $registry_index_key = "REG_INDEX_$registry_timestamp";
     unless ( $redis->exists($registry_index_key) ) {
         return ( 409, undef, "No registry index cached. Run refresh first." );
     }
 
+    # Plugin installable validation
     my $registry_index_json = $redis->get($registry_index_key);
     my $registry_index      = decode_json($registry_index_json);
     my $registry_plugins    = $registry_index->{plugins};
-
     unless ( $registry_plugins->{$namespace} ) {
         return ( 404, undef, "Plugin '$namespace' not found in registry." );
     }
-
-    my $plugin_root = $registry_plugins->{$namespace};
-
-    unless ( ref $plugin_root->{versions} eq "HASH" && keys %{ $plugin_root->{versions} } ) {
+    my $plugin_record = $registry_plugins->{$namespace};
+    unless ( ref $plugin_record->{versions} eq "HASH" && keys %{ $plugin_record->{versions} } ) {
         return ( 404, undef, "No versions found for plugin '$namespace'." );
     }
-
-    unless ( defined $version ) {
-        $version = resolve_max_version($plugin_root);
-    }
-
-    unless ( $plugin_root->{versions}{$version} ) {
+    $version = resolve_max_version($plugin_record) unless defined $version;
+    unless ( $plugin_record->{versions}{$version} ) {
         return ( 404, undef, "Version '$version' not found for plugin '$namespace'." );
     }
 
-    $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
-
-    my $plugin_metadata = $plugin_root->{versions}{$version};
-    $plugin_metadata->{type} = $plugin_root->{type};
-
-    # Validate plugin artifact path.
-    my $plugpath = $plugin_metadata->{artifact};
-    my ( $artifact_valid, $artifact_error ) = validate_registry_artifact_path($plugpath);
+    # Get the plugin metadata by version and validate artifact path
+    my $plugin_metadata     = $plugin_record->{versions}{$version};
+    my $artifact_path       = $plugin_metadata->{artifact};
+    my ( $artifact_valid, $artifact_error ) = validate_registry_artifact_path($artifact_path);
     unless ( $artifact_valid ) {
         return ( 400, undef, $artifact_error );
     }
 
-    my %registry_config = $redis->hgetall($registry_id);
-
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
-    my $currentpath;
-
+    my $current_path;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $currentpath = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
+        $current_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
+    # Retrieve get the plugin contents
+    my %registry_config = $redis->hgetall($registry_id);
     my ( $fetch_status, $plugin_content, $fetch_error ) =
-        fetch_registry_resource( \%registry_config, $plugpath, MAX_PLUGIN_FILE_SIZE );
+        fetch_registry_resource( \%registry_config, $artifact_path, MAX_PLUGIN_FILE_SIZE );
     unless ( $fetch_status == 200 ) {
         $logger->warn(
-            "Failed to fetch plugin artifact '$plugpath' for '$namespace' from registry '$registry_id': $fetch_error"
+            "Failed to fetch plugin artifact '$artifact_path' for '$namespace' from registry '$registry_id': $fetch_error"
         );
         return ( $fetch_status, undef, $fetch_error );
     }
 
-    # Check that plugins are installed under "Plugins/Managed/".
-    my ( $validated, $error ) = validate_managed_plugin( $plugin_content, $namespace, $plugin_metadata, $currentpath );
+    # Post-retrieval validation and extract installation data
+    my $plugin_type             = $plugin_record->{type};
+    my ( $validated, $error )   = validate_managed_plugin( $plugin_content, $namespace, $plugin_metadata, $plugin_type, $current_path );
     if ($error) {
         $logger->warn("Managed plugin validation failed for '$namespace' from registry '$registry_id': $error");
         return ( 422, undef, $error );
     }
-
-    my $installdir      = $validated->{install_dir};
-    my $installpath     = $validated->{install_path};
+    my $install_dir     = $validated->{install_dir};
+    my $install_path    = $validated->{install_path};
     my $install_relpath = package_to_path( $validated->{package} );
 
-    make_path($installdir) unless -d $installdir;
-
+    # Begin installation with rollback
+    $logger->info("Installing plugin '$namespace' v$version from registry '$registry_id'");
+    make_path($install_dir) unless -d $install_dir;
     my $op_desc = "install of plugin '$namespace' (version=$version, registry=$registry_id)";
-    my @undo;   # all operations to undo in event of failure.
+    my @undo;
     my $do_rollback = sub {
         my ($reason) = @_;
         $logger->error("$op_desc failed: $reason; attempting rollback");
@@ -434,23 +422,27 @@ sub install_plugin {
         return;
     };
 
-    # Backup existing artifact so a same-path upgrade has bytes to restore on rollback.
     my $backup_path;
-    if ( -e $installpath ) {
-        $backup_path = "$installpath.lrr-rollback";
+    if ( -e $install_path ) {
+        # stage: create backup of plugin
+        # rollback: restore from backup
+        # TODO(REVIEW): if the plugin was restored from backup, shouldn't we re-require it?
+        $backup_path = "$install_path.rollback";
         unlink $backup_path if -e $backup_path;
-        unless ( rename $installpath, $backup_path ) {
+        unless ( rename $install_path, $backup_path ) {
             my $err = "$!";
-            $logger->error("Cannot back up existing artifact at $installpath: $err");
-            return ( 500, undef, "Cannot back up existing artifact for transactional install: $err" );
+            $logger->error("Cannot back up existing artifact at $install_path: $err");
+            return ( 500, undef, "Cannot back up existing artifact: $err" );
         }
         push @undo, [
-            "restore prior artifact from $backup_path",
-            sub { rename( $backup_path, $installpath ) ? undef : "$!" },
+            "restore old_plugin_metadata artifact from $backup_path",
+            sub { rename( $backup_path, $install_path ) ? undef : "$!" },
         ];
     }
 
-    eval { Mojo::File->new($installpath)->spew($plugin_content) };
+    # stage: ensure new plugin is written to install_path
+    # rollback: remove install_path file
+    eval { Mojo::File->new($install_path)->spew($plugin_content) };
     if ($@) {
         my $err = $@;
         if ( my @resp = $do_rollback->("Cannot write plugin file: $err") ) {
@@ -459,21 +451,23 @@ sub install_plugin {
         return ( 500, undef, "Cannot write plugin file during installation: $err" );
     }
     push @undo, [
-        "unlink artifact at $installpath",
+        "unlink artifact at $install_path",
         sub {
-            return unless -e $installpath;
-            unlink($installpath) ? undef : "$!";
+            return unless -e $install_path;
+            unlink($install_path) ? undef : "$!";
         },
     ];
 
-    $logger->info("Installed plugin '$namespace' to $installpath");
+    # At this point, the file operation part of installation is complete!
+    $logger->info("Installed plugin '$namespace' to $install_path");
 
-    my %prior;
+    # stage: update database with new plugin provenance
+    # rollback: restore old plugin provenance
+    my %old_plugin_metadata;
     for my $field (qw(installed_path installed_version installed_registry installed_sha256 type)) {
         my $val = $redis->hget( $namerds, $field );
-        $prior{$field} = $val if defined $val;
+        $old_plugin_metadata{$field} = $val if defined $val;
     }
-
     my $provenance_script = <<~'LUA';
         if redis.call("EXISTS", KEYS[1]) == 0 then
             return 0
@@ -485,7 +479,6 @@ sub install_plugin {
         redis.call("HSET", KEYS[2], "type",               ARGV[5])
         return 1
         LUA
-
     my $restore_script = <<~'LUA';
         redis.call("HDEL", KEYS[1], "installed_path", "installed_version", "installed_registry", "installed_sha256", "type")
         for i = 1, #ARGV, 2 do
@@ -493,11 +486,13 @@ sub install_plugin {
         end
         return 1
         LUA
-
     my $provenance_written = eval {
         $redis->eval(
             $provenance_script, 2, $registry_id, $namerds,
-            $install_relpath, $plugin_metadata->{version}, $registry_id, $plugin_metadata->{sha256},
+            $install_relpath,
+            $plugin_metadata->{version},
+            $registry_id,
+            $plugin_metadata->{sha256},
             $plugin_metadata->{type}
         );
     };
@@ -515,23 +510,23 @@ sub install_plugin {
         return ( 409, undef, "Registry was deleted during install." );
     }
     push @undo, [
-        ( exists $prior{installed_path}
-            ? "restore prior provenance for $namerds"
+        ( exists $old_plugin_metadata{installed_path}
+            ? "restore old_plugin_metadata provenance for $namerds"
             : "clear provenance for $namerds" ),
         sub {
             my @argv;
             for my $field (qw(installed_path installed_version installed_registry installed_sha256 type)) {
-                push @argv, $field, $prior{$field} if exists $prior{$field};
+                push @argv, $field, $old_plugin_metadata{$field} if exists $old_plugin_metadata{$field};
             }
             eval { $redis->eval( $restore_script, 1, $namerds, @argv ) };
             $@ ? "$@" : undef;
         },
     ];
 
+    # stage: reload plugin module
     delete $INC{$install_relpath};
     eval { require $install_relpath };
     my $require_error = $@;
-
     if ($require_error) {
         delete $INC{$install_relpath}; # clear out undef resulting from require failure
         if ( my @resp = $do_rollback->("Plugin '$namespace' failed to load: $require_error") ) {
@@ -540,19 +535,21 @@ sub install_plugin {
         return ( 422, undef, "Plugin '$namespace' failed to load: $require_error" );
     }
 
-    @undo = ();
     if ( $backup_path && -e $backup_path ) {
         unlink $backup_path or $logger->warn("Could not remove rollback backup at $backup_path: $!");
     }
 
     # If the upgrade landed at a new path (type-change between published versions, in violation
     # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
-    if ( defined $currentpath && $currentpath ne $installpath && -e $currentpath ) {
-        unlink $currentpath or $logger->warn("Could not remove stale plugin file at $currentpath: $!");
+    # TODO(REVIEW): should LRR even handle this then? And shouldn't differences be flagged more loudly
+    if ( defined $current_path && $current_path ne $install_path && -e $current_path ) {
+        unlink $current_path or $logger->warn("Could not remove stale plugin file at $current_path: $!");
     }
 
-    signal_updated( $namespace, $redis );
-    record_load_success( $namespace, $redis );
+    # post-install signalling
+    signal_updated( $redis, $namespace );
+    record_load_success( $redis, $namespace );
+    $logger->debug("Plugin registered for '$namespace'");
 
     my %installed_meta = (
         name               => $plugin_metadata->{name},
@@ -560,7 +557,6 @@ sub install_plugin {
         registry           => $registry_id,
         sha256             => $plugin_metadata->{sha256},
     );
-
     return ( 200, \%installed_meta, undef );
 }
 
@@ -573,98 +569,93 @@ sub uninstall_plugin {
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
     $logger->info("Uninstalling plugin '$namespace'");
 
-    my $installpath;
+    # Ensure an existing install path for uninstall
+    my $install_path;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $installpath = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
+        $install_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
-
-    unless ($installpath) {
+    unless ($install_path) {
         return ( 404, undef, "Plugin '$namespace' has no install path recorded." );
     }
 
-    my $source = infer_plugin_source( $namerds, $redis );
-
     # We don't touch builtin plugins!
-    if ( $source eq "builtin" ) {
+    my $plugin_origin = infer_plugin_origin( $namerds, $redis );
+    if ( $plugin_origin eq "builtin" ) {
         return ( 403, undef, "Cannot uninstall built-in plugin '$namespace'." );
     }
 
     # Delete the plugin file (only if it's actually inside LRR lib)
-    if ( -e $installpath ) {
-        my $canonpath = abs_path($installpath);
+    if ( -e $install_path ) {
+        my $abs_install_path = abs_path($install_path);
         my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
-        unless ( $canonpath && $plugindir && index( $canonpath, "$plugindir/" ) == 0 ) {
-            return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $installpath" );
+        unless ( $abs_install_path && $plugindir && index( $abs_install_path, "$plugindir/" ) == 0 ) {
+            return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $install_path" );
         }
-
-        unlink $canonpath or do {
+        unlink $abs_install_path or do {
             return ( 500, undef, "Couldn't delete plugin file: $!" );
         };
-        $logger->info("Deleted plugin file: $canonpath");
+        $logger->info("Deleted plugin file: $abs_install_path");
     } else {
-        $logger->warn("Plugin '$namespace' file not found at $installpath -- cleaning up Redis only.");
+        $logger->warn("Plugin '$namespace' file not found at $install_path -- cleaning up Redis only.");
     }
 
     unregister_plugin( $redis, $namespace );
-    signal_uninstalled( $namespace, $redis );
+    signal_uninstalled( $redis, $namespace );
+    $logger->info("Uninstalled plugin: '$namespace'");
 
     return ( 200, 1, undef );
 }
 
-# Reconcile discovered plugins with Redis state at startup.
+# Reconcile discovered plugins with Redis registration state.
 sub scan_plugins {
     my ($redis) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Scanning plugins...");
 
-    my @discovered = LANraragi::Utils::Plugins::plugins();
-
-    # Build namespace -> [class, file_path] map, detect duplicates
-    my %ns_map;
-
-    foreach my $class (@discovered) {
+    # Build a hash of discovered namespace -> arrayref of class/file_path hashrefs,
+    # skip on validation/general failures
+    my %discovered_ns_map;
+    my @discovered_plugins = LANraragi::Utils::Plugins::plugins();
+    foreach my $class (@discovered_plugins) {
         # Module::Pluggable may discover non-plugin classes; skip those
-        next unless $class->can('plugin_info');
-
-        my %info;
-        eval { %info = $class->plugin_info() };
+        unless ( $class->can('plugin_info') ) {
+            $logger->warn("Non-plugin class detected; skipping.");
+            next;
+        }
+        my %plugin_info;
+        eval { %plugin_info = $class->plugin_info() };
         if ($@) {
             $logger->warn("Plugin $class failed plugin_info(): $@");
             next;
         }
-
-        my $ns = $info{namespace};
-        unless ($ns) {
+        my $namespace = $plugin_info{namespace};
+        unless ($namespace) {
             $logger->warn("Plugin $class has no namespace, skipping.");
             next;
         }
-
-        my $type = $info{type};
-        unless ($type) {
-            $logger->warn("Plugin $class (namespace '$ns') has no type, skipping.");
+        my $plugin_type = $plugin_info{type};
+        unless ($plugin_type) {
+            $logger->warn("Plugin $class (namespace '$namespace') has no type, skipping.");
             next;
         }
-
         my $filepath = package_to_path($class);
-
-        push @{ $ns_map{$ns} }, { class => $class, file_path => $filepath, type => $type };
+        push @{ $discovered_ns_map{$namespace} }, { class => $class, file_path => $filepath, type => $plugin_type };
     }
+    $logger->debug("Discovered " . scalar( keys %discovered_ns_map ) . " plugin namespace(s).");
 
-    $logger->info("Discovered " . scalar( keys %ns_map ) . " plugin namespace(s).");
-
-    # Warn on namespace duplicates
-    foreach my $ns ( keys %ns_map ) {
-        if ( @{ $ns_map{$ns} } > 1 ) {
-            my $paths = join( ", ", map { $_->{file_path} } @{ $ns_map{$ns} } );
-            $logger->warn("Duplicate namespace '$ns' found in: $paths");
+    # Warn on filepath duplicates per namespace
+    foreach my $namespace ( keys %discovered_ns_map ) {
+        if ( @{ $discovered_ns_map{$namespace} } > 1 ) {
+            my $duplicate_paths = join( ", ", map { $_->{file_path} } @{ $discovered_ns_map{$namespace} } );
+            $logger->warn("Duplicate namespace '$namespace' found in: $duplicate_paths");
         }
     }
 
     # Warn on case collisions (Redis keys are case-insensitive by convention)
     my %uc_map;
-    foreach my $ns ( keys %ns_map ) {
-        push @{ $uc_map{ uc($ns) } }, $ns;
+    foreach my $namespace ( keys %discovered_ns_map ) {
+        push @{ $uc_map{ uc($namespace) } }, $namespace;
     }
     foreach my $uc_key ( keys %uc_map ) {
         if ( @{ $uc_map{$uc_key} } > 1 ) {
@@ -673,65 +664,67 @@ sub scan_plugins {
         }
     }
 
-    # Skip duplicates
-    foreach my $ns ( keys %ns_map ) {
-        next if @{ $ns_map{$ns} } > 1;
+    # Register first plugin of every discovered namespace
+    foreach my $namespace ( keys %discovered_ns_map ) {
+        next if @{ $discovered_ns_map{$namespace} } > 1;
 
-        my $entry    = $ns_map{$ns}[0];
-        my $filepath = $entry->{file_path};
-        my $type     = $entry->{type};
-        my $namerds  = "LRR_PLUGIN_" . uc($ns);
+        my $first_entry     = $discovered_ns_map{$namespace}[0];
+        my $plugin_path     = $first_entry->{file_path};
+        my $plugin_type     = $first_entry->{type};
+        my $namerds         = "LRR_PLUGIN_" . uc($namespace);
+        my $recorded_path   = $redis->hget( $namerds, "installed_path" );
+        my $recorded_type   = $redis->hget( $namerds, "type" );
 
-        my $current_path = $redis->hget( $namerds, "installed_path" );
-        my $current_type = $redis->hget( $namerds, "type" );
-        if (   defined $current_path
-            && $current_path eq $filepath
-            && defined $current_type
-            && $current_type eq $type ) {
+        if ( defined $recorded_path
+            && $recorded_path eq $plugin_path
+            && defined $recorded_type
+            && $recorded_type eq $plugin_type ) {
+            $logger->debug("Plugin already registered and consistent, skipping: $namespace");
             next; # skip if database already tracks said path and type
         }
 
-        $logger->debug("Plugin '$ns': setting installed_path to '$filepath' (type=$type).");
-        register_plugin( $redis, $ns, $filepath, $type );
+        $logger->debug("Plugin '$namespace': setting installed_path to '$plugin_path' (type=$plugin_type).");
+        register_plugin( $redis, $namespace, $plugin_path, $plugin_type );
     }
 
     # Clean up orphaned Redis keys (installed_path set, but no matching discovered plugin)
-    my @all_keys     = $redis->keys("LRR_PLUGIN_*");
-    my %discovereduc = map { uc($_) => 1 } keys %ns_map;
-    $logger->debug("Orphan scan: " . scalar @all_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
+    my @all_plugin_keys = $redis->keys("LRR_PLUGIN_*");
+    my %discovereduc    = map { uc($_) => 1 } keys %discovered_ns_map;
+    $logger->debug("Orphan scan: " . scalar @all_plugin_keys . " Redis keys, " . scalar( keys %discovereduc ) . " discovered.");
 
-    foreach my $key (@all_keys) {
-        my ($nspart) = $key =~ /^LRR_PLUGIN_(.+)$/;
-        # keys("LRR_PLUGIN_*") guarantees at least one char after prefix; warn if violated
+    foreach my $plugin_key (@all_plugin_keys) {
+
+        # extract the namespace from redis key
+        my ($nspart) = $plugin_key =~ /^LRR_PLUGIN_(.+)$/;
         unless ($nspart) {
-            $logger->warn("Unexpected Redis key format: '$key', skipping.");
+            $logger->warn("Unexpected Redis key format: '$plugin_key', skipping.");
             next;
         }
 
-        unless ( $discovereduc{$nspart} ) {
-            if ( $redis->hexists( $key, "installed_path" ) ) {
-                my $path = $redis->hget( $key, "installed_path" );
-                if ( -e resolve_installed_path($path) ) {
-                    $logger->warn("Plugin key '$key' (installed_path: $path) not discovered but file exists -- skipping removal.");
+        # if plugin in redis is not discovered on disk, remove provenance from redis.
+        my $discovered = $discovereduc{$nspart};
+        unless ( $discovered ) {
+            if ( $redis->hexists( $plugin_key, "installed_path" ) ) {
+                my $installed_path = $redis->hget( $plugin_key, "installed_path" );
+                if ( -e resolve_installed_path($installed_path) ) {
+                    $logger->warn("Plugin key '$plugin_key' (installed_path: $installed_path) not discovered but file exists -- skipping removal.");
                     next;
                 }
-                $logger->warn("Orphaned plugin key '$key' (installed_path: $path) -- plugin not discovered. Clearing provenance.");
+                $logger->warn("Orphaned plugin key '$plugin_key' (installed_path: $installed_path) -- plugin not discovered. Clearing provenance.");
             } else {
-                $logger->warn("Orphaned plugin key '$key' -- plugin not discovered. Clearing provenance.");
+                $logger->warn("Orphaned plugin key '$plugin_key' -- plugin not discovered. Clearing provenance.");
             }
             unregister_plugin( $redis, $nspart );
-            if ( $key =~ /^LRR_PLUGIN_(.+)$/ ) {
-                signal_uninstalled( $1, $redis );
-            }
+            signal_uninstalled( $redis, $nspart );
         }
     }
 
     $logger->info("Plugin scan complete.");
 }
 
-# Infer plugin source from the recorded install path.
+# Infer plugin origin from the recorded install path.
 # Returns one of "managed", "sideloaded", or "builtin".
-sub infer_plugin_source {
+sub infer_plugin_origin {
     my ( $namerds, $redis ) = @_;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
@@ -747,32 +740,20 @@ sub infer_plugin_source {
 
 # Validate downloaded plugin content against registry metadata and filesystem state.
 # Covers managed plugins only (installed via registry into Plugin/Managed/).
-# Read-only
 sub validate_managed_plugin {
-    my ( $content, $namespace, $plugmeta, $currentpath ) = @_;
+    my ( $content, $namespace, $plugmeta, $plugin_type, $current_path ) = @_;
 
-    my $plugname          = $plugmeta->{name};
-    my $plugver           = $plugmeta->{version};
-    my $plugpath          = $plugmeta->{artifact};
-    my $plugtype          = $plugmeta->{type};
-    my $expected_checksum = $plugmeta->{sha256};
+    my $plugname            = $plugmeta->{name};
+    my $plugver             = $plugmeta->{version};
+    my $artifact_path       = $plugmeta->{artifact};
+    my $expected_checksum   = $plugmeta->{sha256};
 
-    unless ($plugname) {
-        return ( undef, "Plugin '$namespace' is missing required field 'name'." );
-    }
-    unless ($plugver) {
-        return ( undef, "Plugin '$namespace' is missing required field 'version'." );
-    }
-    unless ($plugpath) {
-        return ( undef, "Plugin '$namespace' is missing required field 'artifact'." );
-    }
-    unless ($plugtype) {
-        return ( undef, "Plugin '$namespace' is missing required field 'type'." );
-    }
+    return ( undef, "Plugin '$namespace' is missing required field 'name'." )       unless $plugname;
+    return ( undef, "Plugin '$namespace' is missing required field 'version'." )    unless $plugver;
+    return ( undef, "Plugin '$namespace' is missing required field 'artifact'." )   unless $artifact_path;
+    return ( undef, "Plugin '$namespace' is missing required field 'type'." )       unless $plugin_type;
+    return ( undef, "Plugin '$namespace' is missing required field 'sha256'." )     unless defined $expected_checksum && $expected_checksum ne "";
 
-    unless ( defined $expected_checksum && $expected_checksum ne "" ) {
-        return ( undef, "Plugin '$namespace' is missing required field 'sha256'." );
-    }
     my $actual_checksum = sha256_hex($content);
     if ( $actual_checksum ne $expected_checksum ) {
         return ( undef, "SHA-256 mismatch: expected $expected_checksum, got $actual_checksum" );
@@ -785,22 +766,22 @@ sub validate_managed_plugin {
         return ( undef, "Plugin file doesn't declare a LANraragi::Plugin:: package." );
     }
 
-    my $typedir = MANAGED_TYPE_DIRS->{$plugtype};
+    my $typedir = MANAGED_TYPE_DIRS->{$plugin_type};
     unless ($typedir) {
-        return ( undef, "Unknown plugin type '$plugtype'." );
+        return ( undef, "Unknown plugin type '$plugin_type'." );
     }
 
     # Extract filename (basename via regex; File::Basename not imported here).
-    my ($filename) = $plugpath =~ m{([^/]+)$};
+    my ($filename) = $artifact_path =~ m{([^/]+)$};
     unless ($filename) {
-        return ( undef, "Can't extract filename from path: $plugpath" );
+        return ( undef, "Can't extract filename from path: $artifact_path" );
     }
     unless ( $filename =~ /^[A-Za-z0-9_-]+\.pm$/ ) {
         return ( undef, "Invalid plugin filename: $filename" );
     }
 
-    my $installdir  = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
-    my $installpath = "$installdir/$filename";
+    my $install_dir     = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
+    my $install_path    = "$install_dir/$filename";
 
     my ($stem) = $filename =~ /^(.+)\.pm$/;
     my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";
@@ -809,23 +790,24 @@ sub validate_managed_plugin {
     }
 
     # Skip install_path itself so upgrades don't self-conflict.
-    my $conflict = find_package_conflict( $pkg, $installpath );
+    my $conflict = find_package_conflict( $pkg, $install_path );
     if ($conflict) {
         return ( undef, "Package '$pkg' already exists in $conflict." );
     }
 
-    my $nsconflict = find_namespace_conflict( $namespace, $installpath );
+    my $nsconflict = find_namespace_conflict( $namespace, $install_path );
     if ($nsconflict) {
         return ( undef, "Namespace '$namespace' already exists in $nsconflict." );
     }
 
-    if ( -e $installpath && ( !defined $currentpath || $currentpath ne $installpath ) ) {
-        return ( undef, "Install path is already occupied: $installpath" );
+    if ( -e $install_path && ( !defined $current_path || $current_path ne $install_path ) ) {
+        return ( undef, "Install path is already occupied: $install_path" );
     }
 
-    return ( { install_path => $installpath, install_dir => $installdir, package => $pkg }, undef );
+    return ( { install_path => $install_path, install_dir => $install_dir, package => $pkg }, undef );
 }
 
+# Get absolute path from an installed_path
 sub resolve_installed_path {
     my ($installed_path) = @_;
     return getcwd() . "/lib/" . $installed_path;
