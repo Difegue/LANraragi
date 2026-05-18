@@ -1,0 +1,130 @@
+package LANraragi::Controller::Api::Plugins;
+use Mojo::Base 'Mojolicious::Controller';
+
+use LANraragi::Model::Plugins;
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Logging qw(get_logger);
+
+# Install a managed plugin.
+sub install_plugin {
+    my $self        = shift->openapi->valid_input or return;
+    my $body        = $self->req->json;
+    my $namespace   = $body->{namespace};
+    my $registry_id = $body->{registry};
+    my $version     = $body->{version};
+    my $force       = $body->{force} // 0;
+
+    # TODO: maybe consider extending TTL for this sub to 60s if it's not enough.
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:" . uc($namespace),
+        "install_plugin",
+        $namespace,
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
+            # Since a plugin namespace can be built-in or managed, we'll need to check redis first.
+            # If a plugin exists and is not managed, installation may not continue.
+            # The user will have to remove/uninstall the existing plugin before installing a managed plugin
+            # by the same namespace.
+            my $namerds = "LRR_PLUGIN_" . uc($namespace);
+            if ( $redis->hexists( $namerds, "installed_path" ) ) {
+                my $source     = LANraragi::Model::Plugins::infer_plugin_origin( $namerds, $redis );
+                my $currentreg = $redis->hget( $namerds, "installed_registry" );
+                my $currentver = $redis->hget( $namerds, "installed_version" );
+
+                # only managed plugins can be upgraded.
+                if ( $source ne "managed" ) {
+                    $redis->quit();
+                    render_api_response(
+                        $self,
+                        "install_plugin",
+                        "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry."
+                    );
+                    return;
+                }
+
+                # cross-registry overwrites require force installation.
+                my $is_cross_registry = $currentreg && $currentreg ne $registry_id;
+                if ( $is_cross_registry && !$force ) {
+                    $redis->quit();
+                    render_api_response(
+                        $self,
+                        "install_plugin",
+                        "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite."
+                    );
+                    return;
+                }
+            }
+
+            my $logger = get_logger( "Registry", "lanraragi" );
+            my $install_error;
+            my ( $status, $plugmeta, $message ) = eval {
+                LANraragi::Model::Plugins::install_plugin(
+                    $namespace, $redis, $registry_id, $version
+                );
+            };
+            $install_error = $@;
+
+            if ($install_error) {
+                $redis->quit();
+                $logger->error("install_plugin failed for '$namespace': $install_error");
+                render_api_response( $self, "install_plugin", "Plugin installation failed." );
+                return;
+            }
+
+            $redis->quit();
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => { operation => "install_plugin", error => $message, success => 0 },
+                    status  => $status
+                );
+                return;
+            }
+
+            $self->render(
+                openapi => {
+                    operation          => "install_plugin",
+                    success            => 1,
+                    name               => $plugmeta->{name},
+                    namespace          => $namespace,
+                    version            => $plugmeta->{version},
+                    registry           => $plugmeta->{registry},
+                    sha256             => $plugmeta->{sha256},
+                }
+            );
+        },
+    );
+}
+
+# Uninstall a managed plugin.
+sub uninstall_plugin {
+    my $self      = shift->openapi->valid_input or return;
+    my $namespace = $self->stash('plugin_namespace');
+
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:" . uc($namespace),
+        "uninstall_plugin",
+        $namespace,
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
+            my ( $status, $success, $message ) = LANraragi::Model::Plugins::uninstall_plugin(
+                $namespace, $redis
+            );
+            $redis->quit();
+
+            unless ( $status == 200 ) {
+                $self->render(
+                    openapi => { operation => "uninstall_plugin", error => $message, success => 0 },
+                    status  => $status
+                );
+                return;
+            }
+
+            render_api_response( $self, "uninstall_plugin" );
+        }
+    );
+}
+
+1;
