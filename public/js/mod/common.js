@@ -476,7 +476,7 @@ export function getProgress(arcdata) {
  * @param {*} error Error message
  */
 export function showErrorToast(header, error) {
-    emitToast({
+    toast({
         heading: header,
         text: error,
         icon: "error",
