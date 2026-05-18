@@ -56,7 +56,6 @@ sub create_registry {
     my @field_args;
     my @valid_fields = @{ $PROVIDER_FIELDS{$provider} };
     foreach my $field (@valid_fields) {
-        next unless defined $config->{$field};
         push @field_args, $field, $config->{$field};
     }
     my $now = time;
@@ -162,7 +161,6 @@ sub update_registry {
     }
     foreach my $field ( keys %updated_registry ) {
         my $updated_value = $updated_registry{$field};
-        next unless defined $updated_value;
         my $current_value = $current_registry{$field};
         if ( defined $current_value && $current_value eq $updated_value ) {
             $logger->debug("Skipping unchanged field '$field' on '$registry_id'");
