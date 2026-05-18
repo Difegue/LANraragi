@@ -8,7 +8,7 @@ use warnings;
 use utf8;
 use feature 'fc';
 
-use Cwd qw(abs_path getcwd);
+use Cwd qw(getcwd);
 use Digest::SHA qw(sha256_hex);
 use File::Path qw(make_path);
 use Redis;
@@ -375,9 +375,9 @@ sub install_plugin {
         return ( 400, undef, $artifact_error );
     }
 
-    my $current_path;
+    my $abs_installed_path;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $current_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
+        $abs_installed_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
     # Retrieve get the plugin contents
@@ -392,7 +392,7 @@ sub install_plugin {
 
     # Post-retrieval validation and extract installation data
     my $plugin_type             = $plugin_record->{type};
-    my ( $validated, $error )   = validate_managed_plugin( $plugin_content, $namespace, $plugin_metadata, $plugin_type, $current_path );
+    my ( $validated, $error )   = validate_managed_plugin( $plugin_content, $namespace, $plugin_metadata, $plugin_type, $abs_installed_path );
     if ($error) {
         $logger->warn("Managed plugin validation failed for '$namespace' from registry '$registry_id': $error");
         return ( 422, undef, $error );
@@ -569,11 +569,11 @@ sub uninstall_plugin {
     $logger->info("Uninstalling plugin '$namespace'");
 
     # Ensure an existing install path for uninstall
-    my $install_path;
+    my $abs_installed_path;
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        $install_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
+        $abs_installed_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
-    unless ($install_path) {
+    unless ($abs_installed_path) {
         return ( 404, undef, "Plugin '$namespace' has no install path recorded." );
     }
 
@@ -584,18 +584,17 @@ sub uninstall_plugin {
     }
 
     # Delete the plugin file (only if it's actually inside LRR lib)
-    if ( -e $install_path ) {
-        my $abs_install_path = abs_path($install_path);
-        my $plugindir = abs_path( getcwd() . "/lib/LANraragi/Plugin" );
-        unless ( $abs_install_path && $plugindir && index( $abs_install_path, "$plugindir/" ) == 0 ) {
-            return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $install_path" );
+    if ( -e $abs_installed_path ) {
+        my $plugindir = getcwd() . "/lib/LANraragi/Plugin";
+        unless ( index( $abs_installed_path, "$plugindir/" ) == 0 ) {
+            return ( 403, undef, "Can't delete plugin outside Plugin/ directory: $abs_installed_path" );
         }
-        unlink $abs_install_path or do {
+        unlink $abs_installed_path or do {
             return ( 500, undef, "Couldn't delete plugin file: $!" );
         };
-        $logger->info("Deleted plugin file: $abs_install_path");
+        $logger->info("Deleted plugin file: $abs_installed_path");
     } else {
-        $logger->warn("Plugin '$namespace' file not found at $install_path -- cleaning up Redis only.");
+        $logger->warn("Plugin '$namespace' file not found at $abs_installed_path -- cleaning up Redis only.");
     }
 
     unregister_plugin( $redis, $namespace );
@@ -740,7 +739,7 @@ sub infer_plugin_origin {
 # Validate downloaded plugin content against registry metadata and filesystem state.
 # Covers managed plugins only (installed via registry into Plugin/Managed/).
 sub validate_managed_plugin {
-    my ( $content, $namespace, $plugmeta, $plugin_type, $current_path ) = @_;
+    my ( $content, $namespace, $plugmeta, $plugin_type, $abs_installed_path ) = @_;
 
     my $plugname            = $plugmeta->{name};
     my $plugver             = $plugmeta->{version};
@@ -782,7 +781,7 @@ sub validate_managed_plugin {
     my $install_dir     = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
     my $install_path    = "$install_dir/$filename";
 
-    if ( defined $current_path && $current_path ne $install_path ) {
+    if ( defined $abs_installed_path && $abs_installed_path ne $install_path ) {
         return ( undef,
             "Plugin '$namespace' changed type between installed and registry versions; registry violates type invariance." );
     }
@@ -804,7 +803,7 @@ sub validate_managed_plugin {
         return ( undef, "Namespace '$namespace' already exists in $nsconflict." );
     }
 
-    if ( -e $install_path && ( !defined $current_path || $current_path ne $install_path ) ) {
+    if ( -e $install_path && ( !defined $abs_installed_path || $abs_installed_path ne $install_path ) ) {
         return ( undef, "Install path is already occupied: $install_path" );
     }
 
