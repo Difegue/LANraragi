@@ -678,6 +678,7 @@ export function initializeToasts() {
             limit: 7,
             theme: "light",
         }, undefined), toastDiv);
+    toastsInitialized = true;
 }
 
 export function setProgressTracking(_isProgressLocal, _isProgressAuthenticated) {
