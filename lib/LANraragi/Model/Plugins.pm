@@ -545,13 +545,6 @@ sub install_plugin {
         unlink $backup_path or $logger->warn("Could not remove rollback backup at $backup_path: $!");
     }
 
-    # If the upgrade landed at a new path (type-change between published versions, in violation
-    # of spec invariance), remove the old artifact so scan_plugins doesn't rediscover it.
-    # TODO(REVIEW): should LRR even handle this then? And shouldn't differences be flagged more loudly
-    if ( defined $current_path && $current_path ne $install_path && -e $current_path ) {
-        unlink $current_path or $logger->warn("Could not remove stale plugin file at $current_path: $!");
-    }
-
     # post-install signalling
     signal_updated( $redis, $namespace );
     record_load_success( $redis, $namespace );
@@ -788,6 +781,11 @@ sub validate_managed_plugin {
 
     my $install_dir     = getcwd() . "/lib/LANraragi/Plugin/Managed/$typedir";
     my $install_path    = "$install_dir/$filename";
+
+    if ( defined $current_path && $current_path ne $install_path ) {
+        return ( undef,
+            "Plugin '$namespace' changed type between installed and registry versions; registry violates type invariance." );
+    }
 
     my ($stem) = $filename =~ /^(.+)\.pm$/;
     my $expectedpkg = "LANraragi::Plugin::Managed::${typedir}::${stem}";
