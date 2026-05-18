@@ -437,7 +437,7 @@ sub install_plugin {
             "restore old_plugin_metadata artifact from $backup_path",
             sub {
                 return "$!"     unless rename( $backup_path, $install_path );
-                return undef    unless $require_attempted;
+                return          unless $require_attempted;
                 delete $INC{$install_relpath};
                 my $ok = eval { no warnings 'redefine'; require $install_relpath; 1 };
                 $ok ? undef : "$@";
