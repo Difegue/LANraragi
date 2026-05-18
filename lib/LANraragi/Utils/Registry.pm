@@ -24,19 +24,10 @@ our @EXPORT_OK = qw(
     validate_registry_index
     validate_registry_artifact_path
     resolve_local_registry_artifact_path
-    is_valid_registry
     is_valid_registry_timestamp
     resolve_max_version
     MANAGED_TYPE_DIRS
 );
-
-# Returns true if $registry_id is well-formed and currently exists in Redis.
-sub is_valid_registry {
-    my ( $registry_id, $redis ) = @_;
-    return defined $registry_id
-        && $registry_id =~ /^REG_\d{10}$/
-        && $redis->exists($registry_id);
-}
 
 # Maps plugin_info type values to directory names under Plugin/Managed/.
 use constant MANAGED_TYPE_DIRS => {

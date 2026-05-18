@@ -76,17 +76,17 @@ sub get_registry {
     my $registry_id = $self->stash('id');
     my $redis       = $self->LRR_CONF->get_redis_config;
 
-    my %registry = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+    my ( $registry, $status, $error ) = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
     $redis->quit();
 
-    unless (%registry) {
+    unless ($registry) {
         $self->render(
             openapi => {
                 operation => "get_registry",
-                error     => "This registry doesn't exist.",
+                error     => $error,
                 success   => 0,
             },
-            status => 404
+            status => $status
         );
         return;
     }
@@ -96,7 +96,7 @@ sub get_registry {
             operation => "get_registry",
             success   => 1,
             error     => "",
-            registry  => \%registry,
+            registry  => $registry,
         }
     );
 }

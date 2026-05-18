@@ -34,9 +34,9 @@ use LANraragi::Utils::Registry qw(
     find_namespace_conflict
     validate_registry_artifact_path
     resolve_max_version
-    is_valid_registry
     MANAGED_TYPE_DIRS
 );
+use LANraragi::Model::Registry;
 
 # Max plugin file size for slurp (files will/should never reach this size anyways but stops OOM)
 use constant MAX_PLUGIN_FILE_SIZE => 100 * 1024 * 1024;      # 100 MB
@@ -342,9 +342,9 @@ sub install_plugin {
 
     # registry validation
     # check that registry exists, and that registry index exists.
-    unless ( is_valid_registry( $registry_id, $redis ) ) {
-        return ( 404, undef, "This registry doesn't exist." );
-    }
+    my ( $registry, $lookup_status, $lookup_error ) =
+        LANraragi::Model::Registry::get_registry( $registry_id, $redis );
+    return ( $lookup_status, undef, $lookup_error ) unless $registry;
     my ($registry_timestamp) = $registry_id =~ /^REG_(\d{10})$/;
     my $registry_index_key = "REG_INDEX_$registry_timestamp";
     unless ( $redis->exists($registry_index_key) ) {
@@ -381,9 +381,8 @@ sub install_plugin {
     }
 
     # Retrieve get the plugin contents
-    my %registry_config = $redis->hgetall($registry_id);
     my ( $fetch_status, $plugin_content, $fetch_error ) =
-        fetch_registry_resource( \%registry_config, $artifact_path, MAX_PLUGIN_FILE_SIZE );
+        fetch_registry_resource( $registry, $artifact_path, MAX_PLUGIN_FILE_SIZE );
     unless ( $fetch_status == 200 ) {
         $logger->warn(
             "Failed to fetch plugin artifact '$artifact_path' for '$namespace' from registry '$registry_id': $fetch_error"

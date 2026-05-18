@@ -10,7 +10,6 @@ use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Registry qw(
     fetch_registry_resource
     validate_registry_index
-    is_valid_registry
 );
 
 # Max registry index size for slurp (files will/should never reach this size anyways but stops OOM)
@@ -86,19 +85,17 @@ sub create_registry {
     return ( $registry_id, undef );
 }
 
-# Get a registry's config by ID.
+# Returns ( \%config, $status, $message )
 sub get_registry {
     my ( $registry_id, $redis ) = @_;
 
-    unless ( is_valid_registry( $registry_id, $redis ) ) {
-        get_logger( "Registry", "lanraragi" )->warn("Registry lookup failed for invalid or missing registry id '$registry_id'.");
-        return ();
+    unless ( defined $registry_id && $registry_id =~ /^REG_\d{10}$/ ) {
+        return ( undef, 400, "Registry ID is malformed." );
     }
-
     my %config = $redis->hgetall($registry_id);
+    return ( undef, 404, "This registry doesn't exist." ) unless %config;
     $config{id} = $registry_id;
-
-    return %config;
+    return ( \%config, 200, undef );
 }
 
 sub get_registry_list {
@@ -108,8 +105,8 @@ sub get_registry_list {
     my @result;
     my @reg_ids = $redis->keys("REG_??????????");
     foreach my $key ( sort @reg_ids ) {
-        my %config = get_registry( $key, $redis );
-        push @result, \%config if %config; # skip if deleted between keys() and hgetall
+        my ( $config ) = get_registry( $key, $redis );
+        push @result, $config if $config; # skip if deleted between keys() and hgetall
     }
 
     return @result;
@@ -129,14 +126,13 @@ sub update_registry {
     }
 
     # Target registry existence validation
-    unless ( is_valid_registry( $registry_id, $redis ) ) {
-        return ( 404, "This registry is invalid or doesn't exist." );
-    }
+    my ( $registry, $lookup_status, $lookup_error ) = get_registry( $registry_id, $redis );
+    return ( $lookup_status, $lookup_error ) unless $registry;
     my ($suffix)                    = $registry_id =~ /^REG_(\d{10})$/;
     my $registry_index_key          = "REG_INDEX_$suffix";
 
     # Source registry field validation
-    my %current_registry            = $redis->hgetall($registry_id);
+    my %current_registry            = %$registry;
     my $updated_registry_provider   = $updated_registry{provider};
     my $current_registry_provider   = $current_registry{provider};
     my $target_registry_provider    = defined $updated_registry_provider ? $updated_registry_provider : $current_registry_provider;
@@ -218,9 +214,8 @@ sub delete_registry {
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    unless ( is_valid_registry( $registry_id, $redis ) ) {
-        return ( 404, undef, "This registry doesn't exist." );
-    }
+    my ( $registry, $lookup_status, $lookup_error ) = get_registry( $registry_id, $redis );
+    return ( $lookup_status, undef, $lookup_error ) unless $registry;
 
     my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
     my $registry_index_key      = "REG_INDEX_$suffix";
@@ -257,12 +252,8 @@ sub get_default_registry {
 # Returns ( $status_code, $registry_id, $message ).
 sub update_default_registry {
     my ( $registry_id, $redis ) = @_;
-    unless ( defined $registry_id && $registry_id =~ /^REG_\d{10}$/ ) {
-        return ( 400, $registry_id, "Input registry ID is invalid." );
-    }
-    unless ( $redis->exists($registry_id) ) {
-        return ( 404, $registry_id, "Registry does not exist!" );
-    }
+    my ( $registry, $lookup_status, $lookup_error ) = get_registry( $registry_id, $redis );
+    return ( $lookup_status, $registry_id, $lookup_error ) unless $registry;
     $redis->hset( 'LRR_CONFIG', 'default_registry', $registry_id );
     return ( 200, $registry_id, "success" );
 }
@@ -280,16 +271,13 @@ sub refresh_registry {
 
     my $logger  = get_logger( "Registry", "lanraragi" );
 
-    # TODO(REVIEW): refactor preferred.
-    my %config  = get_registry( $registry_id, $redis );
-    unless (%config) {
-        return ( 404, undef, "This registry doesn't exist." );
-    }
+    my ( $registry, $lookup_status, $lookup_error ) = get_registry( $registry_id, $redis );
+    return ( $lookup_status, undef, $lookup_error ) unless $registry;
     my ($suffix)            = $registry_id =~ /^REG_(\d{10})$/;
     my $registry_index_key  = "REG_INDEX_$suffix";
 
     # Fetch and validate registry index
-    my ( $status, $registry_content, $message ) = fetch_registry_index(%config);
+    my ( $status, $registry_content, $message ) = fetch_registry_index(%$registry);
     unless ( $status == 200 ) {
         return ( $status, undef, $message );
     }
