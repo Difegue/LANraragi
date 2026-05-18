@@ -20,6 +20,7 @@ Those variables were introduced for the Homebrew package, but they can be declar
 * `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
 * `LRR_REDIS_ADDRESS` - Redis address override. This has priority over the `redis_address` specified in `lrr.conf`.
 * `LRR_DISABLE_OPENAPI` - Disable OpenAPI validation override. If set to `1`, API request/response validation is disabled regardless of the user setting.
+* `LRR_DISABLE_VIPS` - Disable VIPS support. Only recommended if thumbnails doesn't work with VIPS enabled.
 
 ## Coding Style
 

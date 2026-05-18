@@ -23,7 +23,9 @@ sub resizer_factory
     my $logger = get_logger("Reader", "lanraragi");
     $logger->debug("Initializing resizer");
 
-    if (LANraragi::Utils::Vips::is_vips_loaded) {
+    if ($ENV{LRR_DISABLE_VIPS} ) {
+        $logger->info("VIPS is disabled, will use another resize method")
+    } elsif (LANraragi::Utils::Vips::is_vips_loaded) {
         return LANraragi::Utils::VipsResizer->new;
     }
     return LANraragi::Utils::ImageMagickResizer->new;
