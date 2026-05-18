@@ -498,7 +498,7 @@ sub install_plugin {
             $plugin_metadata->{version},
             $registry_id,
             $plugin_metadata->{sha256},
-            $plugin_metadata->{type}
+            $plugin_type
         );
     };
     if ($@) {

@@ -162,6 +162,7 @@ sub update_registry {
     }
     foreach my $field ( keys %updated_registry ) {
         my $updated_value = $updated_registry{$field};
+        next unless defined $updated_value;
         my $current_value = $current_registry{$field};
         if ( defined $current_value && $current_value eq $updated_value ) {
             $logger->debug("Skipping unchanged field '$field' on '$registry_id'");

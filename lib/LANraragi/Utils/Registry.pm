@@ -348,12 +348,12 @@ sub is_valid_registry_timestamp {
 }
 
 # Return the SemVer-greatest version key from a plugin record's versions map.
-# $plugin_root: the plugin record hashref (must have a non-empty 'versions' map).
+# $plugin_record: the plugin record hashref (must have a non-empty 'versions' map).
 # Pure function, no Redis.
 sub resolve_max_version {
-    my ($plugin_root) = @_;
+    my ($plugin_record) = @_;
 
-    my @keys = keys %{ $plugin_root->{versions} };
+    my @keys = keys %{ $plugin_record->{versions} };
     my ($max) = sort { SemVer->new($b) <=> SemVer->new($a) } @keys;
     return $max;
 }
