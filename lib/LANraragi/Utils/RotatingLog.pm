@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Errno qw(EBADF ENOLCK);
 use Fcntl qw(:flock O_CREAT O_RDWR);
 use Compress::Zlib;
 use Config;
@@ -25,6 +26,8 @@ has 'lockpid';  # Track which PID opened the current lock file handle.
 
 has counter => sub { 0 }; # number of logs emitted
 
+has flock_disabled => sub { 0 };  # set true on first EBADF/ENOLCK; disables locking and rotation for this process
+
 # max number of archived logfiles to retain for log rotation (defaults to 7 files).
 has retention_count => sub {
     my $count = 0 + ($ENV{LRR_LOGROTATE_FILES} // 7);
@@ -39,13 +42,14 @@ has max_rotation_size => sub {
     return $size;
 };
 
-# Logfile lock path
+# LRR_LOG_LOCK_DIRECTORY relocates the lockfile off NFS volumes where flock() is unreliable.
 has lockpath => sub {
     my $self        = shift;
     my $path        = $self->path;
     my $mf          = Mojo::File->new($path);
     my $base        = $mf->basename;
-    my $lockpath    = $self->tempdir . "/$base.lock";
+    my $lockdir     = $ENV{LRR_LOG_LOCK_DIRECTORY} || $self->tempdir;
+    my $lockpath    = "$lockdir/$base.lock";
     return $lockpath;
 };
 
@@ -85,12 +89,21 @@ sub append {
 
     $self->counter( $self->counter+1 );
 
+    # flock unavailable; still refresh inode in case another host rotated the file.
+    if ( $self->flock_disabled ) {
+        eval { refresh_logger_handle($self) };
+        return $self->SUPER::append($msg);
+    }
+
     ensure_lock($self);
     my $path   = $self->path;
     my $lockfh = $self->lockfh;
 
     # Acquire shared lock to serialize with rotation EX lock.
-    flock( $lockfh, LOCK_SH ) or die "Failed to acquire shared log lock: $!";
+    unless ( $self->_try_flock( $lockfh, LOCK_SH ) ) {
+        die "Failed to acquire shared log lock: $!" unless $self->flock_disabled;
+        return $self->SUPER::append($msg);
+    }
 
     my $ret;
     eval {
@@ -126,7 +139,7 @@ sub new {
     # handle logpath existence cases.
     # case 1 (logfile DNE):     create new logfile under exclusive lock
     # case 2 (logfile exist):   no action needed, just get the logfile handle
-    if ( !-e $path && flock( $lockfh, LOCK_EX | LOCK_NB ) ) {
+    if ( !-e $path && $self->_try_flock( $lockfh, LOCK_EX | LOCK_NB ) ) {
         my $logfile_create_error;
         eval {
             # Re-check inside lock in case another process created the file
@@ -156,17 +169,21 @@ sub maybe_rotate {
     my $path    = $self->path;
     my $lockfh  = $self->lockfh;
 
+    return if $self->flock_disabled;
+
     ensure_lock($self);
     # Try to acquire a file lock between two rotation condition checks.
     if ( should_rotate($self, $path) ) {
-        # unlock-then-lock to upgrade from shared to exclusive lock; 
+        # unlock-then-lock to upgrade from shared to exclusive lock;
         # "Converting a lock (shared to exclusive, or vice versa) is not guaranteed to be atomic"
         # - https://man7.org/linux/man-pages/man2/flock.2.html
         flock( $lockfh, LOCK_UN );
-        if ( !flock( $lockfh, LOCK_EX | LOCK_NB ) ) {
-            # Another process is rotating, skip rotation attempt
-            # Re-acquire shared lock and continue
-            flock( $lockfh, LOCK_SH ) or die "Failed to re-acquire shared log lock (1): $!";
+        unless ( $self->_try_flock( $lockfh, LOCK_EX | LOCK_NB ) ) {
+            # another process is rotating, or lock backend degraded
+            return if $self->flock_disabled;
+            unless ( $self->_try_flock( $lockfh, LOCK_SH ) ) {
+                die "Failed to re-acquire shared log lock (1): $!" unless $self->flock_disabled;
+            }
             return;
         }
 
@@ -189,10 +206,14 @@ sub maybe_rotate {
         # Downgrade back to SH for the write
         flock( $lockfh, LOCK_UN );
         if ( $rotation_error ) {
-            flock( $lockfh, LOCK_SH ) or die "Failed to re-acquire shared log lock (2): $!";
+            unless ( $self->_try_flock( $lockfh, LOCK_SH ) ) {
+                die "Failed to re-acquire shared log lock (2): $!" unless $self->flock_disabled;
+            }
             die $rotation_error;
         }
-        flock( $lockfh, LOCK_SH ) or die "Failed to re-acquire shared log lock (3): $!";
+        unless ( $self->_try_flock( $lockfh, LOCK_SH ) ) {
+            die "Failed to re-acquire shared log lock (3): $!" unless $self->flock_disabled;
+        }
     }
 }
 
@@ -247,6 +268,7 @@ sub refresh_logger_handle {
         if ( !defined $cached_inode || !defined $path_inode || $cached_inode != $path_inode ) {
             close($logger->handle) if defined $logger->{handle};
             open( my $fh, '>>', $path ) or die "Could not open logfile '$path': $!";
+            $fh->autoflush(1);  # prevent losing the last buffer of log lines on SIGKILL/OOMKill
             $logger->handle($fh);
         }
     } else {
@@ -254,6 +276,29 @@ sub refresh_logger_handle {
         eval { close $logger->handle } if defined $logger->{handle};
         $logger->handle($fh);
     }
+}
+
+# flock() returns EBADF/ENOLCK on NFS without a lock manager; treat as permanent and degrade.
+sub _try_flock {
+    my ($self, $fh, $op) = @_;
+    return 1 if flock($fh, $op);
+
+    my $errno = $! + 0;
+    if ( ($errno == EBADF || $errno == ENOLCK) && !$self->flock_disabled ) {
+        my $errstr = "$!";
+        # set before warn() to prevent recursive re-entry via append()
+        $self->flock_disabled(1);
+        $self->warn(
+            "RotatingLog: log rotation locking is unavailable on "
+            . $self->lockpath
+            . " (errno $errno: $errstr). "
+            . "Logs will continue to be written, but rotation is disabled in this process. "
+            . "Set LRR_LOG_LOCK_DIRECTORY to a local-filesystem path (e.g. /tmp), "
+            . "or mount the log volume with the NFS local_lock=flock option, "
+            . "to restore log rotation."
+        );
+    }
+    return 0;
 }
 
 # Ensure each process owns its lock file handle after a fork.
@@ -288,6 +333,7 @@ sub get_handle {
     # Fallback with default UTF-8 handle.
     $fh = Mojo::File->new($path)->open('>>');
     $fh->binmode(':encoding(UTF-8)');
+    $fh->autoflush(1);  # prevent losing the last buffer of log lines on SIGKILL/OOMKill
     return $fh;
 }
 
@@ -312,6 +358,7 @@ sub get_win32_fh {
 
     Win32API::File::OsFHandleOpen( *FH, $h, "w" ) or die "OsFHandleOpen failed for $sPath; $!";
     binmode *FH, ':encoding(UTF-8)';
+    *FH->autoflush(1);  # prevent losing the last buffer of log lines on SIGKILL/OOMKill
     return *FH;
 }
 
