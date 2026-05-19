@@ -46,6 +46,7 @@
 * [Database API](api-documentation/database-api.md)
 * [Category API](api-documentation/category-api.md)
 * [Tankoubon API](api-documentation/tankoubon-api.md)
+* [Stamps API](api-documentation/stamp-api.md)
 * [Plugin API](api-documentation/plugin-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Minion API](api-documentation/minion-api.md)
