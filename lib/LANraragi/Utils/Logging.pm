@@ -28,6 +28,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
 
 our %LOGGER_CACHE;
+our $RLOG_UNSUPPORTED_WARNED = 0;
 
 # Get the Log folder.
 sub get_logdir {
@@ -71,45 +72,59 @@ sub get_logger {
         undef $log;
     }
 
-    # Create and cache logger with retry + backoff + jitter
-    # Report the first logger init failure if exists
-    my $tries = 0;
+    my $lockdir         = $ENV{LRR_LOG_LOCK_DIRECTORY} // get_temp();
+    my $rlog_supported  = LANraragi::Utils::RotatingLog::is_supported($lockdir);
+
+    my $tries           = 0;
     my $first_error;
-    while ( $tries < 3 ) {
-        my $retry_error;
-        {
-            local $@;
-            eval {
-                $log = LANraragi::Utils::RotatingLog->new(
-                    path    => $logpath,
-                    level   => 'info',
-                    logfile => $logfile,
-                    tempdir => get_temp()
-                );
-            };
-            $retry_error = $@;
+    if ( $rlog_supported ) {
+        # Create and cache RotatingLog with retry + backoff + jitter
+        # Report the first logger init failure if exists
+        while ( $tries < 3 ) {
+            my $retry_error;
+            {
+                local $@;
+                eval {
+                    $log = LANraragi::Utils::RotatingLog->new(
+                        path    => $logpath,
+                        level   => 'info',
+                        logfile => $logfile,
+                        lockdir => $lockdir
+                    );
+                };
+                $retry_error = $@;
+            }
+
+            unless ( $retry_error ) {
+                configure_logger( $log );
+                $LOGGER_CACHE{$cache_key} = $log;
+                last;
+            }
+
+            $first_error //= $retry_error;
+            Time::HiRes::sleep(rand());
+            $tries++;
+
         }
-
-        unless ( $retry_error ) {
-            configure_logger( $log );
-            $LOGGER_CACHE{$cache_key} = $log;
-            last;
-        }
-
-        $first_error //= $retry_error;
-        Time::HiRes::sleep(rand());
-        $tries++;
-
     }
 
-    # Fall back to Mojo::Log if retry doesn't work
+    # Fall back to Mojo::Log if RotatingLog isn't supported or failed to initialize
     if ( !$log ) {
         $log = Mojo::Log->new(
             path    => $logpath,
             level   => 'info'
         );
         configure_logger( $log );
-        $log->error("RotatingLog init failed, falling back to Mojo::Log. First error: $first_error");
+
+        if ( !$rlog_supported ) {
+            $LOGGER_CACHE{$cache_key} = $log;
+            unless ( $RLOG_UNSUPPORTED_WARNED ) {
+                $log->warn("RotatingLog not supported on $lockdir; using Mojo::Log without log rotation.");
+                $RLOG_UNSUPPORTED_WARNED = 1;
+            }
+        } else {
+            $log->error("RotatingLog init failed, falling back to Mojo::Log. First error: $first_error");
+        }
     } elsif ( $tries > 0 ) {
         $log->warn("RotatingLog initialized after $tries failures. First error: $first_error");
     }
