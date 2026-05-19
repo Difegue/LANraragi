@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
     [% csshead %]
 
     <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/javascript"></script>
@@ -28,6 +29,7 @@
     <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/common.js?$version") %]" type="text/javascript"></script>
@@ -57,6 +59,8 @@
                     <i id="spinner" class="fa fa-fan fa-spin"></i>
                 </p>
             </div>
+
+            <div id="overlay-page" class="focus-overlay"></div>
 
             <a id="display">
                 <img id="img" class="reader-image" src="" fetchpriority="high"><img id="img_doublepage" class="reader-image" src="" fetchpriority="high">
@@ -112,7 +116,7 @@
                     <h2>[% c.lh("Admin Options") %]</h2>
 
                     <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
-                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
 
                     <h2>[% c.lh("Categories") %]</h2>
 
@@ -145,13 +149,14 @@
                 </div>
                 [% END %]
             </div>
-
         </div>
 
         <br><br>
 
         <div class="overlay-bar">
-            <div class="overlay-bar-left"></div>
+            <div class="overlay-bar-left">
+                <a class="fas fa-stamp" id="filter-stamped" href="#" style="padding:12px" title="[% c.lh("Filter stamped pages") %]"></a>
+            </div>
             <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
             <div class="chapter-selector"></div>
         </div>
@@ -191,6 +196,7 @@
                 <li>[% c.lh("B: toggle bookmark") %]</li>
                 <li>[% c.lh("N: toggle auto next page") %]</li>
                 <li>[% c.lh("G: go to page number") %]</li>
+                <li>[% c.lh("S: set a Stamp") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
@@ -280,6 +286,11 @@
     <h2 class="config-panel"> [% c.lh("Auto next page interval in seconds") %]</h2>
     <input id="auto-next-page-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is 10 seconds.') %]">
     <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
+</div>
+
+<div id="toggle-stamps-visibility">
+    <h2 class="config-panel"> [% c.lh('Toggle Stamps') %]</h2>
+    <input id="toggle-stamps" class="fa" type="checkbox" value="[% c.lh('Disabled') %]">
 </div>
 
 [% END %]
