@@ -157,15 +157,14 @@ sub use_plugin_sync {
     my ( $pluginfo, $plugin_result ) = use_plugin( $plugname, $id, $input );
 
     #Returns the fetched tags in a JSON response.
-    $self->render(
-        openapi => {
-            operation => "use_plugin",
-            type      => $pluginfo->{type},
-            success   => ( exists $plugin_result->{error} ? 0 : 1 ),
-            error     => $plugin_result->{error},
-            data      => $plugin_result
-        }
+    my %response = (
+        operation => "use_plugin",
+        success   => ( exists $plugin_result->{error} ? 0 : 1 ),
+        error     => $plugin_result->{error},
+        data      => $plugin_result,
     );
+    $response{type} = $pluginfo->{type} if defined $pluginfo->{type};
+    $self->render( openapi => \%response );
     return;
 }
 
