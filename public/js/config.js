@@ -1,16 +1,19 @@
 /**
  * Config Operations
- * @global
  */
+import * as Server from "mod/server";
+import * as LRR from "mod/common";
+import I18N from "i18n";
+
 const Config = {};
 
 Config.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.save", "#save", () => { Server.saveFormData("#editConfigForm"); });
-    $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = new LRR.apiURL("/config/plugins"); });
-    $(document).on("click.backup", "#backup", () => { window.location.href = new LRR.apiURL("/backup"); });
-    $(document).on("click.batch", "#batch", () => { window.location.href = new LRR.apiURL("/batch"); });
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = new LRR.ApiURL("/config/plugins"); });
+    $(document).on("click.backup", "#backup", () => { window.location.href = new LRR.ApiURL("/backup"); });
+    $(document).on("click.batch", "#batch", () => { window.location.href = new LRR.ApiURL("/batch"); });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);
     $(document).on("click.usedateadded", "#usedateadded", Config.enable_timemodified);
@@ -24,7 +27,7 @@ Config.initializeAll = function () {
     $(document).on("click.drop-db", "#drop-db", Server.dropDatabase);
 
     $(document).on("click.restart-button", "#restart-button", Config.rebootShinobu);
-    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab(new LRR.apiURL("/minion")));
+    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab(new LRR.ApiURL("/minion")));
 
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));

@@ -1,8 +1,11 @@
 /**
  * JS functions meant for use in the Edit page.
  * Mostly dealing with plugins.
- * @global
  */
+import * as Server from "mod/server";
+import * as LRR from "mod/common";
+import I18N from "i18n";
+
 const Edit = {};
 
 Edit.tagInput = null;
@@ -15,9 +18,9 @@ Edit.initializeAll = function () {
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
-    $(document).on("click.read-archive", "#read-archive", () => { window.location.href = new LRR.apiURL(`/reader?id=${$("#archiveID").val()}`); });
+    $(document).on("click.read-archive", "#read-archive", () => { window.location.href = new LRR.ApiURL(`/reader?id=${$("#archiveID").val()}`); });
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
-    $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.ApiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
     $(document).on("keydown.run-plugin-enter", "#arg", Edit.runPluginByEnter);
 
@@ -50,7 +53,7 @@ Edit.initializeAll = function () {
                     completion: {
                         list: Edit.suggestions,
                     },
-                    link: (name) => new LRR.apiURL(`/?q=${name}`),
+                    link: (name) => new LRR.ApiURL(`/?q=${name}`),
                 });
             }
         });
@@ -169,7 +172,7 @@ Edit.saveMetadata = function () {
     formData.append("title", $("#title").val());
     formData.append("summary", $("#summary").val());
 
-    return fetch(new LRR.apiURL(`/api/archives/${id}/metadata`), { method: "PUT", body: formData })
+    return fetch(new LRR.ApiURL(`/api/archives/${id}/metadata`), { method: "PUT", body: formData })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (data.success) {

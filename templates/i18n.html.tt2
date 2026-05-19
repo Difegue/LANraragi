@@ -220,3 +220,5 @@ I18N.UploadTotal = "[% c.lh("Total") %]";
 I18N.ClickToEdit = "[% c.lh("Click here to edit metadata.") %]";
 I18N.UploadError = "[% c.lh("Error while processing file.") %]";
 I18N.DownloadError = "[% c.lh("Error while downloading file.") %]";
+
+export default I18N;
