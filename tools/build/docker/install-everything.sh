@@ -49,6 +49,9 @@ patch -p1 < ../perl-JSON-Validator.patch
 perl Makefile.PL && make install
 cd ../ && rm -rf JSON-Validator-5.15
 
+# cpanm can't find the correct version so manually download and install it
+cpanm --notest https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz
+
 # Install the LRR dependencies proper
 cpanm --notest --installdeps . -M https://cpan.metacpan.org
 
