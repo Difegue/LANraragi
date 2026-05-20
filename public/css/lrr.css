@@ -318,7 +318,7 @@ p#nb {
   user-select: none;
   align-self: center;
   cursor: pointer;
-  z-index: 22;
+  z-index: 19;
 }
 
 .marker {

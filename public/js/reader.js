@@ -144,6 +144,7 @@ Reader.initializeAll = function () {
         if (!Reader.markerMode) return;
 
         $(".reader-image").css("cursor", "");
+        $(".reader-image").css("z-index", 19);
 
         // Compute marker position
         // This basically estimates the percentage of the width and legth of the image
@@ -187,7 +188,6 @@ Reader.initializeAll = function () {
         }).then((result) => {
             $("#overlay-page").hide();
             Reader.markerMode = false;
-            //Reader.toggleArchiveOverlay();
             if (result.isConfirmed && result.value.trim() !== "") {
                 Server.callAPI(`/api/archives/${Reader.id}/stamps/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError, 
                     (data) => {
@@ -196,6 +196,7 @@ Reader.initializeAll = function () {
 
                         Reader.markers.push(markerData);
                         Reader.renderMarkers();
+                        Reader.checkStampedPages();
                     }
                 );
             } else {
@@ -214,6 +215,7 @@ Reader.initializeAll = function () {
             Reader.renderMarkers();
             Reader.pageNaviState = true;
             $(".reader-image").css("cursor", "");
+            $(".reader-image").css("z-index", 19);
         }
     });
     $(document).on("click.filter-stamped", "#filter-stamped", Reader.filterStampedOverlay);
@@ -676,7 +678,9 @@ Reader.handleShortcuts = function (e) {
             document.location.href = new LRR.apiURL("/random");
             break;
         case 83: // s
-            Reader.addStamp();
+            if (!Reader.infiniteScroll) {
+                Reader.addStamp();
+            }
             break;
         default:
             break;
@@ -824,13 +828,17 @@ Reader.toggleHelp = function () {
 };
 
 Reader.addStamp = function () {
+    if (Reader.infiniteScroll) return;
     Reader.markerMode = true;
     Reader.clearMarkers();
     $(".reader-image").css("cursor", "cell");
+    $(".reader-image").css("z-index", 22);
     $("#overlay-page").show();
 };
 
 Reader.createMarkerElement = function (markerData, index) {
+    if (Reader.infiniteScroll) return;
+
     if (markerData.left) {
         const img = document.getElementById("img");
     } else {
@@ -935,6 +943,7 @@ Reader.createMarkerElement = function (markerData, index) {
 }
 
 Reader.renderMarkers = function () {
+    if (Reader.infiniteScroll) return;
     // Clean markers
     const existing = document.querySelectorAll(".marker");
     existing.forEach(el => el.remove());
@@ -959,6 +968,7 @@ Reader.toggleStamps = function () {
 }
 
 Reader.loadStamps = function (currentPage) {
+    if (Reader.infiniteScroll) return;
     Reader.markers = [];
     // Call for the first page
     Server.callAPI(`/api/archives/${Reader.id}/stamps/${currentPage}`, "GET", null, I18N.ServerInfoError, 
@@ -1010,6 +1020,7 @@ Reader.loadStamps = function (currentPage) {
 }
 
 Reader.handleMarkerContextMenu = function (option, index) {
+    if (Reader.infiniteScroll) return;
     let i = parseInt(index);
 
     switch (option) {
@@ -1048,6 +1059,9 @@ Reader.handleMarkerContextMenu = function (option, index) {
                 () => {
                     Reader.markers.splice(i, 1);
                     Reader.renderMarkers();
+                    if (Reader.markers.length == 0) {
+                        Reader.checkStampedPages();
+                    }
                 }
             );
             break;
@@ -1397,6 +1411,7 @@ Reader.toggleProgressTracking = function () {
 };
 
 Reader.toggleInfiniteScroll = function () {
+    Reader.clearMarkers();
     Reader.infiniteScroll = localStorage.infiniteScroll = !Reader.infiniteScroll;
     $("#toggle-infinite-scroll input").toggleClass("toggled");
     window.location.reload();
