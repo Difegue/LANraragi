@@ -1623,6 +1623,7 @@ Reader.checkStampedPages = function () {
     Server.callAPI(`/api/archives/${Reader.id}/stamps/`, "GET", null, I18N.ServerInfoError, 
         (data) => {
             $("#extract-spinner").hide();
+            Reader.cleanStampedPages();
             let pages = data.result.sort();
             let elements = $("div.id3.quick-thumbnail");
 
@@ -1634,6 +1635,14 @@ Reader.checkStampedPages = function () {
             }
         }
     );
+}
+
+Reader.cleanStampedPages = function () {
+    let elements = $("div.id3.quick-thumbnail[data-stamped=true]");
+
+    for (let element of elements) {
+        delete element.dataset.stamped;
+    }
 }
 
 Reader.filterStampedOverlay = function () {
