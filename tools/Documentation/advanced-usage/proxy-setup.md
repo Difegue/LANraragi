@@ -10,6 +10,12 @@ http {
     client_max_body_size 0;   <----------------------- This line here
 }
 
+# Upgrade and Connection proxy header defaults
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
 server {
     listen 80;
 
