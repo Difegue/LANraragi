@@ -3642,6 +3642,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/progress/{page}:
+    put:
+      operationId: updateTankoubonProgress
+      x-mojo-to: api-tankoubon#update_tank_progress
+      summary: Update Tankoubon reading progression
+      description: >-
+        Tell the server which page of this Tankoubon you're currently
+        reading, so that it updates its internal reading progression accordingly.
+
+        The page number is global across all Archives in the tank 
+        (If a tank has two Archives with 20 and 25 pages, page 26 will be page 6 in Archive #2).
+
+        ⚠ If the server is configured to use clientside progress tracking, this
+        API call will return an error!
+
+        Make sure to check using `/api/info` whether the server tracks reading
+        progression or not before calling this endpoint.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+            minLength: 15
+            maxLength: 15
+        - name: page
+          in: path
+          required: true
+          description: >-
+            Global 1-indexed page number to update the reading progress to.
+            Must be a positive integer.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 15
+                    maxLength: 15
+                    description: ID of the tankoubon updated
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - update_tank_progress
+                  page:
+                    type: integer
+                    description: Updated reading progress
+                  lastreadtime:
+                    type: integer
+                    description: Last read time in epoch seconds
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if successful, else 0
+              example:
+                id: TANK_1589141306
+                operation: update_tank_progress
+                page: 5
+                lastreadtime: 123943543
+                success: 1
+        '400':
+          description: Generic error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: Server-side Progress Tracking is disabled on this instance.
+                success: 0
+        '401':
+          description: Authentication required when authprogress is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: This operation requires authentication.
+                success: 0
   /tankoubons/{id}/{archive}:
     put:
       security:

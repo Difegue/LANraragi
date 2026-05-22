@@ -23,10 +23,10 @@ use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 
-my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
+my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2, "progress", -3 );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags update_tank_imputed_indexes serve_tankoubon_thumbnail update_tankoubon_thumbnail);
+our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags update_tank_imputed_indexes serve_tankoubon_thumbnail update_tankoubon_thumbnail update_tank_progress);
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -106,9 +106,10 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Default values for metadata
     # Score 0 is reserved for the name of the tank
-    $redis->zadd( $tank_id, $TANK_METADATA{"name"},    redis_encode("name_${name}") );
-    $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "summary_" );
-    $redis->zadd( $tank_id, $TANK_METADATA{"tags"},    "tags_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"name"},     redis_encode("name_${name}") );
+    $redis->zadd( $tank_id, $TANK_METADATA{"summary"},  "summary_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"tags"},     "tags_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"progress"}, "progress_0" );
 
     $redis->quit;
     $redis_search->quit;
@@ -139,7 +140,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     }
 
     # Declare some needed variables
-    my @allowed_keys = ( 'name', 'summary', 'tags', 'archives', 'full_data', 'id' );
+    my @allowed_keys = ( 'name', 'summary', 'tags', 'progress', 'archives', 'full_data', 'id' );
     my @archives;
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
     my %tank  = fetch_metadata_fields($tank_id);
@@ -175,6 +176,9 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     $tank{id} = $tank_id;
 
     %tank = filter_hash_by_keys( \@allowed_keys, %tank );
+
+    # Coerce progress to integer
+    $tank{progress} = int( $tank{progress} || 0 );
 
     my $total = $redis->zcount($tank_id, 1, "+inf");
 
@@ -490,10 +494,13 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
         # Update imputed tag indexes for the tank (pass removed archive's tags for cleanup)
         update_tank_imputed_indexes( $tank_id, \@arc_tags );
 
+        # We could reset progress on the tank here when archives are removed, but it feels like bad UX
+        # update_metadata_field( $tank_id, "progress", 0 );
+
         invalidate_cache();
-        # Subtract 2 from the score to exclude the metadata fields
+        # Subtract 3 from the score to exclude the metadata fields
         # A bit brittle if we add more fields later...
-        return ( $score - 2, $err );
+        return ( $score - 3, $err );
     }
 
     $err = "$tank_id doesn't exist in the database!";
@@ -540,6 +547,29 @@ sub update_metadata_field ( $tank_id, $field, $value ) {
     $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
 
     return 1;
+}
+
+# update_tank_progress(tank_id, page)
+#   Saves the given page number as the tank's reading progress.
+#   Returns 1 on success, 0 on failure alongside an error message.
+sub update_tank_progress ( $tank_id, $page ) {
+
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+    my $err    = "";
+
+    unless ( $redis->exists($tank_id) ) {
+        $err = "$tank_id doesn't exist in the database!";
+        $logger->warn($err);
+        $redis->quit;
+        return ( 0, $err );
+    }
+
+    $redis->quit;
+
+    update_metadata_field( $tank_id, "progress", $page );
+
+    return ( 1, $err );
 }
 
 sub fetch_metadata_fields ($tank_id) {

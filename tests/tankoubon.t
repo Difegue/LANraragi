@@ -132,6 +132,21 @@ is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
 my @containing_tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($archive_ids[0]);
 ok((grep { $_ eq $new_tank_id } @containing_tanks), 'Found tank containing archive');
 
+#################################
+# Progress Tests
+#################################
+
+# Test: New tankoubon has progress=0
+my ($t_prog0, $f_prog0, %tank_prog0) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is($tank_prog0{progress}, 0, 'New tankoubon starts with progress=0');
+
+# Test: update_tank_progress stores the page
+my ($prog_result, $prog_err) = LANraragi::Model::Tankoubon::update_tank_progress($new_tank_id, 7);
+ok($prog_result, 'update_tank_progress returns success');
+
+my ($t_prog7, $f_prog7, %tank_prog7) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is($tank_prog7{progress}, 7, 'Tank progress updated to 7');
+
 # Test: Delete tankoubon
 my $del_result = LANraragi::Model::Tankoubon::delete_tankoubon($new_tank_id);
 ok($del_result, 'Deleted tankoubon');

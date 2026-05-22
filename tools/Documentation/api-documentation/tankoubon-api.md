@@ -39,3 +39,7 @@ description: Endpoints related to Tankoubons.
 {% openapi-operation spec="lanraragi-api" path="/tankoubons/{id}/thumbnail" method="put" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
+
+{% openapi-operation spec="lanraragi-api" path="/tankoubons/{id}/progress/{page}" method="put" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}

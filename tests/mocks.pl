@@ -127,6 +127,7 @@ sub setup_redis_mock {
             "name_Hello": 0,
             "summary_A test tankoubon": -1,
             "tags_series:hello world": -2,
+            "progress_0": -3,
             "28697b96f0ac5858be2666ed10ca47742c955555": 1,
             "28697b96f0ac5777be2614ed10ca47742c9522fa": 2
         },
@@ -134,6 +135,7 @@ sub setup_redis_mock {
             "name_World": 0,
             "summary_": -1,
             "tags_": -2,
+            "progress_0": -3,
             "28697b96f0ac5777be2614ed10ca47742c9522fa": 1
         },
         "d0be2dc421be4fcd0172e5afceea3970e2f3d940": {
