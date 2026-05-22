@@ -30,12 +30,13 @@ my @vendor_js = (
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
-    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
+    "/\@jcubic/tagger/tagger.js",                         "/marked/lib/marked.esm.js",
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.module.js",
     "/clsx/dist/clsx.m.js",                               "/preact/compat/dist/compat.module.js",
     "/preact/hooks/dist/hooks.module.js",                 "/sweetalert2/dist/sweetalert2.esm.min.js",
     "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
     "/raty-js/build/raty.min.js",
+    [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
 );
 
 my @vendor_woff = (

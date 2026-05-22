@@ -6,6 +6,8 @@ import * as LRR from "mod/common";
 import * as Server from "mod/server";
 import * as IndexTable from "mod/index_datatables";
 import I18N from "i18n";
+import * as marked from "marked";
+import DOMPurify from "dompurify";
 
 let selectedCategory = "";
 let awesomplete = {};
@@ -917,14 +919,11 @@ export function fetchChangelog() {
                     throw new Error(data.result);
                 }
 
-                marked.parse(data.body, {
+                document.getElementById("changelog").innerHTML = DOMPurify.sanitize(marked.parse(data.body, {
                     gfm: true,
                     breaks: true,
-                    sanitize: true,
-                }, (err, html) => {
-                    document.getElementById("changelog").innerHTML = html;
-                    $("#updateOverlay").scrollTop(0);
-                });
+                }));
+                $("#updateOverlay").scrollTop(0);
 
                 $("#overlay-shade").fadeTo(150, 0.6, () => {
                     $("#updateOverlay").css("display", "block");
