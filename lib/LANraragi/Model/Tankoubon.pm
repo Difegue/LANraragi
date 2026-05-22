@@ -419,7 +419,7 @@ sub add_to_tankoubon ( $tank_id, $arc_id ) {
 
 # remove_from_tankoubon(tankoubonid, arcid)
 #   Removes the given archive ID from the given Tankoubon.
-#   Returns 1 on success, 0 on failure alongside an error message.
+#   Returns the position of the removed ID (starting at 1) on success, 0 on failure alongside an error message.
 sub remove_from_tankoubon ( $tank_id, $arcid ) {
 
     my $logger = get_logger( "Tankoubon", "lanraragi" );
@@ -442,7 +442,7 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
             $err = "$arcid not in tankoubon $tank_id, doing nothing.";
             $logger->warn($err);
             $redis->quit;
-            return ( 1, $err );
+            return ( 0, $err );
         }
 
         # Get archive's tags before removal for index cleanup
@@ -487,7 +487,9 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
         update_tank_imputed_indexes( $tank_id, \@arc_tags );
 
         invalidate_cache();
-        return ( 1, $err );
+        # Subtract 2 from the score to exclude the metadata fields
+        # A bit brittle if we add more fields later...
+        return ( $score - 2, $err );
     }
 
     $err = "$tank_id doesn't exist in the database!";

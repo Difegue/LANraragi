@@ -97,6 +97,7 @@ is($t_dup, 12, 'Tank still has 12 archives after duplicate add');
 # Test: Remove from tankoubon
 my ($rm_result, $rm_err) = LANraragi::Model::Tankoubon::remove_from_tankoubon($new_tank_id, $archive_ids[1]);
 ok($rm_result, 'Removed archive from tankoubon');
+is($rm_result, 2, 'Removed archive was at position 2');
 
 my ($t_rm, $f_rm, %tank_rm) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
 is($t_rm, 11, 'Tank now has 11 archives');
@@ -175,6 +176,7 @@ ok((grep { $_ eq $index_tank_id } @apple_index), 'Tank still in INDEX_fruit:appl
 # Test: Removing archive removes tank from index (if no other archive has that tag)
 my ($rm_result2, $rm_err2) = LANraragi::Model::Tankoubon::remove_from_tankoubon($index_tank_id, $apple_archive);
 ok($rm_result2, 'Removed apple archive from tank');
+is($rm_result2, 1, 'Removed archive was at position 1');
 
 @apple_index = $redis_search->smembers("INDEX_fruit:apple");
 ok(!(grep { $_ eq $index_tank_id } @apple_index), 'Tank removed from INDEX_fruit:apple after removing archive');

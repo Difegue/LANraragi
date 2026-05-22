@@ -161,7 +161,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
                 if (namespace === "date_added" || namespace === "timestamp") {
                     tagText = LRR.convertTimestamp(tagText);
                 } else if (namespace !== "source") {
-                    // Skip capitalization for source: values are URLs and must not be modified
+                    // Don't capitalize URLs to avoid breaking the hotlink
                     tagText = tagText.replace(/\b./g, (m) => m.toUpperCase());
                 }
                 tagLinks += `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, tagText)}">${tagText}</a>, `;
