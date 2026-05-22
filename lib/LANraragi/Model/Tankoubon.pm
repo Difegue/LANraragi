@@ -2,6 +2,7 @@ package LANraragi::Model::Tankoubon;
 
 use feature qw(signatures fc);
 no warnings 'experimental::signatures';
+use experimental 'try';
 
 use strict;
 use warnings;
@@ -11,9 +12,12 @@ use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util      qw(min);
 use List::MoreUtils qw(uniq);
+use File::Copy qw(copy);
+use File::Path qw(make_path);
 
+use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file update_indexes);
-use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
+use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys render_api_response);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::String   qw(trim);
@@ -22,7 +26,7 @@ use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags update_tank_imputed_indexes);
+our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags update_tank_imputed_indexes serve_tankoubon_thumbnail update_tankoubon_thumbnail);
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -732,6 +736,127 @@ sub update_tank_imputed_indexes ( $tank_id, $removed_tags = undef ) {
     $redis->quit;
 
     $logger->debug("Updated imputed tag indexes for $tank_id");
+}
+
+# translate_global_page(tank_id, global_page)
+#   Translates a page number to (archive_id, local_page).
+#   Returns an empty list if the page is out of range or archives have no pagecount data.
+sub translate_global_page ( $tank_id, $global_page ) {
+
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+
+    my $offset = 0;
+    foreach my $arc_id (@archives) {
+        my $pagecount = $redis->hget( $arc_id, "pagecount" ) || 0;
+        if ( $global_page <= $offset + $pagecount ) {
+            $redis->quit;
+            return ( $arc_id, $global_page - $offset );
+        }
+        $offset += $pagecount;
+    }
+
+    $redis->quit;
+    return ();
+}
+
+# serve_tankoubon_thumbnail(self, tank_id)
+#   Serve the cover thumbnail for a Tankoubon.
+#   If the thumbnail doesn't exist and no_fallback=true, queues a Minion job and returns 202.
+#   Otherwise falls back to the placeholder image.
+sub serve_tankoubon_thumbnail {
+
+    my ( $self, $tank_id ) = @_;
+
+    my $no_fallback = $self->req->param('no_fallback');
+    $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";
+
+    my $thumbdir        = LANraragi::Model::Config->get_thumbdir;
+    my $use_jxl         = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format          = $use_jxl         ? 'jxl' : 'jpg';
+    my $fallback_format = $format eq 'jxl' ? 'jpg' : 'jxl';
+
+    my $thumbbase      = "$thumbdir/TA/$tank_id";
+    my $thumbname      = "$thumbbase.$format";
+    my $fallback_thumb = "$thumbbase.$fallback_format";
+
+    unless ( -e $thumbname ) {
+        $thumbname = $fallback_thumb;
+    }
+
+    unless ( -e $thumbname ) {
+
+        if ($no_fallback) {
+
+            my $job_id = $self->minion->enqueue( tank_thumbnail_task => [ $thumbdir, $tank_id ] => { priority => 0, attempts => 3 } );
+            $self->render(
+                openapi => {
+                    operation => "serve_tankoubon_thumbnail",
+                    success   => 1,
+                    job       => $job_id
+                },
+                status => 202
+            );
+        } else {
+            $self->render_file( filepath => "./public/img/noThumb.png" );
+        }
+        return;
+    }
+
+    $self->render_file( filepath => $thumbname );
+}
+
+# update_tankoubon_thumbnail(self, tank_id)
+#   Set the tankoubon cover thumbnail from a global page number spanning all archives in the tank.
+sub update_tankoubon_thumbnail {
+
+    my ( $self, $tank_id ) = @_;
+
+    my $page = $self->req->param('page');
+    $page = 1 unless $page;
+
+    my $logger   = get_logger( "Tankoubon", "lanraragi" );
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    my $use_jxl  = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format   = $use_jxl ? 'jxl' : 'jpg';
+
+    my ( $arc_id, $local_page ) = translate_global_page( $tank_id, $page );
+
+    unless ( defined $arc_id ) {
+        render_api_response( $self, "update_tankoubon_thumbnail", "Page $page is out of range for this tankoubon." );
+        return;
+    }
+
+    my $newthumb = "";
+    my $tank_thumb = "$thumbdir/TA/$tank_id.$format";
+
+    no warnings 'experimental::try';
+    try {
+        $newthumb = extract_thumbnail( $thumbdir, $arc_id, $local_page, 0, 1 );
+
+        # Copy extracted page thumbnail to the tank's cover thumbnail path
+        make_path("$thumbdir/TA") unless -d "$thumbdir/TA";
+        copy( $newthumb, $tank_thumb );
+
+    } catch ($e) {
+        render_api_response( $self, "update_tankoubon_thumbnail", $e );
+        return;
+    }
+
+    unless ($tank_thumb) {
+        render_api_response( $self, "update_tankoubon_thumbnail", "Thumbnail not generated." );
+        return;
+    }
+
+    $logger->debug("Set tank $tank_id thumbnail from archive $arc_id page $local_page");
+
+    $self->render(
+        openapi => {
+            operation     => "update_tankoubon_thumbnail",
+            new_thumbnail => $tank_thumb,
+            success       => 1
+        }
+    );
 }
 
 # tank_has_archive_in_set(tank_id, set_ref)

@@ -332,13 +332,9 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
-    // For tankoubons, use the first archive's thumbnail (thumb_archive field)
-    // If thumb_archive is empty string (empty tank), show noThumb.png directly
-    // If thumb_archive is undefined (regular archive), use the item's own ID
-    const thumbId = data.thumb_archive || id;
-    const thumbSrc = data.thumb_archive === ""
-        ? new LRR.apiURL("/img/noThumb.png")
-        : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
+    const thumbSrc = id.startsWith("TANK_")
+            ? new LRR.apiURL(`/api/tankoubons/${id}/thumbnail?no_fallback=true`)
+            : new LRR.apiURL(`/api/archives/${id}/thumbnail?no_fallback=true`);
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">

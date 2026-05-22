@@ -318,9 +318,6 @@ sub build_tank_json ($id) {
     my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags( $id, \@archive_tag_strings );
     my $deduped_tags = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
 
-    # Use the first archive's thumbnail for the tank thumbnail
-    my $thumb_archive = scalar @{ $tank{archives} } > 0 ? $tank{archives}[0] : "";
-
     my $arcdata = {
         arcid         => $id,
         title         => $tank{name},
@@ -333,7 +330,6 @@ sub build_tank_json ($id) {
         pagecount     => $aggregate_pagecount,
         lastreadtime  => $latest_readtime,
         size          => $aggregate_size,
-        thumb_archive => $thumb_archive,
         archive_count => $total_archives
     };
 

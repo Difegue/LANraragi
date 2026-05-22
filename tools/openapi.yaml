@@ -2842,6 +2842,7 @@ paths:
             type: string
             enum:
               - thumbnail_task
+              - tank_thumbnail_task
               - page_thumbnails
               - regen_all_thumbnails
               - find_duplicates
@@ -3535,6 +3536,108 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/thumbnail:
+    parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon desired
+          schema:
+            type: string
+    get:
+      operationId: getTankoubonThumbnail
+      x-mojo-to: api-tankoubon#serve_tankoubon_thumbnail
+      summary: Get Tankoubon thumbnail
+      description: >-
+        Get the cover thumbnail for a given Tankoubon. 
+        By default, the thumbnail is sourced from the first page of the first archive. 
+        This endpoint will return a placeholder image if it doesn't already exist. 
+        If you want to queue generation of the thumbnail in the background, 
+        you can use the no_fallback query parameter. 
+      tags:
+        - tankoubons
+      parameters:
+        - name: no_fallback
+          in: query
+          required: false
+          description: >-
+            Disables the placeholder image, queues the thumbnail for extraction
+            and returns a JSON with code 202. This parameter does nothing if the
+            image already exists. (You will get the image with code 200 no
+            matter what)
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+      responses:
+        '200':
+          description: If the thumbnail was already extracted, you get it directly.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateTankoubonThumbnail
+      x-mojo-to: api-tankoubon#update_tankoubon_thumbnail
+      summary: 🔑 Update Tankoubon thumbnail
+      description: >-
+        Set the cover thumbnail for the given Tankoubon using a global page
+        number that spans all archives in the tank (in order). The global page
+        is translated to the correct archive and local page automatically.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: true
+          description: >-
+            Global 1-indexed page number across all archives in the tankoubon.
+            Page 1 is the first page of the first archive, and so on.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Tankoubon thumbnail updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_tankoubon_thumbnail
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  new_thumbnail:
+                    type: string
+                    description: Path to the new thumbnail file
+        '400':
+          description: Error response
           content:
             application/json:
               schema:

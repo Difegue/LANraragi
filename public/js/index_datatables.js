@@ -189,11 +189,9 @@ IndexTable.renderTitle = function (data, type) {
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
-        // For tankoubons, use the first archive's thumbnail (thumb_archive field)
-        const thumbId = data.thumb_archive || data.arcid;
-        const thumbSrc = data.thumb_archive === ""
-            ? new LRR.apiURL("/img/noThumb.png")
-            : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
+        const thumbSrc = data.arcid.startsWith("TANK_")
+            ? new LRR.apiURL(`/api/tankoubons/${data.arcid}/thumbnail?no_fallback=true`)
+            : new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`);
 
         return `${LRR.buildStatusDiv(data)}${LRR.buildPageCountDiv(data)}${bookmarkIcon}
                 <a id="${data.arcid}"
