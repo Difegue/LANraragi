@@ -17,6 +17,9 @@
 			"react": "[% c.url_for("/js/vendor/compat.module.js") %]",
 			"react-dom": "[% c.url_for("/js/vendor/compat.module.js") %]",
 
+            "marked": "[% c.url_for("/js/vendor/marked.esm.js?$version") %]",
+            "dompurify": "[% c.url_for("/js/vendor/purify.js?$version") %]",
+
 			"sweetalert2": "[% c.url_for("/js/vendor/sweetalert2.esm.min.js") %]"
         }
     }

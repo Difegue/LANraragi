@@ -805,6 +805,7 @@ body.swal2-shown>[aria-hidden="true"] {
 
 #changelog>*>img {
   max-width: 400px;
+  height: auto;
 }
 
 /* Infinite Scrolling Reader */
