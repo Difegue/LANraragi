@@ -5,6 +5,7 @@
 import * as Server from "mod/server";
 import * as LRR from "mod/common";
 import I18N from "i18n";
+import fscreen from "fscreen";
 
 let id = "";
 let force = false;
@@ -244,8 +245,8 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     // Small override function, always returns boolean
-    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
-    if (!window.fscreen.fullscreenEnabled) {
+    fscreen.inFullscreen = () => !!fscreen.fullscreenElement;
+    if (!fscreen.fullscreenEnabled) {
         // Fullscreen mode is unsupported; use attribute selector to hide all instances
         $("[id='toggle-full-screen']").hide();
     }
@@ -560,8 +561,8 @@ function initFullscreen() {
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     // Small override function, always returns boolean
-    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
-    if (!window.fscreen.fullscreenEnabled) {
+    fscreen.inFullscreen = () => !!fscreen.fullscreenElement;
+    if (!fscreen.fullscreenEnabled) {
         // Fullscreen mode is unsupported; use attribute selector to hide all instances
         $("[id='toggle-full-screen']").hide();
     }
@@ -802,7 +803,7 @@ function spaceScrollProcessInput(e) {
 }
 
 function handleWheel(e) {
-    if (window.fscreen.inFullscreen() && !infiniteScroll) {
+    if (fscreen.inFullscreen() && !infiniteScroll) {
         let changePage = 1;
         if (e.originalEvent.deltaY > 0) changePage = -1;
         // In Manga mode, reverse the changePage variable
@@ -1350,7 +1351,7 @@ function applyContainerWidth() {
     $(".reader-image, .sni").attr("style", "");
 
     // If we are in fullscreen don't apply anything
-    if (window.fscreen.inFullscreen())
+    if (fscreen.inFullscreen())
         return;
 
     if (fitMode === "fit-height") {
@@ -1501,18 +1502,18 @@ function toggleArchiveOverlay() {
 }
 
 function toggleFullScreen() {
-    if (window.fscreen.inFullscreen()) {
+    if (fscreen.inFullscreen()) {
         // if already full screen; exit
-        window.fscreen.exitFullscreen();
+        fscreen.exitFullscreen();
     } else {
         // else go fullscreen
         // ensure in every case, the correct fullscreen element is binded.
-        window.fscreen.requestFullscreen($("div#i3").get(0));
+        fscreen.requestFullscreen($("div#i3").get(0));
     }
 }
 
 function handleFullScreen(enableFullscreen = false) {
-    if (window.fscreen.inFullscreen() || enableFullscreen === true) {
+    if (fscreen.inFullscreen() || enableFullscreen === true) {
         if (markersVisible) {
             clearMarkers();
         }
