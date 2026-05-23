@@ -26,14 +26,14 @@ my @vendor_css = (
 my @vendor_js = (
     "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
     "/datatables.net/js/jquery.dataTables.min.js",        "/jqcloud2/dist/jqcloud.min.js",
-    "/jquery/dist/jquery.min.js",                         "/react-toastify/dist/react-toastify.umd.js",
+    "/jquery/dist/jquery.min.js",                         "/react-toastify/dist/react-toastify.esm.js",
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
     "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
-    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
-    "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
-    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
+    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.module.js",
+    "/clsx/dist/clsx.m.js",                               "/preact/compat/dist/compat.module.js",
+    "/preact/hooks/dist/hooks.module.js",                 "/sweetalert2/dist/sweetalert2.esm.min.js",
     "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
     "/raty-js/build/raty.min.js",
 );

@@ -1,29 +1,30 @@
 /**
  * Backup Operations
- * @global
  */
-const Backup = {};
+import * as Server from "mod/server";
+import * as LRR from "mod/common";
+import I18N from "i18n";
 
-Backup.currentJob = null;
+let currentJob = null;
 
-Backup.initializeAll = function () {
+function initializeAll() {
     // bind events to DOM
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
-    $(document).on("click.do-backup", "#do-backup", Backup.startBackup);
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
+    $(document).on("click.do-backup", "#do-backup", startBackup);
 
     // Handler for file uploading - using API endpoint with formdata
     $("#fileupload").fileupload({
-        url: "./api/database/restore",
+        url: new LRR.ApiURL("/api/database/restore"),
         dataType: "json",
         done(e, data) {
             if (data.result.success === 1) {
-                Backup.currentJob = data.result.job;
+                currentJob = data.result.job;
                 $("#processing").attr("style", "");
                 $("#processing-status").html(I18N.BackupRestoring);
                 $("#result").html("");
                 
                 // Poll the job status
-                Backup.pollJob(data.result.job, false);
+                pollJob(data.result.job, false);
             } else {
                 $("#result").html(data.result.error);
             }
@@ -41,9 +42,9 @@ Backup.initializeAll = function () {
         },
 
     });
-};
+}
 
-Backup.startBackup = function () {
+function startBackup() {
     $("#processing").attr("style", "");
     $("#processing-status").html(I18N.BackupGenerating);
     $("#result").html("");
@@ -53,11 +54,11 @@ Backup.startBackup = function () {
     $("#do-backup").prop("disabled", true);
 
     // Call the API endpoint to queue the backup job
-    Server.callAPI("./api/database/backup", "POST", null, I18N.GenericReponseError,
+    return Server.callAPI("/api/database/backup", "POST", null, I18N.GenericReponseError,
         (data) => {
             if (data.success === 1) {
-                Backup.currentJob = data.job;
-                Backup.pollJob(data.job, true);
+                currentJob = data.job;
+                pollJob(data.job, true);
             } else {
                 $("#processing").attr("style", "display:none");
                 $("#result").html(I18N.BackupFailed);
@@ -65,14 +66,14 @@ Backup.startBackup = function () {
             }
         },
     );
-};
+}
 
-Backup.pollJob = function (jobId, isBackup) {
+function pollJob(jobId, isBackup) {
     // Check minion job state periodically
     Server.checkJobStatus(
         jobId,
         true,
-        (data) => {
+        (_) => {
             // Job completed successfully
             $("#processing").attr("style", "display:none");
             $("#do-backup").prop("disabled", false);
@@ -94,12 +95,12 @@ Backup.pollJob = function (jobId, isBackup) {
         },
         (notes) => {
             // Progress update
-            Backup.updateProgress(notes);
+            updateProgress(notes);
         },
     );
-};
+}
 
-Backup.updateProgress = function (notes) {
+function updateProgress(notes) {
     if (!notes || !notes.status) return;
     
     let progressText = notes.status + "<br/>";
@@ -117,8 +118,8 @@ Backup.updateProgress = function (notes) {
     }
     
     $("#progress-info").html(progressText);
-};
+}
 
 jQuery(() => {
-    Backup.initializeAll();
+    initializeAll();
 });

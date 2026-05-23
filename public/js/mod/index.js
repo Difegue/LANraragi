@@ -1,54 +1,58 @@
 /**
  * Non-DataTables Index functions.
  * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
- * @global
  */
-const Index = {};
-Index.selectedCategory = "";
-Index.awesomplete = {};
-Index.carouselInitialized = false;
-Index.swiper = {};
-Index.serverVersion = "";
-Index.debugMode = false;
-Index.pageSize = 100;
-Index.pseudoCopyBtn = undefined;
-Index.isMultiSelectMode = false;
-Index.selectedArchives = new Set();
+import * as LRR from "mod/common";
+import * as Server from "mod/server";
+import * as IndexTable from "mod/index_datatables";
+import I18N from "i18n";
+
+let selectedCategory = "";
+let awesomplete = {};
+let carouselInitialized = false;
+let swiper = {};
+let serverVersion = "";
+let debugMode = false;
+export let pageSize = 100;
+let pseudoCopyBtn = undefined;
+let isMultiSelectMode = false;
+export let selectedArchives = new Set();
+let clipboard;
 
 /**
  * Initialize the Archive Index.
  */
-Index.initializeAll = function () {
+export function initializeAll() {
     // Bind events to DOM
     $(document).on("click", "[id^=edit-header-]", function () {
         const headerIndex = $(this).attr("id").split("-")[2];
-        Index.promptCustomColumn(headerIndex);
+        promptCustomColumn(headerIndex);
     });
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
-    $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
-    $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
-    $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
-    $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
-    $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
+    $(document).on("change.namespace-sortby", "#namespace-sortby", handleCustomSort);
+    $(document).on("change.columnCount", "#columnCount", handleColumnNum);
+    $(document).on("click.order-sortby", "#order-sortby", toggleOrder);
+    $(document).on("click.open-carousel", ".collapsible-title", toggleCarousel);
+    $(document).on("click.reload-carousel", "#reload-carousel", updateCarousel);
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
-    $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
-    $(document).on("keydown.quick-search", Index.handleQuickSearch);
-    $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
+    $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", toggleBookmarkStatusByIcon);
+    $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", toggleBookmarkStatusByIcon);
+    $(document).on("keydown.quick-search", handleQuickSearch);
+    $(document).on("keydown.escape-overlay", handleEscapeKey);
 
     // MSM event bindings
-    $(document).on("click.msm-toggle", "#msm-toggle", Index.toggleMultiSelectMode);
-    $(document).on("click.msm-select-page", "#msm-select-page", Index.selectCurrentPage);
-    $(document).on("click.msm-batch-ops", "#msm-batch-ops", Index.openBatchOnSelection);
-    $(document).on("click.msm-merge", "#msm-merge", Index.mergeSelectionIntoTankoubon);
-    $(document).on("click.msm-clear", "#msm-clear", Index.clearSelection);
+    $(document).on("click.msm-toggle", "#msm-toggle", toggleMultiSelectMode);
+    $(document).on("click.msm-select-page", "#msm-select-page", selectCurrentPage);
+    $(document).on("click.msm-batch-ops", "#msm-batch-ops", openBatchOnSelection);
+    $(document).on("click.msm-merge", "#msm-merge", mergeSelectionIntoTankoubon);
+    $(document).on("click.msm-clear", "#msm-clear", clearSelection);
     // Intercept reader-link clicks while MSM is active to toggle archive selection instead
     $(document).on("click.msm-archive", "a[href*='/reader?id=']", function (e) {
-        if (!Index.isMultiSelectMode) return;
+        if (!isMultiSelectMode) return;
         e.preventDefault();
         e.stopImmediatePropagation();
         const id = $(this).closest("[id]").attr("id");
-        if (id) Index.toggleArchiveSelection(id);
+        if (id) toggleArchiveSelection(id);
     });
 
     // 0 = List view
@@ -84,7 +88,7 @@ Index.initializeAll = function () {
         $(".collapsible-title").trigger("click", [false]);
         // Index.updateCarousel(); will be executed by toggleCarousel
     } else {
-        Index.updateCarousel();
+        updateCarousel();
     }
 
     // Initialize carousel mode menu
@@ -95,7 +99,7 @@ Index.initializeAll = function () {
         build: () => ({
             callback(key) {
                 localStorage.carouselType = key;
-                Index.updateCarousel();
+                updateCarousel();
             },
             items: {
                 ondeck: { name: I18N.CarouselOnDeck, icon: "fas fa-book-reader" },
@@ -193,7 +197,7 @@ Index.initializeAll = function () {
         localStorage.sawContextMenuToast = true;
 
         LRR.toast({
-            heading: I18N.IndexWelcome(Index.serverVersion),
+            heading: I18N.IndexWelcome(serverVersion),
             text: I18N.IndexWelcome2,
             icon: "info",
             hideAfter: 13000,
@@ -203,44 +207,43 @@ Index.initializeAll = function () {
     // Get some info from the server: version, debug mode, local progress
     Server.callAPI("/api/info", "GET", null, I18N.ServerInfoError,
         (data) => {
-            Index.serverVersion = data.version;
-            Index.debugMode = !!data.debug_mode;
-            LRR.isProgressLocal = !data.server_tracks_progress;
-            LRR.isProgressAuthenticated = data.authenticated_progress;
-            Index.pageSize = data.archives_per_page;
+            serverVersion = data.version;
+            debugMode = !!data.debug_mode;
+            LRR.setProgressTracking(!data.server_tracks_progress, data.authenticated_progress);
+            pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
-            if (!Index.debugMode) {
-                Index.checkVersion();
-                Index.fetchChangelog();
+            if (!debugMode) {
+                checkVersion();
+                fetchChangelog();
             } else {
                 LRR.toast({
                     heading: `<i class="fas fa-bug"></i> ` + I18N.DebugModeHeader,
-                    text: I18N.DebugModeDesc(new LRR.apiURL("/debug")),
+                    text: I18N.DebugModeDesc(new LRR.ApiURL("/debug")),
                     icon: "warning",
                 });
             }
 
-            Index.migrateProgress();
-            Index.loadTagSuggestions();
+            migrateProgress();
+            loadTagSuggestions();
 
             // Make bookmark category ID available to index and indextable
             Server.loadBookmarkCategoryId()
-                .then(() => Index.loadCategories())
+                .then(() => loadCategories())
                 .then(() => IndexTable.initializeAll())
                 .catch(error => console.error("Error initializing index:", error));
         });
 
     const columnCountSelect = document.getElementById("columnCount");
-    columnCountSelect.value = Index.getColumnCount();
+    columnCountSelect.value = getColumnCount();
 
-    Index.updateTableHeaders();
-    Index.resizableColumns();
+    updateTableHeaders();
+    resizableColumns();
 
-    Index.pseudoCopyBtn = $("#pseudo-copy-btn")
-    Index.clipboard = new window.ClipboardJS("#pseudo-copy-btn");
+    pseudoCopyBtn = $("#pseudo-copy-btn")
+    clipboard = new window.ClipboardJS("#pseudo-copy-btn");
 
-    Index.clipboard.on("success", function (e) {
+    clipboard.on("success", function (e) {
         LRR.toast({
             heading: I18N.IndexCopyLinkSuccess,
             icon: "info",
@@ -249,37 +252,37 @@ Index.initializeAll = function () {
         e.clearSelection();
     });
 
-    Index.clipboard.on("error", function (e) {
+    clipboard.on("error", function (e) {
         LRR.toast({
             heading: I18N.IndexCopyLinkFail,
             icon: "error",
             hideAfter: false,
         });
     });
-};
+}
 
-Index.toggleOrder = function (e) {
+export function toggleOrder(e) {
     e.preventDefault();
     const order = IndexTable.dataTable.order();
     order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
     IndexTable.dataTable.order(order);
     IndexTable.dataTable.draw();
-};
+}
 
 /**
  * Handle escape key to close overlays.
  * @param {KeyboardEvent} e - The keyboard event
  */
-Index.handleEscapeKey = function (e) {
+export function handleEscapeKey(e) {
     if (e.key !== "Escape") return;
     if (e.target.tagName === "INPUT") return;
     LRR.closeOverlay();
-};
+}
 
 // #region Bookmark/Favorite Icon
 
 // Turn bookmark icons to OFF for all archives.
-Index.bookmarkIconOff = function (arcid) {
+export function bookmarkIconOff(arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("fas");
@@ -288,7 +291,7 @@ Index.bookmarkIconOff = function (arcid) {
 }
 
 // Turn bookmark icons to ON for all archives.
-Index.bookmarkIconOn = function (arcid) {
+export function bookmarkIconOn(arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("far");
@@ -296,13 +299,13 @@ Index.bookmarkIconOn = function (arcid) {
     })
 }
 
-Index.toggleBookmarkStatusByIcon = function (e) {
+export function toggleBookmarkStatusByIcon(e) {
     const icon = e.currentTarget;
     const id = icon.id;
 
     if (!LRR.isUserLogged()) {
         LRR.toast({
-            heading: I18N.LoginRequired(new LRR.apiURL("/login")),
+            heading: I18N.LoginRequired(new LRR.ApiURL("/login")),
             icon: "warning",
             hideAfter: 5000,
         });
@@ -311,12 +314,12 @@ Index.toggleBookmarkStatusByIcon = function (e) {
 
     if (icon.classList.contains("far")) {
         Server.addArchiveToCategory(id, localStorage.getItem("bookmarkCategoryId"));
-        Index.bookmarkIconOn(id);
+        bookmarkIconOn(id);
     } else if (icon.classList.contains("fas")) {
         Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
-        Index.bookmarkIconOff(id);
+        bookmarkIconOff(id);
     }
-};
+}
 
 // #endregion
 
@@ -329,19 +332,19 @@ Index.toggleBookmarkStatusByIcon = function (e) {
  * 
  * @param {KeyboardEvent} e - The keyboard event
  */
-Index.handleQuickSearch = function (e) {
+export function handleQuickSearch(e) {
     if (e.key !== "/") return;
     if (e.target.tagName === "INPUT") return;
     if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
     e.preventDefault();
     if ($("#overlay-shade").is(":visible")) LRR.closeOverlay();
     $("#search-input")[0].focus();
-};
+}
 
 /**
  * Load tag suggestions for the tag search bar.
  */
-Index.loadTagSuggestions = function () {
+export function loadTagSuggestions() {
     // Query the tag cloud API to get the most used tags, excluding configured namespaces.
     Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
         (data) => {
@@ -354,7 +357,7 @@ Index.loadTagSuggestions = function () {
             });
 
             // Setup awesomplete for the tag search bar
-            Index.awesomplete = new Awesomplete("#search-input", {
+            awesomplete = new Awesomplete("#search-input", {
                 list: data,
                 data(tag) {
                     // Format tag objects from the API into a format awesomplete likes.
@@ -380,21 +383,21 @@ Index.loadTagSuggestions = function () {
             });
         },
     );
-};
+}
 
 // #endregion
 
 // #region Carousel
 
-Index.toggleCarousel = function (e, updateLocalStorage = true) {
+export function toggleCarousel(e, updateLocalStorage = true) {
     if (updateLocalStorage) 
         localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
-    if (!Index.carouselInitialized) {
-        Index.carouselInitialized = true;
+    if (!carouselInitialized) {
+        carouselInitialized = true;
         $("#reload-carousel").show();
 
-        Index.swiper = new Swiper(".index-carousel-container", {
+        swiper = new Swiper(".index-carousel-container", {
             breakpoints: (() => {
                 const breakpoints = {
                     0: { // ensure every device have at least 1 slide
@@ -435,15 +438,15 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
             },
         });
 
-        Index.updateCarousel();
+        updateCarousel();
     }
-};
+}
 
-Index.updateCarousel = function (e) {
+export function updateCarousel(e) {
     e?.preventDefault();
 
     // Don't overwrite the carousel while Multi-Select Mode is active
-    if (Index.isMultiSelectMode) {
+    if (isMultiSelectMode) {
         return;
     }
 
@@ -456,7 +459,7 @@ Index.updateCarousel = function (e) {
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
     const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
-    const category = Index.selectedCategory ? `&category=${Index.selectedCategory}` : "";
+    const category = selectedCategory ? `&category=${selectedCategory}` : "";
 
     switch (localStorage.carouselType) {
         case "random":
@@ -465,9 +468,9 @@ Index.updateCarousel = function (e) {
             endpoint = `/api/search/random?count=15${filter}${category}`;
 
             // Special categories that imply additional query params
-            if (Index.selectedCategory === "NEW_ONLY") {
+            if (selectedCategory === "NEW_ONLY") {
                 endpoint += "&newonly=true";
-            } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
+            } else if (selectedCategory === "UNTAGGED_ONLY") {
                 endpoint += "&untaggedonly=true";
             }
 
@@ -494,14 +497,14 @@ Index.updateCarousel = function (e) {
             break;
     }
 
-    if (Index.carouselInitialized) {
+    if (carouselInitialized) {
         Server.callAPI(endpoint, "GET", null, I18N.CarouselError,
             (results) => {
-                Index.swiper.virtual.removeAllSlides();
+                swiper.virtual.removeAllSlides();
                 const slides = results.data
                     .map((archive) => LRR.buildThumbnailDiv(archive));
-                Index.swiper.virtual.appendSlide(slides);
-                Index.swiper.virtual.update();
+                swiper.virtual.appendSlide(slides);
+                swiper.virtual.update();
 
                 if (results.data.length === 0) {
                     $("#carousel-empty").show();
@@ -513,7 +516,7 @@ Index.updateCarousel = function (e) {
             },
         );
     }
-};
+}
 
 // #endregion
 
@@ -524,14 +527,14 @@ Index.updateCarousel = function (e) {
  * In MSM, the carousel empties out and serves as a visual selection panel.
  * Clicking archives adds/removes them from the selection instead of opening the reader.
  */
-Index.toggleMultiSelectMode = function () {
-    Index.isMultiSelectMode = !Index.isMultiSelectMode;
+export function toggleMultiSelectMode() {
+    isMultiSelectMode = !isMultiSelectMode;
 
-    if (Index.isMultiSelectMode) {
-        Index.enterSelectionCarouselMode();
+    if (isMultiSelectMode) {
+        enterSelectionCarouselMode();
     } else {
 
-        if (Index.selectedArchives.size > 0) 
+        if (selectedArchives.size > 0)
             LRR.showPopUp({
                 text: I18N.MSMConfirmExit,
                 showCancelButton: true,
@@ -539,25 +542,25 @@ Index.toggleMultiSelectMode = function () {
                 reverseButtons: true,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Index.clearSelection();
-                    Index.exitSelectionCarouselMode();
+                    clearSelection();
+                    exitSelectionCarouselMode();
                 }
                 else 
-                    Index.isMultiSelectMode = true; // Revert the toggle if user cancels 
+                    isMultiSelectMode = true; // Revert the toggle if user cancels
             });
         else 
-            Index.exitSelectionCarouselMode();    
+            exitSelectionCarouselMode();
     }
-};
+}
 
 /**
  * Switch the carousel into Selection Mode: clear slides, hide normal controls,
  * show MSM controls, and update the header.
  */
-Index.enterSelectionCarouselMode = function () {
+export function enterSelectionCarouselMode() {
     // Initialize the carousel if it hasn't been opened yet
-    if (!Index.carouselInitialized) {
-        Index.toggleCarousel(null, false);
+    if (!carouselInitialized) {
+        toggleCarousel(null, false);
     }
 
     $("#msm-toggle").addClass("toggled");
@@ -575,8 +578,8 @@ Index.enterSelectionCarouselMode = function () {
     $("#carousel-title").text(I18N.MSMCarouselTitle);
 
     // Clear all existing slides
-    Index.swiper.virtual.removeAllSlides();
-    Index.swiper.virtual.update();
+    swiper.virtual.removeAllSlides();
+    swiper.virtual.update();
 
     // Show selection hint as empty state
     $("#carousel-empty-text").text(I18N.MSMSelectionHint);
@@ -586,14 +589,14 @@ Index.enterSelectionCarouselMode = function () {
 
     // Show MSM controls
     $("#msm-carousel-controls").show();
-    Index.updateSelectionCount();
-};
+    updateSelectionCount();
+}
 
 /**
  * Restore the carousel to its normal mode: show normal controls, hide MSM controls,
  * restore empty state text, and reload the carousel content.
  */
-Index.exitSelectionCarouselMode = function () {
+export function exitSelectionCarouselMode() {
     // Restore normal carousel controls
     $("#reload-carousel").show();
     $("#carousel-mode-menu").show();
@@ -611,43 +614,43 @@ Index.exitSelectionCarouselMode = function () {
     $("#msm-carousel-controls").hide();
 
     // Reload normal carousel content
-    Index.updateCarousel();
+    updateCarousel();
 
     // Remove all highlights from archives
     $(".msm-selected").removeClass("msm-selected");
-};
+}
 
 /**
  * Toggle an archive in/out of the current MSM selection.
  * Updates the carousel slides and index highlights accordingly.
  * @param {string} id Archive ID
  */
-Index.toggleArchiveSelection = function (id) {
-    if (Index.selectedArchives.has(id)) {
-        Index.selectedArchives.delete(id);
-        Index.removeArchiveFromSelection(id);
+export function toggleArchiveSelection(id) {
+    if (selectedArchives.has(id)) {
+        selectedArchives.delete(id);
+        removeArchiveFromSelection(id);
     } else {
-        Index.selectedArchives.add(id);
+        selectedArchives.add(id);
         // Find archive data from DataTables to build the carousel slide
         const row = IndexTable.dataTable.row(`#${id}`);
         const data = row.data();
         if (data) {
-            Index.addArchiveToSelection(data);
+            addArchiveToSelection(data);
         }
     }
-    Index.updateSelectionCount();
-};
+    updateSelectionCount();
+}
 
 /**
  * Build and add a carousel slide for the given archive.
  * Clicking the slide removes the archive from the selection.
  * @param {object} data Archive data object from DataTables
  */
-Index.addArchiveToSelection = function (data) {
+export function addArchiveToSelection(data) {
     const id = data.arcid || data.id;
     const slide = LRR.buildThumbnailDiv(data);
-    Index.swiper.virtual.appendSlide(slide);
-    Index.swiper.virtual.update();
+    swiper.virtual.appendSlide(slide);
+    swiper.virtual.update();
 
     // Add highlight classes to matching divs in compact and thumb mode 
     $(`#thumbs_container #${id}`).addClass("msm-selected");
@@ -657,23 +660,23 @@ Index.addArchiveToSelection = function (data) {
     // Uses event delegation so it works even with virtual slides
     $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`, 
         function (e) {
-        if (!Index.isMultiSelectMode) return;
+        if (!isMultiSelectMode) return;
         e.preventDefault();
-        Index.toggleArchiveSelection(id);
+        toggleArchiveSelection(id);
     });
-};
+}
 
 /**
  * Remove an archive's slide from the MSM carousel.
  * @param {string} id Archive ID to remove
  */
-Index.removeArchiveFromSelection = function (id) {
+export function removeArchiveFromSelection(id) {
     // Find the slide index in the virtual slides array
-    const { slides } = Index.swiper.virtual;
+    const { slides } = swiper.virtual;
     const idx = slides.findIndex((html) => html.includes(`id="${id}"`));
     if (idx !== -1) {
-        Index.swiper.virtual.removeSlide(idx);
-        Index.swiper.virtual.update();
+        swiper.virtual.removeSlide(idx);
+        swiper.virtual.update();
     }
 
     // Remove highlight classes
@@ -681,47 +684,47 @@ Index.removeArchiveFromSelection = function (id) {
     $(`tr#${id}.context-menu`).removeClass("msm-selected");
 
     $(document).off(`click.msm-carousel-${id}`);
-};
+}
 
 /**
  * Add all archives visible on the current DataTables page to the selection.
  */
-Index.selectCurrentPage = function () {
+export function selectCurrentPage() {
     const pageData = IndexTable.dataTable.rows({ page: "current" }).data();
     pageData.each((data) => {
         const id = data.arcid || data.id;
-        if (!Index.selectedArchives.has(id)) {
-            Index.selectedArchives.add(id);
-            Index.addArchiveToSelection(data);
+        if (!selectedArchives.has(id)) {
+            selectedArchives.add(id);
+            addArchiveToSelection(data);
         }
     });
-    Index.updateSelectionCount();
-};
+    updateSelectionCount();
+}
 
 /**
  * Clear the entire archive selection, reset the carousel to empty, and remove all highlights.
  */
-Index.clearSelection = function () {
-    Index.selectedArchives.clear();
+export function clearSelection() {
+    selectedArchives.clear();
 
-    if (Index.carouselInitialized) {
-        Index.swiper.virtual.removeAllSlides();
-        Index.swiper.virtual.update();
+    if (carouselInitialized) {
+        swiper.virtual.removeAllSlides();
+        swiper.virtual.update();
         $("#carousel-empty").show();
         $(".swiper-wrapper").hide();
     }
 
     $(".msm-selected").removeClass("msm-selected");
-    Index.updateSelectionCount();
-};
+    updateSelectionCount();
+}
 
 /**
  * Update the count display for the current selection and save a copy to localStorage. 
  * Also show/hide controls if applicable.
  */
-Index.updateSelectionCount = function () {
-    const count = Index.selectedArchives.size;
-    localStorage.setItem("msmSelection", JSON.stringify([...Index.selectedArchives]));
+export function updateSelectionCount() {
+    const count = selectedArchives.size;
+    localStorage.setItem("msmSelection", JSON.stringify([...selectedArchives]));
     if (count > 0) {
         // Hide empty state, show slides
         $("#carousel-empty").hide();
@@ -732,7 +735,7 @@ Index.updateSelectionCount = function () {
             $("#msm-batch-ops").show();
 
             // Don't show merge option if more than 2 tanks are in the selection
-            const tankCount = [...Index.selectedArchives].filter((id) => id.startsWith("TANK_")).length;
+            const tankCount = [...selectedArchives].filter((id) => id.startsWith("TANK_")).length;
             if (tankCount <= 2)
                 $("#msm-merge").show();
             else
@@ -748,44 +751,44 @@ Index.updateSelectionCount = function () {
         $("#msm-merge").hide();
         $("#msm-clear").hide();
     }
-};
+}
 
 /**
  * Re-apply msm-selected CSS highlights for all selected archives currently in the DOM.
  * Should be called after each DataTables draw.
  */
-Index.applySelectionHighlights = function () {
-    if (!Index.isMultiSelectMode) return;
-    Index.selectedArchives.forEach((id) => {
+export function applySelectionHighlights() {
+    if (!isMultiSelectMode) return;
+    selectedArchives.forEach((id) => {
         $(`#thumbs_container #${id}`).addClass("msm-selected");
         $(`tr#${id}.context-menu`).addClass("msm-selected");
     });
-};
+}
 
 /**
  * Store the current MSM selection in localStorage and open the Batch Operations page
  * in a new tab. The batch page reads the key and pre-checks those archives.
  */
-Index.openBatchOnSelection = function () {
-    if (Index.selectedArchives.size === 0) return;
-    LRR.openInNewTab(new LRR.apiURL("/batch"));
-};
+export function openBatchOnSelection() {
+    if (selectedArchives.size === 0) return;
+    LRR.openInNewTab(new LRR.ApiURL("/batch"));
+}
 
 /**
  * Merge the current selection into a Tankoubon, then reload the search.
- * If exactly one Tankoubon is already in the selection, fold the archives into it directly. 
+ * If exactly one Tankoubon is already in the selection, fold the archives into it directly.
  * Otherwise, prompt for a name and create a new Tankoubon containing the selection.
  */
-Index.mergeSelectionIntoTankoubon = function () {
-    if (Index.selectedArchives.size === 0) return;
+function mergeSelectionIntoTankoubon() {
+    if (selectedArchives.size === 0) return;
 
-    const allIds = [...Index.selectedArchives];
+    const allIds = [...selectedArchives];
     const tankIds = allIds.filter((id) => id.startsWith("TANK_"));
     const archiveIds = allIds.filter((id) => !id.startsWith("TANK_"));
 
     if (tankIds.length === 1) {
         // Fold non-tank archives into the existing tankoubon
-        Index.addArchivesToTank(tankIds[0], archiveIds);
+        addArchivesToTank(tankIds[0], archiveIds);
     } else {
         // Prompt for a name and create a new tankoubon
         LRR.showPopUp({
@@ -804,7 +807,7 @@ Index.mergeSelectionIntoTankoubon = function () {
 
             Server.callAPI(`/api/tankoubons?name=${encodeURIComponent(result.value)}`, "PUT",
                 null, I18N.MSMMergeError,
-                (data) => Index.addArchivesToTank(data.tankoubon_id, archiveIds)
+                (data) => addArchivesToTank(data.tankoubon_id, archiveIds)
             );
         });
     }
@@ -813,7 +816,7 @@ Index.mergeSelectionIntoTankoubon = function () {
 /**
  * Add the given archive IDs to a tankoubon via chained Promises
  */
-Index.addArchivesToTank = function (tankId, arcIds) {
+function addArchivesToTank(tankId, arcIds) {
     arcIds.reduce((chain, arcId) =>
         chain.then(() =>
             Server.callAPI(`/api/tankoubons/${tankId}/${arcId}`, "PUT",
@@ -823,8 +826,8 @@ Index.addArchivesToTank = function (tankId, arcIds) {
     ).then(() => {
         const successMsg = I18N.MSMMergeSuccess(arcIds.length, tankId);
         LRR.toast({ heading: successMsg, icon: "success" });
-        Index.clearSelection();
-        Index.exitSelectionCarouselMode();
+        clearSelection();
+        exitSelectionCarouselMode();
         IndexTable.doSearch();
     });
 };
@@ -837,7 +840,7 @@ Index.addArchivesToTank = function (tankId, arcIds) {
  * Check the GitHub API to see if an update was released.
  * If so, flash another friendly notification inviting the user to check it out
  */
-Index.checkVersion = function () {
+export function checkVersion() {
     const githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 
     fetch(githubAPI)
@@ -856,7 +859,7 @@ Index.checkVersion = function () {
             const expr = /(\d+)/g;
             const latestVersionArr = Array.from(data.tag_name.match(expr));
             let latestVersion = "";
-            const currentVersionArr = Array.from(Index.serverVersion.match(expr));
+            const currentVersionArr = Array.from(serverVersion.match(expr));
             let currentVersion = "";
 
             latestVersionArr.forEach((element, index) => {
@@ -886,14 +889,14 @@ Index.checkVersion = function () {
             }
         })
         .catch((error) => console.log("Error checking latest version.", error));
-};
+}
 
 /**
  * Fetch the latest LRR changelog and show it to the user if he just updated
  */
-Index.fetchChangelog = function () {
-    if (localStorage.lrrVersion !== Index.serverVersion) {
-        localStorage.lrrVersion = Index.serverVersion;
+export function fetchChangelog() {
+    if (localStorage.lrrVersion !== serverVersion) {
+        localStorage.lrrVersion = serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
             .then((response) => {
@@ -929,12 +932,12 @@ Index.fetchChangelog = function () {
             })
             .catch((error) => { LRR.showErrorToast(I18N.IndexUpdateError, error); });
     }
-};
+}
 
 /**
  * If server-side progress tracking is enabled, migrate local progression to the server.
  */
-Index.migrateProgress = function () {
+export function migrateProgress() {
     // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
     if (LRR.isProgressLocal || (LRR.isProgressAuthenticated && !LRR.isUserLogged())) {
         return;
@@ -953,7 +956,7 @@ Index.migrateProgress = function () {
         localProgressKeys.forEach((id) => {
             const progress = localStorage.getItem(`${id}-reader`);
 
-            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
+            promises.push(fetch(new LRR.ApiURL(`api/archives/${id}/metadata`), { method: "GET" })
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further
@@ -980,7 +983,7 @@ Index.migrateProgress = function () {
         // eslint-disable-next-line no-console
         console.log("No local reading progression to migrate");
     }
-};
+}
 
 // #endregion
 
@@ -992,13 +995,13 @@ Index.migrateProgress = function () {
  * @param {*} id The Archive ID
  * @returns
  */
-Index.handleContextMenu = function (option, id) {
+export function handleContextMenu(option, id) {
     switch (option) {
         case "edit":
-            LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
+            LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${id}`));
             break;
         case "edit-tank":
-            LRR.openInNewTab(new LRR.apiURL(`/tankoubon?arcid=${id}`));
+            LRR.openInNewTab(new LRR.ApiURL(`/tankoubon?arcid=${id}`));
             break;
         case "delete":
             LRR.showPopUp({
@@ -1016,23 +1019,23 @@ Index.handleContextMenu = function (option, id) {
             });
             break;
         case "read":
-            LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
+            LRR.openInNewTab(new LRR.ApiURL(`/reader?id=${id}`));
             break;
         case "download":
-            LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+            LRR.openInNewTab(new LRR.ApiURL(`/api/archives/${id}/download`));
             break;
         case "copy link":
-            Index.pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`).toString()}`);
-            Index.pseudoCopyBtn.click()
+            pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.ApiURL(`/reader?id=${id}`).toString()}`);
+            pseudoCopyBtn.click()
             break;
         case "msm-toggle-archive":
-            if (!Index.isMultiSelectMode) Index.toggleMultiSelectMode();
-            Index.toggleArchiveSelection(id);
+            if (!isMultiSelectMode) toggleMultiSelectMode();
+            toggleArchiveSelection(id);
             break;
         default:
             break;
     }
-};
+}
 
 // #endregion
 
@@ -1043,25 +1046,25 @@ Index.handleContextMenu = function (option, id) {
  * Sets the internal selectedCategory variable and changes the button's class.
  * @param {*} button Button matching the category.
  */
-Index.toggleCategory = function (button) {
+export function toggleCategory(button) {
     // Add/remove class to button depending on the state
     const categoryId = button.id;
-    if (Index.selectedCategory === categoryId) {
+    if (selectedCategory === categoryId) {
         button.classList.remove("toggled");
-        Index.selectedCategory = "";
+        selectedCategory = "";
     } else {
-        Index.selectedCategory = categoryId;
+        selectedCategory = categoryId;
         button.classList.add("toggled");
     }
 
     // Trigger search
     IndexTable.doSearch();
-};
+}
 
 /**
  * Query the category API to build the filter buttons.
  */
-Index.loadCategories = function () {
+export function loadCategories() {
     return Server.callAPI("/api/categories", "GET", null, I18N.CategoryFetchError,
         (data) => {
             // Sort by pinned + alpha
@@ -1070,13 +1073,13 @@ Index.loadCategories = function () {
             data.sort((a, b) => b.pinned - a.pinned);
             // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
             let html = `<div style='display:inline-block'>
-                            <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            <input class='favtag-btn ${(("NEW_ONLY" === selectedCategory) ? "toggled" : "")}' 
                             type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
-                            onclick='Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
+                            onclick='window.Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
                         </div><div style='display:inline-block'>
                             <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
                             type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}' 
-                            onclick='Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
+                            onclick='window.Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
                         </div>`;
 
             const iteration = (data.length > 10 ? 10 : data.length);
@@ -1089,9 +1092,9 @@ Index.loadCategories = function () {
                 catName = LRR.encodeHTML(catName);
 
                 const div = `<div style='display:inline-block'>
-                    <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
+                    <input class='favtag-btn ${((category.id === selectedCategory) ? "toggled" : "")}' 
                             type='button' id='${category.id}' value='${catName}' 
-                            onclick='Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
+                            onclick='window.Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
 
                 // Take this opportunity to update the bookmark
@@ -1120,10 +1123,10 @@ Index.loadCategories = function () {
             $("#category-container").html(html);
 
             // Add a listener on dropdown selection
-            $("#catdropdown").on("change", () => Index.toggleCategory($("#catdropdown")[0].selectedOptions[0]));
+            $("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
         },
     );
-};
+}
 
 // #endregion
 
@@ -1133,7 +1136,7 @@ Index.loadCategories = function () {
  * Show a prompt to update the namespace of a column in compact mode.
  * @param {*} column Index of the column to modify
  */
-Index.promptCustomColumn = function (column) {
+export function promptCustomColumn(column) {
     LRR.showPopUp({
         title: I18N.CustomColumn,
         text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
@@ -1164,7 +1167,7 @@ Index.promptCustomColumn = function (column) {
             }
         }
     });
-};
+}
 
 /**
  * Update table controls to reflect the current status.
@@ -1173,7 +1176,7 @@ Index.promptCustomColumn = function (column) {
  * @param {*} totalPages Total pages of the table
  * @param {*} currentPage Current page of the table
  */
-Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
+export function updateTableControls(currentSort, currentOrder, totalPages, currentPage) {
     $(".table-options").show();
 
     $("#namespace-sortby").val(currentSort);
@@ -1200,9 +1203,9 @@ Index.updateTableControls = function (currentSort, currentOrder, totalPages, cur
     }
 
     pageSelect.val(currentPage);
-};
+}
 
-Index.handleCustomSort = function () {
+export function handleCustomSort() {
     const namespace = $("#namespace-sortby").val();
     const order = IndexTable.dataTable.order();
 
@@ -1221,20 +1224,20 @@ Index.handleCustomSort = function () {
 
     IndexTable.dataTable.order(order);
     IndexTable.dataTable.draw();
-};
+}
 
-Index.handleColumnNum = function () {
+export function handleColumnNum() {
     const columnCountSelect = document.getElementById("columnCount");
     const selectedCount = columnCountSelect.value;
     localStorage.setItem("columnCount", selectedCount);
-    Index.updateTableHeaders();
+    updateTableHeaders();
     document.location.reload(true);
-};
+}
 
 /**
  * Generate the Table Headers based on the custom namespaces set in localStorage.
  */
-Index.generateTableHeaders = function (columnCount) {
+export function generateTableHeaders(columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
     const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
@@ -1258,15 +1261,15 @@ Index.generateTableHeaders = function (columnCount) {
         <th id="tagsheader">
             <a>${I18N.IndexTags}</a>
         </th>`);
-};
+}
 
 
 /**
  * Update the Table Headers based on the custom namespaces set in localStorage.
  */
-Index.updateTableHeaders = function () {
-    let columnCount = Index.getColumnCount();
-    Index.generateTableHeaders(columnCount);
+export function updateTableHeaders() {
+    let columnCount = getColumnCount();
+    generateTableHeaders(columnCount);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
@@ -1274,12 +1277,12 @@ Index.updateTableHeaders = function () {
 
         $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
     }
-};
+}
 
 /**
  * Restore and update column width, data store in localstorge.
  */
-Index.resizableColumns = function () {
+export function resizableColumns() {
     let currentHeader;
     let currentIndex;
     let startX;
@@ -1353,17 +1356,20 @@ Index.resizableColumns = function () {
 
         document.body.style.cursor = "default";
     }
-};
+}
 
 /**
  * @returns number of custom columns in compact mode
  */
-Index.getColumnCount = function () {
+export function getColumnCount() {
     return localStorage.getItem("columnCount") ? parseInt(localStorage.getItem("columnCount")) : 2;
 }
 
 // #endregion
 
-jQuery(() => {
-    Index.initializeAll();
-});
+/**
+ * @param {string} newCategory
+ */
+export function setSelectedCategory(newCategory) {
+    selectedCategory = newCategory;
+}

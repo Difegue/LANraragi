@@ -1,27 +1,28 @@
 /**
  * All the Archive Index functions related to DataTables.
- * @global
  */
-const IndexTable = {};
+import * as LRR from "mod/common";
+import * as Index from "mod/index";
+import I18N from "i18n";
 
-IndexTable.dataTable = {};
-IndexTable.originalTitle = document.title;
-IndexTable.isComingFromPopstate = false;
-IndexTable.currentSearch = "";
+export let dataTable = {};
+let originalTitle = document.title;
+let isComingFromPopstate = false;
+let currentSearch = "";
 
 /**
  * Initialize DataTables.
  */
-IndexTable.initializeAll = function () {
+export function initializeAll() {
     // Bind events to DOM
-    $(document).on("click.apply-search", "#apply-search", () => { IndexTable.currentSearch = $("#search-input").val(); IndexTable.doSearch(); });
-    $(document).on("click.clear-search", "#clear-search", () => { IndexTable.currentSearch = ""; IndexTable.doSearch(); });
+    $(document).on("click.apply-search", "#apply-search", () => { currentSearch = $("#search-input").val(); doSearch(); });
+    $(document).on("click.clear-search", "#clear-search", () => { currentSearch = ""; doSearch(); });
     $(document).on("keyup.search-input", "#search-input", (e) => {
         if (e.defaultPrevented) {
             return;
         } else if (e.key === "Enter") {
-            IndexTable.currentSearch = $("#search-input").val();
-            IndexTable.doSearch();
+            currentSearch = $("#search-input").val();
+            doSearch();
         }
         e.preventDefault();
     });
@@ -29,15 +30,15 @@ IndexTable.initializeAll = function () {
     // Catch tag div clicks and do a search instead of reloading the page
     $(document).on("click.gt", ".gt", (e) => {
         e.preventDefault();
-        IndexTable.currentSearch = $(e.target).attr("search");
-        IndexTable.doSearch();
+        currentSearch = $(e.target).attr("search");
+        doSearch();
     });
 
     // Add a listen event to window.popstate to update the search accordingly
     // if the user goes back using browser history
     $(window).on("popstate", () => {
-        IndexTable.isComingFromPopstate = true;
-        IndexTable.consumeURLParameters();
+        isComingFromPopstate = true;
+        consumeURLParameters();
     });
 
     // Clear searchbar cache
@@ -50,7 +51,7 @@ IndexTable.initializeAll = function () {
     // set custom columns
     const columns = [];
     columns.push({
-        data: null, className: "title itd", name: "title", render: IndexTable.renderTitle,
+        data: null, className: "title itd", name: "title", render: renderTitle,
     });
     const columnCount = Index.getColumnCount();
     // set custom columns
@@ -59,15 +60,15 @@ IndexTable.initializeAll = function () {
             data: "tags",
             className: `customheader${i} itd`,
             name: localStorage[`customColumn${i}`] || `defaultCol${i}`,
-            render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data),
+            render: (data, type) => renderColumn(localStorage[`customColumn${i}`], type, data),
         });
     }
     columns.push({
-        data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags,
+        data: "tags", className: "tags itd", name: "tags", orderable: false, render: renderTags,
     });
 
     // Datatables configuration
-    IndexTable.dataTable = $(".datatables").DataTable({
+    dataTable = $(".datatables").DataTable({
         serverSide: true,
         processing: true,
         ajax: {
@@ -91,52 +92,52 @@ IndexTable.initializeAll = function () {
         language: {
             info: I18N.IndexPageCount,
             infoEmpty: `<h1><br/><i class="fas fa-4x fa-sad-cry"></i><br/><br/>
-                        ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
+                        ${I18N.IndexNoArcsFound(new LRR.ApiURL("/upload"))}</h1><br/>`,
             processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style="width: 80%;"></div></div></div>`,
         },
-        preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
-        drawCallback: IndexTable.drawCallback,
-        createdRow: IndexTable.createdRow,
+        preDrawCallback: initializeThumbView, // callbacks for thumbnail view
+        drawCallback: drawCallback,
+        createdRow: createdRow,
         columns,
     });
 
     // If the url has parameters, handle them now by doing the matching search.
-    IndexTable.consumeURLParameters();
-};
+    consumeURLParameters();
+}
 
 /**
  * Looks at the active filters and performs a search using DataTables' API.
  * (which is hooked back to the internal Search API)
  * If you specify a page argument, the search will load the given page.
- * @param {*} page Page to load
+ * @param {number} page Page to load
  */
-IndexTable.doSearch = function (page) {
+export function doSearch(page) {
     // Add the selected category to the tags column so it's picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
-    IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
+    dataTable.column(".tags.itd").search(Index.selectedCategory);
 
     // Update search input field
-    $("#search-input").val(IndexTable.currentSearch);
-    IndexTable.dataTable.search(IndexTable.currentSearch);
+    $("#search-input").val(currentSearch);
+    dataTable.search(currentSearch);
 
     // Add the current search terms to the title tab
-    document.title = IndexTable.originalTitle + ((IndexTable.currentSearch !== "") ? ` - ${IndexTable.currentSearch}` : "");
+    document.title = originalTitle + ((currentSearch !== "") ? ` - ${currentSearch}` : "");
 
     if (page) {
         // Hack the displayStart value to draw at the page we asked
-        const customDisplayStart = page * IndexTable.dataTable.settings()[0]._iDisplayLength;
-        IndexTable.dataTable.settings()[0].iInitDisplayStart = customDisplayStart;
+        const customDisplayStart = page * dataTable.settings()[0]._iDisplayLength;
+        dataTable.settings()[0].iInitDisplayStart = customDisplayStart;
     } else {
-        IndexTable.dataTable.settings()[0].iInitDisplayStart = 0;
+        dataTable.settings()[0].iInitDisplayStart = 0;
     }
-    IndexTable.dataTable.draw();
+    dataTable.draw();
 
     // Re-load categories so the most recently selected/created ones appear first
     Index.loadCategories();
 
     // Re-load carousel
     Index.updateCarousel();
-};
+}
 
 // #region Compact View
 
@@ -147,7 +148,7 @@ IndexTable.doSearch = function (page) {
  * @param {*} data The tag contents
  * @returns The table HTML, or raw data if type is data
  */
-IndexTable.renderColumn = function (namespace, type, data) {
+export function renderColumn(namespace, type, data) {
     if (type === "display") {
         if (data === "") return "";
         const regex = new RegExp(`${namespace}:([^,]+)`, "g"); // catch all values associated to the given namespace
@@ -170,13 +171,13 @@ IndexTable.renderColumn = function (namespace, type, data) {
             const spanTags = tagLinks.slice(0, -2); // remove the last comma and space
             const popupTags = matches.map((match) => match[0]).join(","); //
             return `
-                <span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
+                <span class="tag-tooltip" onmouseover="window.LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
                 <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(popupTags)}</div>
             `;
         } else return "";
     }
     return data;
-};
+}
 
 /**
  * Render the title column.
@@ -184,29 +185,29 @@ IndexTable.renderColumn = function (namespace, type, data) {
  * @param {*} type Whether this is a displayed column (html) or just a data request
  * @returns The table HTML, or raw title if type is data
  */
-IndexTable.renderTitle = function (data, type) {
+export function renderTitle(data, type) {
     if (type === "display") {
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
         const thumbSrc = data.arcid.startsWith("TANK_")
-            ? new LRR.apiURL(`/api/tankoubons/${data.arcid}/thumbnail?no_fallback=true`)
-            : new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`);
+            ? new LRR.ApiURL(`/api/tankoubons/${data.arcid}/thumbnail?no_fallback=true`)
+            : new LRR.ApiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`);
 
         return `${LRR.buildStatusDiv(data)}${LRR.buildPageCountDiv(data)}${bookmarkIcon}
                 <a id="${data.arcid}"
-                   onmouseover="IndexTable.buildImageTooltip(this)"
-                   href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+                   onmouseover="buildImageTooltip(this)"
+                   href="${new LRR.ApiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
                     <img style="height:300px" src="${thumbSrc}"
-                         onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
+                         onerror="this.src='${new LRR.ApiURL("/img/noThumb.png")}'">
                 </div>`;
     }
 
     return data.title;
-};
+}
 
 /**
  * Render the tags column.
@@ -214,9 +215,9 @@ IndexTable.renderTitle = function (data, type) {
  * @param {*} type Whether this is a displayed column (html) or just a data request
  * @returns The table HTML, or raw tags if type is data
  */
-IndexTable.renderTags = function (data, type) {
+export function renderTags(data, type) {
     if (type === "display") {
-        return `<span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+        return `<span class="tag-tooltip" onmouseover="window.LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
                     ${LRR.colorCodeTags(data)}
                 </span>
                 <div class="caption caption-tags" style="display: none;" >
@@ -224,7 +225,7 @@ IndexTable.renderTags = function (data, type) {
                 </div>`;
     }
     return data;
-};
+}
 
 // #endregion
 
@@ -234,7 +235,7 @@ IndexTable.renderTags = function (data, type) {
 /**
  * Inits the div that contains the thumbnails
  */
-IndexTable.initializeThumbView = function () {
+export function initializeThumbView() {
     // we only do all this thingamajang if thumbnail view is enabled
     if (localStorage.indexViewMode === "1") {
         // Create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -253,9 +254,9 @@ IndexTable.initializeThumbView = function () {
         // Datatables' auto-width gets a bit lost when coming back from thumb view.
         $(".datatables").attr("style", "");
 
-        IndexTable.dataTable.columns?.adjust();
+        dataTable.columns?.adjust();
     }
-};
+}
 
 /**
  * Modifications when a row is created
@@ -264,7 +265,7 @@ IndexTable.initializeThumbView = function () {
  * @param {number} dataIndex index of row
  * @param {Node[]} cells cells for the column
  */
-IndexTable.createdRow = function (row, data, dataIndex, cells) {
+export function createdRow(row, data, dataIndex, cells) {
     // Update row with id and context-menu class
     row.id = data.arcid || data.id;
     row.classList.add("context-menu");
@@ -278,7 +279,7 @@ IndexTable.createdRow = function (row, data, dataIndex, cells) {
             $(`#thumbs_container #${data.arcid || data.id}`).addClass("msm-selected");
         }
     }
-};
+}
 
 // #endregion
 
@@ -288,9 +289,9 @@ IndexTable.createdRow = function (row, data, dataIndex, cells) {
  * Called after the table is drawn. Updates page selector.
  * (And handles pushing the search parameters to the URL)
  */
-IndexTable.drawCallback = function () {
-    if (typeof (IndexTable.dataTable) !== "undefined") {
-        const pageInfo = IndexTable.dataTable.page.info();
+export function drawCallback() {
+    if (typeof (dataTable) !== "undefined") {
+        const pageInfo = dataTable.page.info();
         if (pageInfo.pages === 0) {
             $(".itg").hide();
         } else {
@@ -298,11 +299,11 @@ IndexTable.drawCallback = function () {
         }
 
         // Update url to contain all search parameters, and push it to the history
-        if (IndexTable.isComingFromPopstate) {
+        if (isComingFromPopstate) {
             // But don't fire this if we're coming from popstate
-            IndexTable.isComingFromPopstate = false;
+            isComingFromPopstate = false;
         } else {
-            let params = IndexTable.buildURLParameters();
+            let params = buildURLParameters();
             // don't push duplicate state entries, because that would wipe out forward history and
             // require multiple 'back' presses to go back)
             if (params === "?") {
@@ -316,15 +317,15 @@ IndexTable.drawCallback = function () {
             }
         }
 
-        let currentSort = IndexTable.dataTable.order()[0][0];
-        const currentOrder = IndexTable.dataTable.order()[0][1];
+        let currentSort = dataTable.order()[0][0];
+        const currentOrder = dataTable.order()[0][1];
 
         // Save sort/order/page to localStorage
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
 
         // get current columns count, except title and tags
-        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+        const currentCustomColumnCount = dataTable.columns().count() - 2;
         // check currentSort, if out of range, back to use title
         if (currentSort > currentCustomColumnCount) {
             localStorage.indexSort = 0;
@@ -343,15 +344,15 @@ IndexTable.drawCallback = function () {
         // Clear potential leftover tooltips
         tippy.hideAll();
     }
-};
+}
 
-IndexTable.buildURLParameters = function () {
-    const cat = IndexTable.dataTable.column(".tags.itd").search();
-    const page = IndexTable.dataTable.page.info().page + 1;
-    const sortby = IndexTable.dataTable.order()[0][0];
-    const sortorder = IndexTable.dataTable.order()[0][1];
+export function buildURLParameters() {
+    const cat = dataTable.column(".tags.itd").search();
+    const page = dataTable.page.info().page + 1;
+    const sortby = dataTable.order()[0][0];
+    const sortorder = dataTable.order()[0][1];
 
-    const encodedSearch = encodeURIComponent(IndexTable.dataTable.search());
+    const encodedSearch = encodeURIComponent(dataTable.search());
 
     // Check each parameter and append them to the URL if they exist
     let params = "?";
@@ -362,15 +363,15 @@ IndexTable.buildURLParameters = function () {
     if (cat !== "") params += `c=${cat}&`;
 
     return params;
-};
+}
 
-IndexTable.consumeURLParameters = function () {
+export function consumeURLParameters() {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.has("c")) Index.selectedCategory = params.get("c");
-    else Index.selectedCategory = "";
+    if (params.has("c")) Index.setSelectedCategory(params.get("c"));
+    else Index.setSelectedCategory("");
 
-    if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
+    if (params.has("q")) { currentSearch = decodeURIComponent(params.get("q")); }
 
     // Get order from URL, fallback to localstorage if available
     const order = [[0, "asc"]];
@@ -383,7 +384,7 @@ IndexTable.consumeURLParameters = function () {
         order[0][0] = parseInt(localStorage.indexSort, 10);
     }
     // get current columns count, except title and tags
-    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+    const currentCustomColumnCount = dataTable.columns().count() - 2;
     // check currentSort, if out of range, back to use title
     if (localStorage.indexSort > currentCustomColumnCount) {
         localStorage.indexSort = 0;
@@ -396,14 +397,14 @@ IndexTable.consumeURLParameters = function () {
         order[0][1] = localStorage.indexOrder;
     }
 
-    IndexTable.dataTable.order(order);
+    dataTable.order(order);
 
     if (params.has("p")) {
-        IndexTable.doSearch(params.get("p") - 1);
+        doSearch(params.get("p") - 1);
     } else {
-        IndexTable.doSearch();
+        doSearch();
     }
-};
+}
 
 // #endregion
 
@@ -413,7 +414,7 @@ IndexTable.consumeURLParameters = function () {
  * @param {*} target The target archive title
  * @returns
  */
-IndexTable.buildImageTooltip = function (target) {
+export function buildImageTooltip(target) {
     if (target.innerHTML === "") return;
 
     tippy(target, {
@@ -425,4 +426,4 @@ IndexTable.buildImageTooltip = function (target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", ""); // Don't trigger this function again for this element
-};
+}
