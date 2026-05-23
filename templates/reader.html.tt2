@@ -28,9 +28,6 @@
 
     <script type="module">
         import * as Reader from "[% c.url_for("/js/reader.js?$version") %]";
-        import fscreen from "fscreen";
-
-        window.fscreen = fscreen;
 
         const trackProgressLocally = "[% use_local %]" === "1";
         const authenticateProgress = "[% auth_progress %]" === "1";
