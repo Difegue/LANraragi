@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2025-11-20 07:51+0000\n"
-"Last-Translator: tomo <miyano.tomonari@gmail.com>\n"
+"PO-Revision-Date: 2026-05-25 16:11+0000\n"
+"Last-Translator: sotohi <c6h4ohcooc6h5@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
 "Language: ja\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -277,93 +277,114 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "最大<br>キャッシュサイズ"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
+"MBで指定。キャッシュには最近閲覧したページが保存されており、次回の閲覧を高速"
+"化します。"
 
 msgid "It is automatically emptied when it grows past this specified size."
-msgstr ""
+msgstr "このサイズを超えると自動的に空にされます。"
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "キャッシュクリア"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "現在のサイズ:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "このボタンをクリックすると手動でキャッシュをクリアします。"
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "検索キャッシュのリセット"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"アーカイブインデックスでの直近の検索履歴は、読み込みを高速化するために"
+"キャッシュされます。"
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"キャッシュに何らかの問題が発生した場合、このボタンでリセットすることができま"
+"す。"
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "「新規」フラグをクリア"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"新たにアップロードされたアーカイブは、あなたが開くまで「新規」としてマークさ"
+"れます。"
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "これらのフラグをクリアしたい場合、このボタンをクリックしてください。"
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "重複するアーカイブを置き換える"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"この機能を有効にすると、Webアップローダーまたはダウンロードシステムを通じて（"
+"同じ名前の）新しいアーカイブがアップロードされた際、LANraragiは古いアーカイブ"
+"を上書きします。"
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"これにより、古いファイルが上書きされると古いメタデータが削除されます。ご注意"
+"ください。"
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "サイトのタイトル"
 
 msgid "The site title appears on most pages as...their title."
 msgstr ""
+"サイトのタイトルは、ほとんどのページで…そのページのタイトルとして表示されます"
+"。"
 
 msgid "MOTD"
-msgstr ""
+msgstr "MOTD"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
+"\"Message of the Day\" (今日のメッセージ)。ライブラリのメイン画面の上部に表示"
+"されます。"
 
 msgid "Archives per page"
-msgstr ""
+msgstr "1ページあたりのアーカイブ数"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "メインリストの1ページに表示されるアーカイブの数。"
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "リーダーで画像をリサイズ"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"この機能を有効にすると、特定のサイズを超えるページは、帯域幅を節約するために"
+"表示時にサイズ調整されます。"
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"このオプションは、大きな画像の場合に大量のRAMを消費する可能性があります。有効"
+"化する際はご注意ください。"
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "画像サイズ閾値"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr ""
+msgstr "KB単位。画像をリサイズしない最大サイズ。"
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "リサイズ品質"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
-msgstr ""
+msgstr "リサイズされた画像の品質を指定。0が最も低品質。(0-100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "クライアント側での進捗追跡"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
@@ -1685,3 +1706,17 @@ msgid "Searching for duplicates..."
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
+
+msgid "The maximum value allowed is 4GB."
+msgstr "許容される最大値は4GBです。"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Automatic (browser default)"
+msgstr "自動（ブラウザのデフォルト）"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"ユーザーインターフェースの言語を選択します。自動に設定すると、ブラウザの"
+"デフォルト言語を使用します。"
