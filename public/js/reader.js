@@ -1270,18 +1270,21 @@ function updateProgress() {
     // Clear markers
     markers = [];
     renderMarkers();
+
+    let page = currentPage + 1; // progress is 1-indexed
+
     // Send an API request to update progress on the server
     if (state.authenticateProgress && LRR.isUserLogged()) {
-        Server.updateServerSideProgress(id, currentPage + 1);
+        Server.updateServerSideProgress(id, page);
     } else if (state.trackProgressLocally) {
-        localStorage.setItem(`${id}-reader`, currentPage + 1);
+        localStorage.setItem(`${id}-reader`, page);
     } else if (!state.authenticateProgress) {
-        Server.updateServerSideProgress(id, currentPage + 1);
+        Server.updateServerSideProgress(id, page);
     }
 
     // Load stamps
     if (!infiniteScroll) {
-        const stamps = loadStamps(currentPage + 1);
+        const stamps = loadStamps(page);
     }
 }
 

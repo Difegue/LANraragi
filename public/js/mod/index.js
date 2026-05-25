@@ -954,8 +954,15 @@ export function migrateProgress() {
         const promises = [];
         localProgressKeys.forEach((id) => {
             const progress = localStorage.getItem(`${id}-reader`);
+            const metadataUrl = id.startsWith("TANK_") ? 
+                new LRR.ApiURL(`api/tankoubons/${id}`) : 
+                new LRR.ApiURL(`api/archives/${id}/metadata`);
 
-            promises.push(fetch(new LRR.ApiURL(`api/archives/${id}/metadata`), { method: "GET" })
+            const progressUrl = id.startsWith("TANK_") ? 
+                `api/tankoubons/${id}/progress/${progress}?force=1` : 
+                `api/archives/${id}/progress/${progress}?force=1`;
+
+            promises.push(fetch(metadataUrl), { method: "GET" })
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further
@@ -963,13 +970,13 @@ export function migrateProgress() {
                         && data !== undefined
                         && data !== null
                         && progress > data.progress) {
-                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
+                        Server.callAPI(progressUrl, "PUT", null, I18N.LocalProgressionError, null);
                     }
 
                     // Clear out localStorage'd progress
                     localStorage.removeItem(`${id}-reader`);
                     localStorage.removeItem(`${id}-totalPages`);
-                }));
+                });
         });
 
         Promise.all(promises).then(() => LRR.toast({

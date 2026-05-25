@@ -307,7 +307,7 @@ sub build_tank_json ($id) {
         $aggregate_isnew     = $aggregate_isnew || (%$archive_info{isnew} eq "true");
         $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
         $aggregate_size      = $aggregate_size + %$archive_info{size};
-        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} );
+        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} // 0);
     }
 
     chop $aggregate_names;

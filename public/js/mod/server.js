@@ -356,7 +356,11 @@ export function loadBookmarkCategoryId() {
  * @param {number} currentPage Page the user navigated to
  */
 export function updateServerSideProgress(id, currentPage) {
-    let endpointUrl = new LRR.ApiURL(`/api/archives/${id}/progress/${currentPage}`);
+
+    let endpointUrl = id.startsWith("TANK_") ? 
+        new LRR.ApiURL(`/api/tankoubons/${id}/progress/${currentPage}`) : 
+        new LRR.ApiURL(`/api/archives/${id}/progress/${currentPage}`);
+
     return fetch(endpointUrl, { method: "PUT" })
         .then((response) => (response.ok ? {code: response.status, data: response.json()} : { code: response.status, data: {success: 0, error: I18N.GenericReponseError} }))
         .then((response) => {
