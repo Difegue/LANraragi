@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3'
+        default: '66628bd19bee75bc1685e41965fb436d1476f9ee'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '66628bd19bee75bc1685e41965fb436d1476f9ee' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
@@ -85,18 +85,27 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
-        timeout-minutes: 30
+        timeout-minutes: 70
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
           uv run pytest tests --log-cli-level=INFO \
             --image lanraragi:ci \
             --staging "$GITHUB_WORKSPACE/staging" \
+            --server-logs "$GITHUB_WORKSPACE/server-logs" \
+            --cache-backend valkey \
             --playwright \
-            --npseed 42 \
-            -k "not test_double_page_navigation and not test_handler_resource_management"
+            --no-rate-limit \
+            --npseed 42
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs-ubuntu
+          path: ${{ github.workspace }}/server-logs/
+          retention-days: 14
 
   integrationTestsWindows:
     name: Run Windows Integration Tests
@@ -215,13 +224,21 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
       - name: Run integration tests against local LANraragi build
         working-directory: aio-lanraragi/integration_tests
-        timeout-minutes: 50
+        timeout-minutes: 100
         run: |
           $env:CI='true'
           uv run pytest tests `
           --log-cli-level=INFO `
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
+          --server-logs "$env:GITHUB_WORKSPACE\server-logs" `
           --playwright `
-          --npseed 42 `
-          -k "not test_double_page_navigation and not test_handler_resource_management"
+          --no-rate-limit `
+          --npseed 42
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs-windows
+          path: ${{ github.workspace }}\server-logs\
+          retention-days: 14
