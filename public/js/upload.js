@@ -101,6 +101,7 @@ function handleCompletedUpload(jobID, d) {
     if (d.result.id) {
         $(`#${jobID}-name`).attr("href", new LRR.ApiURL(`/reader?id=${d.result.id}`));
         $(`#${jobID}-link`).attr("href", new LRR.ApiURL(`/edit?id=${d.result.id}`));
+        $(`#${jobID}-link`).attr("target", "_blank");
     }
 
     if (d.result.success) {
