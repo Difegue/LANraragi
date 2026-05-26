@@ -145,7 +145,7 @@ sub add_tasks {
                     }
 
                     # Add page number to note field so it can be fetched by the API
-                    $job->note( $i => "processed", total_pages => $pages );
+                    $job->note( $i => "processed", total_pages => $pages, id => $id );
 
                 }
             };

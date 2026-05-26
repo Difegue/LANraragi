@@ -405,15 +405,40 @@ export function buildPageCountDiv(arcdata) {
     return "";
 }
 
-export function buildChapterObject(toc, totalpages) {
+export function buildTankChapters(archiveData, pageOffset) {
+    const archiveChapter = {
+            id: archiveData.arcid,
+            chapters: [],
+            name: archiveData.title,
+            startPage: pageOffset + 1,
+            endPage: pageOffset + (archiveData.pagecount || 0)
+        };
+        
+    // If there's a ToC, recursively build sub-chapters
+    if (archiveData.toc && archiveData.toc.length > 0) {
+        archiveChapter.chapters = buildArchiveChapters(archiveData.toc, archiveData.arcid, archiveData.pagecount);
+        // Adjust sub-chapter page numbers to tank coordinates
+        archiveChapter.chapters.forEach(ch => {
+            ch.startPage += pageOffset;
+            ch.endPage += pageOffset;
+        });
+    }
+    
+    return [archiveChapter];
+}
+
+export function buildArchiveChapters(toc, id, totalpages) {
     const chapters = [];
-    if (toc.length === 0) {
+    
+    if (!toc || toc.length === 0) {
         return chapters;
     }
 
     if (toc[0].page > 1) {
         // Fill in gap before first chapter
         chapters.push({
+            id: id,
+            chapters: null,
             name: I18N.UntitledChapter,
             startPage: 1,
             endPage: toc[0].page - 1,
@@ -433,6 +458,8 @@ export function buildChapterObject(toc, totalpages) {
         }
 
         chapters.push({
+            id: id,
+            chapters: null,
             name: entry.name,
             startPage: entry.page,
             endPage: null, // to be filled in later

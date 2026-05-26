@@ -108,6 +108,10 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             confirmButtonColor: "#d33",
         }).then((result) => {
             if (result.isConfirmed) {
+                if (id.startsWith("TANK_"))
+                    Server.callAPI(`/api/tankoubons/${id}`, "DELETE", null, null,
+                        () => { document.location.href = "./"; });
+                else
                 Server.deleteArchive(id, () => { document.location.href = "./"; });
             }
         });
@@ -150,8 +154,14 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
 
     $(document).on("click.set-thumbnail", ".set-thumbnail", (e) => {
         const pageNumber = +$(e.target).closest("div[page]").attr("page") + 1;
+
+        if (id.startsWith("TANK_")) {
+            Server.callAPI(`/api/tankoubons/${id}/thumbnail?page=${pageNumber}`,
+                "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
+        } else {
         Server.callAPI(`/api/archives/${id}/thumbnail?page=${pageNumber}`,
             "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
+        }
 
         // Stop event propagation to avoid going to page
         e.stopPropagation();
@@ -210,9 +220,9 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
         }).then((result) => {
             $("#overlay-page").hide();
             markerMode = false;
-            //toggleArchiveOverlay();
             if (result.isConfirmed && result.value.trim() !== "") {
-                Server.callAPI(`/api/archives/${id}/stamps/${page}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError,
+                const { arcId, localPage } = getArchiveForPage(page);
+                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError,
                     (data) => {
                         markerData.id = data["stamp_id"];
                         markerData.name = result.value;
@@ -257,8 +267,9 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
     force = params.get("force_reload") !== null;
     currentPage = (+params.get("p") || 1) - 1;
 
-    // Remove the "new" tag with an api call
-    Server.callAPI(`/api/archives/${id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
+    // Remove the "new" tag with an api call (archives only; tanks don't have an isnew flag)
+    if (!id.startsWith("TANK_"))
+        Server.callAPI(`/api/archives/${id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
 
     // Load metadata for the requested ID and populate the page
     loadContentData().then(() => {
@@ -333,7 +344,7 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
 export function loadContentData() {
 
     // Initialize content object to hold metadata -- This is a recursive object that will be used to build the page overlay.
-    // (For tanks, content.chapters will hold an array of archive IDs, for archives it'll hold TOC data.)
+    // (For tanks, content.chapters will hold archive chapters that can themselves contain nested chapters from ToCs)
     content = {
         id: id,
         title: "",
@@ -343,36 +354,80 @@ export function loadContentData() {
         summary: ""
     };
 
+    const updateProgress = function(data, id) {
+        // Use localStorage progress value instead of the server one if needed
+        if (state.trackProgressLocally && !(state.authenticateProgress && LRR.isUserLogged())) {
+            progress = localStorage.getItem(`${id}-reader`) - 1 || 0;
+        } else {
+            progress = data.progress - 1;
+        }
+    }
+
     // If the ID is a Tank ID (TANK_xxxx), use the Tankoubon API for metadata
     if (id.startsWith("TANK_")) {
 
-        // TODO
-    }
-    else return Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.ServerInfoError,
-        (data) => {
-            let { title } = data;
+        return fetch(new LRR.ApiURL(`/api/tankoubons/${id}?include_full_data=true&page=-1`))
+            .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
+            .then(data => {
+                const tank = data.result;
+                content.title   = tank.name;
+                content.tags    = tank.tags    || "";
+                content.summary = tank.summary || "";
 
-            content.title = title;
+                content.chapters = [];
+
+                // full_data contains pre-fetched metadata for every archive in order
+                const fullData = tank.full_data || [];
+                // Cumulative offset as we iterate through the arclist
+                let pageOffset = 0;
+
+                fullData.forEach(meta => {
+                    if (!meta) return;
+
+                    // Create archive chapter (with nested ToC chapters if present)
+                    const archiveChapters = LRR.buildTankChapters(meta, pageOffset);
+                    content.chapters.push(...archiveChapters);
+
+                    pageOffset += meta.pagecount || 0;
+                });
+
+                content.pages = pageOffset;
+                updateProgress(tank, id);
+            })
+            .catch(err => LRR.showErrorToast(I18N.ServerInfoError, err));
+    }
+
+    return Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.ServerInfoError,
+        (data) => {
+            content.title = data.title;
             content.pages = data.pagecount;
             content.tags = data.tags;
             content.summary = data.summary;
 
-            // Use localStorage progress value instead of the server one if needed
-            if (state.trackProgressLocally && !(state.authenticateProgress && LRR.isUserLogged())) {
-                progress = localStorage.getItem(`${id}-reader`) - 1 || 0;
-            } else {
-                progress = data.progress - 1;
-            }
+            updateProgress(data, id);
 
             if (data.toc) 
-                content.chapters = LRR.buildChapterObject(data.toc, data.pagecount);
+                content.chapters = LRR.buildArchiveChapters(data.toc, id, data.pagecount);
 
             // Check and display warnings for unsupported filetypes
             checkFiletypeSupport(data.extension);
-
         }
     );
 }
+
+/**
+ * For Tank mode: map a page number to the archive it belongs to and said archive's local page number.
+ * @param {number} globalPage global page number
+ * @returns {{ arcId: string, localPage: number }}
+ */
+function getArchiveForPage(globalPage) {
+    if (id.startsWith("TANK_")) {
+        const arc = content.chapters.find(a => globalPage >= a.startPage && globalPage <= a.endPage);
+        if (arc) 
+            return { arcId: arc.id, localPage: globalPage - arc.startPage + 1 };
+    }
+    return { arcId: id, localPage: globalPage };
+};
 
 /**
  * Adds a removable category flag to the categories section within archive overview.
@@ -407,7 +462,8 @@ export function addTocSection(page, currentTitle = null) {
         reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed && result.value.trim() !== "") {
-            Server.callAPI(`/api/archives/${id}/toc?page=${page}&title=${result.value}`, "PUT", "Chapter added!", I18N.ReaderTocError,
+            const { arcId, localPage } = getArchiveForPage(page);
+            Server.callAPI(`/api/archives/${arcId}/toc?page=${localPage}&title=${result.value}`, "PUT", "Chapter added!", I18N.ReaderTocError,
                 () => loadContentData().then(() => {
                     updateArchiveOverlay(true);
                     toggleArchiveOverlay();
@@ -447,9 +503,9 @@ export function removeTocSection() {
 }
 
 export function loadImages() {
-    Server.callAPI(`/api/archives/${id}/files?force=${force}`, "GET", null, I18N.ReaderArchiveError,
-        (data) => {
-            pages = data.pages;
+
+    const onLoad = (data) => {
+            pages = data;
             maxPage = pages.length - 1;
             $(".max-page").html(pages.length);
 
@@ -498,14 +554,33 @@ export function loadImages() {
             }
 
             if (showOverlayByDefault) { toggleArchiveOverlay(); }
-        },
-    ).finally(() => {
+    };
+
+    const onFinally = () => {
         if (pages === undefined) {
             $("#img").attr("src", new LRR.ApiURL("/img/flubbed.gif").toString());
             $("#display").append(`<h2>${I18N.ReaderArchiveError}</h2>`);
         }
         generateThumbnails();
-    });
+    };
+
+    if (id.startsWith("TANK_")) {
+        // For tanks: fetch pages for each archive and concatenate them
+        Promise.all(
+            content.chapters.map(arc =>
+                fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files?force=${force}`))
+                    .then(r => r.ok ? r.json() : Promise.reject())
+            )
+        ).then(results => {
+            onLoad(results.flatMap(r => r.pages));
+        }).catch(() => LRR.showErrorToast(I18N.ReaderArchiveError))
+            .finally(onFinally);
+    }
+    else {
+        Server.callAPI(`/api/archives/${id}/files?force=${force}`, "GET", null, I18N.ReaderArchiveError,
+            (data) => onLoad(data.pages),
+            ).finally(onFinally);
+    } 
 }
 
 export function initializeSettings() {
@@ -985,8 +1060,9 @@ function toggleStamps() {
 
 function loadStamps(currentPage) {
     markers = [];
+    const { arcId: id1, localPage: p1 } = getArchiveForPage(currentPage);
     // Call for the first page
-    Server.callAPI(`/api/archives/${id}/stamps/${currentPage}`, "GET", null, I18N.ServerInfoError,
+    Server.callAPI(`/api/archives/${id1}/stamps/${p1}`, "GET", null, I18N.ServerInfoError,
         (data) => {
             let markerData = {};
 
@@ -1005,8 +1081,9 @@ function loadStamps(currentPage) {
             if (doublePageMode && currentPage > 0
             && currentPage < maxPage) {
 
-                // Call for the second page
-                Server.callAPI(`/api/archives/${id}/stamps/${currentPage+1}`, "GET", null, I18N.ServerInfoError,
+                const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
+                // Call for the second page (may be in a different archive for tanks)
+                Server.callAPI(`/api/archives/${id2}/stamps/${p2}`, "GET", null, I18N.ServerInfoError,
                     (data) => {
                         let markerData = {};
 
@@ -1537,17 +1614,24 @@ function handleFullScreen(enableFullscreen = false) {
 }
 
 function getCurrentChapter() {
-    let currentChapter = null;
+    return findChapterForPage(currentPage + 1, content.chapters);
+}
 
-    if (content.chapters) {
-        content.chapters.forEach((chapter) => {
-            if (currentPage + 1 >= chapter.startPage &&
-                currentPage + 1 <= chapter.endPage) {
-                currentChapter = chapter;
+// Find the current chapter (or nested sub-chapter) for the given page.
+function findChapterForPage(page, chapters) {
+    if (!chapters) return null;
+    
+    for (const chapter of chapters) {
+        if (page >= chapter.startPage && page <= chapter.endPage) {
+            // Check if there's a more specific nested chapter
+            if (chapter.chapters && chapter.chapters.length > 0) {
+                const nested = findChapterForPage(page, chapter.chapters);
+                if (nested) return nested;
             }
-        });
+            return chapter;
+        }
     }
-    return currentChapter;
+    return null;
 }
 
 function updateArchiveOverlay(forceUpdate = false) {
@@ -1575,14 +1659,21 @@ function updateArchiveOverlay(forceUpdate = false) {
         // Create <select> options for jumping to other chapters
         let chapterOptions = `<select class="favtag-btn" id="chapter-select">`;
         if (content.chapters) {
-            content.chapters.forEach((chapter, index) => {
+            content.chapters.forEach((chapter) => {
                 const selected = (currentChapter && chapter.startPage === currentChapter.startPage) ? "selected" : "";
                 chapterOptions += `<option value="${chapter.startPage}" ${selected}>${chapter.name}</option>`;
+
+                if (chapter.chapters && chapter.chapters.length > 0) {
+                    chapter.chapters.forEach((subChapter) => {
+                        const subSelected = (currentChapter && subChapter.startPage === currentChapter.startPage) ? "selected" : "";
+                        chapterOptions += `<option value="${subChapter.startPage}" ${subSelected}>&nbsp;&nbsp;&nbsp;${subChapter.name}</option>`;
+                    });
+                }
             });
         }
         chapterOptions += `</select>`;
 
-        if (LRR.isUserLogged() ) 
+        if (LRR.isUserLogged() && currentChapter.chapters === null ) // Only show edit/delete options for leaf chapters
             chapterOptions += `<a class="fas fa-pencil-alt edit-toc" href="#" style="padding:8px; font-size:14px" title="${I18N.ReaderEditToc}"/>
                             <a class="fas fa-trash-alt remove-toc" href="#" style="padding:8px; font-size:14px" title="${I18N.ReaderDeleteToc}"/>`;
 
@@ -1601,7 +1692,8 @@ function updateArchiveOverlay(forceUpdate = false) {
         const index = page - 1;
 
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        const thumbnailUrl = new LRR.ApiURL(`/api/archives/${id}/thumbnail?page=${page}`);
+        const { arcId, localPage } = getArchiveForPage(page);
+        const thumbnailUrl = new LRR.ApiURL(`/api/archives/${arcId}/thumbnail?page=${localPage}`);
         
         let thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
@@ -1632,7 +1724,7 @@ function updateArchiveOverlay(forceUpdate = false) {
 }
 
 function checkStampedPages() {
-    Server.callAPI(`/api/archives/${id}/stamps/`, "GET", null, I18N.ServerInfoError,
+    Server.callAPI(`/api/archives/${currentChapter.id}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
             let pages = data.result.sort();
@@ -1668,20 +1760,25 @@ function filterStampedOverlay() {
 
 function generateThumbnails() {
 
-    // Queue a single minion job for thumbnails and check on its progress regularly
+    // Function to evaluate Minion job progress and update thumbnails as they are generated
     const thumbProgress = function (notes) {
-        if (notes.total_pages === undefined) { return; }
+        if (notes.total_pages === undefined || notes.id === undefined) { return; }
 
         // Look at all the numbered keys in notes, aka notes.1, notes.2..
         for (let i = 1; i <= notes.total_pages; i++) {
             if (Object.hasOwn(notes, i) && notes[i] === "processed") {
-                const index = i - 1;
+
+                const startPage = id.startsWith("TANK_") ? 
+                    content.chapters.find(ch => ch.arcId === notes.id).startPage :
+                    1;
+
+                const index = startPage + i - 2; // 0-based global
                 pageThumbnails.push(index);
 
                 // Live-update the page thumbnail in the overlay if it's visible
                 if ($(`#${index}_spinner`).attr("loaded") !== "true") {
                     // Set image source to the thumbnail
-                    const thumbnailUrl = new LRR.ApiURL(`/api/archives/${id}/thumbnail?page=${i}&cachebust=${Date.now()}`);
+                    const thumbnailUrl = new LRR.ApiURL(`/api/archives/${notes.id}/thumbnail?page=${i}&cachebust=${Date.now()}`);
                     $(`#${index}_thumb`).attr("src", thumbnailUrl);
                     $(`#${index}_spinner`).attr("loaded", true);
                     $(`#${index}_spinner`).hide();
@@ -1689,12 +1786,16 @@ function generateThumbnails() {
             }
         }
     };
-
-    fetch(new LRR.ApiURL(`/api/archives/${id}/files/thumbnails`), { method: "POST" })
-        .then((response) => {
+        
+    const fetchThumbsForArc = function(arc) {
+        fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files/thumbnails`), { method: "POST" }) 
+        .then(
+            response => {
             if (response.status === 200) {
                 // Thumbnails are already generated, there's nothing to do. Very nice!
-                pageThumbnails = [...Array(pages.length).keys()];
+                for (let idx = arc.startPage - 1; idx < arc.endPage; idx++) {
+                    pageThumbnails.push(idx);
+                }
                 $(".ttspinner").hide();
                 return;
             }
@@ -1709,6 +1810,16 @@ function generateThumbnails() {
                 ));
             }
         });
+    };
+
+    if (id.startsWith("TANK_")) 
+        content.chapters.forEach(arc => fetchThumbsForArc(arc)); // Generate thumbnails per archive
+    else
+        fetchThumbsForArc({
+                    id: id,
+                    startPage: 1,
+                    endPage: content.pages,
+                }); // Queue a single minion job for thumbnails 
 }
 
 /**
