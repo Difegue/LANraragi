@@ -141,7 +141,7 @@
 
         <div class="overlay-bar">
             <div class="overlay-bar-left">
-                <a class="fas fa-stamp" id="filter-stamped" href="#" style="padding:12px" title="[% c.lh("Filter stamped pages") %]"></a>
+                <a class="fas fa-stamp" id="filter-stamped" href="#" style="padding:8px; font-size:14px" title="[% c.lh("Filter stamped pages") %]"></a>
             </div>
             <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
             <div class="chapter-selector"></div>

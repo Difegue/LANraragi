@@ -490,8 +490,8 @@ export function removeTocSection() {
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            let page = currentChapter.startPage;
-            Server.callAPI(`/api/archives/${id}/toc?page=${page}`, "DELETE", "Chapter removed!", I18N.ReaderTocError,
+            const { arcId, localPage } = getArchiveForPage(currentChapter.startPage);
+            Server.callAPI(`/api/archives/${arcId}/toc?page=${localPage}`, "DELETE", "Chapter removed!", I18N.ReaderTocError,
                 () => loadContentData().then(() => {
                     updateArchiveOverlay(true);
                     toggleArchiveOverlay();
@@ -1661,6 +1661,12 @@ function updateArchiveOverlay(forceUpdate = false) {
         }
     }
 
+    // Reset stamp filter state when the overlay is rebuilt for a new chapter
+    if (overlayFiltered) {
+        overlayFiltered = false;
+        $("#filter-stamped").removeClass("toggled");
+    }
+
     // Otherwise, update chapter and overlay -- If there are no chapters defined, just show all pages
     currentChapter = getCurrentChapter();
     let firstPage = currentChapter ? currentChapter.startPage : 1;
@@ -1737,7 +1743,8 @@ function updateArchiveOverlay(forceUpdate = false) {
 }
 
 function checkStampedPages() {
-    Server.callAPI(`/api/archives/${currentChapter.id}/stamps/`, "GET", null, I18N.ServerInfoError,
+    const { arcId, localPage } = getArchiveForPage(currentPage + 1);
+    Server.callAPI(`/api/archives/${arcId}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
             cleanStampedPages();
@@ -1746,7 +1753,9 @@ function checkStampedPages() {
 
             for (let element of elements) {
                 let page = parseInt(element.getAttribute("page"));
-                if (pages.includes((page+1).toString())) {
+                const { _, localPage } = getArchiveForPage(page+1);
+
+                if (pages.includes((localPage).toString())) {
                     element.dataset.stamped = true;
                 }
             }
@@ -1767,11 +1776,13 @@ function filterStampedOverlay() {
 
     if (overlayFiltered) {
         overlayFiltered = false;
+        $("#filter-stamped").removeClass("toggled");
         for (let element of elements) {
             element.style.display = 'inline-block';
         }
     } else {
         overlayFiltered = true;
+        $("#filter-stamped").addClass("toggled");
         for (let element of elements) {
             if (!element.dataset.stamped) {
                 element.style.display = 'none';
