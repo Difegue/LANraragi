@@ -18,6 +18,18 @@ env:
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: npm
+    - run: npm ci
+    - run: npm run lint
+
   testSuite:
     name: Run Test Suite and Perl Critic
     runs-on: ubuntu-latest
