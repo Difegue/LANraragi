@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-05-10 22:41+0000\n"
+"PO-Revision-Date: 2026-05-22 04:34+0000\n"
 "Last-Translator: on9686 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.5-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1019,7 +1019,7 @@ msgid "Q: bring up the thumbnail index and archive options."
 msgstr "Q: 섬네일 인덱스 및 아카이브 옵션 표시"
 
 msgid "R: open a random archive."
-msgstr "\"R: 랜덤 아카이브 열기."
+msgstr "R: 랜덤 아카이브 열기."
 
 msgid "F: toggle fullscreen mode"
 msgstr "F: 전체 화면 모드 전환"
@@ -1942,3 +1942,63 @@ msgstr "선택 항목에서 제거"
 
 msgid "Hide completed Archives"
 msgstr "완결된 아카이브 숨기기"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "단행본에 아카이브 병합"
+
+msgid "New archive"
+msgstr "새 아카이브"
+
+msgid "Archive read"
+msgstr "아카이브 읽기"
+
+msgid "Tankoubon (collection)"
+msgstr "단행본(컬렉션)"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "새 단행본의 이름을 입력하십시오."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "선택한 모든 아카이브가 라이브러의 단일 항목에 포함됩니다."
+
+msgid "Please enter a name."
+msgstr "이름을 입력하십시오."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "${n} 아카이브를 ${tank}에 추가했습니다!"
+
+msgid "Error creating Tankoubon"
+msgstr "단행본 생성 오류"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "단행본에 아카이브 추가 중 오류"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "선택한 항목을 단행본에 병합"
+
+msgid "Pages read / Total pages"
+msgstr "읽은 페이지 / 전체 페이지"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "읽은 페이지 / 전체 페이지 / 단행본 내 아카이브"
+
+msgid "S: set a Stamp"
+msgstr "S: 스탬프 설정"
+
+msgid "Toggle Stamps"
+msgstr "스탬프 토글"
+
+msgid "Set Stamp"
+msgstr "스탬프 설정"
+
+msgid "Filter stamped pages"
+msgstr "스탬프된 페이지 필터"
+
+msgid "Enter Stamp name:"
+msgstr "스탬프 이름 입력:"
+
+msgid "Stamp name"
+msgstr "스탬프 이름"
+
+msgid "Error setting up the Stamp"
+msgstr "스탬프 설정 오류"

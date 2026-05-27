@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2026-03-26 08:09+0000\n"
+"PO-Revision-Date: 2026-05-25 16:11+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -156,7 +156,8 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr "Kategori muncul di bagian atas jendela Anda saat menjelajahi Pustaka."
+msgstr ""
+"Kategori muncul di bagian atas jendela Anda saat menjelajahi Perpustakaan."
 
 msgid "There are two distinct kinds:"
 msgstr "Ada dua jenis yang berbeda:"
@@ -169,7 +170,7 @@ msgstr ""
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
 "Kategori Dinamis berisi semua arsip yang cocok dengan predikat tertentu dan "
-"dimutakhirkan secara otomatis bersamaan dengan pustaka Anda."
+"dimutakhirkan secara otomatis bersamaan dengan perpustakaan Anda."
 
 msgid "You can create new categories here or edit existing ones."
 msgstr ""
@@ -366,7 +367,8 @@ msgstr "PHI"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
-"Singkatan dari Pesan Hari Ini. Muncul di bagian atas tampilan Pustaka utama."
+"Singkatan dari Pesan Hari Ini. Muncul di bagian atas tampilan Perpustakaan "
+"utama."
 
 msgid "Archives per page"
 msgstr "Arsip per halaman"
@@ -784,12 +786,16 @@ msgstr "Pangkas keluku"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
 msgstr ""
+"Jika diaktifkan, keluku yang tidak muat di halaman A4 biasa akan dipotong "
+"hanya untuk menampilkan sisi kiri."
 
 msgid "Hide completed"
-msgstr ""
+msgstr "Sembunyikan yang sudah dibaca"
 
 msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
+"Jika diaktifkan, arsip yang sudah Anda baca habis akan disembunyikan dari "
+"daftar."
 
 msgid "Go to Page:"
 msgstr "Pergi ke Halaman:"
@@ -858,16 +864,16 @@ msgstr ""
 "fiturnya!<br/>Selagi di sana, periksa juga pilihan konfigurasi lainnya. "
 
 msgid "Select Archives"
-msgstr ""
+msgstr "Pilih Arsip"
 
 msgid "Run Batch Operations on selection"
-msgstr ""
+msgstr "Jalankan Batch Operations pada arsip yang dipilih"
 
 msgid "Clear selection"
-msgstr ""
+msgstr "Bersihkan pilihan"
 
 msgid "Select All in Page"
-msgstr ""
+msgstr "Pilih Semua di Halaman Ini"
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1108,7 +1114,7 @@ msgid "F: toggle fullscreen mode"
 msgstr "F: beralih ke mode layar penuh"
 
 msgid "B: toggle bookmark"
-msgstr "B: tambahkan penanda"
+msgstr "B: tandai/batal tandai penanda"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr ""
@@ -1221,7 +1227,7 @@ msgstr "Tambahkan Penanda"
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr "Statistik Pustaka"
+msgstr "Statistik Perpustakaan"
 
 msgid "Archives on record"
 msgstr "arsip yang tercatat"
@@ -1258,7 +1264,7 @@ msgid "Upload Center"
 msgstr "Pusat Unggahan"
 
 msgid "Adding Archives to the Library"
-msgstr "Menambahkan Arsip ke Pustaka"
+msgstr "Menambahkan Arsip ke Perpustakaan"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
 msgstr ""
@@ -1308,7 +1314,7 @@ msgid "Add from URL(s)"
 msgstr "Tambahkan dari URL"
 
 msgid "Return to Library"
-msgstr "Kembali ke Pustaka"
+msgstr "Kembali ke Perpustakaan"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
@@ -1325,23 +1331,23 @@ msgstr "Cadangan dipulihkan!"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
-"Terjadi galat memulihkan cadangan.<br/> Harap periksa pencatatan peladen dan "
-"pastikan JSON Anda diformat dengan benar."
+"Terjadi galat memulihkan cadangan.<br/> Silakan periksa pencatatan peladen "
+"dan pastikan JSON Anda diformat dengan benar."
 
 msgid "Backup generation in progress..."
-msgstr ""
+msgstr "Cadangan sedang dibuat..."
 
 msgid "Uploading backup file..."
-msgstr ""
+msgstr "Cadangan sedang diunggah..."
 
 msgid "Backup complete! Download will start automatically."
-msgstr ""
+msgstr "Cadangan selesai! Unduhan akan dimulai secara otomatis."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr "Tidak dapat memuat daftar arsip lengkap! Harap muat ulang halaman."
+msgstr "Tidak dapat memuat daftar arsip lengkap! Silakan muat ulang halaman."
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr "Tidak dapat memuat statistik tag! Harap muat ulang halaman."
+msgstr "Tidak dapat memuat statistik tag! Silakan muat ulang halaman."
 
 msgid "Error getting untagged archives!"
 msgstr "Galat mengambil arsip yang tidak memiliki tag!"
@@ -1389,7 +1395,7 @@ msgid "An error occured during batch tagging!"
 msgstr "Terjadi galat menambahkan tag tumpak!"
 
 msgid "Please check application logs."
-msgstr "Harap periksa pencatatan aplikasi."
+msgstr "Silakan periksa pencatatan aplikasi."
 
 msgid "Error! Terminating session."
 msgstr "Galat! Mengakhiri sesi."
@@ -1436,7 +1442,7 @@ msgid "My Category"
 msgstr "Kategori Saya"
 
 msgid "Please enter a category name."
-msgstr "Harap masukkan nama kategori."
+msgstr "Silakan masukkan nama kategori."
 
 msgid "No category"
 msgstr "Tidak ada kategori"
@@ -1555,7 +1561,7 @@ msgid "Tag namespace"
 msgstr "Tag ruang nama"
 
 msgid "Please enter a tag namespace."
-msgstr "Harap masukkan tag ruang nama."
+msgstr "Silakan masukkan tag ruang nama."
 
 msgid "Randomly Picked"
 msgstr "Dipilih Secara Acak"
@@ -1625,7 +1631,7 @@ msgstr "Kemajuan Membaca Anda sekarang disimpan di peladen!"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
 msgstr ""
-"Sepertinya Anda memiliki kemajuan lokal yang tertinggal — Harap tunggu "
+"Sepertinya Anda memiliki kemajuan lokal yang tertinggal — Silakan tunggu "
 "sementara kami memindahkannya ke peladen."
 
 msgid "Error while migrating local progression to server"
@@ -1697,7 +1703,7 @@ msgid "A script is already running."
 msgstr "Ada skrip yang berjalan."
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr "Harap tunggu hingga selesai sebelum menjalankan yang baru."
+msgstr "Silakan tunggu hingga selesai sebelum menjalankan yang baru."
 
 msgid "An error occured while running the script"
 msgstr "Terjadi galat menjalankan skrip"
@@ -1769,8 +1775,8 @@ msgstr ""
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
 msgstr ""
-"Metadata arsip telah berhasil dihapus. <br> Harap hapus berkas secara manual "
-"sebelum kembali ke indeks arsip."
+"Metadata arsip telah berhasil dihapus. <br> Silakan hapus berkas secara "
+"manual sebelum kembali ke indeks arsip."
 
 msgid "Archive successfully deleted. Redirecting you..."
 msgstr "Arsip berhasil dihapus. Mengarahkan Anda..."
@@ -1815,12 +1821,13 @@ msgstr "Deteksi Duplikat"
 
 msgid "This page allows you to search for potential duplicates in your library."
 msgstr ""
-"Halaman ini memungkinkan Anda mencari kemungkinan duplikat di pustaka Anda."
+"Halaman ini memungkinkan Anda mencari kemungkinan duplikat di perpustakaan "
+"Anda."
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
 msgstr ""
 "Mengklik \"Mulai pencarian\" akan memulai tugas latar belakang memindai "
-"seluruh pustaka untuk mencari duplikat."
+"seluruh perpustakaan untuk mencari duplikat."
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
 msgstr ""
@@ -1906,7 +1913,7 @@ msgid "Starting auto next page failed!"
 msgstr "Gagal memulai halaman berikutnya otomatis!"
 
 msgid "Please set the auto next page interval to a positive number."
-msgstr "Harap atur jeda halaman berikutnya otomatis ke angka positif."
+msgstr "Silakan atur jeda halaman berikutnya otomatis ke angka positif."
 
 msgid "The maximum value allowed is 4GB."
 msgstr "Nilai maksimum yang diizinkan adalah 4GB."
@@ -1995,3 +2002,136 @@ msgid "Clients will use this list to filter out noisy tags from autocomplete and
 msgstr ""
 "Klien akan menggunakan daftar ini untuk menyaring tag yang tidak relevan "
 "dari pelengkapan otomatis dan awan tag."
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr ""
+"Arsip tanpa tag atau dari pilihan terakhir Anda telah dicentang sebelumnya."
+
+msgid "Discard Selection"
+msgstr "Batal Pilihan"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Menampilkan ${n} arsip dari pilihan sebelumnya."
+
+msgid "Tankoubons"
+msgstr "Tankoubon"
+
+msgid "No Tankoubons in your library yet."
+msgstr "Belum ada Tankoubon di perpustakaan Anda."
+
+msgid "Archives"
+msgstr "Arsip"
+
+msgid "No Archives in your library yet."
+msgstr "Belum ada arsip di perpustakaan Anda."
+
+msgid "Group Tankoubons"
+msgstr "Kelompokkan Tankoubon"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr ""
+"Jika diaktifkan, beberapa arsip yang merupakan bagian dari Tankoubon yang "
+"sama akan digabung menjadi satu butir."
+
+msgid "Index Settings"
+msgstr "Pengaturan Indeks"
+
+msgid "Display Mode"
+msgstr "Mode Tampilan"
+
+msgid "Compact"
+msgstr "Ringkas"
+
+msgid "Thumbnail"
+msgstr "Keluku"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "Gabungkan beberapa arsip menjadi satu Tankoubon"
+
+msgid "G: go to page number"
+msgstr "G: buka halaman tertentu"
+
+msgid "S: set a Stamp"
+msgstr "S: beri Stempel"
+
+msgid "Toggle Stamps"
+msgstr "Tampilkan/Sembunyikan Stempel"
+
+msgid "Set Stamp"
+msgstr "Beri Stempel"
+
+msgid "Filter stamped pages"
+msgstr "Saring halaman berstempel"
+
+msgid "New archive"
+msgstr "Arsip baru"
+
+msgid "Archive read"
+msgstr "Arsip dibaca"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (koleksi)"
+
+msgid "Pages read / Total pages"
+msgstr "Halaman dibaca / Jumlah halaman"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "Halaman dibaca / Jumlah halaman / Arsip dalam Tankoubon"
+
+msgid "Go to page:"
+msgstr "Buka halaman:"
+
+msgid "Selection"
+msgstr "Pilihan"
+
+msgid "\${n} selected"
+msgstr "${n} dipilih"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr ""
+"Klik arsip untuk menambahkannya ke pilihan. Pilihan Anda akan terbawa di "
+"seluruh pencarian."
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "Keluar dari mode pilihan? Pilihan Anda saat ini akan hilang. "
+
+msgid "Add to selection"
+msgstr "Tambahkan ke pilihan"
+
+msgid "Remove from selection"
+msgstr "Hapus dari pilihan"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "Masukkan nama untuk Tankoubon baru."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr ""
+"Ini akan menggabungkan semua arsip yang dipilih menjadi satu butir di "
+"perpustakaan Anda."
+
+msgid "Please enter a name."
+msgstr "Silakan masukkan nama."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "${n} arsip ditambahkan ke ${tank}!"
+
+msgid "Error creating Tankoubon"
+msgstr "Galat membuat Tankoubon"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "Galat menambahkan arsip ke Tankoubon"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "Gabungkan pilihan ke dalam Tankoubon"
+
+msgid "Hide completed Archives"
+msgstr "Sembunyikan arsip yang sudah dibaca habis"
+
+msgid "Enter Stamp name:"
+msgstr "Masukkan nama Stempel:"
+
+msgid "Stamp name"
+msgstr "Nama stempel"
+
+msgid "Error setting up the Stamp"
+msgstr "Galat mengatur Stempel"
