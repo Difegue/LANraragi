@@ -177,6 +177,7 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
         if (!markerMode) return;
 
         $(".reader-image").css("cursor", "");
+        $(".reader-image").css("z-index", 19);
 
         // Compute marker position
         // This basically estimates the percentage of the width and legth of the image
@@ -229,6 +230,7 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
 
                         markers.push(markerData);
                         renderMarkers();
+                        checkStampedPages();
                     }
                 );
             } else {
@@ -247,6 +249,7 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             renderMarkers();
             pageNaviState = true;
             $(".reader-image").css("cursor", "");
+            $(".reader-image").css("z-index", 19);
         }
     });
     $(document).on("click.filter-stamped", "#filter-stamped", filterStampedOverlay);
@@ -776,7 +779,9 @@ function handleShortcuts(e) {
             document.location.href = new LRR.ApiURL("/random");
             break;
         case 83: // s
-            addStamp();
+            if (!infiniteScroll) {
+                addStamp();
+            }
             break;
         default:
             break;
@@ -924,13 +929,16 @@ function toggleHelp() {
 }
 
 function addStamp() {
+    if (infiniteScroll) return;
     markerMode = true;
     clearMarkers();
     $(".reader-image").css("cursor", "cell");
+    $(".reader-image").css("z-index", 22);
     $("#overlay-page").show();
 }
 
 function createMarkerElement(markerData, index) {
+    if (infiniteScroll) return;
     if (markerData.left) {
         const img = document.getElementById("img");
     } else {
@@ -1035,6 +1043,7 @@ function createMarkerElement(markerData, index) {
 }
 
 function renderMarkers() {
+    if (infiniteScroll) return;
     // Clean markers
     const existing = document.querySelectorAll(".marker");
     existing.forEach(el => el.remove());
@@ -1059,6 +1068,7 @@ function toggleStamps() {
 }
 
 function loadStamps(currentPage) {
+    if (infiniteScroll) return;
     markers = [];
     const { arcId: id1, localPage: p1 } = getArchiveForPage(currentPage);
     // Call for the first page
@@ -1112,6 +1122,7 @@ function loadStamps(currentPage) {
 }
 
 function handleMarkerContextMenu(option, index) {
+    if (infiniteScroll) return;
     let i = parseInt(index);
 
     switch (option) {
@@ -1150,6 +1161,9 @@ function handleMarkerContextMenu(option, index) {
                 () => {
                     markers.splice(i, 1);
                     renderMarkers();
+                    if (markers.length == 0) {
+                        checkStampedPages();
+                    }
                 }
             );
             break;
@@ -1501,6 +1515,7 @@ function toggleProgressTracking() {
 }
 
 function toggleInfiniteScroll() {
+    clearMarkers();
     infiniteScroll = localStorage.infiniteScroll = !infiniteScroll;
     $("#toggle-infinite-scroll input").toggleClass("toggled");
     window.location.reload();
@@ -1727,6 +1742,7 @@ function checkStampedPages() {
     Server.callAPI(`/api/archives/${currentChapter.id}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
+            cleanStampedPages();
             let pages = data.result.sort();
             let elements = $("div.id3.quick-thumbnail");
 
@@ -1738,6 +1754,14 @@ function checkStampedPages() {
             }
         }
     );
+}
+
+function cleanStampedPages() {
+    let elements = $("div.id3.quick-thumbnail[data-stamped=true]");
+
+    for (let element of elements) {
+        delete element.dataset.stamped;
+    }
 }
 
 function filterStampedOverlay() {
