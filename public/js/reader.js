@@ -1742,7 +1742,7 @@ function checkStampedPages() {
     Server.callAPI(`/api/archives/${currentChapter.id}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
-            Reader.cleanStampedPages();
+            cleanStampedPages();
             let pages = data.result.sort();
             let elements = $("div.id3.quick-thumbnail");
 
