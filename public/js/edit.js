@@ -245,9 +245,9 @@ Edit.saveMetadata = function () {
         Server.callAPIBody(`api/tankoubons/${id}`, "PUT", JSON.stringify({ metadata, archives }),
             I18N.EditMetadataSaved,
             I18N.TankoubonEditError, null)
-        .finally(() => {
-            Edit.showTags();
-        });
+            .finally(() => {
+                Edit.showTags();
+            });
 
     } else {
         const formData = new FormData();
@@ -257,9 +257,9 @@ Edit.saveMetadata = function () {
         Server.callAPIBody(`api/archives/${id}/metadata`, "PUT", formData,
             I18N.EditMetadataSaved,
             I18N.EditMetadataError, null)
-        .finally(() => {
-            Edit.showTags();
-        });
+            .finally(() => {
+                Edit.showTags();
+            });
     }
 };
 

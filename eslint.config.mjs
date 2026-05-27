@@ -23,6 +23,7 @@ const config = {
             ...globals.jquery,
             // external packages
             Awesomplete: "readonly",
+            Raty: "readonly",
             Sortable: "readonly",
             Swiper: "readonly",
             tagger: "readonly",
