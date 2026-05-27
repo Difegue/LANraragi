@@ -21,27 +21,8 @@ const config = {
         globals: {
             ...globals.browser,
             ...globals.jquery,
-            // LANraragi specific
-            // TODO rework all main scripts to no longer store data in the global scope, probably transition to ES modules
-            Backup: "readonly",
-            Batch: "readonly",
-            Category: "readonly",
-            Common: "readonly",
-            Config: "readonly",
-            Duplicates: "readonly",
-            Edit: "readonly",
-            I18N: "readonly",
-            Index: "readonly",
-            IndexTable: "readonly",
-            Logs: "readonly",
-            LRR: "readonly",
-            Plugins: "readonly",
-            Reader: "readonly",
-            Server: "readonly",
-            Stats: "readonly",
             // external packages
             Awesomplete: "readonly",
-            marked: "readonly",
             Sortable: "readonly",
             Swiper: "readonly",
             tagger: "readonly",
