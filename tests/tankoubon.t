@@ -97,6 +97,7 @@ is($t_dup, 12, 'Tank still has 12 archives after duplicate add');
 # Test: Remove from tankoubon
 my ($rm_result, $rm_err) = LANraragi::Model::Tankoubon::remove_from_tankoubon($new_tank_id, $archive_ids[1]);
 ok($rm_result, 'Removed archive from tankoubon');
+is($rm_result, 2, 'Removed archive was at position 2');
 
 my ($t_rm, $f_rm, %tank_rm) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
 is($t_rm, 11, 'Tank now has 11 archives');
@@ -130,6 +131,21 @@ is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
 # Test: Get tankoubons containing archive
 my @containing_tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($archive_ids[0]);
 ok((grep { $_ eq $new_tank_id } @containing_tanks), 'Found tank containing archive');
+
+#################################
+# Progress Tests
+#################################
+
+# Test: New tankoubon has progress=0
+my ($t_prog0, $f_prog0, %tank_prog0) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is($tank_prog0{progress}, 0, 'New tankoubon starts with progress=0');
+
+# Test: update_tank_progress stores the page
+my ($prog_result, $prog_err) = LANraragi::Model::Tankoubon::update_tank_progress($new_tank_id, 7);
+ok($prog_result, 'update_tank_progress returns success');
+
+my ($t_prog7, $f_prog7, %tank_prog7) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is($tank_prog7{progress}, 7, 'Tank progress updated to 7');
 
 # Test: Delete tankoubon
 my $del_result = LANraragi::Model::Tankoubon::delete_tankoubon($new_tank_id);
@@ -175,6 +191,7 @@ ok((grep { $_ eq $index_tank_id } @apple_index), 'Tank still in INDEX_fruit:appl
 # Test: Removing archive removes tank from index (if no other archive has that tag)
 my ($rm_result2, $rm_err2) = LANraragi::Model::Tankoubon::remove_from_tankoubon($index_tank_id, $apple_archive);
 ok($rm_result2, 'Removed apple archive from tank');
+is($rm_result2, 1, 'Removed archive was at position 1');
 
 @apple_index = $redis_search->smembers("INDEX_fruit:apple");
 ok(!(grep { $_ eq $index_tank_id } @apple_index), 'Tank removed from INDEX_fruit:apple after removing archive');

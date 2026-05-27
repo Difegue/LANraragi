@@ -26,7 +26,7 @@ Here are some existing clients:
 [Download it on the App Store.](https://github.com/Doraemoe/LANreader)\
 ![dureader](<../.gitbook/assets/dureader (1).jpg>)
 
-### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)
+### [LRReader (Windows/Linux)](https://github.com/Guerra24/LRReader)
 
 [Download it here.](https://github.com/Guerra24/LRReader)\
 ![lrreader](https://s3.guerra24.net/projects/lrr/screenshots/01.png)

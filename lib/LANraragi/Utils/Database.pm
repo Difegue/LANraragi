@@ -296,7 +296,6 @@ sub build_tank_json ($id) {
     # Aggregate data of all archives in the tank
     my $aggregate_names     = "";
     my $aggregate_isnew     = 0;
-    my $aggregate_progress  = 0;
     my $aggregate_pagecount = 0;
     my $latest_readtime     = 0;
     my $aggregate_size      = 0;
@@ -306,10 +305,9 @@ sub build_tank_json ($id) {
         push @archive_tag_strings, %$archive_info{tags} // "";
         $aggregate_names .= %$archive_info{title} . ",";
         $aggregate_isnew     = $aggregate_isnew || (%$archive_info{isnew} eq "true");
-        $aggregate_progress  = $aggregate_progress + %$archive_info{progress};
         $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
         $aggregate_size      = $aggregate_size + %$archive_info{size};
-        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} );
+        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} // 0);
     }
 
     chop $aggregate_names;
@@ -317,9 +315,6 @@ sub build_tank_json ($id) {
     # Get unified tagset using shared function
     my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags( $id, \@archive_tag_strings );
     my $deduped_tags = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
-
-    # Use the first archive's thumbnail for the tank thumbnail
-    my $thumb_archive = scalar @{ $tank{archives} } > 0 ? $tank{archives}[0] : "";
 
     my $arcdata = {
         arcid         => $id,
@@ -329,11 +324,10 @@ sub build_tank_json ($id) {
         summary       => "Tankoubon containing: $aggregate_names",
         isnew         => $aggregate_isnew ? "true" : "false",
         extension     => ".tank",
-        progress      => $aggregate_progress,
+        progress      => $tank{progress} || 0,
         pagecount     => $aggregate_pagecount,
         lastreadtime  => $latest_readtime,
         size          => $aggregate_size,
-        thumb_archive => $thumb_archive,
         archive_count => $total_archives
     };
 

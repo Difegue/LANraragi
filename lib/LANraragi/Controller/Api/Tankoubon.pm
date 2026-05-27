@@ -3,9 +3,13 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Scalar::Util qw(looks_like_number);
 
+use LANraragi::Model::Archive;
+use LANraragi::Model::Config;
 use LANraragi::Model::Tankoubon;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+use LANraragi::Utils::Login   qw(is_logged_in_api);
 
 sub get_tankoubon_list {
 
@@ -101,6 +105,12 @@ sub update_tankoubon {
                 my $successMessage = "Updated tankoubon \"$tankoubon{name}\"!";
 
                 render_api_response( $self, "update_tankoubon", undef, $successMessage );
+
+                # Queue thumbnail regeneration if the archive list changed
+                if ( defined $data->{"archives"} ) {
+                    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+                    $self->minion->enqueue( tank_thumbnail_task => [ $thumbdir, $tankid ] => { priority => 0, attempts => 3 } );
+                }
             } else {
                 render_api_response( $self, "update_tankoubon", $err );
             }
@@ -163,11 +173,78 @@ sub remove_from_tankoubon {
                 }
 
                 render_api_response( $self, "remove_from_tankoubon", undef, $successMessage );
+
+                # Queue thumbnail regeneration for the tankoubon if we removed the first archive
+                # (This technically messes up custom user thumbnails if they set one up, but we don't have a way to differentiate at the moment)
+                if ( $result == 1 ) {
+                    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+                    $self->minion->enqueue( tank_thumbnail_task => [ $thumbdir, $tankid ] => { priority => 0, attempts => 3 } );
+                }
             } else {
                 render_api_response( $self, "remove_from_tankoubon", $err );
             }
         }
     );
+}
+
+sub serve_tankoubon_thumbnail {
+    my $self    = shift->openapi->valid_input or return;
+    my $tank_id = $self->stash('id');
+    LANraragi::Model::Tankoubon::serve_tankoubon_thumbnail( $self, $tank_id );
+}
+
+sub update_tankoubon_thumbnail {
+    my $self    = shift->openapi->valid_input or return;
+    my $tank_id = $self->stash('id');
+    LANraragi::Model::Tankoubon::update_tankoubon_thumbnail( $self, $tank_id );
+}
+
+sub update_tank_progress {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $tank_id = $self->stash('id');
+    my $page    = $self->stash('page') || 0;
+    my $time    = time();
+
+    # Enforce authentication if authprogress is enabled
+    if ( LANraragi::Model::Config->enable_authprogress ) {
+        unless ( is_logged_in_api($self) ) {
+            return $self->render(
+                openapi => {
+                    operation => "update_tank_progress",
+                    error     => "This operation requires authentication.",
+                    success   => 0
+                },
+                status => 401
+            );
+        }
+    }
+
+    if ( LANraragi::Model::Config->enable_localprogress && !LANraragi::Model::Config->enable_authprogress ) {
+        render_api_response( $self, "update_tank_progress", "Server-side Progress Tracking is disabled on this instance." );
+        return;
+    }
+
+    unless ( looks_like_number($page) && $page > 0 ) {
+        render_api_response( $self, "update_tank_progress", "Invalid progress value." );
+        return;
+    }
+
+    my ( $result, $err ) = LANraragi::Model::Tankoubon::update_tank_progress( $tank_id, $page );
+
+    if ($result) {
+        $self->render(
+            openapi => {
+                operation    => "update_tank_progress",
+                id           => $tank_id,
+                page         => int($page),
+                lastreadtime => $time,
+                success      => 1
+            }
+        );
+    } else {
+        render_api_response( $self, "update_tank_progress", $err );
+    }
 }
 
 sub get_tankoubons_file {

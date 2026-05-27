@@ -23,30 +23,31 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
+	[% INCLUDE common/importmap %]
+
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/jquery.dataTables.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/jquery.ui.position.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/awesomplete.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/marked.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/swiper-bundle.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/clipboard.min.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/index.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/index_datatables.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script type="module">
+		import * as Index from "mod/index";
+		import * as IndexTable from "mod/index_datatables";
+		import * as LRR from "mod/common";
+
+		jQuery(() => {
+			Index.initializeAll();
+			window.Index = Index;
+			window.IndexTable = IndexTable;
+			window.LRR = LRR;
+		});
+	</script>
 
 </head>
 
@@ -114,9 +115,9 @@
 							<span id="msm-selection-count"></span>
 							<a class="fa fa-2x fa-hammer carousel-icon" style="margin-left: 12px" id="msm-batch-ops" 
 								href="#" title="[% c.lh('Run Batch Operations on selection') %]"></a>
-							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge" 
+							<a class="fa fa-2x fa-compress-alt carousel-icon" style="margin-left: 12px" id="msm-merge"
 								href="#" title="[% c.lh('Merge Archives into Tankoubon') %]"></a>
-							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear" 
+							<a class="fa fa-2x fa-eject carousel-icon" style="margin-left: 12px" id="msm-clear"
 								href="#" title="[% c.lh('Clear selection') %]"></a>
 							<a class="fa fa-2x fa-check-double carousel-icon" style="margin-left: 12px" id="msm-select-page" 
 								href="#" title="[% c.lh('Select All in Page') %]"></a>
@@ -193,7 +194,9 @@
 
 	<button id="pseudo-copy-btn" data-clipboard-text="" style="display: none">click me</button>
 
-	<script>
+	<script type="module">
+		import * as Index from "mod/index";
+		import I18N from "i18n";
 
 		// Last few remains of JS using server-provided data
 		jQuery(() => {
@@ -243,8 +246,8 @@
 							},
 							[% IF userlogged %]
 							"sep1": "---------",
-							...(isTankoubon ? 
-								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } : 
+							...(isTankoubon ?
+								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } :
 								{ "edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } }),
 							"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
 								"rating": {

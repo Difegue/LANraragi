@@ -2842,6 +2842,7 @@ paths:
             type: string
             enum:
               - thumbnail_task
+              - tank_thumbnail_task
               - page_thumbnails
               - regen_all_thumbnails
               - find_duplicates
@@ -3539,6 +3540,201 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/thumbnail:
+    parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon desired
+          schema:
+            type: string
+    get:
+      operationId: getTankoubonThumbnail
+      x-mojo-to: api-tankoubon#serve_tankoubon_thumbnail
+      summary: Get Tankoubon thumbnail
+      description: >-
+        Get the cover thumbnail for a given Tankoubon. 
+        By default, the thumbnail is sourced from the first page of the first archive. 
+        This endpoint will return a placeholder image if it doesn't already exist. 
+        If you want to queue generation of the thumbnail in the background, 
+        you can use the no_fallback query parameter. 
+      tags:
+        - tankoubons
+      parameters:
+        - name: no_fallback
+          in: query
+          required: false
+          description: >-
+            Disables the placeholder image, queues the thumbnail for extraction
+            and returns a JSON with code 202. This parameter does nothing if the
+            image already exists. (You will get the image with code 200 no
+            matter what)
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+      responses:
+        '200':
+          description: If the thumbnail was already extracted, you get it directly.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateTankoubonThumbnail
+      x-mojo-to: api-tankoubon#update_tankoubon_thumbnail
+      summary: 🔑 Update Tankoubon thumbnail
+      description: >-
+        Set the cover thumbnail for the given Tankoubon using a global page
+        number that spans all archives in the tank (in order). The global page
+        is translated to the correct archive and local page automatically.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: true
+          description: >-
+            Global 1-indexed page number across all archives in the tankoubon.
+            Page 1 is the first page of the first archive, and so on.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Tankoubon thumbnail updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_tankoubon_thumbnail
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  new_thumbnail:
+                    type: string
+                    description: Path to the new thumbnail file
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/progress/{page}:
+    put:
+      operationId: updateTankoubonProgress
+      x-mojo-to: api-tankoubon#update_tank_progress
+      summary: Update Tankoubon reading progression
+      description: >-
+        Tell the server which page of this Tankoubon you're currently
+        reading, so that it updates its internal reading progression accordingly.
+
+        The page number is global across all Archives in the tank 
+        (If a tank has two Archives with 20 and 25 pages, page 26 will be page 6 in Archive #2).
+
+        ⚠ If the server is configured to use clientside progress tracking, this
+        API call will return an error!
+
+        Make sure to check using `/api/info` whether the server tracks reading
+        progression or not before calling this endpoint.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+            minLength: 15
+            maxLength: 15
+        - name: page
+          in: path
+          required: true
+          description: >-
+            Global 1-indexed page number to update the reading progress to.
+            Must be a positive integer.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 15
+                    maxLength: 15
+                    description: ID of the tankoubon updated
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - update_tank_progress
+                  page:
+                    type: integer
+                    description: Updated reading progress
+                  lastreadtime:
+                    type: integer
+                    description: Last read time in epoch seconds
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if successful, else 0
+              example:
+                id: TANK_1589141306
+                operation: update_tank_progress
+                page: 5
+                lastreadtime: 123943543
+                success: 1
+        '400':
+          description: Generic error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: Server-side Progress Tracking is disabled on this instance.
+                success: 0
+        '401':
+          description: Authentication required when authprogress is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: This operation requires authentication.
+                success: 0
   /tankoubons/{id}/{archive}:
     put:
       security:

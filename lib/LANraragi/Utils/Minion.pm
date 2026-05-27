@@ -4,6 +4,8 @@ use strict;
 use warnings;
 
 use Encode;
+use File::Copy qw(copy);
+use File::Path qw(make_path);
 use File::Temp qw(tempdir);
 use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
@@ -54,6 +56,51 @@ sub add_tasks {
     );
 
     $minion->add_task(
+        tank_thumbnail_task => sub {
+            my ( $job, @args ) = @_;
+            my ( $thumbdir, $tank_id ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+
+            my $redis    = LANraragi::Model::Config->get_redis;
+            my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf", "LIMIT", 0, 1 );
+            $redis->quit;
+
+            unless (@archives) {
+                $logger->info("Tank $tank_id has no archives, skipping thumbnail generation.");
+                $job->finish("No archives in tank.");
+                return;
+            }
+
+            my $first_arc = $archives[0];
+            my $thumbname = "";
+
+            eval {
+                my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+                my $format  = $use_jxl ? 'jxl' : 'jpg';
+
+                # Extract first page of first archive without setting it as the archive's cover
+                $thumbname = extract_thumbnail( $thumbdir, $first_arc, 0, 0, 1 );
+
+                # Copy to tank's thumbnail path
+                my $tank_thumb = "$thumbdir/TA/$tank_id.$format";
+                make_path("$thumbdir/TA");
+                
+                copy( $thumbname, $tank_thumb ) or die "Could not copy thumbnail to tank path: $!";
+                $thumbname = $tank_thumb;
+            };
+
+            if ($@) {
+                my $msg = "Error building tank thumbnail for $tank_id: $@";
+                $logger->error($msg);
+                $job->fail( { errors => [$msg] } );
+            } else {
+                $job->finish($thumbname);
+            }
+        }
+    );
+
+    $minion->add_task(
         page_thumbnails => sub {
 
             my ( $job, @args )  = @_;
@@ -98,7 +145,7 @@ sub add_tasks {
                     }
 
                     # Add page number to note field so it can be fetched by the API
-                    $job->note( $i => "processed", total_pages => $pages );
+                    $job->note( $i => "processed", total_pages => $pages, id => $id );
 
                 }
             };
@@ -183,12 +230,48 @@ sub add_tasks {
             };
 
             my @err = $errors->values;
-            $job->finish( { errors => \@err } );
 
             # Crashes on Windows so don't run it there
             if (IS_UNIX) {
                 MCE::Shared->stop;
             }
+
+            # Regen thumbnails for all tankoubons (sequential - fewer items than archives)
+            my $redis_tank = LANraragi::Model::Config->get_redis;
+            my @tank_keys  = $redis_tank->keys('TANK_??????????');
+            $redis_tank->quit();
+
+            $logger->info("Regenerating thumbnails for " . scalar(@tank_keys) . " tankoubons...");
+
+            foreach my $tank_id (@tank_keys) {
+                my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+                my $format    = $use_jxl ? 'jxl' : 'jpg';
+                my $subfolder = substr( $tank_id, 0, 2 );
+                my $thumbname = "$thumbdir/$subfolder/$tank_id.$format";
+
+                unless ( $force == 0 && -e $thumbname ) {
+                    eval {
+                        $logger->debug("Regenerating tank thumbnail for $tank_id...");
+
+                        my $redis_t  = LANraragi::Model::Config->get_redis;
+                        my @archives = $redis_t->zrangebyscore( $tank_id, 1, "+inf", "LIMIT", 0, 1 );
+                        $redis_t->quit;
+
+                        if (@archives) {
+                            my $src = extract_thumbnail( $thumbdir, $archives[0], 0, 0, 1 );
+                            make_path("$thumbdir/$subfolder");
+                            copy( $src, $thumbname ) or die "Could not copy tank thumbnail: $!";
+                        }
+                    };
+
+                    if ($@) {
+                        $logger->warn("Error while generating tank thumbnail for $tank_id: $@");
+                        push @err, $@;
+                    }
+                }
+            }
+
+            $job->finish( { errors => \@err } );
         }
     );
 

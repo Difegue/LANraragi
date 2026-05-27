@@ -89,7 +89,7 @@ sub extract_pdf ( $destination, $to_extract ) {
 
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
 # Non-cover thumbnails land in a folder named after the ID.
-# Specify $set_cover if you want the given to page to be placed as the cover thumbnail instead.
+# Specify $set_cover if you want the given page to be placed as the cover thumbnail instead.
 # Thumbnails will be generated at low quality by default unless you specify use_hq=1.
 sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
 
