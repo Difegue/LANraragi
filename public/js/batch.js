@@ -76,44 +76,51 @@ Batch.showOverride = function () {
 
 /**
  * Load only the archives from the MSM selection, fetching each archive's metadata individually.
+ * Tankoubons are expanded to their constituent archives.
  * Shows the MSM selection banner and pre-checks all loaded archives.
  * @param {string[]} ids Array of archive IDs from msmSelection
  */
 Batch.loadSelectionOnly = function (ids) {
 
-    const fetches = ids.map((id) =>
-        Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, null, (data) => data)
-            .catch(() => null),
-    );
+    const tankIds = ids.filter((id) => id.startsWith("TANK_"));
+    const archiveIds = ids.filter((id) => !id.startsWith("TANK_"));
 
-    Promise.all(fetches).then((results) => {
-        let hasTanks = false;
-        let hasArchives = false;
+    // Acquire archive IDs from Tanks and merge with directly selected archive IDs, then fetch metadata for each archive ID
+    const tankFetches = tankIds.map((id) => 
+        Server.callAPI(`/api/tankoubons/${id}?page=-1`, "GET", null, I18N.ArchiveListLoadFailure, (data) => {
+            archiveIds.push(...(data.result.archives || []));
+        }));
+        
+    Promise.all(tankFetches).then(() => {
 
-        results.forEach((archive) => {
-            if (!archive) return;
-            const arcId = archive.arcid || archive.id;
-            const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
-            const html = `<li><input type='checkbox' name='archive' id='${arcId}' class='archive' checked><label for='${arcId}'>${escapedTitle}</label></li>`;
+        const archiveFetches = archiveIds.map((id) =>
+            Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, null, (data) => data)
+                .catch(() => null),
+        );
 
-            if (arcId.startsWith("TANK_")) {
-                $("#tankoubonlist").append(html);
-                hasTanks = true;
-            } else {
+        Promise.all(archiveFetches).then((results) => { 
+
+            const addedIds = new Set();
+
+            results.forEach((archive) => {
+                if (!archive) return;
+                const arcId = archive.arcid;
+                if (!arcId || addedIds.has(arcId)) return;
+                addedIds.add(arcId);
+                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+                const html = `<li><input type='checkbox' name='archive' id='${arcId}' class='archive' checked><label for='${arcId}'>${escapedTitle}</label></li>`;
                 $("#archivelist").append(html);
-                hasArchives = true;
-            }
+            });
+
+            if (addedIds.size > 0) $("#no-archives-msg").hide();
+
+            // Show the MSM selection banner
+            $("#msm-banner-count").text(I18N.BatchSelectionBanner(ids.length));
+            $("#msm-banner").show();
+        }).finally(() => {
+            $("#arclist-container").show();
+            $("#loading-placeholder").hide();
         });
-
-        if (hasTanks) $("#no-tankoubons-msg").hide();
-        if (hasArchives) $("#no-archives-msg").hide();
-
-        // Show the MSM selection banner
-        $("#msm-banner-count").text(I18N.BatchSelectionBanner(ids.length));
-        $("#msm-banner").show();
-    }).finally(() => {
-        $("#arclist-container").show();
-        $("#loading-placeholder").hide();
     });
 };
 
@@ -122,9 +129,7 @@ Batch.loadSelectionOnly = function (ids) {
  * Hides the selection banner (if present) and prechecks untagged archives.
  */
 Batch.loadAllArchives = function () {
-    $("#tankoubonlist").empty();
     $("#archivelist").empty();
-    $("#no-tankoubons-msg").show();
     $("#no-archives-msg").show();
     $("#msm-banner").html("");
     $("#arclist-container").hide();
@@ -133,7 +138,7 @@ Batch.loadAllArchives = function () {
     // Clear selection if present
     localStorage.removeItem("msmSelection");
 
-    const archivePromise = Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
+    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
         (data) => {
             data.forEach((archive) => {
                 const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
@@ -147,21 +152,7 @@ Batch.loadAllArchives = function () {
                 (data) => { preCheckInternal(data); },
             );
         },
-    );
-
-    const tankPromise = Server.callAPI("/api/tankoubons?page=-1", "GET", null, null,
-        (data) => {
-            data.result.forEach((tank) => {
-                const escapedTitle = LRR.encodeHTML(tank.name);
-                const html = `<li><input type='checkbox' name='archive' id='${tank.id}' class='archive' ><label for='${tank.id}'>${escapedTitle}</label></li>`;
-                $("#tankoubonlist").append(html);
-            });
-
-            if (data.result.length > 0) $("#no-tankoubons-msg").hide();
-        },
-    );
-
-    Promise.all([archivePromise, tankPromise]).finally(() => {
+    ).finally(() => {
         $("#arclist-container").show();
         $("#check-uncheck").show();
         $("#loading-placeholder").hide();

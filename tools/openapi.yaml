@@ -717,7 +717,7 @@ paths:
       x-mojo-to: api-archive#serve_archivelist
       summary: Get all Archives
       description: > 
-        Returns a list of all archives in the database. This doesn't include Tankoubons. 
+        Returns a list of all Archives in the database. This doesn't include Tankoubons by design. 
         You can use the IDs of this JSON with the other endpoints.
       tags:
         - archives
@@ -736,8 +736,8 @@ paths:
       x-mojo-to: api-archive#serve_untagged_archivelist
       summary: Get all untagged archives
       description: >
-        Get archives that don't have any tags recorded. 
-        This follows the same rules as the Batch Tagging filter and will include archives that have parody:, date_added:, series: or artist: tags.
+        Get Archives that don't have any tags recorded. 
+        This follows the same rules as the Batch Tagging filter and will include Archives that have parody:, date_added:, series: or artist: tags.
       tags:
         - archives
       responses:
