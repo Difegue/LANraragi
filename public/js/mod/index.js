@@ -662,10 +662,10 @@ export function addArchiveToSelection(data) {
     // Uses event delegation so it works even with virtual slides
     $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`, 
         function (e) {
-        if (!isMultiSelectMode) return;
-        e.preventDefault();
-        toggleArchiveSelection(id);
-    });
+            if (!isMultiSelectMode) return;
+            e.preventDefault();
+            toggleArchiveSelection(id);
+        });
 }
 
 /**
@@ -1020,7 +1020,7 @@ export function handleContextMenu(option, id) {
         case "edit-tank":
             LRR.openInNewTab(new LRR.ApiURL(`/tankoubon?arcid=${id}`));
             break;
-        case "delete":
+        case "delete": {
             const isTank = id.startsWith("TANK_");
             LRR.showPopUp({
                 text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
@@ -1032,11 +1032,16 @@ export function handleContextMenu(option, id) {
                 confirmButtonColor: "#d33",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    if (isTank) Server.deleteTankoubon(id, () => { document.location.reload(true); });
-                    else Server.deleteArchive(id, () => { document.location.reload(true); });
+                    if (isTank) Server.deleteTankoubon(id, () => {
+                        document.location.reload(true);
+                    });
+                    else Server.deleteArchive(id, () => {
+                        document.location.reload(true);
+                    });
                 }
             });
             break;
+        }
         case "read":
             LRR.openInNewTab(new LRR.ApiURL(`/reader?id=${id}`));
             break;
@@ -1096,7 +1101,7 @@ export function loadCategories() {
                             type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
                             onclick='window.Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
                         </div><div style='display:inline-block'>
-                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === window.Index.selectedCategory) ? "toggled" : "")}' 
                             type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}' 
                             onclick='window.Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
                         </div>`;

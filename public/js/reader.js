@@ -157,8 +157,8 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             Server.callAPI(`/api/tankoubons/${id}/thumbnail?page=${pageNumber}`,
                 "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
         } else {
-        Server.callAPI(`/api/archives/${id}/thumbnail?page=${pageNumber}`,
-            "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
+            Server.callAPI(`/api/archives/${id}/thumbnail?page=${pageNumber}`,
+                "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
         }
 
         // Stop event propagation to avoid going to page
@@ -298,15 +298,15 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
 
         $("#tagContainer").append(LRR.buildTagsDiv(content.tags));
 
-        const ratyEl = document.querySelector('[data-raty]');
+        const ratyEl = document.querySelector(`[data-raty]`);
         if (ratyEl) {
             const rating = LRR.splitTagsByNamespace(content.tags).rating?.at(0).length;
             new Raty(ratyEl, {
-                starType: 'i',
+                starType: `i`,
                 cancelButton: true,
-                cancelClass: 'fas fa-trash raty-cancel',
+                cancelClass: `fas fa-trash raty-cancel`,
                 cancelHint: I18N.ReaderClearRating,
-                cancelPlace: 'right',
+                cancelPlace: `right`,
                 score: rating,
                 click: function(score, element, evt) {
 
@@ -424,7 +424,7 @@ export function loadContentData() {
 function getArchiveForPage(globalPage) {
     if (id.startsWith("TANK_")) {
         const arc = content.chapters.find(a => globalPage >= a.startPage && globalPage <= a.endPage);
-        if (arc) 
+        if (arc)
             return { arcId: arc.id, localPage: globalPage - arc.startPage + 1 };
     }
     return { arcId: id, localPage: globalPage };
@@ -506,55 +506,55 @@ export function removeTocSection() {
 export function loadImages() {
 
     const onLoad = (data) => {
-            pages = data;
-            maxPage = pages.length - 1;
-            $(".max-page").html(pages.length);
+        pages = data;
+        maxPage = pages.length - 1;
+        $(".max-page").html(pages.length);
 
-            // Choices in order for page picking:
-            // * p is in parameters and is not the first page
-            // * progress is tracked and is not the last page
-            // * first page
-            // This allows for bookmarks to trump progress
-            // when there's no parameter, null is coerced to 0 so it becomes -1
-            currentPage = currentPage || (
-                !ignoreProgress && progress < maxPage
-                    ? progress
-                    : 0
-            );
+        // Choices in order for page picking:
+        // * p is in parameters and is not the first page
+        // * progress is tracked and is not the last page
+        // * first page
+        // This allows for bookmarks to trump progress
+        // when there's no parameter, null is coerced to 0 so it becomes -1
+        currentPage = currentPage || (
+            !ignoreProgress && progress < maxPage
+                ? progress
+                : 0
+        );
 
-            if (infiniteScroll) {
-                initInfiniteScrollView();
-                if (content.tags?.includes("webtoon")) {
-                    $("head").append(`
-                        <style id="webtoon-css">
-                            .reader-image {
-                                margin-bottom: 0 !important;
-                                margin-top: 0 !important;
-                            }
-                        </style>
-                    `);
-                }
-            } else {
-                $("#img").on("load", updateMetadata);
-
-                // when click left or right img area change page
-                $(document).on("click", (event) => {
-                    // check click Y position is in img Y area
-                    if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && pageNaviState) {
-                        // is click X position is left on screen or right
-                        if (event.pageX < $(window).width() / 2) {
-                            changePage(-1, true);
-                        } else {
-                            changePage(1, true);
+        if (infiniteScroll) {
+            initInfiniteScrollView();
+            if (content.tags?.includes("webtoon")) {
+                $("head").append(`
+                    <style id="webtoon-css">
+                        .reader-image {
+                            margin-bottom: 0 !important;
+                            margin-top: 0 !important;
                         }
-                    }
-                });
-
-                $(".current-page").each((_i, el) => $(el).html(currentPage + 1));
-                goToPage(currentPage);
+                    </style>
+                `);
             }
+        } else {
+            $("#img").on("load", updateMetadata);
 
-            if (showOverlayByDefault) { toggleArchiveOverlay(); }
+            // when click left or right img area change page
+            $(document).on("click", (event) => {
+                // check click Y position is in img Y area
+                if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && pageNaviState) {
+                    // is click X position is left on screen or right
+                    if (event.pageX < $(window).width() / 2) {
+                        changePage(-1, true);
+                    } else {
+                        changePage(1, true);
+                    }
+                }
+            });
+
+            $(".current-page").each((_i, el) => $(el).html(currentPage + 1));
+            goToPage(currentPage);
+        }
+
+        if (showOverlayByDefault) { toggleArchiveOverlay(); }
     };
 
     const onFinally = () => {
@@ -580,8 +580,8 @@ export function loadImages() {
     else {
         Server.callAPI(`/api/archives/${id}/files?force=${force}`, "GET", null, I18N.ReaderArchiveError,
             (data) => onLoad(data.pages),
-            ).finally(onFinally);
-    } 
+        ).finally(onFinally);
+    }
 }
 
 export function initializeSettings() {
@@ -937,11 +937,10 @@ function addStamp() {
 
 function createMarkerElement(markerData, index) {
     if (infiniteScroll) return;
-    if (markerData.left) {
-        const img = document.getElementById("img");
-    } else {
-        const img = document.getElementById("img_doublepage");
-    }
+    const img = markerData.left
+        ? document.getElementById("img")
+        : document.getElementById("img_doublepage");
+
 
     const display = document.getElementById("display");
     const container = document.getElementById("i1");
@@ -1072,10 +1071,8 @@ function loadStamps(currentPage) {
     // Call for the first page
     Server.callAPI(`/api/archives/${id1}/stamps/${p1}`, "GET", null, I18N.ServerInfoError,
         (data) => {
-            let markerData = {};
-
             for (var i = data.result.length - 1; i >= 0; i--) {
-                markerData = {};
+                let markerData = {};
                 let x = data.result[i].position.split(",")[0];
                 let y = data.result[i].position.split(",")[1];
                 markerData.x = x;
@@ -1093,10 +1090,8 @@ function loadStamps(currentPage) {
                 // Call for the second page (may be in a different archive for tanks)
                 Server.callAPI(`/api/archives/${id2}/stamps/${p2}`, "GET", null, I18N.ServerInfoError,
                     (data) => {
-                        let markerData = {};
-
                         for (var i = data.result.length - 1; i >= 0; i--) {
-                            markerData = {};
+                            let markerData = {};
                             let x = data.result[i].position.split(",")[0];
                             let y = data.result[i].position.split(",")[1];
                             markerData.x = x;
@@ -1124,14 +1119,14 @@ function handleMarkerContextMenu(option, index) {
     let i = parseInt(index);
 
     switch (option) {
-        case "editmarker":
+        case "editmarker": {
             let emarker = markers[i];
             let inputValue = emarker.name;
 
             LRR.showPopUp({
                 title: I18N.StampName,
                 input: "text",
-                inputPlaceholder:  I18N.StampPlaceholder,
+                inputPlaceholder: I18N.StampPlaceholder,
                 inputAttributes: {
                     autocapitalize: "off",
                 },
@@ -1153,7 +1148,8 @@ function handleMarkerContextMenu(option, index) {
                 }
             });
             break;
-        case "deletemarker":
+        }
+        case "deletemarker": {
             let dmarker = markers[i];
             Server.callAPI(`/api/stamps/${dmarker.id}`, "DELETE", "Stamp deleted!", I18N.StampError,
                 () => {
@@ -1165,6 +1161,7 @@ function handleMarkerContextMenu(option, index) {
                 }
             );
             break;
+        }
         default:
             break;
     }
@@ -1633,7 +1630,7 @@ function getCurrentChapter() {
 // Find the current chapter (or nested sub-chapter) for the given page.
 function findChapterForPage(page, chapters) {
     if (!chapters) return null;
-    
+
     for (const chapter of chapters) {
         if (page >= chapter.startPage && page <= chapter.endPage) {
             // Check if there's a more specific nested chapter
@@ -1778,14 +1775,14 @@ function filterStampedOverlay() {
         overlayFiltered = false;
         $("#filter-stamped").removeClass("toggled");
         for (let element of elements) {
-            element.style.display = 'inline-block';
+            element.style.display = `inline-block`;
         }
     } else {
         overlayFiltered = true;
         $("#filter-stamped").addClass("toggled");
         for (let element of elements) {
             if (!element.dataset.stamped) {
-                element.style.display = 'none';
+                element.style.display = `none`;
             }
         }
     }
@@ -1801,7 +1798,7 @@ function generateThumbnails() {
         for (let i = 1; i <= notes.total_pages; i++) {
             if (Object.hasOwn(notes, i) && notes[i] === "processed") {
 
-                const startPage = id.startsWith("TANK_") ? 
+                const startPage = id.startsWith("TANK_") ?
                     content.chapters.find(ch => ch.arcId === notes.id).startPage :
                     1;
 
@@ -1819,40 +1816,39 @@ function generateThumbnails() {
             }
         }
     };
-        
+
     const fetchThumbsForArc = function(arc) {
-        fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files/thumbnails`), { method: "POST" }) 
-        .then(
-            response => {
-            if (response.status === 200) {
-                // Thumbnails are already generated, there's nothing to do. Very nice!
-                for (let idx = arc.startPage - 1; idx < arc.endPage; idx++) {
-                    pageThumbnails.push(idx);
+        fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files/thumbnails`), { method: "POST" })
+            .then(response => {
+                if (response.status === 200) {
+                    // Thumbnails are already generated, there's nothing to do. Very nice!
+                    for (let idx = arc.startPage - 1; idx < arc.endPage; idx++) {
+                        pageThumbnails.push(idx);
+                    }
+                    $(".ttspinner").hide();
+                    return;
                 }
-                $(".ttspinner").hide();
-                return;
-            }
-            if (response.status === 202) {
-                // Check status and update progress
-                response.json().then((data) => Server.checkJobStatus(
-                    data.job,
-                    false,
-                    (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
-                    () => LRR.showErrorToast(I18N.ThumbJobError),
-                    thumbProgress,
-                ));
-            }
-        });
+                if (response.status === 202) {
+                    // Check status and update progress
+                    response.json().then((data) => Server.checkJobStatus(
+                        data.job,
+                        false,
+                        (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
+                        () => LRR.showErrorToast(I18N.ThumbJobError),
+                        thumbProgress,
+                    ));
+                }
+            });
     };
 
-    if (id.startsWith("TANK_")) 
+    if (id.startsWith("TANK_"))
         content.chapters.forEach(arc => fetchThumbsForArc(arc)); // Generate thumbnails per archive
     else
         fetchThumbsForArc({
-                    id: id,
-                    startPage: 1,
-                    endPage: content.pages,
-                }); // Queue a single minion job for thumbnails 
+            id: id,
+            startPage: 1,
+            endPage: content.pages,
+        }); // Queue a single minion job for thumbnails
 }
 
 /**
@@ -1940,7 +1936,7 @@ window.addEventListener("resize", () => {
 
 jQuery(() => {
     $.contextMenu({
-        selector: '.marker-context-menu',
+        selector: `.marker-context-menu`,
         build: ($trigger, e) => {
             e.preventDefault();
             e.stopPropagation();
