@@ -129,8 +129,6 @@ sub apply_routes {
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
-    $logged_in->get('/tankoubons')->to('tankoubon#index');
-
     $logged_in->get('/duplicates')->to('duplicates#index');
 
     # Metrics API (not part of OpenAPI spec, serves Prometheus format)
