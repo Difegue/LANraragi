@@ -258,7 +258,8 @@ sub update_metadata ( $tank_id, $data ) {
     my $err     = "";
     my $name    = $data->{"metadata"}->{"name"}    || undef;
     my $summary = exists $data->{"metadata"}->{"summary"} ? $data->{"metadata"}->{"summary"} : undef;
-    my $tags = exists $data->{"metadata"}->{"tags"} ? $data->{"metadata"}->{"tags"} : undef;
+    my $tags    = exists $data->{"metadata"}->{"tags"}    ? $data->{"metadata"}->{"tags"}    : undef;
+    my $append  = $data->{"metadata"}->{"append"}  // 0;
 
     if ( $redis->exists($tank_id) ) {
         if ( defined $name ) {
@@ -270,7 +271,7 @@ sub update_metadata ( $tank_id, $data ) {
         }
 
         if ( defined $tags ) {
-            set_tank_tags( $tank_id, $tags );
+            set_tank_tags( $tank_id, $tags, $append );
         }
 
         $redis->quit;

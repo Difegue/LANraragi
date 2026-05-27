@@ -129,9 +129,10 @@
                     </select>
                     <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
 
+                    [% UNLESS is_tank %]
                     <h2>[% c.lh("Rating") %]</h2>
                     <div data-raty></div>
-                
+                    [% END %]
                 </div>
                 [% END %]
             </div>

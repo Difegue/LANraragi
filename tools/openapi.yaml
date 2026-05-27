@@ -3492,7 +3492,10 @@ paths:
                       description: Summary of the Tankoubon
                     tags:
                       type: string
-                      description: Additional tags for the Tankoubon, in LRR comma-separated format.
+                      description: Additional tags for the Tankoubon, in LRR comma-separated format. This will replace whatever additional tags the Tank already has, unless append=true.
+                    append:
+                      type: boolean
+                      description: If true, tags are appended to the Tank's existing own tags instead of replacing them. Defaults to false.
       responses:
         '200':
           description: Success response
