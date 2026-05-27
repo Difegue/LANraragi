@@ -1,5 +1,5 @@
 import js from "@eslint/js";
-import { defineConfig } from "eslint/config";
+import { defineConfig, globalIgnores } from "eslint/config";
 import stylistic from "@stylistic/eslint-plugin";
 import globals from "globals";
 
@@ -9,7 +9,6 @@ import globals from "globals";
  */
 const config = {
     files: ["**/*.js"],
-    ignores: ["public/js/vendor/*.js"],
     plugins: {
         js,
         "@stylistic": stylistic,
@@ -85,4 +84,7 @@ const config = {
     },
 };
 
-export default defineConfig(config);
+export default defineConfig([
+    globalIgnores(["public/js/vendor/*.js", "tests/samples/*"]),
+    config,
+]);
