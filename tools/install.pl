@@ -38,6 +38,7 @@ my @vendor_js = (
     "/raty-js/build/raty.min.js",
     [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
     "/sortablejs/Sortable.min.js",
+    [ "/htm/dist/htm.mjs", "htm.js" ],
 );
 
 my @vendor_woff = (

@@ -1,7 +1,8 @@
 /**
  * Functions that get used in multiple pages but don't really depend on networking.
  */
-import { createElement, render } from "preact";
+import { h, render } from "preact";
+import htm from "htm";
 import Swal from "sweetalert2";
 import { ToastContainer, toast as emitToast } from "react-toastify";
 
@@ -9,6 +10,8 @@ import * as Index from "mod/index";
 import * as Server from "mod/server";
 import * as IndexTable from "mod/index_datatables";
 import I18N from "i18n";
+
+const html = htm.bind(h);
 
 let toastsInitialized = false;
 let isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
@@ -558,8 +561,9 @@ export function toast(c) {
         initializeToasts();
     }
 
+    const innerHtml = `${c.heading ? `<h2>${c.heading}</h2>` : ""}${c.text ?? ""}`;
     return emitToast(
-        createElement("div", { dangerouslySetInnerHTML: { __html: `${c.heading ? `<h2>${c.heading}</h2>` : ""}${c.text ?? ""}` } }), (() => {
+        html`<div dangerouslySetInnerHTML=${{ __html: innerHtml }} />`, (() => {
             const toastType = c.icon || c.typel;
             const isWarningOrError = (toastType === "warning") || (toastType === "error");
             const autoCloseTime = {
@@ -696,11 +700,7 @@ export function initializeToasts() {
     document.body.appendChild(toastDiv);
     toastDiv.style.textAlign = "initial";
     render(
-        createElement(ToastContainer, {
-            style: {},
-            limit: 7,
-            theme: "light",
-        }, undefined), toastDiv);
+        html`<${ToastContainer} limit=${7} theme="light" style=${{}} />`, toastDiv);
     toastsInitialized = true;
 }
 
