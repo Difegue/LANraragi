@@ -6,12 +6,14 @@ use utf8;
 use base 'Locale::Maketext';
 
 use Locale::Maketext::Lexicon {
+    de      => [ Gettext => "../../locales/template/de.po" ],
     en      => [ Gettext => "../../locales/template/en.po" ],
     es      => [ Gettext => "../../locales/template/es.po" ],
     zh      => [ Gettext => "../../locales/template/zh.po" ],
     "zh-cn" => [ Gettext => "../../locales/template/zh.po" ],
     fr      => [ Gettext => "../../locales/template/fr.po" ],
     id      => [ Gettext => "../../locales/template/id.po" ],
+    ja      => [ Gettext => "../../locales/template/ja.po" ],
     ko      => [ Gettext => "../../locales/template/ko.po" ],
     no      => [ Gettext => "../../locales/template/nb_NO.po" ],
     nb      => [ Gettext => "../../locales/template/nb_NO.po" ],
