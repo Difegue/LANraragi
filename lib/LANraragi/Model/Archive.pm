@@ -111,7 +111,7 @@ sub generate_page_thumbnails {
 
     # Get the number of pages in the archive
     my $redis = LANraragi::Model::Config->get_redis;
-    my $pages = $redis->hget( $id, "pagecount" );
+    my $pages = $redis->hget( $id, "pagecount" ) // 0;
 
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.$format";

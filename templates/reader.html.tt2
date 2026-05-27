@@ -101,8 +101,8 @@
 
                     <h2>[% c.lh("Admin Options") %]</h2>
 
-                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
-                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/><br>
+                    <input id="edit-archive" class='stdbtn' type='button' value="[% IF is_tank %][% c.lh("Edit Tankoubon") %][% ELSE %][% c.lh("Edit Archive Metadata") %][% END %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% IF is_tank %][% c.lh("Delete Tankoubon") %][% ELSE %][% c.lh("Delete Archive") %][% END %]"/><br>
 
                     <h2>[% c.lh("Categories") %]</h2>
 

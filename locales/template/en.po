@@ -1022,6 +1022,9 @@ msgstr "Clean Archive Cache"
 msgid "Edit Archive Metadata"
 msgstr "Edit Archive Metadata"
 
+msgid "Edit Tankoubon"
+msgstr "Edit Tankoubon"
+
 msgid "Delete Archive"
 msgstr "Delete Archive"
 
