@@ -16,6 +16,7 @@
 
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tagger.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tippy.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
@@ -24,16 +25,29 @@
 
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/tagger.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/Sortable.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="[% c.url_for("/js/edit.js?$version") %]" type="module"></script>
 
+	<script type="module">
+		import * as IndexTable from "mod/index_datatables";
+
+		jQuery(() => {
+			window.IndexTable = IndexTable;
+		});
+	</script>
+
 </head>
 
-<body>
+<body data-is-tank="[% is_tank %]">
 
 	<div class='ido' style='text-align:center'>
 
-		[% IF artist %]
+		[% IF is_tank %]
+		<h2 class='ih' style='text-align:center'>[% c.lh("Editing [_1] (Tankoubon)", arctitle) %]</h2>
+		[% ELSIF artist %]
 		<h2 class='ih' style='text-align:center'>[% c.lh("Editing [_1] by [_2]", arctitle, artist) %]</h2>
 		[% ELSE %]
 		<h2 class='ih' style='text-align:center'>[% c.lh("Editing [_1]", arctitle) %]</h2>
@@ -43,6 +57,7 @@
 			style="width:98%;">
 			<table style='margin:auto; font-size:8pt;'>
 				<tbody>
+					[% UNLESS is_tank %]
 					<tr>
 						<td style='text-align:left; width:100px'>[% c.lh("Current File Name:") %]</td>
 						<td>
@@ -50,6 +65,7 @@
 								value="[% file %]" name='filename'>
 						</td>
 					</tr>
+					[% END %]
 
 					<tr>
 						<td style='text-align:left; width:100px'>[% c.lh("ID:") %]</td>
@@ -88,9 +104,10 @@
 						</td>
 					</tr>
 
+					[% UNLESS is_tank %]
 					<tr>
 						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Import Tags from Plugin :") %] <br />
-							<input type='button' name='tag_import' value='[% c.lh("Help") %]' id="show-help" class='stdbtn'
+							<input type='button' value='[% c.lh("Help") %]' id="show-help" class='stdbtn'
 								style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table" style="text-align: left">
@@ -114,12 +131,54 @@
 							<i class='fa fa-2x fa-exclamation-circle' style='margin-top:4px'></i> [% c.lh("Using a Plugin will save any modifications to archive metadata you might have made !") %]
 						</td>
 					</tr>
+					[% END %]
+
+					[% IF is_tank %]
+					<tr>
+						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Archives:") %] <br/>
+							<input type='button' value='[% c.lh("Help") %]' id="tank-help" class='stdbtn'
+								style='min-width:90px;'></input>
+						</td>
+						<td>
+							<ul id="tank-archive-list">
+								[% FOREACH archive IN archive_data %]
+								<li data-id="[% archive.arcid %]">
+									<i class="fas fa-grip-vertical drag-handle"></i>
+									<span class="arc-title" onmouseover="IndexTable.buildImageTooltip(this)">
+										[% archive.title %]
+									</span>
+									<div class="caption" style="display: none;">
+										<img style="height:300px" src='[% c.url_for("/api/archives/$archive.arcid/thumbnail") %]'
+											onerror="this.src=`new LRR.ApiURL('/img/noThumb.png')`">
+									</div>
+									<a class="remove-archive" title="[% c.lh("Remove from Tankoubon") %]">	
+										<i class="fas fa-close" style="text-align:right;"></i>
+									</a>
+								</li>
+								[% END %]
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td style='text-align:left; width:100px;'>[% c.lh("Add Archive to Tankoubon:") %]</td>
+						<td style="text-align:left">
+							<input id='add-archive-id' class='stdinput' type='text' style='width:380px; max-width:768px'
+								placeholder='[% c.lh("Archive ID (40-character long)") %]' size='40'>
+							<input class='stdbtn' type='button' id="add-archive-btn" value='[% c.lh("Add") %]' />
+						</td>
+					</tr>
+					[% END %]
 
 					<tr>
 						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' id="save-metadata" value='[% c.lh("Save Metadata") %]' />
+							[% IF is_tank %]
+							<input class='stdbtn' type='button' id="delete-archive" value='[% c.lh("Delete Tankoubon") %]' />
+							<input class='stdbtn' type='button' id="read-archive" value='[% c.lh("Read Tankoubon") %]' />
+							[% ELSE %]
 							<input class='stdbtn' type='button' id="delete-archive" value='[% c.lh("Delete Archive") %]' />
 							<input class='stdbtn' type='button' id="read-archive" value='[% c.lh("Read Archive") %]' />
+							[% END %]
 							<input id='goback' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 							<br />
 						</td>

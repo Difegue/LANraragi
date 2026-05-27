@@ -19,7 +19,7 @@ let isScriptRunning = false;
 export function callAPI(endpoint, method, successMessage, errorMessage, successCallback) {
     let endpointUrl = new LRR.ApiURL(endpoint);
     return fetch(endpointUrl, { method })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
@@ -47,7 +47,7 @@ export function callAPI(endpoint, method, successMessage, errorMessage, successC
 export function callAPIBody(endpoint, method, body, successMessage, errorMessage, successCallback) {
     let endpointUrl = new LRR.ApiURL(endpoint);
     return fetch(endpointUrl, { method, body })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
@@ -84,7 +84,7 @@ export function callAPIBody(endpoint, method, body, successMessage, errorMessage
 export function checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback = null) {
     let endpoint = new LRR.ApiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
     fetch(endpoint, { method: "GET" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (data.error) throw new Error(data.error);
 
@@ -130,7 +130,7 @@ export function saveFormData(formSelector) {
     const postData = new FormData($(formSelector)[0]);
 
     return fetch(window.location.href, { method: "POST", body: postData })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (data.success) {
                 LRR.toast({
@@ -303,7 +303,7 @@ export function removeArchiveFromCategory(arcId, catId) {
 export function deleteArchive(arcId, callback) {
     let endpoint = new LRR.ApiURL(`/api/archives/${arcId}`);
     return fetch(endpoint, { method: "DELETE" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (!data.success) {
                 LRR.toast({
@@ -325,6 +325,17 @@ export function deleteArchive(arcId, callback) {
             }
         })
         .catch((error) => LRR.showErrorToast(I18N.ArchiveDeletedError, error));
+}
+
+/**
+ * Deletes a Tankoubon by ID. The archives remain in the library.
+ * @param {string} id Tankoubon ID
+ * @param {Function} callback Called after successful deletion
+ */
+export function deleteTankoubon(id, callback) {
+    return callAPI(`/api/tankoubons/${id}`, "DELETE", I18N.TankoubonDeleted, I18N.TankoubonDeleteError,
+        () => { setTimeout(callback, 1500); }
+    );
 }
 
 /**

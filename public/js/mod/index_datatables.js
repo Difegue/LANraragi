@@ -196,7 +196,7 @@ export function renderTitle(data, type) {
 
         return `${LRR.buildStatusDiv(data)}${LRR.buildPageCountDiv(data)}${bookmarkIcon}
                 <a id="${data.arcid}"
-                   onmouseover="buildImageTooltip(this)"
+                   onmouseover="IndexTable.buildImageTooltip(this)"
                    href="${new LRR.ApiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>

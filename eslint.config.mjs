@@ -43,6 +43,7 @@ const config = {
             // external packages
             Awesomplete: "readonly",
             marked: "readonly",
+            Sortable: "readonly",
             Swiper: "readonly",
             tagger: "readonly",
             tippy: "readonly",

@@ -37,6 +37,7 @@ my @vendor_js = (
     "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
     "/raty-js/build/raty.min.js",
     [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
+    "/sortablejs/Sortable.min.js",
 );
 
 my @vendor_woff = (

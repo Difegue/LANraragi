@@ -736,9 +736,9 @@ export function updateSelectionCount() {
         if (LRR.isUserLogged()) {
             $("#msm-batch-ops").show();
 
-            // Don't show merge option if more than 2 tanks are in the selection
+            // Don't show merge option if more than 1 tank is in the selection
             const tankCount = [...selectedArchives].filter((id) => id.startsWith("TANK_")).length;
-            if (tankCount <= 2)
+            if (tankCount < 2)
                 $("#msm-merge").show();
             else
                 $("#msm-merge").hide();
@@ -1010,8 +1010,9 @@ export function handleContextMenu(option, id) {
             LRR.openInNewTab(new LRR.ApiURL(`/tankoubon?arcid=${id}`));
             break;
         case "delete":
+            const isTank = id.startsWith("TANK_");
             LRR.showPopUp({
-                text: I18N.ConfirmArchiveDeletion,
+                text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
                 icon: "warning",
                 showCancelButton: true,
                 focusConfirm: false,
@@ -1020,7 +1021,8 @@ export function handleContextMenu(option, id) {
                 confirmButtonColor: "#d33",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Server.deleteArchive(id, () => { document.location.reload(true); });
+                    if (isTank) Server.deleteTankoubon(id, () => { document.location.reload(true); });
+                    else Server.deleteArchive(id, () => { document.location.reload(true); });
                 }
             });
             break;

@@ -954,3 +954,47 @@ body.infinite-scroll .fullscreen-infinite img {
   top: 5px;
   left: 25%
 }
+
+/* Tankoubon sortable archive list */
+.sortable-ghost {
+  opacity: 0.4;
+}
+
+.sortable-chosen {
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.drag-handle {
+  cursor: grab;
+  opacity: 0.5;
+  margin-right: 8px;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+#tank-archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+#tank-archive-list li {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
+}
+
+#tank-archive-list li:last-child {
+  border-bottom: none;
+}
+
+#tank-archive-list li span.arc-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

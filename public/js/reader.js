@@ -97,9 +97,10 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
     });
     $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${id}`)));
     $(document).on("click.delete-archive", "#delete-archive", () => {
+        const isTank = id.startsWith("TANK_");
         LRR.closeOverlay();
         LRR.showPopUp({
-            text: I18N.ConfirmArchiveDeletion,
+            text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
@@ -108,11 +109,8 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             confirmButtonColor: "#d33",
         }).then((result) => {
             if (result.isConfirmed) {
-                if (id.startsWith("TANK_"))
-                    Server.callAPI(`/api/tankoubons/${id}`, "DELETE", null, null,
-                        () => { document.location.href = "./"; });
-                else
-                Server.deleteArchive(id, () => { document.location.href = "./"; });
+                if (isTank) Server.deleteTankoubon(id, () => { document.location.href = "./"; });
+                else Server.deleteArchive(id, () => { document.location.href = "./"; });
             }
         });
     });
