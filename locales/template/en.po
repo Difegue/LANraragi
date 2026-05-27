@@ -1886,6 +1886,9 @@ msgstr "Error creating Tankoubon"
 msgid "Error adding archives to Tankoubon"
 msgstr "Error adding archives to Tankoubon"
 
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+
 msgid "Merge selection into a Tankoubon"
 msgstr "Merge selection into a Tankoubon"
 

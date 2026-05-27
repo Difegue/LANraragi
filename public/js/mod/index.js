@@ -790,7 +790,18 @@ function mergeSelectionIntoTankoubon() {
 
     if (tankIds.length === 1) {
         // Fold non-tank archives into the existing tankoubon
-        addArchivesToTank(tankIds[0], archiveIds);
+        const tankId = tankIds[0];
+        Server.callAPI(`/api/tankoubons/${tankId}`, "GET", null, I18N.MSMMergeError, (data) => {
+            const tankName = data.result.name;
+            LRR.showPopUp({
+                text: I18N.MSMMergeExistingConfirmText(archiveIds.length, tankName),
+                showCancelButton: true,
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                addArchivesToTank(tankId, archiveIds);
+            });
+        });
     } else {
         // Prompt for a name and create a new tankoubon
         LRR.showPopUp({
