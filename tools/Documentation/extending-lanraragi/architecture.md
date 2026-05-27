@@ -180,6 +180,7 @@ The base architecture is as follows:
 |  |- pinned <- Whether the category is pinned in the index or not
 |
 |- TANK_xxxxxxxxxx <- A Tankoubon. Tankoubons are Redis sorted sets containing some metadata and a list of Archive IDs.
+|  |- progress (-3) <- Reading progress, if server-side progress is enabled
 |  |- tags (-2) <- Additional tags for the Tankoubon. Tanks collate every tag from the archives they contain by default.
 |  |- summary (-1) <- Dedicated summary for the Tankoubon.
 |  |- name (0) <- Name of the Tankoubon.
@@ -248,6 +249,8 @@ The base architecture is as follows:
 |- LRR_UNTAGGED <- Redis set of archive IDs that don't have any tags (except for tags added automatically by the autotagger)
 |
 |- LRR_TITLES <- Redis lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+|
+|- LRR_TANKGROUPED <- Redis set of all Tankoubon IDs + all Archive IDs that aren't in said Tankoubons. This is used when searching with Tank grouping enabled.  
 |
 |- INDEX_***:**** <- Each tag(namespaced or not) has a matching Redis set, with all the IDs that have this tag in their metadata. This is used for search indexing.
 |

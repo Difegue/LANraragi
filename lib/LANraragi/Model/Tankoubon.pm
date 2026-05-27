@@ -238,7 +238,7 @@ sub update_tankoubon ( $tank_id, $data ) {
 
     my ( $result, $err ) = update_metadata( $tank_id, $data );
     if ($result) {
-        my ( $result, $err ) = update_archive_list( $tank_id, $data );
+        ( $result, $err ) = update_archive_list( $tank_id, $data );
     }
 
     return ( $result, $err );
@@ -332,7 +332,10 @@ sub update_archive_list ( $tank_id, $data ) {
 
             # Make removed archives visible in search again unless other tanks contain them
             foreach my $arc_id (@diff) {
-                unless ( get_tankoubons_containing_archive($arc_id) ) {
+                # Have to filter out $tank_id here since it still contains the archive at this point (we haven't called exec, so zrem didn't run)
+                # (This case isn't covered by unit tests as they don't mock multi properly)
+                my @other_tanks = grep { $_ ne $tank_id } get_tankoubons_containing_archive($arc_id);
+                unless ( @other_tanks ) {
                     $redis_search->sadd( "LRR_TANKGROUPED", $arc_id );
                 }
             }
