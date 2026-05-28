@@ -242,7 +242,7 @@ Edit.saveMetadata = function () {
             tags: $("#tagText").val(),
         };
         const archives = $("#tank-archive-list li").map((_, el) => $(el).data("id")).get();
-        Server.callAPIBody(`api/tankoubons/${id}`, "PUT", JSON.stringify({ metadata, archives }),
+        return Server.callAPIBody(`api/tankoubons/${id}`, "PUT", JSON.stringify({ metadata, archives }),
             I18N.EditMetadataSaved,
             I18N.TankoubonEditError, null)
             .finally(() => {
@@ -254,7 +254,7 @@ Edit.saveMetadata = function () {
         formData.append("tags", $("#tagText").val());
         formData.append("title", $("#title").val());
         formData.append("summary", $("#summary").val());
-        Server.callAPIBody(`api/archives/${id}/metadata`, "PUT", formData,
+        return Server.callAPIBody(`api/archives/${id}/metadata`, "PUT", formData,
             I18N.EditMetadataSaved,
             I18N.EditMetadataError, null)
             .finally(() => {
