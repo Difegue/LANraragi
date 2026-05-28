@@ -244,7 +244,7 @@ Edit.saveMetadata = function () {
         const archives = $("#tank-archive-list li").map((_, el) => $(el).data("id")).get();
         Server.callAPIBody(`api/tankoubons/${id}`, "PUT", JSON.stringify({ metadata, archives }),
             I18N.EditMetadataSaved,
-            I18N.TankoubonEditError, null)
+            I18N.TankoubonEditError, null, "application/json")
             .finally(() => {
                 Edit.showTags();
             });
