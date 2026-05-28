@@ -3402,7 +3402,7 @@ paths:
           description: Page of the Archives list. You can use -1 to return all archives if needed.  
           schema:
             type: integer
-            default: 0
+            default: -1
       responses:
         '200':
           description: Tankoubon

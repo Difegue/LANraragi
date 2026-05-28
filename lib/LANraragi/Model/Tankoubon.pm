@@ -121,13 +121,11 @@ sub create_tankoubon ( $name, $tank_id ) {
 # get_tankoubon(tankoubonid, fulldata, page)
 #   Returns the Tankoubon matching the given id.
 #   Returns undef if the id doesn't exist.
-sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
+sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1 ) {
 
     my $logger      = get_logger( "Tankoubon", "lanraragi" );
     my $redis       = LANraragi::Model::Config->get_redis;
     my $keysperpage = LANraragi::Model::Config->get_pagesize;
-
-    $page //= 0;
 
     if ( $tank_id eq "" ) {
         $logger->debug("No Tankoubon ID provided.");
