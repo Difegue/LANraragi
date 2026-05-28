@@ -1017,9 +1017,6 @@ export function handleContextMenu(option, id) {
         case "edit":
             LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${id}`));
             break;
-        case "edit-tank":
-            LRR.openInNewTab(new LRR.ApiURL(`/tankoubon?arcid=${id}`));
-            break;
         case "delete": {
             const isTank = id.startsWith("TANK_");
             LRR.showPopUp({

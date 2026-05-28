@@ -246,9 +246,7 @@
 							},
 							[% IF userlogged %]
 							"sep1": "---------",
-							...(isTankoubon ?
-								{ "edit-tank": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } } :
-								{ "edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" } }),
+							"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
 							"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
 								"rating": {
 								    "name": "[% c.lh('Add Rating') %]",
