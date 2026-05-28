@@ -973,7 +973,7 @@ export function migrateProgress() {
                 `api/tankoubons/${id}/progress/${progress}?force=1` : 
                 `api/archives/${id}/progress/${progress}?force=1`;
 
-            promises.push(fetch(metadataUrl), { method: "GET" })
+            const promise = fetch(metadataUrl, { method: "GET" })
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further
@@ -988,6 +988,7 @@ export function migrateProgress() {
                     localStorage.removeItem(`${id}-reader`);
                     localStorage.removeItem(`${id}-totalPages`);
                 });
+            promises.push(promise);
         });
 
         Promise.all(promises).then(() => LRR.toast({

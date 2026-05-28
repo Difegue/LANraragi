@@ -1799,7 +1799,7 @@ function generateThumbnails() {
             if (Object.hasOwn(notes, i) && notes[i] === "processed") {
 
                 const startPage = id.startsWith("TANK_") ?
-                    content.chapters.find(ch => ch.arcId === notes.id).startPage :
+                    content.chapters.find(ch => ch.id === notes.id).startPage :
                     1;
 
                 const index = startPage + i - 2; // 0-based global
