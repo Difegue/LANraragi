@@ -44,9 +44,21 @@ export function callAPI(endpoint, method, successMessage, errorMessage, successC
         .catch((error) => LRR.showErrorToast(errorMessage, error));
 }
 
-export function callAPIBody(endpoint, method, body, successMessage, errorMessage, successCallback) {
+/**
+ *
+ * @param {*} endpoint URL endpoint
+ * @param {*} method GET/PUT/DELETE/POST
+ * @param {*} body Request body
+ * @param {*} successMessage Message written in the toast if request succeeded (success = 1)
+ * @param {*} errorMessage Header of the error message if request fails (success = 0)
+ * @param {*} successCallback called if request succeeded
+ * @param {*} contentType content type
+ * @returns The result of the callback, or NULL.
+ */
+export function callAPIBody(endpoint, method, body, successMessage, errorMessage, successCallback, contentType = null) {
     let endpointUrl = new LRR.ApiURL(endpoint);
-    return fetch(endpointUrl, { method, body })
+    const headers = contentType ? { "Content-Type": contentType } : undefined;
+    return fetch(endpointUrl, { method, body, headers })
         .then((response) => response.json())
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
