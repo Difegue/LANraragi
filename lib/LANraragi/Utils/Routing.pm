@@ -68,6 +68,14 @@ sub apply_routes {
     # Routers used for all loginless routes
     my $public_routes = $self->routes;
 
+    $public_routes->get( '/js/:version/*filepath' => [ version => qr/\d+\.\d+\.\d+/ ] )->to(
+        cb => sub {
+            my $c = shift;
+            $c->res->headers->cache_control('public, max-age=31536000, immutable');
+            $c->reply->static( 'js/' . $c->stash('filepath') );
+        }
+    );
+
     # Normal route to controller
     $public_routes->get('/login')->to('login#index');
     $public_routes->post('/login')->to('login#check');

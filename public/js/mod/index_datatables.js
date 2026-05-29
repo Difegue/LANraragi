@@ -1,8 +1,8 @@
 /**
  * All the Archive Index functions related to DataTables.
  */
-import * as LRR from "mod/common";
-import * as Index from "mod/index";
+import * as LRR from "./common.js";
+import * as Index from "./index.js";
 import I18N from "i18n";
 
 export let dataTable = {};

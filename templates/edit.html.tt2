@@ -32,7 +32,7 @@
 	<script src="[% c.url_for("/js/edit.js?$version") %]" type="module"></script>
 
 	<script type="module">
-		import * as IndexTable from "mod/index_datatables";
+		import * as IndexTable from "[% c.url_for("/js/$version/mod/index_datatables.js") %]";
 
 		jQuery(() => {
 			window.IndexTable = IndexTable;

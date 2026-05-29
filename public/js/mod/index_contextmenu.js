@@ -1,10 +1,10 @@
 
 // #region Archive Context Menu
 
-import * as LRR from "mod/common";
-import * as Server from "mod/server";
-import * as Index from "mod/index";
-import * as IndexTable from "mod/index_datatables";
+import * as LRR from "./common.js";
+import * as Server from "./server.js";
+import * as Index from "./index.js";
+import * as IndexTable from "./index_datatables.js";
 import I18N from "i18n";
 
 let pseudoCopyBtn = undefined;

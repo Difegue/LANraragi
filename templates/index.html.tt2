@@ -37,10 +37,10 @@
 	<script src="[% c.url_for("/js/vendor/clipboard.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script type="module">
-		import * as Index from "mod/index";
-		import * as IndexTable from "mod/index_datatables";
-		import * as LRR from "mod/common";
-		import * as ContextMenu from "mod/index_contextmenu";
+		import * as Index from "[% c.url_for("/js/$version/mod/index.js") %]";
+		import * as IndexTable from "[% c.url_for("/js/$version/mod/index_datatables.js") %]";
+		import * as LRR from "[% c.url_for("/js/$version/mod/common.js") %]";
+		import * as ContextMenu from "[% c.url_for("/js/$version/mod/index_contextmenu.js") %]";
 
 		jQuery(() => {
 			[% IF usingdefpass %]

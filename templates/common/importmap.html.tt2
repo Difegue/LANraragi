@@ -1,28 +1,23 @@
 <script type="importmap">
     {
         "imports": {
-            "mod/common": "[% c.url_for("/js/mod/common.js?$version") %]",
-            "mod/server": "[% c.url_for("/js/mod/server.js?$version") %]",
-            "mod/index": "[% c.url_for("/js/mod/index.js?$version") %]",
-            "mod/index_datatables": "[% c.url_for("/js/mod/index_datatables.js?$version") %]",
-            "mod/index_contextmenu": "[% c.url_for("/js/mod/index_contextmenu.js?$version") %]",
             "i18n": "[% c.url_for("/js/i18n.js?$version") %]",
-            "fscreen": "[% c.url_for("/js/vendor/fscreen.esm.js") %]",
+            "fscreen": "[% c.url_for("/js/$version/vendor/fscreen.esm.js") %]",
 
-            "preact": "[% c.url_for("/js/vendor/preact.module.js") %]",
-            "preact/hooks": "[% c.url_for("/js/vendor/hooks.module.js") %]",
-            "preact/compat": "[% c.url_for("/js/vendor/compat.module.js") %]",
-            "htm": "[% c.url_for("/js/vendor/htm.js?$version") %]",
-            "clsx": "[% c.url_for("/js/vendor/clsx.m.js") %]",
-            "react-toastify": "[% c.url_for("/js/vendor/react-toastify.esm.js") %]",
+            "preact": "[% c.url_for("/js/$version/vendor/preact.module.js") %]",
+            "preact/hooks": "[% c.url_for("/js/$version/vendor/hooks.module.js") %]",
+            "preact/compat": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
+            "htm": "[% c.url_for("/js/$version/vendor/htm.js") %]",
+            "clsx": "[% c.url_for("/js/$version/vendor/clsx.m.js") %]",
+            "react-toastify": "[% c.url_for("/js/$version/vendor/react-toastify.esm.js") %]",
 
-			"react": "[% c.url_for("/js/vendor/compat.module.js") %]",
-			"react-dom": "[% c.url_for("/js/vendor/compat.module.js") %]",
+            "react": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
+            "react-dom": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
 
-            "marked": "[% c.url_for("/js/vendor/marked.esm.js?$version") %]",
-            "dompurify": "[% c.url_for("/js/vendor/purify.js?$version") %]",
+            "marked": "[% c.url_for("/js/$version/vendor/marked.esm.js?$version") %]",
+            "dompurify": "[% c.url_for("/js/$version/vendor/purify.js?$version") %]",
 
-			"sweetalert2": "[% c.url_for("/js/vendor/sweetalert2.esm.min.js") %]"
+            "sweetalert2": "[% c.url_for("/js/$version/vendor/sweetalert2.esm.min.js") %]"
         }
     }
 </script>
