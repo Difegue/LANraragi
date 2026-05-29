@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2026-05-25 16:11+0000\n"
+"PO-Revision-Date: 2026-05-30 08:01+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -2135,3 +2135,61 @@ msgstr "Nama stempel"
 
 msgid "Error setting up the Stamp"
 msgstr "Galat mengatur Stempel"
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "Menyunting %1 (Tankoubon)"
+
+msgid "Delete Tankoubon"
+msgstr "Hapus Tankoubon"
+
+msgid "Read Tankoubon"
+msgstr "Baca Tankoubon"
+
+msgid "Archives:"
+msgstr "Arsip:"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "Tambahkan arsip ke Tankoubon:"
+
+msgid "Archive ID (40-character long)"
+msgstr "ID Arsip (40 karakter)"
+
+msgid "Add"
+msgstr "Tambah"
+
+msgid "Edit Tankoubon"
+msgstr "Sunting Tankoubon"
+
+msgid "Error saving tankoubon metadata"
+msgstr "Galat menyimpan metadata tankoubon"
+
+msgid "Remove from Tankoubon"
+msgstr "Hapus dari Tankoubon"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"Apakah Anda yakin ingin menghapus tankoubon ini? Arsip akan tetap ada di "
+"perpustakaan Anda tetapi tidak akan lagi dikelompokkan."
+
+msgid "Tankoubon deleted"
+msgstr "Tankoubon dihapus"
+
+msgid "Error deleting tankoubon"
+msgstr "Galat menghapus tankoubon"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "Galat menambahkan arsip ke Tankoubon"
+
+msgid "About Tankoubons"
+msgstr "Tentang Tankoubon"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"Tankoubon adalah kumpulan terpadu dari arsip. <br/>Anda dapat mengubah "
+"urutan arsip yang terkandung di sini dengan menyeret pegangan di sebelah "
+"kiri, serta menghapus arsip dari Tankoubon.<br/> Pastikan untuk mengklik "
+"Simpan setelah Anda puas dengan perubahannya."
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr ""
+"Ini akan menggabungkan ${n} arsip ke dalam Tankoubon ${name}. Lanjutkan?"
