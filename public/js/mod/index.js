@@ -964,23 +964,40 @@ export function migrateProgress() {
 
         const promises = [];
         localProgressKeys.forEach((id) => {
-            const progress = localStorage.getItem(`${id}-reader`);
-            const metadataUrl = id.startsWith("TANK_") ? 
+            const progress  = localStorage.getItem(`${id}-reader`);
+            const isTank    = id.startsWith("TANK_");
+
+            const metadataUrl = isTank ? 
                 new LRR.ApiURL(`api/tankoubons/${id}`) : 
                 new LRR.ApiURL(`api/archives/${id}/metadata`);
 
-            const progressUrl = id.startsWith("TANK_") ? 
+            const progressUrl = isTank ? 
                 `api/tankoubons/${id}/progress/${progress}?force=1` : 
                 `api/archives/${id}/progress/${progress}?force=1`;
 
             const promise = fetch(metadataUrl, { method: "GET" })
-                .then((response) => response.json())
+                .then((response) => {
+                    if (response.status === 404) {
+                        localStorage.removeItem(`${id}-reader`);
+                        localStorage.removeItem(`${id}-totalPages`);
+                        return null;
+                    }
+                    if (!response.ok) {
+                        // eslint-disable-next-line no-console
+                        console.warn(`Failed to migrate progress for ${id} (status ${response.status})`);
+                        return null;
+                    }
+                    return response.json();
+                })
                 .then((data) => {
+                    if (!data) return;
+
+                    const serverProgress = isTank ? data.result.progress : data.progress;
+
                     // Don't migrate if the server progress is already further
                     if (progress !== null
-                        && data !== undefined
-                        && data !== null
-                        && progress > data.progress) {
+                        && serverProgress !== undefined
+                        && progress > serverProgress) {
                         Server.callAPI(progressUrl, "PUT", null, I18N.LocalProgressionError, null);
                     }
 
