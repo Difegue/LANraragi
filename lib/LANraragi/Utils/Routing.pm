@@ -71,8 +71,12 @@ sub apply_routes {
     $public_routes->get( '/js/:version/*filepath' => [ version => qr/\d+\.\d+\.\d+/ ] )->to(
         cb => sub {
             my $c = shift;
+
+            my $relFilePath = Mojo::Path->new( "/js/" . $c->stash('filepath') )->canonicalize;
+            return $c->reply->exception('Bad Request') unless index( $relFilePath, ".." ) == -1;
+
             $c->res->headers->cache_control('public, max-age=31536000, immutable');
-            $c->reply->static( 'js/' . $c->stash('filepath') );
+            $c->reply->static($relFilePath);
         }
     );
 
