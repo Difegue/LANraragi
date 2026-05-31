@@ -73,7 +73,7 @@ sub apply_routes {
             my $c = shift;
 
             my $relFilePath = Mojo::Path->new( "/js/" . $c->stash('filepath') )->canonicalize;
-            return $c->reply->exception('Bad Request') unless index( $relFilePath, ".." ) == -1;
+            return $c->reply->exception('Bad Request') unless is_traversal_safe($relFilePath);
 
             $c->res->headers->cache_control('public, max-age=31536000, immutable');
             $c->reply->static($relFilePath);
@@ -150,6 +150,13 @@ sub apply_routes {
 
     $search_api->get('/search')->to('api-search#handle_datatables');
 
+}
+
+sub is_traversal_safe {
+    my $filepath = shift;
+
+    die("Incorrect parameter type, pass a Mojo::Path") if !( $filepath->isa('Mojo::Path') );
+    return index( $filepath->canonicalize, ".." ) == -1 ? 1 : 0;
 }
 
 1;
