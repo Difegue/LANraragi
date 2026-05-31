@@ -1977,12 +1977,6 @@ async function requestWakeLock() {
         console.error("Error acquiring wake lock:", err);
     }
 }
-// Browser releases the wake lock when the tab is hidden so we need to reacquire it
-document.addEventListener("visibilitychange", async () => {
-    if (autoNextPage && wakeLock !== null && document.visibilityState === "visible") {
-        await requestWakeLock();
-    }
-});
 
 function releaseWakeLock() {
     if (wakeLock !== null) {
