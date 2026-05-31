@@ -1,14 +1,15 @@
 /**
- * Functions to navigate in reader with the keyboard.
- * Also handles the thumbnail archive explorer.
+ * Reader main entrypoint and shared functionality.
  */
 import * as Server from "./server.js";
 import * as LRR from "./common.js";
 import I18N from "i18n";
 import fscreen from "fscreen";
+import { initializeStamps, updateStamps, renderMarkers, clearMarkers } from "./reader_stamps.js";
+import { initializeArchiveOverlay, toggleArchiveOverlay, updateArchiveOverlay, removeCategoryBadge } from "./reader_archive_overlay.js";
+import { initializeSettings, toggleSettingsOverlay, toggleMangaMode, toggleDoublePageMode } from "./reader_options.js";
 
-
-let state = {
+export let state = {
     id: "",
     force: false,
     previousPage: -1,
@@ -63,8 +64,8 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     initializeSettings();
     initFullscreen();
     applyContainerWidth();
-    registerPreload();
-    registerAutoNextPage();
+    initializeStamps();
+    initializeArchiveOverlay();
     document.documentElement.style.scrollBehavior = "smooth";
 
     // Bind events to DOM
@@ -73,20 +74,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     $(document).on("keydown", (e) => { if (e.which === 32) handleShortcuts(e); });
     $(document).on("wheel", handleWheel);
 
-    $(document).on("click.toggle-fit-mode", "#fit-mode input", toggleFitMode);
-    $(document).on("click.toggle-double-mode", "#toggle-double-mode input", toggleDoublePageMode);
-    $(document).on("click.toggle-manga-mode", "#toggle-manga-mode input, .reading-direction", toggleMangaMode);
-    $(document).on("click.toggle-header", "#toggle-header input", toggleHeader);
-    $(document).on("click.toggle-progress", "#toggle-progress input", toggleProgressTracking);
-    $(document).on("click.toggle-infinite-scroll", "#toggle-infinite-scroll input", toggleInfiniteScroll);
-    $(document).on("click.toggle-overlay", "#toggle-overlay input", toggleOverlayByDefault);
-    $(document).on("submit.container-width", "#container-width-input", registerContainerWidth);
-    $(document).on("click.container-width", "#container-width-apply", registerContainerWidth);
-    $(document).on("submit.preload", "#preload-input", registerPreload);
-    $(document).on("click.preload", "#preload-apply", registerPreload);
     $(document).on("click.pagination-change-pages", ".page-link", handlePaginator);
-    $(document).on("submit.auto-next-page", "#auto-next-page-input", registerAutoNextPage);
-    $(document).on("click.auto-next-page", "#auto-next-page-apply", registerAutoNextPage);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.toggle-full-screen", "#toggle-full-screen", (e) => {
@@ -95,171 +83,11 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         toggleFullScreen();
     });
     $(document).on("click.toggle-auto-next-page", ".toggle-auto-next-page", toggleAutoNextPage);
-    $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", toggleArchiveOverlay);
-    $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", toggleHelp);
-    $(document).on("click.toggle-stamps", "#toggle-stamps", toggleStamps);
     $(document).on("click.toggle-bookmark", ".toggle-bookmark", toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.ApiURL(`/reader?id=${state.id}&force_reload`);
     });
-    $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${state.id}`)));
-    $(document).on("click.delete-archive", "#delete-archive", () => {
-        const isTank = state.id.startsWith("TANK_");
-        LRR.closeOverlay();
-        LRR.showPopUp({
-            text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
-            icon: "warning",
-            showCancelButton: true,
-            focusConfirm: false,
-            confirmButtonText: I18N.ConfirmYes,
-            reverseButtons: true,
-            confirmButtonColor: "#d33",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                if (isTank) Server.deleteTankoubon(state.id, () => { document.location.href = "./"; });
-                else Server.deleteArchive(state.id, () => { document.location.href = "./"; });
-            }
-        });
-    });
-    $(document).on("click.add-category", "#add-category", () => {
-        if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
-        Server.addArchiveToCategory(state.id, $("#category").val());
-        const categoryId = $("#category").val();
-        addCategoryBadge(categoryId);
-
-        // Turn ON bookmark icon.
-        if ($("#category").val() == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("far fa-bookmark")
-                .addClass("fas fa-bookmark");
-        }
-    });
-    $(document).on("click.remove-category", ".remove-category", (e) => {
-        e.preventDefault();
-        const catId = $(e.target).attr("data-id");
-        Server.removeArchiveFromCategory(state.id, $(e.target).attr("data-id"));
-        $(e.target).closest(".gt").remove();
-        // Turn OFF the bookmark icon
-        if (catId == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("fas fa-bookmark")
-                .addClass("far fa-bookmark");
-        }
-    });
-
-    $(document).on("click.add-toc", ".add-toc", (e) => { 
-        const page = +$(e.target).closest("div[page]").attr("page") + 1; 
-        addTocSection(page);
-
-        // Stop event propagation to avoid going to page
-        e.stopPropagation();
-    });
-    $(document).on("click.edit-toc", ".edit-toc", () => addTocSection(state.currentChapter.startPage, state.currentChapter.name));
-    $(document).on("click.remove-toc", ".remove-toc", removeTocSection);
-
-    $(document).on("click.set-thumbnail", ".set-thumbnail", (e) => {
-        const pageNumber = +$(e.target).closest("div[page]").attr("page") + 1;
-
-        if (state.id.startsWith("TANK_")) {
-            Server.callAPI(`/api/tankoubons/${state.id}/thumbnail?page=${pageNumber}`,
-                "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
-        } else {
-            Server.callAPI(`/api/archives/${state.id}/thumbnail?page=${pageNumber}`,
-                "PUT", I18N.ReaderUpdateThumbnail(pageNumber), I18N.ReaderUpdateThumbnailError, null);
-        }
-
-        // Stop event propagation to avoid going to page
-        e.stopPropagation();
-    });
-
-    $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
-        LRR.closeOverlay();
-        const pageNumber = +$(e.target).closest("div[page]").attr("page");
-        goToPage(pageNumber);
-    });
-
-    $(document).on("click.reader-image", ".reader-image", (e) => {
-        if (!state.markerMode) return;
-
-        $(".reader-image").css("cursor", "");
-        $(".reader-image").css("z-index", 19);
-
-        // Compute marker position
-        // This basically estimates the percentage of the width and legth of the image
-        // where the user clicked, so later from this percentage can be reversed
-        // without being affected by if the image got scaled up or down
-        const img = e.currentTarget;
-
-        const rect = img.getBoundingClientRect();
-
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-
-        const xPercent = (clickX / rect.width) * 100;
-        const yPercent = (clickY / rect.height) * 100;
-
-        const markerData = {
-            x: xPercent,
-            y: yPercent,
-            name: `Marker`,
-            left: true,
-        };
-
-        let page = state.currentPage + 1;
-
-        if (state.doublePageMode && state.currentPage > 0
-            && state.currentPage < state.maxPage) {
-            if (img.id == "img_doublepage") {
-                page += 1;
-                markerData.left = false;
-            }
-        }
-        LRR.showPopUp({
-            title: I18N.StampName,
-            input: "text",
-            inputPlaceholder: I18N.StampPlaceholder,
-            inputAttributes: {
-                autocapitalize: "off",
-            },
-            showCancelButton: true,
-            reverseButtons: true,
-        }).then((result) => {
-            $("#overlay-page").hide();
-            state.markerMode = false;
-            if (result.isConfirmed && result.value.trim() !== "") {
-                const { arcId, localPage } = getArchiveForPage(page);
-                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, 
-                    "PUT", "Stamp added!", I18N.StampError,
-                    (data) => {
-                        markerData.id = data["stamp_id"];
-                        markerData.name = result.value;
-
-                        state.markers.push(markerData);
-                        renderMarkers();
-                        checkStampedPages();
-                    }
-                );
-            } else {
-                renderMarkers();
-            }
-        });
-        e.stopPropagation();
-    });
-
-    // Press esc to cancel set stamp action
-    $(document).on("keydown", (e) => {
-        e.stopPropagation();
-        if (e.key === "Escape" && state.markerMode) {
-            $("#overlay-page").hide();
-            state.markerMode = false;
-            renderMarkers();
-            state.pageNaviState = true;
-            $(".reader-image").css("cursor", "");
-            $(".reader-image").css("z-index", 19);
-        }
-    });
-    $(document).on("click.filter-stamped", "#filter-stamped", filterStampedOverlay);
 
     // Return to index, re-applying the search/page state the user came from
     $(document).on("click.return-to-index", "#return-to-index", () => {
@@ -440,14 +268,14 @@ export function loadContentData() {
  * @param {number} globalPage global page number
  * @returns {{ arcId: string, localPage: number }}
  */
-function getArchiveForPage(globalPage) {
+export function getArchiveForPage(globalPage) {
     if (state.id.startsWith("TANK_")) {
         const arc = state.content.chapters.find(a => globalPage >= a.startPage && globalPage <= a.endPage);
         if (arc)
             return { arcId: arc.id, localPage: globalPage - arc.startPage + 1 };
     }
     return { arcId: state.id, localPage: globalPage };
-};
+}
 
 /**
  * Adds a removable category flag to the categories section within archive overview.
@@ -462,64 +290,6 @@ export function addCategoryBadge(categoryId) {
             style="margin-left:4px; margin-right:2px">×</a>
     </a>`;
     $("#archive-categories").append(html);
-}
-
-export function removeCategoryBadge(categoryId) {
-    $(`#archive-categories a.remove-category[data-id="${categoryId}"]`).closest(".gt").remove();
-}
-
-export function addTocSection(page, currentTitle = null) {
-
-    LRR.closeOverlay(); 
-    LRR.showPopUp({
-        title: I18N.ReaderTocPrompt,
-        input: "text",
-        inputPlaceholder: currentTitle || I18N.UntitledChapter, 
-        inputAttributes: {
-            autocapitalize: "off",
-        },
-        showCancelButton: true,
-        reverseButtons: true,
-    }).then((result) => {
-        if (result.isConfirmed && result.value.trim() !== "") {
-            const { arcId, localPage } = getArchiveForPage(page);
-            Server.callAPI(`/api/archives/${arcId}/toc?page=${localPage}&title=${result.value}`, "PUT", "Chapter added!", I18N.ReaderTocError,
-                () => loadContentData().then(() => {
-                    updateArchiveOverlay(true);
-                    toggleArchiveOverlay();
-                    goToPage(page);
-                })
-            );
-        } else {
-            toggleArchiveOverlay();
-        }
-    });
-}
-
-export function removeTocSection() {
-
-    LRR.closeOverlay(); 
-    LRR.showPopUp({
-        text: I18N.ReaderDeleteTocPrompt,
-        icon: "warning",
-        showCancelButton: true,
-        focusConfirm: false,
-        confirmButtonText: I18N.ConfirmYes,
-        reverseButtons: true,
-        confirmButtonColor: "#d33",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { arcId, localPage } = getArchiveForPage(state.currentChapter.startPage);
-            Server.callAPI(`/api/archives/${arcId}/toc?page=${localPage}`, "DELETE", "Chapter removed!", I18N.ReaderTocError,
-                () => loadContentData().then(() => {
-                    updateArchiveOverlay(true);
-                    toggleArchiveOverlay();
-                })
-            );
-        } else {
-            toggleArchiveOverlay();
-        }
-    });
 }
 
 export function loadImages() {
@@ -607,55 +377,6 @@ export function loadImages() {
             (data) => onLoad(data.pages),
         ).finally(onFinally);
     }
-}
-
-export function initializeSettings() {
-    // Initialize settings and button toggles
-    if (localStorage.hideHeader === "true" || false) {
-        $("#hide-header").addClass("toggled");
-        $("#i2").hide();
-    } else {
-        $("#show-header").addClass("toggled");
-    }
-
-    state.mangaMode = localStorage.mangaMode === "true" || false;
-    if (state.mangaMode) {
-        $("#manga-mode").addClass("toggled");
-        $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
-    } else {
-        $("#normal-mode").addClass("toggled");
-    }
-
-    state.doublePageMode = localStorage.doublePageMode === "true" || false;
-    state.doublePageMode ? $("#double-page").addClass("toggled") : $("#single-page").addClass("toggled");
-
-    state.ignoreProgress = localStorage.ignoreProgress === "true" || false;
-    state.ignoreProgress ? $("#untrack-progress").addClass("toggled") : $("#track-progress").addClass("toggled");
-
-    state.infiniteScroll = localStorage.infiniteScroll === "true" || false;
-    $(state.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
-
-    state.showOverlayByDefault = localStorage.showOverlayByDefault === "true" || false;
-    $(state.showOverlayByDefault ? "#show-overlay" : "#hide-overlay").addClass("toggled");
-
-    if (localStorage.fitMode === "fit-width") {
-        state.fitMode = "fit-width";
-        $("#fit-width").addClass("toggled");
-        $("#container-width").hide();
-    } else if (localStorage.fitMode === "fit-height") {
-        state.fitMode = "fit-height";
-        $("#fit-height").addClass("toggled");
-        $("#container-width").hide();
-    } else {
-        state.fitMode = "fit-container";
-        $("#fit-container").addClass("toggled");
-    }
-
-    state.containerWidth = localStorage.containerWidth;
-    if (state.containerWidth) { $("#container-width-input").val(state.containerWidth); }
-
-    state.markersVisible = localStorage.markersVisible === "true" || false;
-    $("#toggle-stamps").prop("checked", state.markersVisible);
 }
 
 function initFullscreen() {
@@ -827,11 +548,6 @@ function handleShortcuts(e) {
             sessionStorage.removeItem("navigationState");
             document.location.href = new LRR.ApiURL("/random");
             break;
-        case 83: // s
-            if (!state.infiniteScroll) {
-                addStamp();
-            }
-            break;
         default:
             break;
     }
@@ -933,12 +649,12 @@ function spaceScrollProcessInput(e) {
 
 function handleWheel(e) {
     if (fscreen.inFullscreen() && !state.infiniteScroll) {
-        let changePage = 1;
-        if (e.originalEvent.deltaY > 0) changePage = -1;
+        let changePageNum = 1;
+        if (e.originalEvent.deltaY > 0) changePageNum = -1;
         // In Manga mode, reverse the changePage variable
         // so that we always move forward
-        if (!state.mangaMode) changePage *= -1;
-        changePage(changePage, true);
+        if (!state.mangaMode) changePageNum *= -1;
+        changePage(changePageNum, true);
     }
 }
 
@@ -984,247 +700,6 @@ function toggleHelp() {
     return false;
     // all toggable panes need to return false to avoid scrolling to top
 }
-
-function addStamp() {
-    if (state.infiniteScroll) return;
-    if (!LRR.isUserLogged()) return;
-    state.markerMode = true;
-    clearMarkers();
-    $(".reader-image").css("cursor", "cell");
-    $(".reader-image").css("z-index", 22);
-    $("#overlay-page").show();
-}
-
-function createMarkerElement(markerData, index) {
-    if (state.infiniteScroll) return;
-    const img = markerData.left
-        ? document.getElementById("img")
-        : document.getElementById("img_doublepage");
-
-
-    const display = document.getElementById("display");
-    const container = document.getElementById("i1");
-
-    const marker = document.createElement("div");
-    marker.className = "marker marker-context-menu";
-
-    // Compute the px coordinates from the percentage based coordinates
-    const rect = img.getBoundingClientRect();
-    const xPx = (markerData.x / 100) * rect.width;
-    const yPx = (markerData.y / 100) * rect.height;
-
-    const containerRect = container.getBoundingClientRect();
-
-    let leftFix = rect.left - containerRect.left;
-    let topFix = rect.top - containerRect.top;
-
-    if (!markerData.left) {
-        // Add the width of the left page plus the left and right margin
-        const img = document.getElementById("img");
-        leftFix += img.width+2;
-    }
-
-    marker.style.left = `${leftFix + xPx}px`;
-    marker.style.top = `${topFix + yPx}px`;
-
-    marker.title = markerData.name;
-    marker.dataset.index = index;
-
-    // Edit
-    let isDragging = false;
-
-    marker.addEventListener("mousedown", (e) => {
-        if (e.button !== 0) return;
-        e.stopPropagation();
-        isDragging = true;
-
-        // So no text gets selected during the D&D
-        document.body.style.userSelect = "none";
-        state.pageNaviState = false;
-    });
-
-    document.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-
-        const imgRect = img.getBoundingClientRect();
-        const dispRect = display.getBoundingClientRect();
-
-        // Ensure that the stamp remains inside the image
-        let x = e.clientX - imgRect.left + leftFix;
-        let y = e.clientY - imgRect.top + topFix;
-
-        x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
-        y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
-
-        marker.style.left = `${imgRect.left + x - dispRect.left}px`;
-        marker.style.top = `${imgRect.top + y - dispRect.top}px`;
-    });
-
-    document.addEventListener("mouseup", (e) => {
-        e.stopPropagation();
-        // Each marker individually run this event when on mouseup
-        // this line ensures that only one of them execute the action
-        // also a good improvement would be to change this to an attachable event only for the dragged marker
-        if (!isDragging) return;
-
-        isDragging = false;
-        document.body.style.userSelect = "auto";
-
-        const imgRect = img.getBoundingClientRect();
-
-        let x = e.clientX - imgRect.left;
-        let y = e.clientY - imgRect.top;
-
-        x = Math.max(0, Math.min(x, imgRect.width));
-        y = Math.max(0, Math.min(y, imgRect.height));
-
-        const xPercent = (x / imgRect.width) * 100;
-        const yPercent = (y / imgRect.height) * 100;
-
-        const i = marker.dataset.index;
-        let inputValue = markerData.name;
-
-        Server.callAPI(`/api/stamps/${markerData.id}?position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError,
-            () => {
-                state.markers[i].x = xPercent;
-                state.markers[i].y = yPercent;
-
-                state.pageNaviState = true;
-                renderMarkers();
-            }
-        );
-    });
-
-    display.appendChild(marker);
-}
-
-function renderMarkers() {
-    if (state.infiniteScroll || fscreen.inFullscreen()) return;
-    // Clean markers
-    const existing = document.querySelectorAll(".marker");
-    existing.forEach(el => el.remove());
-
-    if (!state.markersVisible) return;
-
-    // Draw markers
-    state.markers.forEach((markerData, index) => {
-        createMarkerElement(markerData, index);
-    });
-}
-
-function clearMarkers() {
-    const existing = document.querySelectorAll(".marker");
-    existing.forEach(el => el.remove());
-}
-
-function toggleStamps() {
-    // Show or hide the markers
-    state.markersVisible = localStorage.markersVisible = !state.markersVisible;
-    renderMarkers();
-}
-
-function loadStamps(currentPage) {
-    if (state.infiniteScroll) return;
-    state.markers = [];
-    const { arcId: id1, localPage: p1 } = getArchiveForPage(currentPage);
-    // Call for the first page
-    Server.callAPI(`/api/archives/${id1}/stamps/${p1}`, "GET", null, I18N.ServerInfoError,
-        (data) => {
-            for (var i = data.result.length - 1; i >= 0; i--) {
-                let markerData = {};
-                let x = data.result[i].position.split(",")[0];
-                let y = data.result[i].position.split(",")[1];
-                markerData.x = x;
-                markerData.y = y;
-                markerData.name = data.result[i].content;
-                markerData.id = data.result[i].id;
-                markerData.left = true;
-                state.markers.push(markerData);
-            }
-
-            if (state.doublePageMode && currentPage > 0
-                && currentPage < state.maxPage) {
-
-                const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
-                // Call for the second page (may be in a different archive for tanks)
-                Server.callAPI(`/api/archives/${id2}/stamps/${p2}`, "GET", null, I18N.ServerInfoError,
-                    (data) => {
-                        for (var i = data.result.length - 1; i >= 0; i--) {
-                            let markerData = {};
-                            let x = data.result[i].position.split(",")[0];
-                            let y = data.result[i].position.split(",")[1];
-                            markerData.x = x;
-                            markerData.y = y;
-                            markerData.name = data.result[i].content;
-                            markerData.id = data.result[i].id;
-                            markerData.left = false;
-                            state.markers.push(markerData);
-                        }
-
-                        // Render markers
-                        renderMarkers();
-                    }
-                );
-            } else {
-                // Render markers
-                renderMarkers();
-            }
-        }
-    );
-}
-
-function handleMarkerContextMenu(option, index) {
-    if (state.infiniteScroll) return;
-    let i = parseInt(index);
-
-    switch (option) {
-        case "editmarker": {
-            let emarker = state.markers[i];
-            let inputValue = emarker.name;
-
-            LRR.showPopUp({
-                title: I18N.StampName,
-                input: "text",
-                inputPlaceholder: I18N.StampPlaceholder,
-                inputAttributes: {
-                    autocapitalize: "off",
-                },
-                inputValue,
-                showCancelButton: true,
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.isConfirmed && result.value.trim() !== "") {
-                    Server.callAPI(`/api/stamps/${emarker.id}?content=${result.value}`, "PUT", "Stamp updated!", I18N.StampError,
-                        () => {
-                            state.markers[i].name = result.value;
-
-                            state.pageNaviState = true;
-                            renderMarkers();
-                        }
-                    );
-                } else {
-                    state.pageNaviState = true;
-                }
-            });
-            break;
-        }
-        case "deletemarker": {
-            let dmarker = state.markers[i];
-            Server.callAPI(`/api/stamps/${dmarker.id}`, "DELETE", "Stamp deleted!", I18N.StampError,
-                () => {
-                    state.markers.splice(i, 1);
-                    renderMarkers();
-                    if (state.markers.length == 0) {
-                        checkStampedPages();
-                    }
-                }
-            );
-            break;
-        }
-        default:
-            break;
-    }
-};
 
 function toggleBookmark(e) {
     e.preventDefault();
@@ -1343,7 +818,7 @@ function updateMetadata() {
     $("#i3").removeClass("loading");
 }
 
-async function goToPage(page) {
+export async function goToPage(page) {
     state.previousPage = state.currentPage;
     state.currentPage = Math.min(state.maxPage, Math.max(0, +page));
 
@@ -1425,9 +900,6 @@ async function goToPage(page) {
 
 function updateProgress() {
     // Clear markers
-    state.markers = [];
-    renderMarkers();
-
     let page = state.currentPage + 1; // progress is 1-indexed
 
     // Send an API request to update progress on the server
@@ -1438,11 +910,8 @@ function updateProgress() {
     } else if (!state.authenticateProgress) {
         Server.updateServerSideProgress(state.id, page);
     }
-
-    // Load stamps
-    if (!state.infiniteScroll) {
-        const stamps = loadStamps(page);
-    }
+    
+    updateStamps(page);
 }
 
 function preloadImages() {
@@ -1474,40 +943,7 @@ async function loadImage(index) {
     return state.preloadedImg[src];
 }
 
-function toggleFitMode(e) {
-    // possible options: fit-container, fit-width, fit-height
-    state.fitMode = localStorage.fitMode = e.target.id;
-    $("#fit-mode input").removeClass("toggled");
-    $(e.target).addClass("toggled");
-
-    if (state.fitMode === "fit-container") {
-        $("#container-width").show();
-    } else {
-        $("#container-width").hide();
-    }
-    applyContainerWidth();
-}
-
-function registerContainerWidth() {
-    // Examples of allowed values: 1200, 1200px, 90%
-    // Default value: 1200px
-    const raw = $("#container-width-input").val().trim();
-    if (!raw) { // fall back to default
-        delete state.containerWidth;
-        localStorage.removeItem("containerWidth");
-    } else {
-        let value, type;
-
-        [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
-        value = value || 1200;
-        type = type || "px";
-
-        state.containerWidth = localStorage.containerWidth = `${value}${type}`;
-    }
-    applyContainerWidth();
-}
-
-function applyContainerWidth() {
+export function applyContainerWidth() {
     $(".reader-image, .sni").attr("style", "");
 
     // If we are in fullscreen don't apply anything
@@ -1537,62 +973,6 @@ function applyContainerWidth() {
     }
 
     renderMarkers();
-}
-
-function registerPreload() {
-    const rawInputVal = $("#preload-input").val();
-    const inputVal = rawInputVal === "" ? null : rawInputVal;
-    const storageVal = (localStorage.preloadCount === "" ? null : localStorage.preloadCount);
-
-    state.preloadCount = inputVal ?? storageVal ?? 2;
-    $("#preload-input").val(state.preloadCount);
-    localStorage.preloadCount = state.preloadCount;
-}
-
-function toggleDoublePageMode() {
-    if (state.infiniteScroll) { return; }
-    state.doublePageMode = localStorage.doublePageMode = !state.doublePageMode;
-    $("#toggle-double-mode input").toggleClass("toggled");
-    goToPage(state.currentPage);
-}
-
-function toggleMangaMode() {
-    if (state.infiniteScroll) { return false; }
-    state.mangaMode = localStorage.mangaMode = !state.mangaMode;
-    $("#toggle-manga-mode input").toggleClass("toggled");
-    $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
-    if (!state.showingSinglePage) { goToPage(state.currentPage); }
-
-    return false;
-}
-
-function toggleHeader() {
-    if (state.infiniteScroll) { return false; }
-    localStorage.hideHeader = $("#i2").is(":visible");
-    $("#toggle-header input").toggleClass("toggled");
-    $("#i2").toggle();
-    applyContainerWidth();
-    return false;
-}
-
-function toggleProgressTracking() {
-    state.ignoreProgress = localStorage.ignoreProgress = !state.ignoreProgress;
-    $("#toggle-progress input").toggleClass("toggled");
-}
-
-function toggleInfiniteScroll() {
-    clearMarkers();
-    state.infiniteScroll = localStorage.infiniteScroll = !state.infiniteScroll;
-    $("#toggle-infinite-scroll input").toggleClass("toggled");
-    window.location.reload();
-}
-
-function registerAutoNextPage() {
-    state.AutoNextPageInterval = +$("#auto-next-page-input").val().trim() || +localStorage.AutoNextPageInterval || 10;
-    $("#auto-next-page-input").val(state.AutoNextPageInterval);
-    localStorage.AutoNextPageInterval = state.AutoNextPageInterval;
-
-    stopAutoNextPage();
 }
 
 function startAutoNextPage() {
@@ -1646,7 +1026,7 @@ function startAutoNextPage() {
     requestWakeLock();
 }
 
-function stopAutoNextPage() {
+export function stopAutoNextPage() {
     state.autoNextPage = false;
     clearInterval(state.autoNextPageCountdownTaskId);
     $(".toggle-auto-next-page").addClass("fa-stopwatch");
@@ -1658,21 +1038,6 @@ function stopAutoNextPage() {
 function toggleAutoNextPage() {
     state.autoNextPage ? stopAutoNextPage() : startAutoNextPage();
     return false; // prevent scrolling to top
-}
-
-function toggleOverlayByDefault() {
-    state.showOverlayByDefault = localStorage.showOverlayByDefault = !state.showOverlayByDefault;
-    $("#toggle-overlay input").toggleClass("toggled");
-}
-
-function toggleSettingsOverlay() {
-    stopAutoNextPage();
-    return toggleOverlay("#settingsOverlay");
-}
-
-function toggleArchiveOverlay() {
-    stopAutoNextPage();
-    return toggleOverlay("#archivePagesOverlay");
 }
 
 function toggleFullScreen() {
@@ -1707,7 +1072,7 @@ function handleFullScreen(enableFullscreen = false) {
     applyContainerWidth();
 }
 
-function getCurrentChapter() {
+export function getCurrentChapter() {
     return findChapterForPage(state.currentPage + 1, state.content.chapters);
 }
 
@@ -1726,150 +1091,6 @@ function findChapterForPage(page, chapters) {
         }
     }
     return null;
-}
-
-function updateArchiveOverlay(forceUpdate = false) {
-    $("#extract-spinner").hide();
-
-    // Check if the overlay actually needs to be updated
-    // If it's already loaded and we're still in the same chapter (or no chapter), do nothing
-    if ($("#archivePagesOverlay").attr("loaded") === "true" && !forceUpdate) {
-
-        if ((state.currentChapter === null) ||
-            (state.currentPage + 1 >= state.currentChapter.startPage &&
-                state.currentPage + 1 <= state.currentChapter.endPage)) {
-            return;
-        }
-    }
-
-    // Reset stamp filter state when the overlay is rebuilt for a new chapter
-    if (state.overlayFiltered) {
-        state.overlayFiltered = false;
-        $("#filter-stamped").removeClass("toggled");
-    }
-
-    // Otherwise, update chapter and overlay -- If there are no chapters defined, just show all pages
-    state.currentChapter = getCurrentChapter();
-    let firstPage = state.currentChapter ? state.currentChapter.startPage : 1;
-    let lastPage = state.currentChapter ? state.currentChapter.endPage : state.pages.length;
-
-    $("#overlay-section").text(state.currentChapter ? state.currentChapter.name : I18N.ReaderPages);
-
-    if (state.currentChapter !== null) {
-        // Create <select> options for jumping to other chapters
-        let chapterOptions = `<select class="favtag-btn" id="chapter-select">`;
-        if (state.content.chapters) {
-            state.content.chapters.forEach((chapter) => {
-                const selected = (state.currentChapter && chapter.startPage === state.currentChapter.startPage) ? "selected" : "";
-                chapterOptions += `<option value="${chapter.startPage}" ${selected}>${LRR.encodeHTML(chapter.name)}</option>`;
-
-                if (chapter.chapters && chapter.chapters.length > 0) {
-                    chapter.chapters.forEach((subChapter) => {
-                        const subSelected = (state.currentChapter && subChapter.startPage === state.currentChapter.startPage) ? "selected" : "";
-                        chapterOptions += `<option value="${subChapter.startPage}" ${subSelected}>&nbsp;&nbsp;&nbsp;${LRR.encodeHTML(subChapter.name)}</option>`;
-                    });
-                }
-            });
-        }
-        chapterOptions += `</select>`;
-
-        if (LRR.isUserLogged() && state.currentChapter.chapters === null ) // Only show edit/delete options for leaf chapters
-            chapterOptions += `<a class="fas fa-pencil-alt edit-toc" href="#" style="padding:8px; font-size:14px" title="${I18N.ReaderEditToc}"/>
-                            <a class="fas fa-trash-alt remove-toc" href="#" style="padding:8px; font-size:14px" title="${I18N.ReaderDeleteToc}"/>`;
-
-        $(".chapter-selector").html(chapterOptions);
-
-        $("#chapter-select").off("change").on("change", function () {
-            goToPage($(this).val() - 1);
-        });
-    } else {
-        $(".chapter-selector").html("");
-    }
-
-    // For each link in the pages array, craft a div and jam it in the overlay.
-    let htmlBlob = "";
-    for (let page = firstPage; page < lastPage + 1; ++page) {
-        const index = page - 1;
-
-        const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        const { arcId, localPage } = getArchiveForPage(page);
-        const thumbnailUrl = new LRR.ApiURL(`/api/archives/${arcId}/thumbnail?page=${localPage}`);
-        
-        let thumbnail = `
-            <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>${I18N.ReaderPage(page)}</span>
-                <img src="${thumbnailUrl}" id="${index}_thumb" loading="lazy" />`;
-        
-        if (LRR.isUserLogged()) 
-            thumbnail += `<a href="#" style="padding:12px; top:2%; left:72%;" 
-                             title="${I18N.ReaderSetPageAsThumbnail}" 
-                             class="fas fa-file-image page-number set-thumbnail"></a>
-                          <a href="#" style="padding:12px; top:80%; left:72%;" 
-                             title="${I18N.ReaderAddToc}" 
-                             class="fas fa-book-medical page-number add-toc"></a>`;
-
-        if (state.pageThumbnails.includes(index)) thumbnail +=
-            `</div>`;
-        else thumbnail += 
-                `<i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
-            </div>`;
-
-        htmlBlob += thumbnail;
-    }
-
-    // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
-    $("#pages-section").html(htmlBlob);
-    $("#archivePagesOverlay").attr("loaded", "true");
-    checkStampedPages();
-}
-
-function checkStampedPages() {
-    const { arcId, localPage } = getArchiveForPage(state.currentPage + 1);
-    Server.callAPI(`/api/archives/${arcId}/stamps/`, "GET", null, I18N.ServerInfoError,
-        (data) => {
-            $("#extract-spinner").hide();
-            cleanStampedPages();
-            let pages = data.result.sort();
-            let elements = $("div.id3.quick-thumbnail");
-
-            for (let element of elements) {
-                let page = parseInt(element.getAttribute("page"));
-                const { _, localPage } = getArchiveForPage(page+1);
-
-                if (pages.includes((localPage).toString())) {
-                    element.dataset.stamped = true;
-                }
-            }
-        }
-    );
-}
-
-function cleanStampedPages() {
-    let elements = $("div.id3.quick-thumbnail[data-stamped=true]");
-
-    for (let element of elements) {
-        delete element.dataset.stamped;
-    }
-}
-
-function filterStampedOverlay() {
-    let elements = $("div.id3.quick-thumbnail");
-
-    if (state.overlayFiltered) {
-        state.overlayFiltered = false;
-        $("#filter-stamped").removeClass("toggled");
-        for (let element of elements) {
-            element.style.display = `inline-block`;
-        }
-    } else {
-        state.overlayFiltered = true;
-        $("#filter-stamped").addClass("toggled");
-        for (let element of elements) {
-            if (!element.dataset.stamped) {
-                element.style.display = `none`;
-            }
-        }
-    }
 }
 
 function generateThumbnails() {
@@ -2265,7 +1486,7 @@ function returnToIndex() {
  * @param {string} selector
  * @returns {boolean}
  */
-function toggleOverlay(selector) {
+export function toggleOverlay(selector) {
     updateArchiveOverlay();
     const overlay = $(selector);
     overlay.is(":visible")
@@ -2274,29 +1495,6 @@ function toggleOverlay(selector) {
 
     return false; // needs to return false to prevent scrolling to top
 }
-window.addEventListener("resize", () => {
-    // Reload the markers everytime the image size changes
-    renderMarkers();
-});
-
-jQuery(() => {
-    $.contextMenu({
-        selector: `.marker-context-menu`,
-        build: ($trigger, e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            return {
-                callback: function (key, options) {
-                    handleMarkerContextMenu(key, $(this).attr("data-index"));
-                },
-                items: {
-                    "editmarker": {"name": "Edit Marker", "icon":"fas fa-pen-to-square"},
-                    "deletemarker": {"name": "Delete Marker", "icon":"fas fa-minus"},
-                }
-            };
-        }
-    });
-});
 
 async function requestWakeLock() {
     if (state.wakeLock !== null) {
