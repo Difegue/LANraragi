@@ -95,7 +95,7 @@ Edit.addArchiveToTank = function () {
         (data) => {
             const li = $(`<li data-id="${arcId}">
                 <i class="fas fa-grip-vertical drag-handle"></i>
-                <span class="arc-title" onmouseover="IndexTable.buildImageTooltip(this)">${data.title}</span>
+                <span class="arc-title" onmouseover="IndexTable.buildImageTooltip(this)">${LRR.encodeHTML(data.title)}</span>
                 <div class="caption" style="display: none;">
                     <img style="height:300px" src='${new LRR.ApiURL("/api/archives/"+arcId+"/thumbnail")}'
                         onerror="this.src='${new LRR.ApiURL("/img/noThumb.png")}'">
