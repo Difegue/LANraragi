@@ -310,6 +310,11 @@ p#nb {
   background-color: #000000;
 }
 
+body.webtoon-mode .reader-image {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
 .reader-image {
   max-width: 100%;
   min-width: 0;
@@ -826,6 +831,10 @@ body.infinite-scroll #preload-images,
 body.infinite-scroll #toggle-header,
 body.infinite-scroll #toggle-double-mode {
   display: none;
+}
+
+body.infinite-scroll #img_doublepage {
+  display: none !important;
 }
 
 body.infinite-scroll #i4 .absolute-options {

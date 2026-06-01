@@ -2,169 +2,148 @@
  * Functions related to the settings dialog
  */
 
-import { state, goToPage, stopAutoNextPage, toggleOverlay, applyContainerWidth } from "./reader_common.js";
-import { clearMarkers } from "./reader_stamps.js";
+import { h, render } from "preact";
+import { useState } from "preact/hooks";
+import htm from "htm";
+
+import { state, stopAutoNextPage, toggleOverlay } from "./reader_common.js";
+import I18N from "i18n";
+
+const html = htm.bind(h);
+
+function ToggleButton({ id, active, onClick, label }) {
+    return html`<input id=${id} class="favtag-btn config-btn ${active ? "toggled" : ""}"
+        type="button" onClick=${onClick} value=${label} />`;
+}
+
+function SettingsPanel() {
+    const [autoNextPageInterval, setAutoNextPageInterval] = useState(state.AutoNextPageInterval.value);
+    const [containerWidth, setContainerWidth] = useState(state.containerWidth.value);
+    const [preloadCount, setPreloadCount] = useState(state.preloadCount.value);
+
+    function updateAutoNextPageInterval() {
+        const val = parseInt(autoNextPageInterval, 10);
+        if (!isNaN(val)) {
+            state.AutoNextPageInterval.value = val;
+        }
+        stopAutoNextPage();
+    }
+
+    function updateContainerWidth() {
+        const raw = containerWidth !== null?containerWidth.trim():"";
+
+        if (!raw)
+        {
+            state.containerWidth.value = null;
+        }
+        else {
+            let value,
+                type;
+
+            [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
+            value = value || 1200;
+            type = type || "px";
+            state.containerWidth.value = `${value}${type}`;
+        }
+    }
+
+    function updatePreloadCount() {
+        state.preloadCount.value = preloadCount;
+    }
+
+    return html`
+        <h2 class="ih" style="text-align:center">${I18N.ReaderOptions}</h2>
+        <h1 class="ih config-panel">${I18N.OptionsAutoSave}</h1>
+
+        <div id="fit-mode">
+            <h2 class="config-panel">${I18N.FitDisplayTo}</h2>
+            <${ToggleButton} id="fit-container" active=${state.fitMode.value === "fit-container"} onClick=${() => state.fitMode.value = "fit-container"} label=${I18N.FitContainer} />
+            <${ToggleButton} id="fit-width" active=${state.fitMode.value === "fit-width"} onClick=${() => state.fitMode.value = "fit-width"} label=${I18N.FitWidth} />
+            <${ToggleButton} id="fit-height" active=${state.fitMode.value === "fit-height"} onClick=${() => state.fitMode.value = "fit-height"} label=${I18N.FitHeight} />
+        </div>
+
+        ${state.fitMode.value === "fit-container" && html`
+        <div id="container-width">
+            <h2 class="config-panel">${I18N.ContainerWidth}</h2>
+            <input id="container-width-input" class="stdinput" style="display:inline; width: 70%;" placeholder=${I18N.ContainerWidthDefaultValue} value=${containerWidth} onInput=${(e) => setContainerWidth(e.target.value)} />
+            <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updateContainerWidth} value=${I18N.Apply} />
+        </div>
+        `}
+
+        ${!state.infiniteScroll.value && html`
+        <div id="toggle-double-mode">
+            <h2 class="config-panel">${I18N.PageRendering}</h2>
+            <${ToggleButton} id="single-page" active=${!state.doublePageMode.value} onClick=${() => state.doublePageMode.value = false} label=${I18N.Single} />
+            <${ToggleButton} id="fit-width" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
+        </div>
+        `}
+
+        ${!state.infiniteScroll.value && html`
+        <div id="toggle-manga-mode">
+            <h2 class="config-panel">${I18N.ReadingDirection}</h2>
+            <span class="config-panel"></span>
+            <${ToggleButton} id="normal-mode" active=${!state.mangaMode.value} onClick=${() => state.mangaMode.value = false} label=${I18N.LeftToRight} />
+            <${ToggleButton} id="manga-mode" active=${state.mangaMode.value} onClick=${() => state.mangaMode.value = true} label=${I18N.RightToLeft} />
+        </div>
+        `}
+
+        ${!state.infiniteScroll.value && html`
+        <div id="preload-images">
+            <h2 class="config-panel">${I18N.HowManyToPreload}</h2>
+            <input id="preload-input" class="stdinput" style="display:inline" placeholder=${I18N.DefaultTwoImages} type="number" value=${preloadCount} onInput=${(e) => setPreloadCount(e.target.value)}  />
+            <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updatePreloadCount} value=${I18N.Apply} />
+        </div>
+        `}
+
+        ${!state.infiniteScroll.value && html`
+        <div id="toggle-header">
+            <h2 class="config-panel">${I18N.Header}</h2>
+            <${ToggleButton} id="show-header" active=${!state.hideHeader.value} onClick=${() => state.hideHeader.value = false} label=${I18N.Visible} />
+            <${ToggleButton} id="hide-header" active=${state.hideHeader.value} onClick=${() => state.hideHeader.value = true} label=${I18N.Hidden} />
+        </div>
+        `}
+
+        <div id="toggle-overlay">
+            <h2 class="config-panel">${I18N.ShowArchiveOverlayByDefault}</h2>
+            <span class="config-panel">${I18N.ShowArchiveOverlayByDefaultDescription}</span>
+            <${ToggleButton} id="show-overlay" active=${state.showOverlayByDefault.value} onClick=${() => state.showOverlayByDefault.value = true} label=${I18N.Enabled} />
+            <${ToggleButton} id="hide-overlay" active=${!state.showOverlayByDefault.value} onClick=${() => state.showOverlayByDefault.value = false} label=${I18N.Disabled} />
+        </div>
+
+        <div id="toggle-progress">
+            <h2 class="config-panel">${I18N.ProgressionTracking}</h2>
+            <span class="config-panel">${I18N.DisableTrackingWillRestartReading}</span>
+            <${ToggleButton} id="track-progress" active=${!state.ignoreProgress.value} onClick=${() => state.ignoreProgress.value = false} label=${I18N.Enabled} />
+            <${ToggleButton} id="untrack-progress" active=${state.ignoreProgress.value} onClick=${() => state.ignoreProgress.value = true} label=${I18N.Disabled} />
+        </div>
+
+        <div id="toggle-infinite-scroll">
+            <h2 class="config-panel">${I18N.InfiniteScrolling}</h2>
+            <span class="config-panel">${I18N.DisplayAllImagesInAVerticalView}</span>
+            <${ToggleButton} id="infinite-scroll-on" active=${state.infiniteScroll.value} onClick=${() => state.infiniteScroll.value = true} label=${I18N.Enabled} />
+            <${ToggleButton} id="infinite-scroll-off" active=${!state.infiniteScroll.value} onClick=${() => state.infiniteScroll.value = false} label=${I18N.Disabled} />
+        </div>
+
+        <div id="auto-next-page">
+            <h2 class="config-panel">${I18N.AutoNextPageIntervalInSeconds}</h2>
+            <input id="auto-next-page-input" class="stdinput" style="display:inline" placeholder=${I18N.TheDefaultIs10Seconds} value=${autoNextPageInterval} onInput=${(e) => setAutoNextPageInterval(e.target.value)} />
+            <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updateAutoNextPageInterval} value=${I18N.Apply} />
+        </div>
+
+        ${!state.infiniteScroll.value && html`
+        <div id="toggle-stamps-visibility">
+            <h2 class="config-panel">${I18N.ToggleStamps}</h2>
+            <input id="toggle-stamps" class="fa" type="checkbox" checked=${state.markersVisible.value} onClick=${() => state.markersVisible.value = !state.markersVisible.value} />
+        </div>
+        `}
+    `;
+}
 
 export function initializeSettings() {
-    registerPreload();
-    registerAutoNextPage();
-
-    $(document).on("click.toggle-fit-mode", "#fit-mode input", toggleFitMode);
-    $(document).on("click.toggle-double-mode", "#toggle-double-mode input", toggleDoublePageMode);
-    $(document).on("click.toggle-manga-mode", "#toggle-manga-mode input, .reading-direction", toggleMangaMode);
-    $(document).on("click.toggle-header", "#toggle-header input", toggleHeader);
-    $(document).on("click.toggle-progress", "#toggle-progress input", toggleProgressTracking);
-    $(document).on("click.toggle-infinite-scroll", "#toggle-infinite-scroll input", toggleInfiniteScroll);
-    $(document).on("click.toggle-overlay", "#toggle-overlay input", toggleOverlayByDefault);
-    $(document).on("submit.container-width", "#container-width-input", registerContainerWidth);
-    $(document).on("click.container-width", "#container-width-apply", registerContainerWidth);
-    $(document).on("submit.preload", "#preload-input", registerPreload);
-    $(document).on("click.preload", "#preload-apply", registerPreload);
-    $(document).on("submit.auto-next-page", "#auto-next-page-input", registerAutoNextPage);
-    $(document).on("click.auto-next-page", "#auto-next-page-apply", registerAutoNextPage);
+    render(
+        html`<${SettingsPanel} />`, document.getElementById("settingsOverlay"));
 
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", toggleSettingsOverlay);
-
-    // Initialize settings and button toggles
-    if (localStorage.hideHeader === "true" || false) {
-        $("#hide-header").addClass("toggled");
-        $("#i2").hide();
-    } else {
-        $("#show-header").addClass("toggled");
-    }
-
-    state.mangaMode = localStorage.mangaMode === "true" || false;
-    if (state.mangaMode) {
-        $("#manga-mode").addClass("toggled");
-        $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
-    } else {
-        $("#normal-mode").addClass("toggled");
-    }
-
-    state.doublePageMode = localStorage.doublePageMode === "true" || false;
-    state.doublePageMode ? $("#double-page").addClass("toggled") : $("#single-page").addClass("toggled");
-
-    state.ignoreProgress = localStorage.ignoreProgress === "true" || false;
-    state.ignoreProgress ? $("#untrack-progress").addClass("toggled") : $("#track-progress").addClass("toggled");
-
-    state.infiniteScroll = localStorage.infiniteScroll === "true" || false;
-    $(state.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
-
-    state.showOverlayByDefault = localStorage.showOverlayByDefault === "true" || false;
-    $(state.showOverlayByDefault ? "#show-overlay" : "#hide-overlay").addClass("toggled");
-
-    if (localStorage.fitMode === "fit-width") {
-        state.fitMode = "fit-width";
-        $("#fit-width").addClass("toggled");
-        $("#container-width").hide();
-    } else if (localStorage.fitMode === "fit-height") {
-        state.fitMode = "fit-height";
-        $("#fit-height").addClass("toggled");
-        $("#container-width").hide();
-    } else {
-        state.fitMode = "fit-container";
-        $("#fit-container").addClass("toggled");
-    }
-
-    state.containerWidth = localStorage.containerWidth;
-    if (state.containerWidth) { $("#container-width-input").val(state.containerWidth); }
-
-    state.markersVisible = localStorage.markersVisible === "true" || false;
-    $("#toggle-stamps").prop("checked", state.markersVisible);
-}
-
-function toggleFitMode(e) {
-    // possible options: fit-container, fit-width, fit-height
-    state.fitMode = localStorage.fitMode = e.target.id;
-    $("#fit-mode input").removeClass("toggled");
-    $(e.target).addClass("toggled");
-
-    if (state.fitMode === "fit-container") {
-        $("#container-width").show();
-    } else {
-        $("#container-width").hide();
-    }
-    applyContainerWidth();
-}
-
-function registerContainerWidth() {
-    // Examples of allowed values: 1200, 1200px, 90%
-    // Default value: 1200px
-    const raw = $("#container-width-input").val().trim();
-    if (!raw) { // fall back to default
-        delete state.containerWidth;
-        localStorage.removeItem("containerWidth");
-    } else {
-        let value, type;
-
-        [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
-        value = value || 1200;
-        type = type || "px";
-
-        state.containerWidth = localStorage.containerWidth = `${value}${type}`;
-    }
-    applyContainerWidth();
-}
-
-function registerPreload() {
-    const rawInputVal = $("#preload-input").val();
-    const inputVal = rawInputVal === "" ? null : rawInputVal;
-    const storageVal = (localStorage.preloadCount === "" ? null : localStorage.preloadCount);
-
-    state.preloadCount = inputVal ?? storageVal ?? 2;
-    $("#preload-input").val(state.preloadCount);
-    localStorage.preloadCount = state.preloadCount;
-}
-
-export function toggleDoublePageMode() {
-    if (state.infiniteScroll) { return; }
-    state.doublePageMode = localStorage.doublePageMode = !state.doublePageMode;
-    $("#toggle-double-mode input").toggleClass("toggled");
-    goToPage(state.currentPage);
-}
-
-export function toggleMangaMode() {
-    if (state.infiniteScroll) { return false; }
-    state.mangaMode = localStorage.mangaMode = !state.mangaMode;
-    $("#toggle-manga-mode input").toggleClass("toggled");
-    $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
-    if (!state.showingSinglePage) { goToPage(state.currentPage); }
-
-    return false;
-}
-
-function toggleHeader() {
-    if (state.infiniteScroll) { return false; }
-    localStorage.hideHeader = $("#i2").is(":visible");
-    $("#toggle-header input").toggleClass("toggled");
-    $("#i2").toggle();
-    applyContainerWidth();
-    return false;
-}
-
-function toggleProgressTracking() {
-    state.ignoreProgress = localStorage.ignoreProgress = !state.ignoreProgress;
-    $("#toggle-progress input").toggleClass("toggled");
-}
-
-function toggleInfiniteScroll() {
-    clearMarkers();
-    state.infiniteScroll = localStorage.infiniteScroll = !state.infiniteScroll;
-    $("#toggle-infinite-scroll input").toggleClass("toggled");
-    window.location.reload();
-}
-
-function registerAutoNextPage() {
-    state.AutoNextPageInterval = +$("#auto-next-page-input").val().trim() || +localStorage.AutoNextPageInterval || 10;
-    $("#auto-next-page-input").val(state.AutoNextPageInterval);
-    localStorage.AutoNextPageInterval = state.AutoNextPageInterval;
-
-    stopAutoNextPage();
-}
-
-function toggleOverlayByDefault() {
-    state.showOverlayByDefault = localStorage.showOverlayByDefault = !state.showOverlayByDefault;
-    $("#toggle-overlay input").toggleClass("toggled");
 }
 
 export function toggleSettingsOverlay() {

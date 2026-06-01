@@ -5,9 +5,10 @@ import * as Server from "./server.js";
 import * as LRR from "./common.js";
 import I18N from "i18n";
 import fscreen from "fscreen";
+import { signal, effect } from "@preact/signals";
 import { initializeStamps, updateStamps, renderMarkers, clearMarkers } from "./reader_stamps.js";
 import { initializeArchiveOverlay, toggleArchiveOverlay, updateArchiveOverlay, removeCategoryBadge } from "./reader_archive_overlay.js";
-import { initializeSettings, toggleSettingsOverlay, toggleMangaMode, toggleDoublePageMode } from "./reader_options.js";
+import { initializeSettings, toggleSettingsOverlay } from "./reader_options.js";
 
 export let state = {
     id: "",
@@ -35,27 +36,30 @@ export let state = {
     autoNextPageCountdown: 0,
     trackProgressLocally: null,
     authenticateProgress: null,
-    containerWidth: null,
+    containerWidth: signal(null),
     content: undefined,
     pages: [],
     maxPage: -1,
-    mangaMode: false,
-    doublePageMode: false,
-    ignoreProgress: false,
-    infiniteScroll: false,
-    fitMode: undefined,
+    mangaMode: signal(localStorage.mangaMode === "true" || false),
+    doublePageMode: signal(localStorage.doublePageMode === "true" || false),
+    ignoreProgress: signal(localStorage.ignoreProgress === "true" || false),
+    infiniteScroll: signal(localStorage.infiniteScroll === "true" || false),
+    fitMode: signal(localStorage.fitMode || "fit-container"),
+    hideHeader: signal(localStorage.hideHeader === "true" || false),
     currentPageLoaded: false,
     progress: undefined,
-    showOverlayByDefault: false,
-    preloadCount: 1,
-    AutoNextPageInterval: 0,
+    showOverlayByDefault: signal(localStorage.showOverlayByDefault === "true" || false),
+    preloadCount: signal((localStorage.preloadCount === "" ? null : localStorage.preloadCount) ?? 2),
+    AutoNextPageInterval: signal(+localStorage.AutoNextPageInterval || 10),
     markerMode: false,
-    markersVisible: false,
+    markersVisible: signal(localStorage.markersVisible === "true" || false),
     markers: [],
     overlayFiltered: false,
     pageNaviState: true,
     wakeLock: null,
 };
+
+let infiniteScrollObserver = null;
 
 export async function initializeAll(trackProgressLocally, authenticateProgress) {
     state.trackProgressLocally = trackProgressLocally;
@@ -74,6 +78,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     $(document).on("keydown", (e) => { if (e.which === 32) handleShortcuts(e); });
     $(document).on("wheel", handleWheel);
 
+    $(document).on("click.toggle-manga-mode", ".reading-direction", toggleMangaMode);
     $(document).on("click.pagination-change-pages", ".page-link", handlePaginator);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
@@ -182,11 +187,74 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         state.currentChapter = getCurrentChapter();
 
         // Load the actual reader pages now that we have basic info
-        loadImages();
+        loadImages()
+            .then(() => {
+                effect(() => {
+                    if (state.infiniteScroll.value) {
+                        enterInfiniteScrollView();
+                    } else {
+                        enterStandardView();
+                    }
+                });
+            });
     });
 
     // Fetch "bookmark" category ID and setup icon
     loadBookmarkStatus();
+
+
+    // Hook up all the signal fun!
+    effect(() => {
+        if (state.infiniteScroll.value) { return; }
+        localStorage.mangaMode = state.mangaMode.value;
+
+        if (state.mangaMode.value) {
+
+            $(".reading-direction").addClass("fa-arrow-left").removeClass("fa-arrow-right");
+        } else {
+            $(".reading-direction").removeClass("fa-arrow-left").addClass("fa-arrow-right");
+        }
+
+        goToPage(state.currentPage);
+    });
+
+    effect(() => {
+        if (state.infiniteScroll.value) { return; }
+        localStorage.doublePageMode = state.doublePageMode.value;
+        goToPage(state.currentPage);
+    });
+
+    effect(() => {
+        localStorage.fitMode = state.fitMode.value;
+        applyContainerWidth();
+    });
+
+    effect(() => localStorage.showOverlayByDefault = state.showOverlayByDefault.value);
+
+    effect(() => {
+        if (state.infiniteScroll.value) { return; }
+        localStorage.hideHeader = state.hideHeader.value;
+        const i2 = document.getElementById("i2");
+        if (state.hideHeader.value) {
+            i2.setAttribute("hidden", "hidden");
+        } else {
+            i2.removeAttribute("hidden");
+        }
+        applyContainerWidth();
+    });
+
+    effect(() => {
+        clearMarkers();
+        localStorage.infiniteScroll = state.infiniteScroll.value;
+    });
+
+    effect(() => {
+        localStorage.AutoNextPageInterval = +state.AutoNextPageInterval.value || 10;
+    });
+
+    effect(() => {
+        localStorage.preloadCount = state.preloadCount.value;
+    });
 }
 
 export function loadContentData() {
@@ -292,7 +360,7 @@ export function addCategoryBadge(categoryId) {
     $("#archive-categories").append(html);
 }
 
-export function loadImages() {
+function loadImages() {
 
     const onLoad = (data) => {
         state.pages = data;
@@ -306,44 +374,12 @@ export function loadImages() {
         // This allows for bookmarks to trump progress
         // when there's no parameter, null is coerced to 0 so it becomes -1
         state.currentPage = state.currentPage || (
-            !state.ignoreProgress && state.progress < state.maxPage
+            !state.ignoreProgress.value && state.progress < state.maxPage
                 ? state.progress
                 : 0
         );
 
-        if (state.infiniteScroll) {
-            initInfiniteScrollView();
-            if (state.content.tags?.includes("webtoon")) {
-                $("head").append(`
-                    <style id="webtoon-css">
-                        .reader-image {
-                            margin-bottom: 0 !important;
-                            margin-top: 0 !important;
-                        }
-                    </style>
-                `);
-            }
-        } else {
-            $("#img").on("load", updateMetadata);
-
-            // when click left or right img area change page
-            $(document).on("click", (event) => {
-                // check click Y position is in img Y area
-                if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && state.pageNaviState) {
-                    // is click X position is left on screen or right
-                    if (event.pageX < $(window).width() / 2) {
-                        changePage(-1, true);
-                    } else {
-                        changePage(1, true);
-                    }
-                }
-            });
-
-            $(".current-page").each((_i, el) => $(el).html(state.currentPage + 1));
-            goToPage(state.currentPage);
-        }
-
-        if (state.showOverlayByDefault) { toggleArchiveOverlay(); }
+        if (state.showOverlayByDefault.value) { toggleArchiveOverlay(); }
 
         // Resume slideshow if it was active before cross-archive navigation
         if (sessionStorage.getItem("autoNextPage") === "true") {
@@ -362,7 +398,7 @@ export function loadImages() {
 
     if (state.id.startsWith("TANK_")) {
         // For tanks: fetch pages for each archive and concatenate them
-        Promise.all(
+        return Promise.all(
             state.content.chapters.map(arc =>
                 fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files?force=${state.force}`))
                     .then(r => r.ok ? r.json() : Promise.reject())
@@ -373,7 +409,7 @@ export function loadImages() {
             .finally(onFinally);
     }
     else {
-        Server.callAPI(`/api/archives/${state.id}/files?force=${state.force}`, "GET", null, I18N.ReaderArchiveError,
+        return Server.callAPI(`/api/archives/${state.id}/files?force=${state.force}`, "GET", null, I18N.ReaderArchiveError,
             (data) => onLoad(data.pages),
         ).finally(onFinally);
     }
@@ -392,19 +428,42 @@ function initFullscreen() {
     fscreen.onfullscreenchange = () => handleFullScreen(fscreen.fullscreenElement !== null);
 }
 
-function initInfiniteScrollView() {
+function enterInfiniteScrollView() {
+    if (infiniteScrollObserver !== null) {
+        // We're already in infiniteScrollView
+        console.log("Infinite scroll view already active");
+        return;
+    }
+
+    let loaded = 0;
+    function imgOnLoad() {
+        // Wait for the pages to load before scrolling to the current page
+
+        loaded += 1;
+        if (loaded === state.pages.length) {
+            allImagesLoaded = true;
+            if (window.scrollY === 0) {
+                goToPage(state.currentPage);
+            }
+        }
+    }
+
+    // Remove standard mode event handlers
+    $(document).off("click.changepage");
+    const $img = $("#img");
+    $img.off("load.updatemeta");
+    $img.on("load.infinite-scroll", imgOnLoad);
+
     $("body").addClass("infinite-scroll");
-    $("#Map").remove();
-    $("#img_doublepage").remove();
-    $(".reader-image").first().attr("src", state.pages[0]);
+    $img.attr("src", state.pages[0]).addClass(".infinite-scroll-image");
 
     // Disable other options that don't work with infinite scroll
-    state.mangaMode = false;
-    state.doublePageMode = false;
+    state.mangaMode.value = false;
+    state.doublePageMode.value = false;
 
     // Create an observer to update progress when a new page is scrolled in
     let allImagesLoaded = false;
-    const observer = new IntersectionObserver((entries) => {
+    infiniteScrollObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && allImagesLoaded) {
             // Find the entry in the list of images
             const index = entries[0].target.id.replace("page-", "");
@@ -423,10 +482,14 @@ function initInfiniteScrollView() {
         img.id = `page-${state.pages.indexOf(source)}`;
         img.height = 800;
         img.width = 600;
+        const $img = $(img);
+        $img.on("load.infinite-scroll", imgOnLoad);
         img.src = source;
-        $(img).addClass("reader-image");
+
+        // infinite-scroll-image-extra is for cleaning up when switching to standard mode
+        $img.addClass("reader-image infinite-scroll-image infinite-scroll-image-extra");
         $("#display").append(img);
-        observer.observe(img);
+        infiniteScrollObserver.observe(img);
     });
 
     $("#i3").removeClass("loading");
@@ -441,18 +504,45 @@ function initInfiniteScrollView() {
 
     applyContainerWidth();
 
-    // Wait for the pages to load before scrolling to the current page
+    if (state.content.tags?.includes("webtoon")) {
+        $("body").addClass("webtoon-mode");
+    }
+}
+
+function enterStandardView() {
+    $("body").removeClass("infinite-scroll");
+
+    if (infiniteScrollObserver !== null) {
+        infiniteScrollObserver.disconnect();
+        infiniteScrollObserver = null;
+    }
+
+    // Remove infinite scroll mode event handlers
+    $(document).off("click.infinite-scroll-map", "#display .reader-image");
+    $(".infinite-scroll-image-extra").remove();
     const images = $("#display .reader-image");
-    let loaded = 0;
-    images.on("load", () => {
-        loaded += 1;
-        if (loaded === images.length) {
-            allImagesLoaded = true;
-            if (window.scrollY === 0) {
-                goToPage(state.currentPage);
+    images.off("load.infinite-scroll");
+
+    $("#i3").removeClass("loading");
+    applyContainerWidth();
+
+    // when click left or right img area change page
+    $(document).off("click.changepage").on("click.changepage", (event) => {
+        // check click Y position is in img Y area
+        if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && state.pageNaviState) {
+            // is click X position is left on screen or right
+            if (event.pageX < $(window).width() / 2) {
+                changePage(-1, true);
+            } else {
+                changePage(1, true);
             }
         }
     });
+
+    $("#img").off("load.updatemeta").on("load.updatemeta", updateMetadata);
+
+    $(".current-page").each((_i, el) => $(el).html(state.currentPage + 1));
+    goToPage(state.currentPage);
 }
 
 /** Process inputs
@@ -558,12 +648,12 @@ function handleShortcuts(e) {
  */
 function spaceScrollProcessInput(e) {
     //Break early and go back to browser default behaviour if overlay is open or gallery has webtoon tag and in infiniteScroll
-    if ($(".page-overlay").is(":visible") || e.repeat || (state.infiniteScroll && state.content.tags?.includes("webtoon"))) return;
+    if ($(".page-overlay").is(":visible") || e.repeat || (state.infiniteScroll.value && state.content.tags?.includes("webtoon"))) return;
 
     e.preventDefault();
     // Capture direction now so we dont lose it if shift state changes while held
     let direction = e.shiftKey ? -1 : 1;
-    if (state.mangaMode) direction *= -1;
+    if (state.mangaMode.value) direction *= -1;
     const cfg = state.scrollConfig;
 
     if (e.type === "keydown") {
@@ -648,12 +738,12 @@ function spaceScrollProcessInput(e) {
 }
 
 function handleWheel(e) {
-    if (fscreen.inFullscreen() && !state.infiniteScroll) {
+    if (fscreen.inFullscreen() && !state.infiniteScroll.value) {
         let changePageNum = 1;
         if (e.originalEvent.deltaY > 0) changePageNum = -1;
         // In Manga mode, reverse the changePage variable
         // so that we always move forward
-        if (!state.mangaMode) changePageNum *= -1;
+        if (!state.mangaMode.value) changePageNum *= -1;
         changePage(changePageNum, true);
     }
 }
@@ -819,13 +909,18 @@ function updateMetadata() {
 }
 
 export async function goToPage(page) {
+    if (state.maxPage < 0) {
+        // Not yet loaded, NOOP
+        return;
+    }
+
     state.previousPage = state.currentPage;
     state.currentPage = Math.min(state.maxPage, Math.max(0, +page));
 
-    if (state.infiniteScroll) {
+    if (state.infiniteScroll.value) {
         $("#display img").get(state.currentPage).scrollIntoView({ block: "nearest" });
     } else {
-        if (state.doublePageMode && state.currentPage > 0
+        if (state.doublePageMode.value && state.currentPage > 0
             && state.currentPage < state.maxPage) {
 
             // Special case when going backwards and already showing a widespread, 
@@ -854,7 +949,7 @@ export async function goToPage(page) {
                 state.currentPage = state.previousPage > state.currentPage ? state.currentPage + 1 : state.currentPage;
             } else {
                 $("#display").addClass("double-mode");
-                if (state.mangaMode) {
+                if (state.mangaMode.value) {
                     $("#img").attr("src", img2);
                     $("#img").attr("data-filename", img2Filename);
                     $("#img_doublepage").attr("src", img1);
@@ -915,10 +1010,10 @@ function updateProgress() {
 }
 
 function preloadImages() {
-    let preloadNext = state.preloadCount;
-    let preloadPrev = state.preloadCount == 0 ? 0 : 1;
+    let preloadNext = state.preloadCount.value;
+    let preloadPrev = state.preloadCount.value == 0 ? 0 : 1;
 
-    if (state.doublePageMode) { preloadNext *= 2; preloadPrev *= 2; }
+    if (state.doublePageMode.value) { preloadNext *= 2; preloadPrev *= 2; }
 
     for (let i = 1; i <= preloadNext; i++) {
         if (state.currentPage + i > state.maxPage) { break; }
@@ -950,19 +1045,19 @@ export function applyContainerWidth() {
     if (fscreen.inFullscreen())
         return;
 
-    if (state.fitMode === "fit-height") {
+    if (state.fitMode.value === "fit-height") {
         // Fit to height forces the image to 90% of visible screen height.
         // If the header is hidden, or if we're in infinite scrolling, then the image
         // can take up to 98% of visible screen height because there's more free space
-        const height = localStorage.hideHeader === "true" || state.infiniteScroll ? 98 : 90;
+        const height = localStorage.hideHeader === "true" || state.infiniteScroll.value ? 98 : 90;
         $(".reader-image").attr("style", `max-height: ${height}vh;`);
         $(".sni").attr("style", "width: fit-content; width: -moz-fit-content");
-    } else if (state.fitMode === "fit-width") {
+    } else if (state.fitMode.value === "fit-width") {
         $(".reader-image").attr("style", "width: 100%;");
         $(".sni").attr("style", "max-width: 98%");
-    } else if (state.containerWidth) {
+    } else if (state.containerWidth.value) {
         // If the user defined a custom width, then we can fall back to that one
-        $(".sni").attr("style", `max-width: ${state.containerWidth}`);
+        $(".sni").attr("style", `max-width: ${state.containerWidth.value}`);
         $(".reader-image").attr("style", "width: 100%");
     } else if (!state.showingSinglePage) {
         // Otherwise, if we are showing two pages we can override the default width
@@ -975,8 +1070,14 @@ export function applyContainerWidth() {
     renderMarkers();
 }
 
+function toggleMangaMode() {
+    if (state.infiniteScroll.value) { return false; }
+    state.mangaMode.value = !state.mangaMode.value;
+    return false;
+}
+
 function startAutoNextPage() {
-    state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval);
+    state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval.value);
     if (state.autoNextPageCountdown <= 0) {
         LRR.toast({
             heading: I18N.AutoNextPageFailHeader,
@@ -997,21 +1098,21 @@ function startAutoNextPage() {
         if (state.autoNextPageCountdown <= 0) {
             clearInterval(state.autoNextPageCountdownTaskId);
 
-            const atLastPage = state.mangaMode ? state.currentPage === 0 : state.currentPage === state.maxPage;
+            const atLastPage = state.mangaMode.value ? state.currentPage === 0 : state.currentPage === state.maxPage;
 
             if (atLastPage) {
                 // At archive boundary: attempt cross-archive navigation.
                 // readNextArchive/readPreviousArchive persists slideshow state
                 // to sessionStorage; loadImages on the new page resumes it.
                 if (state.archiveIds.length > 0) {
-                    if (state.mangaMode)
+                    if (state.mangaMode.value)
                         readPreviousArchive();
                     else
                         readNextArchive();
                 }
                 stopAutoNextPage();
             } else {
-                if (state.mangaMode)
+                if (state.mangaMode.value)
                     changePage(-1);
                 else
                     changePage(1);
@@ -1053,7 +1154,7 @@ function toggleFullScreen() {
 
 function handleFullScreen(enableFullscreen = false) {
     if (fscreen.inFullscreen() || enableFullscreen === true) {
-        if (state.markersVisible) {
+        if (state.markersVisible.value) {
             clearMarkers();
         }
         if ($("body").hasClass("infinite-scroll")) {
@@ -1168,12 +1269,12 @@ function changePage(targetPage, resetAuto = false) {
 
     // Reset timer if user manually changes pages during slideshow
     if (resetAuto && state.autoNextPage) {
-        state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval);
+        state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval.value);
         $(".toggle-auto-next-page").text(state.autoNextPageCountdown);
     }
 
     // Sync position if in infinite scroll mode
-    if (state.infiniteScroll) {
+    if (state.infiniteScroll.value) {
         const images = [...document.querySelectorAll(".reader-image")];
         const midViewport = window.innerHeight / 2;
         for (let i = 0; i < images.length; i++) {
@@ -1186,16 +1287,16 @@ function changePage(targetPage, resetAuto = false) {
     }
     let destination;
     if (targetPage === "first") {
-        destination = state.mangaMode ? state.maxPage : 0;
+        destination = state.mangaMode.value ? state.maxPage : 0;
     } else if (targetPage === "last") {
-        destination = state.mangaMode ? 0 : state.maxPage;
+        destination = state.mangaMode.value ? 0 : state.maxPage;
     } else {
         let offset = targetPage;
         // Double the offset to move by 2 pages at once, unless we're currently showing a widespread
-        if (state.doublePageMode && !state.showingSinglePage && state.currentPage > 0) {
+        if (state.doublePageMode.value && !state.showingSinglePage && state.currentPage > 0) {
             offset *= 2;
         }
-        destination = state.currentPage + (state.mangaMode ? -offset : offset);
+        destination = state.currentPage + (state.mangaMode.value ? -offset : offset);
     }
     if (destination < 0) {
         // Clamp if we're not at the first page, to avoid doublepage mode accidentally yeeting us to previous archive
@@ -1522,3 +1623,6 @@ function releaseWakeLock() {
     }
 }
 
+function toggleDoublePageMode() {
+    state.doublePageMode.value = !state.doublePageMode.value;
+}

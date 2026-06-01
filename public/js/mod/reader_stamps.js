@@ -9,12 +9,18 @@ import fscreen from "fscreen";
 
 import { state, getArchiveForPage } from "./reader_common.js";
 import { checkStampedPages } from "./reader_archive_overlay.js";
+import { effect } from "@preact/signals";
 
 export function initializeStamps() {
     initContextMenu();
 
     $(document).on("keyup", (e) => handleShortcuts(e));
-    $(document).on("click.toggle-stamps", "#toggle-stamps", toggleStamps);
+
+    effect(() => {
+        // Show or hide the markers
+        localStorage.markersVisible = state.markersVisible.value;
+        renderMarkers();
+    });
 
     $(document).on("click.reader-image", ".reader-image", (e) => {
         if (!state.markerMode) return;
@@ -45,7 +51,7 @@ export function initializeStamps() {
 
         let page = state.currentPage + 1;
 
-        if (state.doublePageMode && state.currentPage > 0
+        if (state.doublePageMode.value && state.currentPage > 0
             && state.currentPage < state.maxPage) {
             if (img.id == "img_doublepage") {
                 page += 1;
@@ -109,7 +115,7 @@ export function initializeStamps() {
 function handleShortcuts(e) {
     switch (e.which) {
         case 83: // s
-            if (!state.infiniteScroll) {
+            if (!state.infiniteScroll.value) {
                 addStamp();
             }
             break;
@@ -119,7 +125,7 @@ function handleShortcuts(e) {
 }
 
 function addStamp() {
-    if (state.infiniteScroll) return;
+    if (state.infiniteScroll.value) return;
     if (!LRR.isUserLogged()) return;
     state.markerMode = true;
     clearMarkers();
@@ -129,7 +135,7 @@ function addStamp() {
 }
 
 function createMarkerElement(markerData, index) {
-    if (state.infiniteScroll) return;
+    if (state.infiniteScroll.value) return;
     const img = markerData.left
         ? document.getElementById("img")
         : document.getElementById("img_doublepage");
@@ -232,12 +238,12 @@ function createMarkerElement(markerData, index) {
 }
 
 export function renderMarkers() {
-    if (state.infiniteScroll || fscreen.inFullscreen()) return;
+    if (state.infiniteScroll.value || fscreen.inFullscreen()) return;
     // Clean markers
     const existing = document.querySelectorAll(".marker");
     existing.forEach(el => el.remove());
 
-    if (!state.markersVisible) return;
+    if (!state.markersVisible.value) return;
 
     // Draw markers
     state.markers.forEach((markerData, index) => {
@@ -250,14 +256,8 @@ export function clearMarkers() {
     existing.forEach(el => el.remove());
 }
 
-function toggleStamps() {
-    // Show or hide the markers
-    state.markersVisible = localStorage.markersVisible = !state.markersVisible;
-    renderMarkers();
-}
-
 function loadStamps(currentPage) {
-    if (state.infiniteScroll) return;
+    if (state.infiniteScroll.value) return;
     state.markers = [];
     const { arcId: id1, localPage: p1 } = getArchiveForPage(currentPage);
     // Call for the first page
@@ -275,7 +275,7 @@ function loadStamps(currentPage) {
                 state.markers.push(markerData);
             }
 
-            if (state.doublePageMode && currentPage > 0
+            if (state.doublePageMode.value && currentPage > 0
                 && currentPage < state.maxPage) {
 
                 const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
@@ -307,7 +307,7 @@ function loadStamps(currentPage) {
 }
 
 function handleMarkerContextMenu(option, index) {
-    if (state.infiniteScroll) return;
+    if (state.infiniteScroll.value) return;
     let i = parseInt(index);
 
     switch (option) {
@@ -365,7 +365,7 @@ export function updateStamps(page) {
     renderMarkers();
 
     // Load stamps
-    if (!state.infiniteScroll) {
+    if (!state.infiniteScroll.value) {
         loadStamps(page);
     }
 }

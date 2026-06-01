@@ -246,4 +246,44 @@ I18N.Delete = "[% c.lh('Delete') %]";
 I18N.AddRating = "[% c.lh('Add Rating') %]";
 I18N.AddToCategory = "[% c.lh('Add to Category') %]";
 
+I18N.ReaderOptions = "[% c.lh("Reader Options") %]";
+I18N.OptionsAutoSave = "[% c.lh("Those options save automatically -- Click around and find out!") %]";
+I18N.FitDisplayTo = "[% c.lh("Fit display to") %]";
+I18N.FitContainer = "[% c.lh('Container') %]";
+I18N.FitWidth = "[% c.lh('Width') %]";
+I18N.FitHeight = "[% c.lh('Height') %]";
+I18N.ContainerWidth = "[% c.lh("Container Width (in pixels or percentage)") %]";
+I18N.ContainerWidthDefaultValue = "[% c.lh('The default value is 1200px, or 90% in Double Page Mode.') %]";
+I18N.Apply = "[% c.lh('Apply') %]";
+I18N.PageRendering = "[% c.lh("Page Rendering") %]";
+I18N.Single = "[% c.lh('Single') %]";
+I18N.Double = "[% c.lh('Double') %]";
+
+I18N.ReadingDirection = "[% c.lh("Reading Direction") %]";
+I18N.LeftToRight = "[% c.lh('Left to Right') %]";
+I18N.RightToLeft = "[% c.lh('Right to Left') %]";
+
+I18N.HowManyToPreload = "[% c.lh("How many images to preload") %]";
+I18N.DefaultTwoImages = "[% c.lh('The default is two images.') %]";
+
+I18N.Enabled = "[% c.lh('Enabled') %]";
+I18N.Disabled = "[% c.lh('Disabled') %]";
+
+I18N.Header = "[% c.lh('Header') %]";
+I18N.Visible = "[% c.lh('Visible') %]";
+I18N.Hidden = "[% c.lh('Hidden') %]";
+
+I18N.ShowArchiveOverlayByDefault = "[% c.lh("Show Archive Overlay by default") %]";
+I18N.ShowArchiveOverlayByDefaultDescription = "[% c.lh("This will show the overlay with thumbnails every time you open a new Reader page.") %]";
+I18N.ProgressionTracking = "[% c.lh("Progression Tracking") %]";
+I18N.DisableTrackingWillRestartReading = "[% c.lh("Disabling tracking will restart reading from page one every time you reopen the reader.") %]";
+
+I18N.InfiniteScrolling = "[% c.lh("Infinite Scrolling") %]";
+I18N.DisplayAllImagesInAVerticalView = "[% c.lh("Display all images in a vertical view in the same page.") %]";
+
+I18N.AutoNextPageIntervalInSeconds = "[% c.lh("Auto next page interval in seconds") %]";
+I18N.TheDefaultIs10Seconds = "[% c.lh('The default is 10 seconds.') %]";
+
+I18N.ToggleStamps = "[% c.lh('Toggle Stamps') %]";
+
 export default I18N;
