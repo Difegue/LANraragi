@@ -43,6 +43,7 @@
         "dompurify": "^3.4.5",
         "fscreen": "1.2.0",
         "geist": "1.0.0",
+        "htm": "^3.1.1",
         "inter-ui": "3.19.3",
         "jqcloud2": "2.0.3",
         "jquery": "3.6.0",

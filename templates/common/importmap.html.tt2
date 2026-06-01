@@ -11,6 +11,7 @@
             "preact": "[% c.url_for("/js/vendor/preact.module.js") %]",
             "preact/hooks": "[% c.url_for("/js/vendor/hooks.module.js") %]",
             "preact/compat": "[% c.url_for("/js/vendor/compat.module.js") %]",
+            "htm": "[% c.url_for("/js/vendor/htm.js?$version") %]",
             "clsx": "[% c.url_for("/js/vendor/clsx.m.js") %]",
             "react-toastify": "[% c.url_for("/js/vendor/react-toastify.esm.js") %]",
 
