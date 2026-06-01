@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2026-05-26 14:00+0000\n"
+"PO-Revision-Date: 2026-06-01 09:52+0000\n"
 "Last-Translator: 四迷二葉亭 <sumu32000@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.6\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -829,9 +829,10 @@ msgstr ""
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
-"<a href=\"/login\">ログイン</a>してパスワード「kamimamita」でアクセスし、すぐ"
-"に<a href=\"/config\">設定を変更</a>してください。<br/>…あるいは無効にしてし"
-"まうのもありです。<br/>その後に設定オプションもチェックしてみてはいかが？ "
+"<a href=\"/login\">ログイン</a> してパスワード「kamimamita」でアクセスし、す"
+"ぐに <a href=\"/config\">設定を変更</a> してください。<br/>…あるいは無効にし"
+"てしまうのもありです。<br/>その後に設定オプションもチェックしてみてはいかが"
+"？ "
 
 msgid "Select Archives"
 msgstr "アーカイブを選択"
@@ -2071,3 +2072,60 @@ msgstr "スタンプ名"
 
 msgid "Error setting up the Stamp"
 msgstr "スタンプの設定中にエラーが発生しました"
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "%1（単行本）を編集中"
+
+msgid "Delete Tankoubon"
+msgstr "単行本を削除する"
+
+msgid "Read Tankoubon"
+msgstr "単行本を読む"
+
+msgid "Archives:"
+msgstr "アーカイブ :"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "単行本にアーカイブを追加 :"
+
+msgid "Archive ID (40-character long)"
+msgstr "アーカイブID（40文字）"
+
+msgid "Add"
+msgstr "追加する"
+
+msgid "Edit Tankoubon"
+msgstr "単行本を編集する"
+
+msgid "Error saving tankoubon metadata"
+msgstr "単行本のメタデータ保存中にエラーが発生しました"
+
+msgid "Remove from Tankoubon"
+msgstr "単行本から削除する"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"この単行本を削除してもよろしいですか？アーカイブはライブラリ内に残りますが、"
+"単行本としてのグループ化は解除されます。"
+
+msgid "Tankoubon deleted"
+msgstr "単行本を削除しました"
+
+msgid "Error deleting tankoubon"
+msgstr "単行本の削除中にエラーが発生しました"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "単行本へのアーカイブ追加中にエラーが発生しました"
+
+msgid "About Tankoubons"
+msgstr "単行本について"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"単行本は、複数のアーカイブを1つにまとめたコレクションです。 <br/>左側の"
+"ハンドルをドラッグして収録アーカイブの順番を変更したり、単行本からアーカイブ"
+"を削除したりできます。 <br/> 変更が完了したら、［保存］をクリックしてください"
+"。"
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "${n} 件のアーカイブを単行本「${name}」に追加します。続行しますか？"
