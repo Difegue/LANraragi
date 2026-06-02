@@ -174,7 +174,7 @@ function loadContextMenuRatings(id, refreshCallback) {
 
 export function initialize(catListData) {
     const catList = catListData || [];
-    pseudoCopyBtn = $("#pseudo-copy-btn")
+    pseudoCopyBtn = $("#pseudo-copy-btn");
     const clipboard = new window.ClipboardJS("#pseudo-copy-btn");
 
     clipboard.on("success", function (e) {
