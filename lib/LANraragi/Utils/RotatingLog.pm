@@ -20,7 +20,7 @@ BEGIN {
 }
 
 has 'logfile';
-has 'tempdir';  # Where to store lockfiles
+has 'lockdir';  # Where to store lockfiles
 has 'lockpid';  # Track which PID opened the current lock file handle.
 
 has counter => sub { 0 }; # number of logs emitted
@@ -45,7 +45,7 @@ has lockpath => sub {
     my $path        = $self->path;
     my $mf          = Mojo::File->new($path);
     my $base        = $mf->basename;
-    my $lockpath    = $self->tempdir . "/$base.lock";
+    my $lockpath    = $self->lockdir . "/$base.lock";
     return $lockpath;
 };
 
@@ -313,6 +313,27 @@ sub get_win32_fh {
     Win32API::File::OsFHandleOpen( *FH, $h, "w" ) or die "OsFHandleOpen failed for $sPath; $!";
     binmode *FH, ':encoding(UTF-8)';
     return *FH;
+}
+
+# Check whether filesystem supports flock.
+# https://github.com/Difegue/LANraragi/issues/1556
+our $SUPPORTED;
+sub is_supported {
+    return $SUPPORTED if defined $SUPPORTED;
+
+    my $lockdir     = shift;
+    my $supported   = 0;
+    my $probe_path  = "$lockdir/.lrr-flock-probe.$$";
+
+    # do a flock hit
+    if ( open( my $fh, '>', $probe_path ) ) {
+        $supported = flock( $fh, LOCK_EX | LOCK_NB ) ? 1 : 0;
+        close $fh;
+        unlink $probe_path;
+    }
+
+    $SUPPORTED = $supported;
+    return $SUPPORTED;
 }
 
 1;
