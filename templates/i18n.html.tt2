@@ -233,4 +233,12 @@ I18N.ClickToEdit = "[% c.lh("Click here to edit metadata.") %]";
 I18N.UploadError = "[% c.lh("Error while processing file.") %]";
 I18N.DownloadError = "[% c.lh("Error while downloading file.") %]";
 
+I18N.Read = "[% c.lh('Read') %]";
+I18N.Download = "[% c.lh('Download') %]";
+I18N.CopyLink = "[% c.lh('Copy link') %]";
+I18N.EditMetadata = "[% c.lh('Edit Metadata') %]";
+I18N.Delete = "[% c.lh('Delete') %]";
+I18N.AddRating = "[% c.lh('Add Rating') %]";
+I18N.AddToCategory = "[% c.lh('Add to Category') %]";
+
 export default I18N;

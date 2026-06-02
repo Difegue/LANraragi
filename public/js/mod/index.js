@@ -16,10 +16,8 @@ let swiper = {};
 let serverVersion = "";
 let debugMode = false;
 export let pageSize = 100;
-let pseudoCopyBtn = undefined;
-let isMultiSelectMode = false;
+export let isMultiSelectMode = false;
 export let selectedArchives = new Set();
-let clipboard;
 
 /**
  * Initialize the Archive Index.
@@ -241,26 +239,6 @@ export function initializeAll() {
 
     updateTableHeaders();
     resizableColumns();
-
-    pseudoCopyBtn = $("#pseudo-copy-btn")
-    clipboard = new window.ClipboardJS("#pseudo-copy-btn");
-
-    clipboard.on("success", function (e) {
-        LRR.toast({
-            heading: I18N.IndexCopyLinkSuccess,
-            icon: "info",
-            hideAfter: 3000,
-        });
-        e.clearSelection();
-    });
-
-    clipboard.on("error", function (e) {
-        LRR.toast({
-            heading: I18N.IndexCopyLinkFail,
-            icon: "error",
-            hideAfter: false,
-        });
-    });
 }
 
 export function toggleOrder(e) {
@@ -1005,61 +983,7 @@ export function migrateProgress() {
 
 // #endregion
 
-// #region Archive Context Menu
 
-/**
- * Handle context menu clicks.
- * @param {*} option The clicked option
- * @param {*} id The Archive ID
- * @returns
- */
-export function handleContextMenu(option, id) {
-    switch (option) {
-        case "edit":
-            LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${id}`));
-            break;
-        case "delete": {
-            const isTank = id.startsWith("TANK_");
-            LRR.showPopUp({
-                text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
-                icon: "warning",
-                showCancelButton: true,
-                focusConfirm: false,
-                confirmButtonText: I18N.ConfirmYes,
-                reverseButtons: true,
-                confirmButtonColor: "#d33",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (isTank) Server.deleteTankoubon(id, () => {
-                        document.location.reload(true);
-                    });
-                    else Server.deleteArchive(id, () => {
-                        document.location.reload(true);
-                    });
-                }
-            });
-            break;
-        }
-        case "read":
-            LRR.openInNewTab(new LRR.ApiURL(`/reader?id=${id}`));
-            break;
-        case "download":
-            LRR.openInNewTab(new LRR.ApiURL(`/api/archives/${id}/download`));
-            break;
-        case "copy link":
-            pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.ApiURL(`/reader?id=${id}`).toString()}`);
-            pseudoCopyBtn.click()
-            break;
-        case "msm-toggle-archive":
-            if (!isMultiSelectMode) toggleMultiSelectMode();
-            toggleArchiveSelection(id);
-            break;
-        default:
-            break;
-    }
-}
-
-// #endregion
 
 // #region Category buttons
 

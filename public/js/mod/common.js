@@ -6,9 +6,6 @@ import htm from "htm";
 import Swal from "sweetalert2";
 import { ToastContainer, toast as emitToast } from "react-toastify";
 
-import * as Index from "mod/index";
-import * as Server from "mod/server";
-import * as IndexTable from "mod/index_datatables";
 import I18N from "i18n";
 
 const html = htm.bind(h);
@@ -584,111 +581,6 @@ export function toast(c) {
             };
         })());
 }
-
-// #region Context Menu Functions
-
-/**
- * Build category list for contextMenu and checkoff the ones the given ID belongs to.
- * @param {*} catList The list of categories, obtained statically
- * @param {*} id The ID of the archive or tankoubon to check
- * @returns Categories
- */
-export function loadContextMenuCategories(catList, id){
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
-        (data) => {
-            const items = {};
-
-            for (let i = 0; i < catList.length; i++) {
-                const catId = catList[i].id;
-
-                // If the category is also in the API results,
-                // we can pre-check it when creating the checkbox
-                const isSelected = data.categories.map((x) => x.id).includes(catId);
-                items[catId] = { name: catList[i].name, type: "checkbox" };
-                if (isSelected) { items[catId].selected = true; }
-
-                items[catId].events = {
-                    click() {
-                        if ($(this).is(":checked")) {
-                            Server.addArchiveToCategory(id, catId);
-                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
-                                Index.bookmarkIconOn(id);
-                            }
-                        } else {
-                            Server.removeArchiveFromCategory(id, catId);
-                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
-                                Index.bookmarkIconOff(id);
-                            }
-                        }
-                    },
-                };
-            }
-
-            if (Object.keys(items).length === 0) {
-                items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
-            }
-
-            return items;
-        },
-    );
-}
-
-/**
- * Build rating options for contextMenu and select the one for the current ID.
- * @param {*} id The ID of the archive to check
- * @param {*} refreshCallback Optional callback to refresh the view after rating change
- * @returns Ratings
- */
-export function loadContextMenuRatings(id, refreshCallback) {
-    return Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
-        (data) => {
-            const items = {};
-            const ratings = [{
-                name: I18N.IndexRemoveRating
-            }, {
-                name: "⭐",
-            }, {
-                name: "⭐⭐",
-            }, {
-                name: "⭐⭐⭐",
-            }, {
-                name: "⭐⭐⭐⭐",
-            }, {
-                name: "⭐⭐⭐⭐⭐",
-            }];
-            const tags = splitTagsByNamespace(data.tags);
-            const hasRating = Object.keys(tags).some(x => x === "rating");
-            const ratingValue = hasRating ? tags["rating"] : [0];
-
-            for (let i = 0; i < ratings.length; i++) {
-                items[i] = ratings[i];
-                items[i].type = "checkbox";
-
-                if (items[i].name === ratingValue[0]) { items[i].selected = true; }
-                items[i].events = {
-                    click() {
-                        if(i === 0) delete tags["rating"];
-                        else tags["rating"] = [ratings[i].name];
-
-                        Server.updateTagsFromArchive(id, buildTagList(tags));
-
-                        if (refreshCallback) {
-                            refreshCallback();
-                        } else if (IndexTable.dataTable) {
-                            IndexTable.dataTable.ajax.reload(null, false);
-                            Index.updateCarousel();
-                        }
-                        $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
-                    },
-                };
-            }
-
-            return items;
-        },
-    );
-}
-
-// #endregion
 
 export function initializeToasts() {
     // Initialize toast.
