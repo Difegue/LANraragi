@@ -3,6 +3,7 @@ package LANraragi::Utils::Routing;
 use strict;
 use warnings;
 use utf8;
+use v5.36;
 
 use Config;
 use Encode;
@@ -12,6 +13,8 @@ use Mojolicious::Plugin::Minion::Admin;
 
 use LANraragi::Utils::Login      qw(is_logged_in_api);
 use LANraragi::Utils::OpenAPI    qw(apply_openapi_mojo_overrides);
+
+use Cwd qw(abs_path);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -71,12 +74,17 @@ sub apply_routes {
     $public_routes->get( '/js/:version/*filepath' => [ version => qr/\d+\.\d+\.\d+/ ] )->to(
         cb => sub {
             my $c = shift;
+            my $static_dir = @{ $self->static->paths }[0];
+            my $allowed_directory = $static_dir ."/";
+            my $relative_path = Mojo::Path->new( "js/" . $c->stash('filepath') )->canonicalize;
+            my $path_to_test = $allowed_directory . $relative_path;
 
-            my $relFilePath = Mojo::Path->new( "/js/" . $c->stash('filepath') )->canonicalize;
-            return $c->reply->exception('Bad Request') unless is_traversal_safe($relFilePath);
+            if (!is_path_within($path_to_test, $allowed_directory)) {
+                return $c->reply->exception('Bad Request');
+            }
 
             $c->res->headers->cache_control('public, max-age=31536000, immutable');
-            $c->reply->static($relFilePath);
+            $c->reply->static($relative_path);
         }
     );
 
@@ -152,11 +160,18 @@ sub apply_routes {
 
 }
 
-sub is_traversal_safe {
-    my $filepath = shift;
+# Checks if path $path_to_test exists inside $allowed_directory.
+# It handles path traversal and symlinks.
+# Returns 0 if the file does not exist, either directory does not exist or if $path_to_test is not inside $allowed_directory.
+sub is_path_within($path_to_test, $allowed_directory) {
+    my $resolved_path_to_test = abs_path($path_to_test);
+    my $resolved_allowed_directory = abs_path($allowed_directory);
 
-    die("Incorrect parameter type, pass a Mojo::Path") if !( $filepath->isa('Mojo::Path') );
-    return index( $filepath->canonicalize, ".." ) == -1 ? 1 : 0;
+    return 0 unless defined $resolved_path_to_test && defined $resolved_allowed_directory;
+
+    $resolved_allowed_directory = $resolved_allowed_directory ."/";
+
+    return index( $resolved_path_to_test, $resolved_allowed_directory ) == 0 ? 1 : 0;
 }
 
 1;

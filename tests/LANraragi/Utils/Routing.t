@@ -8,34 +8,34 @@ use Mojo::Path;
 
 BEGIN { use_ok('LANraragi::Utils::Routing'); }
 
-note('testing is_traversal_safe ...');
+use Cwd qw(getcwd);
+
+my $cwd = getcwd();
+my $jsdir = $cwd."/tests/samples/routing/js";
+
+note('testing is_path_within ...');
 {
-    my $p = Mojo::Path->new("/js/safe/path");
-    my $result = LANraragi::Utils::Routing::is_traversal_safe($p);
+    my $result = LANraragi::Utils::Routing::is_path_within("$jsdir/safe/ok2.txt", $jsdir);
     is( $result, 1, "Simple safe path should pass" );
 }
 
 {
-    my $p = Mojo::Path->new("/js/../robots.txt");
-    my $result = LANraragi::Utils::Routing::is_traversal_safe($p);
+    my $result = LANraragi::Utils::Routing::is_path_within("$jsdir/safe/../ok.txt", $jsdir."/safe/../");
+    is( $result, 1, "Traversal within directory to test against should pass" );
+}
+
+{
+    my $result = LANraragi::Utils::Routing::is_path_within("$jsdir/safe/../ok.txt", $jsdir);
     is( $result, 1, "Traversal within directory should pass" );
 }
 
 {
-    my $p = Mojo::Path->new("/js/foo/./bar");
-    my $result = LANraragi::Utils::Routing::is_traversal_safe($p);
-    is( $result, 1, "Path with dot segments should pass" );
-}
-
-{
-    my $p = Mojo::Path->new("/js/../../etc/passwd");
-    my $result = LANraragi::Utils::Routing::is_traversal_safe($p);
+    my $result = LANraragi::Utils::Routing::is_path_within("$jsdir/../robots.txt", $jsdir);
     is( $result, 0, "Path traversing past root should be blocked" );
 }
 
 {
-    my $p = Mojo::Path->new("/../absolute");
-    my $result = LANraragi::Utils::Routing::is_traversal_safe($p);
+    my $result = LANraragi::Utils::Routing::is_path_within("/../absolute", $jsdir);
     is( $result, 0, "Path with leading parent traversal should be blocked" );
 }
 
