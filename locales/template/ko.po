@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-05-22 04:34+0000\n"
+"PO-Revision-Date: 2026-06-03 02:01+0000\n"
 "Last-Translator: on9686 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.6\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -2002,3 +2002,59 @@ msgstr "스탬프 이름"
 
 msgid "Error setting up the Stamp"
 msgstr "스탬프 설정 오류"
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "%1 (단행본) 편집 중"
+
+msgid "Delete Tankoubon"
+msgstr "단행본 삭제"
+
+msgid "Read Tankoubon"
+msgstr "단행본 읽기"
+
+msgid "Archives:"
+msgstr "아카이브:"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "단행본에 아카이브 추가:"
+
+msgid "Archive ID (40-character long)"
+msgstr "아카이브 ID (40자)"
+
+msgid "Add"
+msgstr "추가"
+
+msgid "Edit Tankoubon"
+msgstr "단행본 편집"
+
+msgid "Error saving tankoubon metadata"
+msgstr "단행본 메타데이터 저장 중 오류 발생"
+
+msgid "Remove from Tankoubon"
+msgstr "단행본에서 제거"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"이 단행본을 삭제하시겠습니까? 아카이브는 라이브러리에 남아 있지만 더 이상 "
+"그룹화되지 않습니다."
+
+msgid "Tankoubon deleted"
+msgstr "단행본 삭제됨"
+
+msgid "Error deleting tankoubon"
+msgstr "단행본 삭제 중 오류 발생"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "단행본에 아카이브 추가 중 오류 발생"
+
+msgid "About Tankoubons"
+msgstr "단행본에 대해"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"단행본은 아카이브 통합 컬렉션입니다. <br/>왼쪽의 핸들을 드래그하여 아카이브 "
+"순서를 변경하거나, 단행본에서 아카이브를 제거할 수 있습니다.<br/>변경이 "
+"완료되면 저장 버튼을 클릭하십시오."
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "${n}개의 아카이브를 단행본 ${name}(으)로 병합합니다. 진행하시겠습니까?"
