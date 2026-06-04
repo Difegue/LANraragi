@@ -43,7 +43,7 @@ sub get_tankoubon_list ( $page = 0 ) {
     # Jam tanks into an array of hashes
     my @result;
     foreach my $key ( sort @tanks ) {
-        my ( $total, $filtered, %data ) = get_tankoubon($key);
+        my %data = get_tankoubon($key);
         push( @result, \%data );
     }
 
@@ -180,7 +180,11 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1 ) {
 
     my $total = $redis->zcount($tank_id, 1, "+inf");
 
-    return ( $total, $#archives + 1, %tank );
+    if ( $page < 0 ) {
+        return %tank;
+    } else {
+        return ( $total, $#archives + 1, %tank );
+    }
 }
 
 # delete_tankoubon(tankoubonid)

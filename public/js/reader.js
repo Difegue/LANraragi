@@ -367,7 +367,7 @@ export function loadContentData() {
     // If the ID is a Tank ID (TANK_xxxx), use the Tankoubon API for metadata
     if (id.startsWith("TANK_")) {
 
-        return fetch(new LRR.ApiURL(`/api/tankoubons/${id}?include_full_data=true&page=-1`))
+        return fetch(new LRR.ApiURL(`/api/tankoubons/${id}/full`))
             .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
             .then(data => {
                 const tank = data.result;

@@ -27,12 +27,34 @@ sub get_tankoubon {
 
     my $self    = shift->openapi->valid_input or return;
     my $tank_id = $self->stash('id');
+
+    my %tankoubon = LANraragi::Model::Tankoubon::get_tankoubon($tank_id);
+
+    unless (%tankoubon) {
+        render_api_response( $self, "get_tankoubon", "The given tankoubon does not exist." );
+        return;
+    }
+
+    $self->render( openapi => \%tankoubon );
+}
+
+sub get_tankoubon_full {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $tank_id = $self->stash('id');
     my $req     = $self->req;
 
     my $fulldata = ( $self->req->param('include_full_data') && $self->req->param('include_full_data') ne "false" ) ? 1 : 0;
-    my $page     = $req->param('page');
+    my $page     = $req->param('page') // -1;
 
-    my ( $total, $filtered, %tankoubon ) = LANraragi::Model::Tankoubon::get_tankoubon( $tank_id, $fulldata, $page );
+    my ( $total, $filtered, %tankoubon );
+    if ( $page < 0 ) {
+        %tankoubon = LANraragi::Model::Tankoubon::get_tankoubon( $tank_id, $fulldata, $page );
+        $total    = scalar @{ $tankoubon{archives} // [] };
+        $filtered = $total;
+    } else {
+        ( $total, $filtered, %tankoubon ) = LANraragi::Model::Tankoubon::get_tankoubon( $tank_id, $fulldata, $page );
+    }
 
     unless (%tankoubon) {
         render_api_response( $self, "get_tankoubon", "The given tankoubon does not exist." );

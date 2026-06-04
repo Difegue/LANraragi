@@ -87,8 +87,8 @@ Batch.loadSelectionOnly = function (ids) {
 
     // Acquire archive IDs from Tanks and merge with directly selected archive IDs, then fetch metadata for each archive ID
     const tankFetches = tankIds.map((id) => 
-        Server.callAPI(`/api/tankoubons/${id}?page=-1`, "GET", null, I18N.ArchiveListLoadFailure, (data) => {
-            archiveIds.push(...(data.result.archives || []));
+        Server.callAPI(`/api/tankoubons/${id}`, "GET", null, I18N.ArchiveListLoadFailure, (data) => {
+            archiveIds.push(...(data.archives || []));
         }));
         
     Promise.all(tankFetches).then(() => {
