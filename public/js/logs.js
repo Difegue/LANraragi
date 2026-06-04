@@ -1,7 +1,7 @@
 /**
  * Logs Operations
  */
-import * as LRR from "mod/common";
+import * as LRR from "./mod/common.js";
 import I18N from "i18n";
 
 const Logs = {};

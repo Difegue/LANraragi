@@ -2,9 +2,9 @@
  * Non-DataTables Index functions.
  * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
  */
-import * as LRR from "mod/common";
-import * as Server from "mod/server";
-import * as IndexTable from "mod/index_datatables";
+import * as LRR from "./common.js";
+import * as Server from "./server.js";
+import * as IndexTable from "./index_datatables.js";
 import I18N from "i18n";
 import * as marked from "marked";
 import DOMPurify from "dompurify";

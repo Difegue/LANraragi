@@ -1,8 +1,8 @@
 /**
  * Backup Operations
  */
-import * as Server from "mod/server";
-import * as LRR from "mod/common";
+import * as Server from "./mod/server.js";
+import * as LRR from "./mod/common.js";
 import I18N from "i18n";
 
 let currentJob = null;

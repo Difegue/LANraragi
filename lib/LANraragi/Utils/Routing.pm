@@ -3,6 +3,7 @@ package LANraragi::Utils::Routing;
 use strict;
 use warnings;
 use utf8;
+use v5.36;
 
 use Config;
 use Encode;
@@ -12,6 +13,8 @@ use Mojolicious::Plugin::Minion::Admin;
 
 use LANraragi::Utils::Login      qw(is_logged_in_api);
 use LANraragi::Utils::OpenAPI    qw(apply_openapi_mojo_overrides);
+
+use Cwd qw(abs_path);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -67,6 +70,23 @@ sub apply_routes {
 
     # Routers used for all loginless routes
     my $public_routes = $self->routes;
+
+    $public_routes->get( '/js/:version/*filepath' => [ version => qr/\d+\.\d+\.\d+/ ] )->to(
+        cb => sub {
+            my $c = shift;
+            my $static_dir = @{ $self->static->paths }[0];
+            my $allowed_directory = $static_dir ."/";
+            my $relative_path = Mojo::Path->new( "js/" . $c->stash('filepath') )->canonicalize;
+            my $path_to_test = $allowed_directory . $relative_path;
+
+            if (!is_path_within($path_to_test, $allowed_directory)) {
+                return $c->reply->exception('Bad Request');
+            }
+
+            $c->res->headers->cache_control('public, max-age=31536000, immutable');
+            $c->reply->static($relative_path);
+        }
+    );
 
     # Normal route to controller
     $public_routes->get('/login')->to('login#index');
@@ -138,6 +158,20 @@ sub apply_routes {
 
     $search_api->get('/search')->to('api-search#handle_datatables');
 
+}
+
+# Checks if path $path_to_test exists inside $allowed_directory.
+# It handles path traversal and symlinks.
+# Returns 0 if the file does not exist, either directory does not exist or if $path_to_test is not inside $allowed_directory.
+sub is_path_within($path_to_test, $allowed_directory) {
+    my $resolved_path_to_test = abs_path($path_to_test);
+    my $resolved_allowed_directory = abs_path($allowed_directory);
+
+    return 0 unless defined $resolved_path_to_test && defined $resolved_allowed_directory;
+
+    $resolved_allowed_directory = $resolved_allowed_directory ."/";
+
+    return index( $resolved_path_to_test, $resolved_allowed_directory ) == 0 ? 1 : 0;
 }
 
 1;
