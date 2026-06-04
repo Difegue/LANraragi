@@ -31,12 +31,17 @@ my ( $total, $filtered, @rgs );
 my %tankoubon;
 
 # Get Tankoubon
-( $total, $filtered, %tankoubon ) = LANraragi::Model::Tankoubon::get_tankoubon("TANK_1589141306", 0, 0);
+%tankoubon = LANraragi::Model::Tankoubon::get_tankoubon("TANK_1589141306");
 is($tankoubon{id}, "TANK_1589141306", 'ID test');
 is($tankoubon{name}, "Hello", 'Name test');
-is($total, 2, 'Total Test');
-is($filtered, 2, 'Count Test');
+is(scalar @{$tankoubon{archives}}, 2, 'Archive count test');
 ok($tankoubon{archives}[0] eq "28697b96f0ac5858be2666ed10ca47742c955555", 'Archives test');
+
+# Get Tankoubon (paged, page=0 returns $total/$filtered alongside tank data)
+my ($tp, $fp, %tankoubon_paged) = LANraragi::Model::Tankoubon::get_tankoubon("TANK_1589141306", 0, 0);
+is($tankoubon_paged{id}, "TANK_1589141306", 'Paged ID test');
+is($tp, 2, 'Total Test');
+is($fp, 2, 'Count Test');
 
 # List Tankoubon
 ( $total, $filtered, @rgs ) = LANraragi::Model::Tankoubon::get_tankoubon_list(0);
@@ -69,9 +74,9 @@ my $new_tank_id = LANraragi::Model::Tankoubon::create_tankoubon("Test Tank", "")
 ok($new_tank_id =~ /^TANK_\d{10}$/, 'Create tankoubon returns valid ID');
 
 # Verify it exists and has correct name
-my ($t, $f, %new_tank) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+my %new_tank = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($new_tank{name}, "Test Tank", 'Created tankoubon has correct name');
-is($t, 0, 'New tankoubon has 0 archives');
+is(scalar @{$new_tank{archives}}, 0, 'New tankoubon has 0 archives');
 
 # Test: Add 12 archives to tank
 foreach my $arc_id (@archive_ids) {
@@ -80,8 +85,8 @@ foreach my $arc_id (@archive_ids) {
 }
 
 # Test: Verify ordering with 12 archives (critical test for cmp vs <=> fix)
-my ($total_12, $filtered_12, %tank_12) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
-is($total_12, 12, 'Tank has 12 archives');
+my %tank_12 = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is(scalar @{$tank_12{archives}}, 12, 'Tank has 12 archives');
 
 # Verify archives are in correct insertion order (not string-sorted)
 for my $i (0 .. $#archive_ids) {
@@ -91,16 +96,16 @@ for my $i (0 .. $#archive_ids) {
 # Test: Adding duplicate archive
 my ($dup_result, $dup_err) = LANraragi::Model::Tankoubon::add_to_tankoubon($new_tank_id, $archive_ids[0]);
 ok($dup_result, 'Adding duplicate archive returns success');
-my ($t_dup, $f_dup, %tank_dup) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
-is($t_dup, 12, 'Tank still has 12 archives after duplicate add');
+my %tank_dup = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is(scalar @{$tank_dup{archives}}, 12, 'Tank still has 12 archives after duplicate add');
 
 # Test: Remove from tankoubon
 my ($rm_result, $rm_err) = LANraragi::Model::Tankoubon::remove_from_tankoubon($new_tank_id, $archive_ids[1]);
 ok($rm_result, 'Removed archive from tankoubon');
 is($rm_result, 2, 'Removed archive was at position 2');
 
-my ($t_rm, $f_rm, %tank_rm) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
-is($t_rm, 11, 'Tank now has 11 archives');
+my %tank_rm = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+is(scalar @{$tank_rm{archives}}, 11, 'Tank now has 11 archives');
 is($tank_rm{archives}[0], $archive_ids[0], 'First archive unchanged after removal');
 is($tank_rm{archives}[1], $archive_ids[2], 'Second archive is now what was third');
 
@@ -110,7 +115,7 @@ my @reversed = reverse @current_archives;
 my ($reorder_result, $reorder_err) = LANraragi::Model::Tankoubon::update_archive_list($new_tank_id, { archives => \@reversed });
 ok($reorder_result, 'Reordered archive list');
 
-my ($t_rev, $f_rev, %tank_rev) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id, 0, -1);
+my %tank_rev = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is_deeply($tank_rev{archives}, \@reversed, 'Archives are in reversed order');
 
 # Test: Update metadata
@@ -123,7 +128,7 @@ my ($meta_result, $meta_err) = LANraragi::Model::Tankoubon::update_metadata($new
 });
 ok($meta_result, 'Updated metadata');
 
-my ($t_meta, $f_meta, %tank_meta) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+my %tank_meta = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_meta{name}, "Updated Tank Name", 'Name updated correctly');
 is($tank_meta{summary}, "A test summary", 'Summary updated correctly');
 is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
@@ -137,21 +142,21 @@ ok((grep { $_ eq $new_tank_id } @containing_tanks), 'Found tank containing archi
 #################################
 
 # Test: New tankoubon has progress=0
-my ($t_prog0, $f_prog0, %tank_prog0) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+my %tank_prog0 = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_prog0{progress}, 0, 'New tankoubon starts with progress=0');
 
 # Test: update_tank_progress stores the page
 my ($prog_result, $prog_err) = LANraragi::Model::Tankoubon::update_tank_progress($new_tank_id, 7);
 ok($prog_result, 'update_tank_progress returns success');
 
-my ($t_prog7, $f_prog7, %tank_prog7) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+my %tank_prog7 = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_prog7{progress}, 7, 'Tank progress updated to 7');
 
 # Test: Delete tankoubon
 my $del_result = LANraragi::Model::Tankoubon::delete_tankoubon($new_tank_id);
 ok($del_result, 'Deleted tankoubon');
 
-my ($t_del, $f_del, %tank_del) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
+my %tank_del = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 ok(!%tank_del, 'Tankoubon no longer exists after deletion');
 
 #################################

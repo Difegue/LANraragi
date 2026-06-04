@@ -291,7 +291,7 @@ sub build_json ( $id, %hash ) {
 
 # Ditto for Tank IDs.
 sub build_tank_json ($id) {
-    my ( $total_archives, $filtered, %tank ) = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
+    my %tank = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
 
     # Aggregate data of all archives in the tank
     my $aggregate_names     = "";
@@ -328,7 +328,7 @@ sub build_tank_json ($id) {
         pagecount     => $aggregate_pagecount,
         lastreadtime  => $latest_readtime,
         size          => $aggregate_size,
-        archive_count => $total_archives
+        archive_count => scalar @{ $tank{archives} }
     };
 
     return $arcdata;

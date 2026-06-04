@@ -68,7 +68,9 @@ sub edit_tankoubon {
         return;
     }
 
-    my ( $total, $filtered, %tank ) = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
+    # Note: We only use full_data here to get the archive titles. If this proves to be too slow for large tanks,
+    # we could discard this and do separate API calls to get the titles in the client. 
+    my %tank = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
     my @archives   = @{ $tank{archives}  // [] };
     my @full_data  = @{ $tank{full_data} // [] };
 

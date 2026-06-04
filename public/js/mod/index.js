@@ -792,7 +792,7 @@ function mergeSelectionIntoTankoubon() {
         // Fold non-tank archives into the existing tankoubon
         const tankId = tankIds[0];
         Server.callAPI(`/api/tankoubons/${tankId}`, "GET", null, I18N.MSMMergeError, (data) => {
-            const tankName = data.result.name;
+            const tankName = data.name;
             LRR.showPopUp({
                 text: I18N.MSMMergeExistingConfirmText(archiveIds.length, tankName),
                 showCancelButton: true,
@@ -992,7 +992,7 @@ export function migrateProgress() {
                 .then((data) => {
                     if (!data) return;
 
-                    const serverProgress = isTank ? data.result.progress : data.progress;
+                    const serverProgress = data.progress;
 
                     // Don't migrate if the server progress is already further
                     if (progress !== null

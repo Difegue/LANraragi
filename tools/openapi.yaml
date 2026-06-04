@@ -2359,7 +2359,7 @@ paths:
                     type: array
                     description: Array of tankoubon metadata
                     items:
-                      $ref: '#/components/schemas/TankoubonMetadataJson'
+                      $ref: '#/components/schemas/TankoubonBackupJson'
                 example:
                   archives:
                     - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
@@ -3384,25 +3384,9 @@ paths:
       x-mojo-to: api-tankoubon#get_tankoubon
       summary: Get a single Tankoubon
       description: >-
-        Get the details of the specified tankoubon ID, with the archives list paginated.  
-
-        The amount of archives per page depends on the server `archives_per_page` setting.
+         Get the details of the specified tankoubon ID.
       tags:
         - tankoubons
-      parameters:
-        - name: include_full_data
-          in: query
-          required: false
-          description: If set to true, a `full_data` array will be added to the response with full Archive metadata.
-          schema:
-            type: boolean
-        - name: page
-          in: query
-          required: false
-          description: Page of the Archives list. You can use -1 to return all archives if needed.  
-          schema:
-            type: integer
-            default: -1
       responses:
         '200':
           description: Tankoubon
@@ -3411,32 +3395,32 @@ paths:
               schema:
                 type: object
                 properties:
-                  result:
-                    type: object
-                    properties:
-                      archives:
-                        type: array
-                        description: Paginated list of archive IDs or tankoubon IDs.
-                        items:
-                          type: string
-                          oneOf:
-                            - minLength: 40
-                              maxLength: 40
-                              pattern: "^[0-9a-f]{40}$"
-                            - minLength: 15
-                              maxLength: 15
-                              pattern: "^TANK_[0-9]{10}$"
-                        uniqueItems: true
-                      full_data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/ArchiveMetadataJson'
-                  total:
+                  id:
+                    type: string
+                    description: ID of this Tankoubon.
+                  name:
+                    type: string
+                    description: Name of this Tankoubon.
+                  summary:
+                    type: string
+                  tags:
+                    type: string
+                  archives:
+                    type: array
+                    description: Full list of archive IDs contained in this Tankoubon.
+                    items:
+                      type: string
+                      oneOf:
+                        - minLength: 40
+                          maxLength: 40
+                          pattern: "^[0-9a-f]{40}$"
+                        - minLength: 15
+                          maxLength: 15
+                          pattern: "^TANK_[0-9]{10}$"
+                    uniqueItems: true
+                  progress:
                     type: integer
-                    description: The total amount of archives in this Tankoubon.
-                  filtered:
-                    type: integer
-                    description: The amount of archives in the current page.
+                    description: Reading progress (page number) for this Tankoubon.
         '400':
           description: Error response
           content:
@@ -3539,6 +3523,85 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/full:
+    parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon desired
+          schema:
+            type: string
+    get:
+      operationId: getTankoubonFull
+      x-mojo-to: api-tankoubon#get_tankoubon_full
+      summary: Get a single Tankoubon with full detail
+      description: >-
+        Get the details of the specified tankoubon ID with paginated archive metadata.
+
+        The amount of archives per page depends on the server `archives_per_page` setting.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page of the Archives list. You can use -1 to return all archives, but this might take a while.
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Tankoubon
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: ID of this Tankoubon.
+                      name:
+                        type: string
+                        description: Name of this Tankoubon.
+                      summary:
+                        type: string
+                      tags:
+                        type: string
+                      progress:
+                        type: integer
+                        description: Reading progress (page number) for this Tankoubon.
+                      archives:
+                        type: array
+                        description: Paginated list of archive IDs contained in this Tankoubon.
+                        items:
+                          type: string
+                          oneOf:
+                            - minLength: 40
+                              maxLength: 40
+                              pattern: "^[0-9a-f]{40}$"
+                            - minLength: 15
+                              maxLength: 15
+                              pattern: "^TANK_[0-9]{10}$"
+                        uniqueItems: true
+                      full_data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ArchiveMetadataJson'
+                  total:
+                    type: integer
+                    description: The total amount of archives in this Tankoubon.
+                  filtered:
+                    type: integer
+                    description: The amount of archives in the current page.
+        '400':
+          description: Error response
           content:
             application/json:
               schema:
@@ -4267,10 +4330,22 @@ components:
           - 7f03b8b1f337e1e42b2c2890533c0de7479d41ca
     TankoubonMetadataJson:
       type: object
-      description: Tankoubon metadata
+      description: Tankoubon metadata as returned by the list endpoint
       required:
-        - tankid
+        - id
       properties:
+        id:
+          type: string
+          description: ID of the tankoubon
+        name:
+          type: string
+          description: Name of the tankoubon
+        summary:
+          type: string
+          description: Summary of the tankoubon
+        tags:
+          type: string
+          description: Tags associated with the tankoubon
         archives:
           type: array
           description: Array of archive IDs
@@ -4278,12 +4353,43 @@ components:
             type: string
             minLength: 40
             maxLength: 40
+        progress:
+          type: integer
+          description: Reading progress (page number) for this Tankoubon
+      example:
+        id: TANK_1749925516
+        name: sailor moon
+        summary: ""
+        tags: ""
+        archives:
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebf
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebg
+        progress: 0
+    TankoubonBackupJson:
+      type: object
+      description: Tankoubon metadata as returned in a backup
+      required:
+        - tankid
+      properties:
         tankid:
           type: string
           description: ID of the tankoubon
         name:
           type: string
           description: Name of the tankoubon
+        summary:
+          type: string
+          description: Summary of the tankoubon
+        tags:
+          type: string
+          description: Tags associated with the tankoubon
+        archives:
+          type: array
+          description: Array of archive IDs
+          items:
+            type: string
+            minLength: 40
+            maxLength: 40
       example:
         tankid: TANK_1749925516
         name: sailor moon
