@@ -7,7 +7,6 @@ import I18N from "i18n";
 import { state, goToPage, loadContentData, stopAutoNextPage, toggleOverlay, getCurrentChapter, getArchiveForPage } from "./reader_common.js";
 
 export function initializeArchiveOverlay() {
-    $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", toggleArchiveOverlay);
     $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${state.id}`)));
     $(document).on("click.delete-archive", "#delete-archive", () => {
         const isTank = state.id.startsWith("TANK_");
@@ -189,15 +188,15 @@ export function updateArchiveOverlay(forceUpdate = false) {
     // Otherwise, update chapter and overlay -- If there are no chapters defined, just show all pages
     state.currentChapter = getCurrentChapter();
     let firstPage = state.currentChapter ? state.currentChapter.startPage : 1;
-    let lastPage = state.currentChapter ? state.currentChapter.endPage : state.pages.length;
+    let lastPage = state.currentChapter ? state.currentChapter.endPage : state.pages.value.length;
 
     $("#overlay-section").text(state.currentChapter ? state.currentChapter.name : I18N.ReaderPages);
 
     if (state.currentChapter !== null) {
         // Create <select> options for jumping to other chapters
         let chapterOptions = `<select class="favtag-btn" id="chapter-select">`;
-        if (state.content.chapters) {
-            state.content.chapters.forEach((chapter) => {
+        if (state.content.value.chapters) {
+            state.content.value.chapters.forEach((chapter) => {
                 const selected = (state.currentChapter && chapter.startPage === state.currentChapter.startPage) ? "selected" : "";
                 chapterOptions += `<option value="${chapter.startPage}" ${selected}>${LRR.encodeHTML(chapter.name)}</option>`;
 

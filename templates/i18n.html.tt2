@@ -286,4 +286,6 @@ I18N.TheDefaultIs10Seconds = "[% c.lh('The default is 10 seconds.') %]";
 
 I18N.ToggleStamps = "[% c.lh('Toggle Stamps') %]";
 
+I18N.ToggleBookmark = "[% c.lh('Toggle Bookmark') %]";
+
 export default I18N;
