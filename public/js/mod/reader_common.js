@@ -5,18 +5,30 @@ import * as Server from "./server.js";
 import * as LRR from "./common.js";
 import I18N from "i18n";
 import fscreen from "fscreen";
-import { signal, effect } from "@preact/signals";
+import { signal, effect, computed, batch } from "@preact/signals";
 import { initializeStamps, updateStamps, renderMarkers, clearMarkers } from "./reader_stamps.js";
 import { initializeArchiveOverlay, toggleArchiveOverlay, updateArchiveOverlay, addCategoryBadge, removeCategoryBadge } from "./reader_archive_overlay.js";
 import { initializeSettings, toggleSettingsOverlay } from "./reader_options.js";
+import { initializeHeader } from "./reader_header.js";
+import { initializeFooter } from "./reader_footer.js";
+
+/**
+ * @typedef Content
+ * @property {string} id
+ * @property {string} title
+ * @property {number} pages
+ * @property {Array} chapters
+ * @property {string} tags
+ * @property {string} summary
+ */
 
 export let state = {
     id: "",
     force: false,
     previousPage: -1,
-    currentPage: -1,
+    currentPage: signal(0),
     currentChapter: null,
-    showingSinglePage: true,
+    showingSinglePage: signal(true), // TODO: compute
     pageThumbnails: [],
     preloadedImg: {},
     preloadedSizes: {},
@@ -31,15 +43,24 @@ export let state = {
         holdDelay: 350,      // Delay time in ms before continuous scroll starts on keydown
         scrollSpeed: 22      // Speed % to scroll when spacebar is held
     },
-    autoNextPage: false,
+    autoNextPage: signal(false),
     autoNextPageCountdownTaskId: undefined,
-    autoNextPageCountdown: 0,
+    autoNextPageCountdown: signal(0),
     trackProgressLocally: null,
     authenticateProgress: null,
     containerWidth: signal(localStorage.containerWidth || null),
-    content: undefined,
-    pages: [],
-    maxPage: -1,
+    content: signal(/** @type {Content} */{
+        id: "",
+        title: "",
+        pages: 0,
+        chapters: [],
+        tags: "",
+        summary: "",
+    }),
+    pages: signal(/** @type {Array<string>} */ []),
+    maxPage: computed(() => {
+        return state.pages.value.length - 1;
+    }),
     mangaMode: signal(localStorage.mangaMode === "true" || false),
     doublePageMode: signal(localStorage.doublePageMode === "true" || false),
     ignoreProgress: signal(localStorage.ignoreProgress === "true" || false),
@@ -50,13 +71,37 @@ export let state = {
     progress: undefined,
     showOverlayByDefault: signal(localStorage.showOverlayByDefault === "true" || false),
     preloadCount: signal((localStorage.preloadCount === "" ? null : localStorage.preloadCount) ?? 2),
-    AutoNextPageInterval: signal(+localStorage.AutoNextPageInterval || 10),
+    AutoNextPageInterval: signal(/** @type {number} */+localStorage.AutoNextPageInterval || 10),
     markerMode: false,
     markersVisible: signal(localStorage.markersVisible === "true" || false),
     markers: [],
     overlayFiltered: false,
     pageNaviState: true,
     wakeLock: null,
+    isBookmarked: signal(/** @type boolean|null */null),
+    filename: signal(""), // TODO: compute from bigger object
+    filenameDoublePage: signal(""), // TODO: compute from bigger object
+    width: signal(0),
+    height: signal(0),
+    size: signal(0),
+    // Ugly but eh
+    width2: signal(0),
+    height2: signal(0),
+    size2: signal(0),
+    artist: computed(() => {
+        const res = state.content.value.tags.match(/artist:([^,]+)(?:,|$)/i);
+        if (res) {
+            return res[1];
+        }
+        return "";
+    }),
+    /**
+     * @param {number} newCount
+     */
+    setCurrentPage: function (newCount) {
+        state.currentPage.value = Math.max(+newCount, 0);
+    },
+    multiArchiveNavigation: signal(false),
 };
 
 let infiniteScrollObserver = null;
@@ -66,6 +111,8 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     state.authenticateProgress = authenticateProgress;
 
     initializeSettings();
+    initializeHeader();
+    initializeFooter();
     initFullscreen();
     applyContainerWidth();
     initializeStamps();
@@ -78,18 +125,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     $(document).on("keydown", (e) => { if (e.which === 32) handleShortcuts(e); });
     $(document).on("wheel", handleWheel);
 
-    $(document).on("click.toggle-manga-mode", ".reading-direction", toggleMangaMode);
-    $(document).on("click.pagination-change-pages", ".page-link", handlePaginator);
-
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggle-full-screen", "#toggle-full-screen", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleFullScreen();
-    });
-    $(document).on("click.toggle-auto-next-page", ".toggle-auto-next-page", toggleAutoNextPage);
-    $(document).on("click.toggle-help", "#toggle-help", toggleHelp);
-    $(document).on("click.toggle-bookmark", ".toggle-bookmark", toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.ApiURL(`/reader?id=${state.id}&force_reload`);
     });
@@ -100,8 +136,8 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         selector: ".reader-image",
         build: ($trigger, e) => {
             const src = $trigger.attr("src");
-            const url = $trigger.data("url");
-            const filename = $trigger.data("filename");
+            const url = state.infiniteScroll.value ? src : $trigger.data("url");
+            const filename = state.infiniteScroll.value ? new URL(src, window.location.href).searchParams.get("path") : $trigger.data("filename");
             return {
                 items: {
                     newTab: {
@@ -135,20 +171,11 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         returnToIndex();
     });
 
-    // Apply full-screen utility
-    // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
-    // Small override function, always returns boolean
-    fscreen.inFullscreen = () => !!fscreen.fullscreenElement;
-    if (!fscreen.fullscreenEnabled) {
-        // Fullscreen mode is unsupported; use attribute selector to hide all instances
-        $("[id='toggle-full-screen']").hide();
-    }
-
     // Infer initial information from the URL
     const params = new URLSearchParams(window.location.search);
     state.id = params.get("id");
     state.force = params.get("force_reload") !== null;
-    state.currentPage = (+params.get("p") || 1) - 1;
+    state.setCurrentPage((+params.get("p") || 1) - 1);
 
     // Set up archive navigation state from the entry source (datatables vs carousel vs direct nav)
     await setupArchiveNavigation();
@@ -160,11 +187,8 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     // Load metadata for the requested ID and populate the page
     loadContentData().then(() => {
 
-        document.title = state.content.title;
-        $(".max-page").text(state.content.pages);
-
         // Regex look in tags for artist
-        const artist = state.content.tags.match(/artist:([^,]+)(?:,|$)/i);
+        const artist = state.content.value.tags.match(/artist:([^,]+)(?:,|$)/i);
         if (artist) {
             const artistName = artist[1];
             const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}%24&`;
@@ -172,20 +196,18 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                 .attr("href", artistSearchUrl)
                 .text(artistName);
             const titleContainer = $("<span></span>")
-                .text(`${state.content.title} by `)
+                .text(`${state.content.value.title} by `)
                 .append(link);
-            $("#archive-title").empty().append(titleContainer);
             $("#archive-title-overlay").empty().append(titleContainer.clone());
         } else {
-            $("#archive-title").text(state.content.title);
-            $("#archive-title-overlay").text(state.content.title);
+            $("#archive-title-overlay").text(state.content.value.title);
         }
 
-        $("#tagContainer").append(LRR.buildTagsDiv(state.content.tags));
+        $("#tagContainer").append(LRR.buildTagsDiv(state.content.value.tags));
 
         const ratyEl = document.querySelector(`[data-raty]`);
         if (ratyEl) {
-            const rating = LRR.splitTagsByNamespace(state.content.tags).rating?.at(0).length;
+            const rating = LRR.splitTagsByNamespace(state.content.value.tags).rating?.at(0).length;
             new Raty(ratyEl, {
                 starType: `i`,
                 cancelButton: true,
@@ -195,7 +217,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                 score: rating,
                 click: function(score, element, evt) {
 
-                    let tags = LRR.splitTagsByNamespace(state.content.tags);
+                    let tags = LRR.splitTagsByNamespace(state.content.value.tags);
                     let selectedRating = score;
 
                     if (selectedRating === null)
@@ -217,7 +239,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         }
 
         $("#tagContainer").append(`<div class="archive-summary"/>`);
-        $(".archive-summary").text(state.content.summary);
+        $(".archive-summary").text(state.content.value.summary);
 
         // Get the chapter for the current page (if any)
         state.currentChapter = getCurrentChapter();
@@ -232,6 +254,10 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                         enterStandardView();
                     }
                 });
+                effect(() => {
+                    if (state.infiniteScroll.value) { return; }
+                    refreshCurrentPage();
+                });
             });
     });
 
@@ -243,21 +269,13 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     effect(() => {
         if (state.infiniteScroll.value) { return; }
         localStorage.mangaMode = state.mangaMode.value;
-
-        if (state.mangaMode.value) {
-
-            $(".reading-direction").addClass("fa-arrow-left").removeClass("fa-arrow-right");
-        } else {
-            $(".reading-direction").removeClass("fa-arrow-left").addClass("fa-arrow-right");
-        }
-
-        goToPage(state.currentPage);
+        // This can cause a spurious refresh, but is required to update the fileinfo bar
+        refreshCurrentPage();
     });
 
     effect(() => {
         if (state.infiniteScroll.value) { return; }
         localStorage.doublePageMode = state.doublePageMode.value;
-        goToPage(state.currentPage);
     });
 
     effect(() => {
@@ -278,12 +296,6 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     effect(() => {
         if (state.infiniteScroll.value) { return; }
         localStorage.hideHeader = state.hideHeader.value;
-        const i2 = document.getElementById("i2");
-        if (state.hideHeader.value) {
-            i2.setAttribute("hidden", "hidden");
-        } else {
-            i2.removeAttribute("hidden");
-        }
         applyContainerWidth();
     });
 
@@ -299,13 +311,17 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     effect(() => {
         localStorage.preloadCount = state.preloadCount.value;
     });
+
+    effect(() => {
+        document.title = state.content.value.title;
+    });
 }
 
 export function loadContentData() {
 
     // Initialize content object to hold metadata -- This is a recursive object that will be used to build the page overlay.
     // (For tanks, content.chapters will hold archive chapters that can themselves contain nested chapters from ToCs)
-    state.content = {
+    let content = {
         id: state.id,
         title: "",
         pages: 0,
@@ -339,11 +355,13 @@ export function loadContentData() {
             .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
             .then(data => {
                 const tank = data.result;
-                state.content.title   = tank.name;
-                state.content.tags    = tank.tags    || "";
-                state.content.summary = tank.summary || "";
-
-                state.content.chapters = [];
+                content = {
+                    ...content,
+                    title: tank.name,
+                    tags: tank.tags || "",
+                    summary: tank.summary || "",
+                    chapters: [],
+                };
 
                 // full_data contains pre-fetched metadata for every archive in order
                 const fullData = tank.full_data || [];
@@ -355,12 +373,15 @@ export function loadContentData() {
 
                     // Create archive chapter (with nested ToC chapters if present)
                     const archiveChapters = LRR.buildTankChapters(meta, pageOffset);
-                    state.content.chapters.push(...archiveChapters);
+                    content.chapters.push(...archiveChapters);
 
                     pageOffset += meta.pagecount || 0;
                 });
 
-                state.content.pages = pageOffset;
+                state.content.value = {
+                    ...content,
+                    pages: pageOffset,
+                };
                 updateProgress(tank, state.id);
                 return updateTankTags();
             })
@@ -369,16 +390,25 @@ export function loadContentData() {
 
     return Server.callAPI(`/api/archives/${state.id}/metadata`, "GET", null, I18N.ServerInfoError,
         (data) => {
-            state.content.title = data.title;
-            state.content.pages = data.pagecount;
-            state.content.tags = data.tags;
-            state.content.summary = data.summary;
+            batch(() =>
+            {
+                state.content.value = {
+                    ...state.content.value,
+                    title: data.title,
+                    pages: data.pagecount,
+                    tags: data.tags,
+                    summary: data.summary,
+                };
 
-            updateProgress(data, state.id);
+                updateProgress(data, state.id);
 
-            if (data.toc)
-                state.content.chapters = LRR.buildArchiveChapters(data.toc, state.id, data.pagecount);
-
+                if (data.toc) {
+                    state.content.value = {
+                        ...state.content.value,
+                        chapters: LRR.buildArchiveChapters(data.toc, state.id, data.pagecount),
+                    };
+                }
+            });
             // Check and display warnings for unsupported filetypes
             checkFiletypeSupport(data.extension);
         }
@@ -392,7 +422,7 @@ export function loadContentData() {
  */
 export function getArchiveForPage(globalPage) {
     if (state.id.startsWith("TANK_")) {
-        const arc = state.content.chapters.find(a => globalPage >= a.startPage && globalPage <= a.endPage);
+        const arc = state.content.value.chapters.find(a => globalPage >= a.startPage && globalPage <= a.endPage);
         if (arc)
             return { arcId: arc.id, localPage: globalPage - arc.startPage + 1 };
     }
@@ -402,21 +432,20 @@ export function getArchiveForPage(globalPage) {
 function loadImages() {
 
     const onLoad = (data) => {
-        state.pages = data;
-        state.maxPage = state.pages.length - 1;
-        $(".max-page").html(state.pages.length);
-
-        // Choices in order for page picking:
-        // * p is in parameters and is not the first page
-        // * progress is tracked and is not the last page
-        // * first page
-        // This allows for bookmarks to trump progress
-        // when there's no parameter, null is coerced to 0 so it becomes -1
-        state.currentPage = state.currentPage || (
-            !state.ignoreProgress.value && state.progress < state.maxPage
-                ? state.progress
-                : 0
-        );
+        batch(() => {
+            state.pages.value = data;
+            // Choices in order for page picking:
+            // * p is in parameters and is not the first page
+            // * progress is tracked and is not the last page
+            // * first page
+            // This allows for bookmarks to trump progress
+            // when there's no parameter, null is coerced to 0 so it becomes -1
+            state.setCurrentPage(state.currentPage.peek() || (
+                !state.ignoreProgress.value && state.progress < state.maxPage.peek()
+                    ? state.progress
+                    : 0
+            ));
+        });
 
         if (state.showOverlayByDefault.value) { toggleArchiveOverlay(); }
 
@@ -428,7 +457,7 @@ function loadImages() {
     };
 
     const onFinally = () => {
-        if (state.pages === undefined) {
+        if (state.pages.value === undefined) {
             $("#img").attr("src", new LRR.ApiURL("/img/flubbed.gif").toString());
             $("#display").append(`<h2>${I18N.ReaderArchiveError}</h2>`);
         }
@@ -438,7 +467,7 @@ function loadImages() {
     if (state.id.startsWith("TANK_")) {
         // For tanks: fetch pages for each archive and concatenate them
         return Promise.all(
-            state.content.chapters.map(arc =>
+            state.content.value.chapters.map(arc =>
                 fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files?force=${state.force}`))
                     .then(r => r.ok ? r.json() : Promise.reject())
             )
@@ -457,14 +486,14 @@ function loadImages() {
 function initFullscreen() {
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyond consideration.
-    // Small override function, always returns boolean
-    fscreen.inFullscreen = () => !!fscreen.fullscreenElement;
-    if (!fscreen.fullscreenEnabled) {
-        // Fullscreen mode is unsupported; use attribute selector to hide all instances
-        $("[id='toggle-full-screen']").hide();
-    }
-
     fscreen.onfullscreenchange = () => handleFullScreen(fscreen.fullscreenElement !== null);
+}
+
+/**
+ * Small override function, always returns boolean
+ */
+export function inFullscreen() {
+    return !!fscreen.fullscreenElement;
 }
 
 function enterInfiniteScrollView() {
@@ -479,10 +508,10 @@ function enterInfiniteScrollView() {
         // Wait for the pages to load before scrolling to the current page
 
         loaded += 1;
-        if (loaded === state.pages.length) {
+        if (loaded === state.pages.value.length) {
             allImagesLoaded = true;
             if (window.scrollY === 0) {
-                goToPage(state.currentPage);
+                goToPage(state.currentPage.value);
             }
         }
     }
@@ -494,7 +523,7 @@ function enterInfiniteScrollView() {
     $img.on("load.infinite-scroll", imgOnLoad);
 
     $("body").addClass("infinite-scroll");
-    $img.attr("src", state.pages[0]).addClass("infinite-scroll-image");
+    $img.attr("src", state.pages.value[0]).addClass("infinite-scroll-image");
 
     // Disable other options that don't work with infinite scroll
     state.mangaMode.value = false;
@@ -509,16 +538,16 @@ function enterInfiniteScrollView() {
             // Convert to int
             const page = parseInt(index, 10);
             // Avoid double progress updates
-            if (state.currentPage !== page) {
-                state.currentPage = page;
+            if (state.currentPage.value !== page) {
+                state.setCurrentPage(page);
                 updateProgress();
             }
         }
     }, { threshold: 0.5 });
 
-    state.pages.slice(1).forEach((source) => {
+    state.pages.value.slice(1).forEach((source) => {
         const img = new Image();
-        img.id = `page-${state.pages.indexOf(source)}`;
+        img.id = `page-${state.pages.value.indexOf(source)}`;
         img.height = 800;
         img.width = 600;
         const $img = $(img);
@@ -543,7 +572,7 @@ function enterInfiniteScrollView() {
 
     applyContainerWidth();
 
-    if (state.content.tags?.includes("webtoon")) {
+    if (state.content.value.tags?.includes("webtoon")) {
         $("body").addClass("webtoon-mode");
     }
 }
@@ -579,9 +608,6 @@ function enterStandardView() {
     });
 
     $("#img").off("load.updatemeta").on("load.updatemeta", updateMetadata);
-
-    $(".current-page").each((_i, el) => $(el).html(state.currentPage + 1));
-    goToPage(state.currentPage);
 }
 
 /** Process inputs
@@ -632,7 +658,7 @@ function handleShortcuts(e) {
             }
             break;
         case 66: // b
-            toggleBookmark(e);
+            toggleBookmark();
             break;
         case 68: // d
             if (e.shiftKey) {
@@ -687,7 +713,7 @@ function handleShortcuts(e) {
  */
 function spaceScrollProcessInput(e) {
     //Break early and go back to browser default behaviour if overlay is open or gallery has webtoon tag and in infiniteScroll
-    if ($(".page-overlay").is(":visible") || e.repeat || (state.infiniteScroll.value && state.content.tags?.includes("webtoon"))) return;
+    if ($(".page-overlay").is(":visible") || e.repeat || (state.infiniteScroll.value && state.content.value.tags?.includes("webtoon"))) return;
 
     e.preventDefault();
     // Capture direction now so we dont lose it if shift state changes while held
@@ -777,7 +803,7 @@ function spaceScrollProcessInput(e) {
 }
 
 function handleWheel(e) {
-    if (fscreen.inFullscreen() && !state.infiniteScroll.value) {
+    if (inFullscreen() && !state.infiniteScroll.value) {
         let changePageNum = 1;
         if (e.originalEvent.deltaY > 0) changePageNum = -1;
         // In Manga mode, reverse the changePage variable
@@ -817,7 +843,7 @@ function checkFiletypeSupport(extension) {
     }
 }
 
-function toggleHelp() {
+export function toggleHelp() {
     LRR.toast({
         toastId: "readerHelp",
         heading: I18N.ReaderNavHelp,
@@ -830,8 +856,7 @@ function toggleHelp() {
     // all toggable panes need to return false to avoid scrolling to top
 }
 
-function toggleBookmark(e) {
-    e.preventDefault();
+export function toggleBookmark() {
     if (!localStorage.getItem("bookmarkCategoryId")) {
         console.error("No bookmark category ID found!");
         return;
@@ -846,20 +871,20 @@ function toggleBookmark(e) {
         return;
     }
 
-    if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
+    if (state.isBookmarked.value) {
         // Remove from category
-        Server.removeArchiveFromCategory(state.id, localStorage.getItem("bookmarkCategoryId"));
+        Server.removeArchiveFromCategory(state.id, localStorage.getItem("bookmarkCategoryId"))
+            .then(() => {
+                state.isBookmarked.value = false;
+            });
         removeCategoryBadge(localStorage.getItem("bookmarkCategoryId"));
-        $(".toggle-bookmark")
-            .removeClass("fas fa-bookmark")
-            .addClass("far fa-bookmark");
     } else {
         // Add to category
-        Server.addArchiveToCategory(state.id, localStorage.getItem("bookmarkCategoryId"));
+        Server.addArchiveToCategory(state.id, localStorage.getItem("bookmarkCategoryId"))
+            .then(() => {
+                state.isBookmarked.value = true;
+            });
         addCategoryBadge(localStorage.getItem("bookmarkCategoryId"));
-        $(".toggle-bookmark")
-            .removeClass("far fa-bookmark")
-            .addClass("fas fa-bookmark");
     }
 }
 
@@ -872,20 +897,7 @@ function loadBookmarkStatus() {
             }
             fetch(new LRR.ApiURL(`/api/categories/${category_id}`))
                 .then(response => response.json()).then(categoryData => {
-                    const isBookmarked = categoryData.archives.includes(state.id);
-                    const bookmarkState = isBookmarked ? "fas" : "far";
-                    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-                    const leftOptionsList = document.querySelectorAll(".absolute-options.absolute-left");
-                    leftOptionsList.forEach(leftOption => {
-                        let bookmark = document.createElement("a");
-                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark${disabledClass}`;
-                        bookmark.href = "#";
-                        bookmark.title = I18N.ToggleBookmark;
-                        if (!LRR.isUserLogged()) {
-                            bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
-                        }
-                        leftOption.appendChild(bookmark);
-                    });
+                    state.isBookmarked.value = categoryData.archives.includes(state.id);
                 });
         }
     );
@@ -893,12 +905,9 @@ function loadBookmarkStatus() {
 
 function updateMetadata() {
     const img = $("#img")[0];
-    const filename = $("#img").data("filename");
-
     const imgDoublePage = $("#img_doublepage")[0];
-    const filenameDoublePage = $("#img_doublepage").data("filename");
 
-    if (!filename && state.showingSinglePage) {
+    if (!state.filename.peek() && state.showingSinglePage.value) {
         state.currentPageLoaded = true;
         $("#i3").removeClass("loading");
         return;
@@ -908,117 +917,129 @@ function updateMetadata() {
     const height = img.naturalHeight;
     const widthDoublePage = imgDoublePage.naturalWidth;
     const heightDoublePage = imgDoublePage.naturalHeight;
-    const widthView = width + widthDoublePage;
 
-    if (state.showingSinglePage) {
-        let size = state.preloadedSizes[state.currentPage];
-        if (!size) {
-            size = LRR.getImgSize(state.pages[state.currentPage]);
-            state.preloadedSizes[state.currentPage] = size;
-            $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
-            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
-        } else {
-            $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
-            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
-        }
-    } else {
-        let size = state.preloadedSizes[state.currentPage];
-        let sizePre = state.preloadedSizes[state.currentPage + 1];
-
-        if (!size || !sizePre) {
-            size = LRR.getImgSize(state.pages[state.currentPage]);
-            sizePre = LRR.getImgSize(state.pages[state.currentPage + 1]);
-            state.preloadedSizes[state.currentPage] = size;
-            state.preloadedSizes[state.currentPage + 1] = sizePre;
-        }
-
-        const sizeView = size + sizePre;
-        $(".file-info").text(`${filename} - ${filenameDoublePage} :: ${widthView} x ${height} :: ${sizeView} KB`);
-        $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filenameDoublePage} :: ${widthDoublePage} x ${heightDoublePage} :: ${sizePre} KB`);
+    let size = state.preloadedSizes[state.currentPage.value];
+    if (!size) {
+        size = LRR.getImgSize(state.pages.value[state.currentPage.value]);
+        state.preloadedSizes[state.currentPage.value] = size;
     }
+    batch(() => {
+        state.width.value = width;
+        state.height.value = height;
+        state.size.value = size;
+    });
 
-    // Update page numbers in the paginator
-    const newVal = state.showingSinglePage
-        ? state.currentPage + 1
-        : `${state.currentPage + 1} + ${state.currentPage + 2}`;
-    $(".current-page").each((_i, el) => $(el).html(newVal));
+    if (!state.showingSinglePage.value) {
+        let sizePre = state.preloadedSizes[state.currentPage.value + 1];
+
+        if (!sizePre) {
+            sizePre = LRR.getImgSize(state.pages.value[state.currentPage.value + 1]);
+            state.preloadedSizes[state.currentPage.value + 1] = sizePre;
+        }
+
+        batch(() => {
+            state.width2.value = widthDoublePage;
+            state.height2.value = heightDoublePage;
+            state.size2.value = sizePre;
+        });
+    }
 
     state.currentPageLoaded = true;
     $("#i3").removeClass("loading");
 }
 
-export async function goToPage(page) {
-    if (state.maxPage < 0) {
+export async function refreshCurrentPage() {
+    if (state.infiniteScroll.value) {
+        return;
+    }
+    if (state.maxPage.value < 0) {
         // Not yet loaded, NOOP
         return;
     }
 
-    state.previousPage = state.currentPage;
-    state.currentPage = Math.min(state.maxPage, Math.max(0, +page));
+    if (state.doublePageMode.value && state.currentPage.value > 0
+        && state.currentPage.value < state.maxPage.value) {
+
+        // Special case when going backwards and already showing a widespread,
+        // we need to go back by two pages to show the previous double-page spread
+        if (state.showingSinglePage.value && state.previousPage > state.currentPage.value)
+            state.currentPage.value = Math.max(0, state.currentPage.value - 1);
+        // Composite an image and use that as the source
+        const img1 = await loadImage(state.currentPage.value);
+        const img2 = await loadImage(state.currentPage.value + 1);
+        const img1Size = await getImageSize(img1.src);
+        const img2Size = await getImageSize(img2.src);
+        // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
+        if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
+            // Depending on whether we were going forward or backward, display img1 or img2
+            const wideImage = state.previousPage > state.currentPage.value ? img2 : img1;
+            $("#img")
+                .attr("src", wideImage.src).data("filename", wideImage.filename).data("url", wideImage.url);
+            $("#img_doublepage")
+                .attr("src", "").data("filename", "").data("url", "");
+            batch(() => {
+                state.filename.value = wideImage.filename;
+                state.filenameDoublePage.value = "";
+                state.showingSinglePage.value = true;
+            });
+            // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
+            state.currentPage.value = state.previousPage > state.currentPage.value ? state.currentPage.value + 1 : state.currentPage.value;
+        } else {
+            if (state.mangaMode.value) {
+                $("#img")
+                    .attr("src", img2.src).data("filename", img2.filename).data("url", img2.url);
+                $("#img_doublepage")
+                    .attr("src", img1.src).data("filename", img1.filename).data("url", img1.url);
+                batch(() => {
+                    state.filename.value = img2.filename;
+                    state.filenameDoublePage.value = img1.filename;
+                    state.showingSinglePage.value = false;
+                });
+            } else {
+                $("#img")
+                    .attr("src", img1.src).data("filename", img1.filename).data("url", img1.url);
+                $("#img_doublepage")
+                    .attr("src", img2.src).data("filename", img2.filename).data("url", img2.url);
+                batch(() => {
+                    state.filename.value = img1.filename;
+                    state.filenameDoublePage.value = img2.filename;
+                    state.showingSinglePage.value = false;
+                });
+            }
+        }
+    } else {
+        const img = await loadImage(state.currentPage.value);
+        $("#img")
+            .attr("src", img.src).data("filename", img.filename).data("url", img.url);
+        $("#img_doublepage")
+            .attr("src", "").data("filename", "").data("url", "");
+        batch(() => {
+            state.filename.value = img.filename;
+            state.filenameDoublePage.value = "";
+            state.showingSinglePage.value = true;
+        });
+    }
+}
+
+export async function goToPage(page) {
+    if (state.maxPage.value < 0) {
+        // Not yet loaded, NOOP
+        return;
+    }
+
+    const requestedPage = Math.min(state.maxPage.value, Math.max(0, +page));
+    if (requestedPage === state.currentPage.peek()) {
+        // No change, do nothing
+        return;
+    }
+
+    state.previousPage = state.currentPage.value;
+    state.setCurrentPage(requestedPage);
 
     if (state.infiniteScroll.value) {
-        $("#display img:not(#img_doublepage)").get(state.currentPage).scrollIntoView({ block: "nearest" });
+        $("#display img:not(#img_doublepage)").get(state.currentPage.value).scrollIntoView({ block: "nearest" });
+        state.showingSinglePage.value = false;
     } else {
-        if (state.doublePageMode.value && state.currentPage > 0
-            && state.currentPage < state.maxPage) {
-
-            // Special case when going backwards and already showing a widespread,
-            // we need to go back by two pages to show the previous double-page spread
-            if (state.showingSinglePage && state.previousPage > state.currentPage)
-                state.currentPage = Math.max(0, state.currentPage - 1);
-            // Composite an image and use that as the source
-            const img1 = await loadImage(state.currentPage);
-            const img1Size = await getImageSize(img1.src);
-            const img2 = await loadImage(state.currentPage + 1);
-            const img2Size = await getImageSize(img2.src);
-            // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
-            if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
-                // Depending on whether we were going forward or backward, display img1 or img2
-                const page2 = state.previousPage > state.currentPage;
-                const wideSrc = page2 ? img2.src : img1.src;
-                const wideFilename = page2 ? img2.filename : img1.filename;
-                const wideUrl = page2 ? img2.url : img1.url;
-                $("#img").attr("src", wideSrc);
-                $("#img").data("filename", wideFilename);
-                $("#img").data("url", wideUrl);
-                $("#display").removeClass("double-mode");
-                $("#img_doublepage").attr("src", "");
-                $("#img_doublepage").data("filename", "");
-                $("#img_doublepage").data("url", "");
-                state.showingSinglePage = true;
-                // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
-                state.currentPage = state.previousPage > state.currentPage ? state.currentPage + 1 : state.currentPage;
-            } else {
-                $("#display").addClass("double-mode");
-                if (state.mangaMode.value) {
-                    $("#img").attr("src", img2.src);
-                    $("#img").data("filename", img2.filename);
-                    $("#img").data("url", img2.url);
-                    $("#img_doublepage").attr("src", img1.src);
-                    $("#img_doublepage").data("filename", img1.filename);
-                    $("#img_doublepage").data("url", img1.url);
-                } else {
-                    $("#img").attr("src", img1.src);
-                    $("#img").data("filename", img1.filename);
-                    $("#img").data("url", img1.url);
-                    $("#img_doublepage").attr("src", img2.src);
-                    $("#img_doublepage").data("filename", img2.filename);
-                    $("#img_doublepage").data("url", img2.url);
-                }
-                state.showingSinglePage = false;
-            }
-        } else {
-            const img = await loadImage(state.currentPage);
-            $("#img").attr("src", img.src);
-            $("#img").data("filename", img.filename);
-            $("#img").data("url", img.url);
-            $("#display").removeClass("double-mode");
-            $("#img_doublepage").attr("src", "");
-            $("#img_doublepage").data("filename", "");
-            $("#img_doublepage").data("url", "");
-            state.showingSinglePage = true;
-        }
-
         preloadImages();
         applyContainerWidth();
 
@@ -1029,7 +1050,7 @@ export async function goToPage(page) {
         }, 500);
 
         // update full image link
-        $("#imgLink").attr("href", state.pages[state.currentPage]);
+        $("#imgLink").attr("href", state.pages.value[state.currentPage.value]);
 
         // scroll to top
         window.scrollTo(0, 0);
@@ -1041,7 +1062,7 @@ export async function goToPage(page) {
 
 function updateProgress() {
     // Clear markers
-    let page = state.currentPage + 1; // progress is 1-indexed
+    let page = state.currentPage.value + 1; // progress is 1-indexed
 
     // Send an API request to update progress on the server
     if (state.authenticateProgress && LRR.isUserLogged()) {
@@ -1062,24 +1083,44 @@ function preloadImages() {
     if (state.doublePageMode.value) { preloadNext *= 2; preloadPrev *= 2; }
 
     for (let i = 1; i <= preloadNext; i++) {
-        if (state.currentPage + i > state.maxPage) { break; }
-        loadImage(state.currentPage + i);
+        if (state.currentPage.value + i > state.maxPage.value) { break; }
+        loadImage(state.currentPage.value + i);
     }
     for (let i = 1; i <= preloadPrev; i++) {
-        if (state.currentPage - i < 0) { break; }
-        loadImage(state.currentPage - i);
+        if (state.currentPage.value - i < 0) { break; }
+        loadImage(state.currentPage.value - i);
     }
 }
 
+const fetchPromiseMap = new Map();
+
+/**
+ * Utility function for preventing multiple simultaneous fetches to a single resource
+ * @param key
+ * @param fetcher
+ * @returns {any}
+ */
+function fetchOnce(key, fetcher) {
+    if (!fetchPromiseMap.has(key)) {
+        const promise = fetcher().finally(() => fetchPromiseMap.delete(key));
+        fetchPromiseMap.set(key, promise);
+    }
+    return fetchPromiseMap.get(key);
+}
+
 async function loadImage(index) {
-    const url = state.pages[index];
+    const url = state.pages.value[index];
 
     if (!state.preloadedImg[url]) {
-        const res = await fetch(url);
-        state.preloadedSizes[index] = parseInt(res.headers.get("Content-Length") / 1024, 10);
-        const blob = await res.blob();
-        const filename = /filename="(.+)"/i.exec(res.headers.get("Content-Disposition"))[1];
-        state.preloadedImg[url] = { src: URL.createObjectURL(blob), filename: filename, url: url };
+        const { size, image } = await fetchOnce(url, async () => {
+            const res = await fetch(url);
+            const size = parseInt(res.headers.get("Content-Length") / 1024, 10);
+            const blob = await res.blob();
+            const filename = /filename="(.+)"/i.exec(res.headers.get("Content-Disposition"))[1];
+            return { size, image: { src: URL.createObjectURL(blob), filename, url } };
+        });
+        state.preloadedSizes[index] = size;
+        state.preloadedImg[url] = image;
     }
 
     return state.preloadedImg[url];
@@ -1089,7 +1130,7 @@ export function applyContainerWidth() {
     $(".reader-image, .sni").attr("style", "");
 
     // If we are in fullscreen don't apply anything
-    if (fscreen.inFullscreen())
+    if (inFullscreen())
         return;
 
     if (state.fitMode.value === "fit-height") {
@@ -1106,7 +1147,7 @@ export function applyContainerWidth() {
         // If the user defined a custom width, then we can fall back to that one
         $(".sni").attr("style", `max-width: ${state.containerWidth.value}`);
         $(".reader-image").attr("style", "width: 100%");
-    } else if (!state.showingSinglePage) {
+    } else if (!state.showingSinglePage.value) {
         // Otherwise, if we are showing two pages we can override the default width
         $(".sni").attr("style", "max-width: 90%");
     } else {
@@ -1117,15 +1158,15 @@ export function applyContainerWidth() {
     renderMarkers();
 }
 
-function toggleMangaMode() {
+export function toggleMangaMode() {
     if (state.infiniteScroll.value) { return false; }
     state.mangaMode.value = !state.mangaMode.value;
     return false;
 }
 
 function startAutoNextPage() {
-    state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval.value);
-    if (state.autoNextPageCountdown <= 0) {
+    state.autoNextPageCountdown.value = Math.trunc(state.AutoNextPageInterval.value);
+    if (state.autoNextPageCountdown.value <= 0) {
         LRR.toast({
             heading: I18N.AutoNextPageFailHeader,
             text: I18N.AutoNextPageFailBody,
@@ -1135,17 +1176,13 @@ function startAutoNextPage() {
         return;
     }
 
-    state.autoNextPage = true;
-
-    const aEls = $(".toggle-auto-next-page");
-    aEls.removeClass("fa-stopwatch");
-    aEls.text(state.autoNextPageCountdown);
+    state.autoNextPage.value = true;
 
     state.autoNextPageCountdownTaskId = setInterval(() => {
-        if (state.autoNextPageCountdown <= 0) {
+        if (state.autoNextPageCountdown.value <= 0) {
             clearInterval(state.autoNextPageCountdownTaskId);
 
-            const atLastPage = state.mangaMode.value ? state.currentPage === 0 : state.currentPage === state.maxPage;
+            const atLastPage = state.mangaMode.value ? state.currentPage.value === 0 : state.currentPage.value === state.maxPage.value;
 
             if (atLastPage) {
                 // At archive boundary: attempt cross-archive navigation.
@@ -1167,29 +1204,27 @@ function startAutoNextPage() {
             }
             return;
         }
-        state.autoNextPageCountdown -= 1;
-        aEls.text(state.autoNextPageCountdown);
+        state.autoNextPageCountdown.value -= 1;
     }, 1000);
 
     requestWakeLock();
 }
 
 export function stopAutoNextPage() {
-    state.autoNextPage = false;
+    state.autoNextPage.value = false;
     clearInterval(state.autoNextPageCountdownTaskId);
-    $(".toggle-auto-next-page").addClass("fa-stopwatch");
-    $(".toggle-auto-next-page").text("");
+    state.autoNextPageCountdown.value = 0;
 
     releaseWakeLock();
 }
 
-function toggleAutoNextPage() {
-    state.autoNextPage ? stopAutoNextPage() : startAutoNextPage();
+export function toggleAutoNextPage() {
+    state.autoNextPage.value ? stopAutoNextPage() : startAutoNextPage();
     return false; // prevent scrolling to top
 }
 
-function toggleFullScreen() {
-    if (fscreen.inFullscreen()) {
+export function toggleFullScreen() {
+    if (inFullscreen()) {
         // if already full screen; exit
         fscreen.exitFullscreen();
     } else {
@@ -1200,7 +1235,7 @@ function toggleFullScreen() {
 }
 
 function handleFullScreen(enableFullscreen = false) {
-    if (fscreen.inFullscreen() || enableFullscreen === true) {
+    if (inFullscreen() || enableFullscreen === true) {
         if (state.markersVisible.value) {
             clearMarkers();
         }
@@ -1221,7 +1256,7 @@ function handleFullScreen(enableFullscreen = false) {
 }
 
 export function getCurrentChapter() {
-    return findChapterForPage(state.currentPage + 1, state.content.chapters);
+    return findChapterForPage(state.currentPage.value + 1, state.content.value.chapters);
 }
 
 // Find the current chapter (or nested sub-chapter) for the given page.
@@ -1252,7 +1287,7 @@ function generateThumbnails() {
             if (Object.hasOwn(notes, i) && notes[i] === "processed") {
 
                 const startPage = state.id.startsWith("TANK_") ?
-                    state.content.chapters.find(ch => ch.id === notes.id).startPage :
+                    state.content.value.chapters.find(ch => ch.id === notes.id).startPage :
                     1;
 
                 const index = startPage + i - 2; // 0-based global
@@ -1297,27 +1332,26 @@ function generateThumbnails() {
     };
 
     if (state.id.startsWith("TANK_"))
-        state.content.chapters.forEach(arc => fetchThumbsForArc(arc)); // Generate thumbnails per archive
+        state.content.value.chapters.forEach(arc => fetchThumbsForArc(arc)); // Generate thumbnails per archive
     else
         fetchThumbsForArc({
             id: state.id,
             startPage: 1,
-            endPage: state.content.pages,
+            endPage: state.content.value.pages,
         }); // Queue a single minion job for thumbnails
 }
 
 /**
  * Change current page in reader.
  *
- * @param {(-1|1|"first"|"last")} targetPage    One of -1 (previous), 1 (next), "first", or "last" page.
+ * @param {(-1|1|"first"|"last"|"outermost-left"|"outermost-right")} targetPage    One of -1 (previous), 1 (next), "first", or "last" page.
  * @param {boolean} resetAuto                   Whether to reset current slideshow counter.
  */
-function changePage(targetPage, resetAuto = false) {
+export function changePage(targetPage, resetAuto = false) {
 
     // Reset timer if user manually changes pages during slideshow
-    if (resetAuto && state.autoNextPage) {
-        state.autoNextPageCountdown = Math.trunc(state.AutoNextPageInterval.value);
-        $(".toggle-auto-next-page").text(state.autoNextPageCountdown);
+    if (resetAuto && state.autoNextPage.value) {
+        state.autoNextPageCountdown.value = Math.trunc(state.AutoNextPageInterval.value);
     }
 
     // Sync position if in infinite scroll mode
@@ -1327,65 +1361,47 @@ function changePage(targetPage, resetAuto = false) {
         for (let i = 0; i < images.length; i++) {
             const rect = images[i].getBoundingClientRect();
             if (rect.top <= midViewport && rect.bottom >= midViewport) {
-                state.currentPage = i;
+                state.setCurrentPage(i);
                 break;
             }
         }
     }
+
+    if (targetPage === "outermost-left") {
+        return state.mangaMode.value ? readNextArchive() : readPreviousArchive();
+    } else if (targetPage === "outermost-right") {
+        return state.mangaMode.value ? readPreviousArchive() : readNextArchive();
+    }
+
     let destination;
     if (targetPage === "first") {
-        destination = state.mangaMode.value ? state.maxPage : 0;
+        destination = state.mangaMode.value ? state.maxPage.value : 0;
     } else if (targetPage === "last") {
-        destination = state.mangaMode.value ? 0 : state.maxPage;
+        destination = state.mangaMode.value ? 0 : state.maxPage.value;
     } else {
         let offset = targetPage;
         // Double the offset to move by 2 pages at once, unless we're currently showing a widespread
-        if (state.doublePageMode.value && !state.showingSinglePage && state.currentPage > 0) {
+        if (state.doublePageMode.value && !state.showingSinglePage.value && state.currentPage.value > 0) {
             offset *= 2;
         }
-        destination = state.currentPage + (state.mangaMode.value ? -offset : offset);
+        destination = state.currentPage.peek() + (state.mangaMode.value ? -offset : offset);
     }
     if (destination < 0) {
         // Clamp if we're not at the first page, to avoid doublepage mode accidentally yeeting us to previous archive
-        if (state.currentPage > 0) {
+        if (state.currentPage.value > 0) {
             destination = 0;
         } else {
             return readPreviousArchive();
         }
-    } else if (destination > state.maxPage) {
+    } else if (destination > state.maxPage.value) {
         // Ditto for last page
-        if (state.currentPage < state.maxPage) {
-            destination = state.maxPage;
+        if (state.currentPage.value < state.maxPage.value) {
+            destination = state.maxPage.value;
         } else {
             return readNextArchive();
         }
     }
     return goToPage(destination);
-}
-
-function handlePaginator() {
-    switch (this.getAttribute("value")) {
-        case "outermost-left":
-            readPreviousArchive();
-            break;
-        case "outer-left":
-            changePage("first", true);
-            break;
-        case "left":
-            changePage(-1, true);
-            break;
-        case "right":
-            changePage(1, true);
-            break;
-        case "outer-right":
-            changePage("last", true);
-            break;
-        case "outermost-right":
-            readNextArchive();
-            break;
-        default:
-            break;
-    }
 }
 
 function getImageSize(url) {
@@ -1429,7 +1445,7 @@ async function setupArchiveNavigation() {
             state.archiveIds = ids;
             state.archiveIndex = ids.indexOf(state.id);
             if (state.archiveIndex !== -1) {
-                $(".archive-nav-link").show();
+                state.multiArchiveNavigation.value = true;
                 if (state.archiveIndex === 0) {
                     const previousArchives = await loadPreviousDatatablesArchives();
                     if (previousArchives) {
@@ -1469,7 +1485,7 @@ async function loadNextDatatablesArchives() {
 }
 
 function readPreviousArchive() {
-    if (fscreen.inFullscreen()) {
+    if (inFullscreen()) {
         console.warn("[previous] Archive navigation not supported in fullscreen mode.");
         return;
     }
@@ -1493,7 +1509,7 @@ function readPreviousArchive() {
         } else {
             previousArchiveId = state.archiveIds[state.archiveIndex - 1];
         }
-        if (state.autoNextPage) {
+        if (state.autoNextPage.value) {
             sessionStorage.setItem("autoNextPage", "true");
         }
         const newUrl = new LRR.ApiURL(`/reader?id=${previousArchiveId}`).toString();
@@ -1504,7 +1520,7 @@ function readPreviousArchive() {
 }
 
 function readNextArchive() {
-    if (fscreen.inFullscreen()) {
+    if (inFullscreen()) {
         console.warn("[next] Archive navigation not supported in fullscreen mode.");
         return;
     }
@@ -1528,7 +1544,7 @@ function readNextArchive() {
         } else {
             nextArchiveId = state.archiveIds[state.archiveIndex + 1];
         }
-        if (state.autoNextPage) {
+        if (state.autoNextPage.value) {
             sessionStorage.setItem("autoNextPage", "true");
         }
         const newUrl = new LRR.ApiURL(`/reader?id=${nextArchiveId}`).toString();
