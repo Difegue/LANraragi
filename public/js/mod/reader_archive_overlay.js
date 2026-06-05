@@ -64,6 +64,7 @@ export function initializeArchiveOverlay() {
     $(document).on("click.remove-toc", ".remove-toc", removeTocSection);
 
     $(document).on("click.set-thumbnail", ".set-thumbnail", (e) => {
+        e.preventDefault();
         const pageNumber = +$(e.target).closest("div[page]").attr("page") + 1;
 
         if (state.id.startsWith("TANK_")) {
