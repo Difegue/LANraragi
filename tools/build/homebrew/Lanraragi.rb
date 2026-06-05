@@ -31,8 +31,8 @@ class Lanraragi < Formula
   end
 
   resource "JSON::Validator" do
-    url "https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.15.tar.gz"
-    sha256 "eab57676bd3c7c318bc99118754e7f973259792f1ca13099e041938dd515bc05"
+    url "https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.17.tar.gz"
+    sha256 "956060d94d6cfdba5512650c74707c87dff69b1f7a3b1449afa72705d8bf4507"
   end
 
   resource "Minion" do

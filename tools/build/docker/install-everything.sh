@@ -42,12 +42,14 @@ patch -p1 < ../perl-Crypt-DES-fedora-c99.patch
 perl Makefile.PL && make install
 cd ../ && rm -rf Crypt-DES-2.07
 
+cpanm --notest https://cpan.metacpan.org/authors/id/E/ET/ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
+
 cpanm --notest --installdeps JSON::Validator -M https://cpan.metacpan.org
-curl -L -s https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.15.tar.gz | tar -xz
-cd JSON-Validator-5.15
+curl -L -s https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.17.tar.gz | tar -xz
+cd JSON-Validator-5.17
 patch -p1 < ../perl-JSON-Validator.patch
 perl Makefile.PL && make install
-cd ../ && rm -rf JSON-Validator-5.15
+cd ../ && rm -rf JSON-Validator-5.17
 
 # cpanm can't find the correct version so manually download and install it
 cpanm --notest https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz
