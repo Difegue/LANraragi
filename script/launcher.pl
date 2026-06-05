@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Cwd 'abs_path';
 
+use local::lib;
+
 use Mojo::Base -strict;
 use Mojo::Server::Morbo;
 use Mojo::Server::Prefork;

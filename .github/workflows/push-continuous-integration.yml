@@ -45,6 +45,8 @@ jobs:
         outputs: type=docker
         cache-from: type=gha
         cache-to: type=gha,mode=max
+    - name: Copy tests
+      run: cp -R tests .github/action-run-tests
     - name: LANraragi Test Suite
       uses: ./.github/action-run-tests
     - name: Perl Critic

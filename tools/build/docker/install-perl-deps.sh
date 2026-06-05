@@ -2,32 +2,11 @@
 
 set -e
 
-usage() { echo "Usage: $0 [-d (devmode)]" 1>&2; exit 1; }
+# Run it with increased jobs to improve performance
+export MAKEFLAGS="-j$(nproc)"
 
-DEV=0
-
-while getopts "dw" o; do
-    case "${o}" in
-        d)
-            DEV=1
-            ;;
-        *)
-            usage
-            ;;
-    esac
-done
-
-# Just do everything
-apk add --no-cache tzdata
-apk add --no-cache valkey valkey-cli
-apk add --no-cache perl perl-io-socket-ssl imagemagick imagemagick-perlmagick
-apk add --no-cache libffi vips vips-jxl vips-heif
-apk add --no-cache ghostscript
-apk add --no-cache shadow s6 s6-overlay s6-portable-utils procps-ng
-apk add --no-cache g++ make pkgconf wget curl nodejs npm perl-dev libarchive-dev linux-headers patch
-
-# Run it with unlimited jobs to improve performance
-export MAKEFLAGS="-j"
+# Redirect perl dependencies to the home directory
+eval "$(perl -Mlocal::lib)"
 
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
@@ -59,11 +38,4 @@ cpanm --notest --installdeps . -M https://cpan.metacpan.org
 
 cd ..
 
-npm run lanraragi-installer install-full
-
-if [ $DEV -eq 0 ]; then
-  # Cleanup to lighten the image
-  apk del --no-cache g++ make pkgconf wget curl nodejs npm perl-dev libarchive-dev linux-headers patch
-  rm -rf public/js/vendor/*.map public/css/vendor/*.map
-  rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules
-fi
+npm run lanraragi-installer install-back
