@@ -7,7 +7,7 @@ import I18N from "i18n";
 import fscreen from "fscreen";
 import { signal, effect } from "@preact/signals";
 import { initializeStamps, updateStamps, renderMarkers, clearMarkers } from "./reader_stamps.js";
-import { initializeArchiveOverlay, toggleArchiveOverlay, updateArchiveOverlay, removeCategoryBadge } from "./reader_archive_overlay.js";
+import { initializeArchiveOverlay, toggleArchiveOverlay, updateArchiveOverlay, addCategoryBadge, removeCategoryBadge } from "./reader_archive_overlay.js";
 import { initializeSettings, toggleSettingsOverlay } from "./reader_options.js";
 
 export let state = {
@@ -343,21 +343,6 @@ export function getArchiveForPage(globalPage) {
             return { arcId: arc.id, localPage: globalPage - arc.startPage + 1 };
     }
     return { arcId: state.id, localPage: globalPage };
-}
-
-/**
- * Adds a removable category flag to the categories section within archive overview.
- */
-export function addCategoryBadge(categoryId) {
-    const categoryName = $(`#category option[value="${categoryId}"]`).text();
-    const url = new LRR.ApiURL(`/?c=${categoryId}`);
-    const html = `<div class="gt" style="font-size:14px; padding:4px">
-        <a href="${url}">
-        <span class="label">${LRR.encodeHTML(categoryName)}</span>
-        <a href="#" class="remove-category" data-id="${categoryId}"
-            style="margin-left:4px; margin-right:2px">×</a>
-    </a>`;
-    $("#archive-categories").append(html);
 }
 
 function loadImages() {
