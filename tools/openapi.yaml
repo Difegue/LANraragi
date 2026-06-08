@@ -3549,10 +3549,10 @@ paths:
         - name: page
           in: query
           required: false
-          description: Page of the Archives list. You can use -1 to return all archives, but this might take a while.
+          description: Page of the Archives list. Defaults to -1, which returns all archives.
           schema:
             type: integer
-            default: 1
+            default: -1
       responses:
         '200':
           description: Tankoubon
