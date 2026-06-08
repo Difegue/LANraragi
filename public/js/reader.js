@@ -2133,6 +2133,8 @@ function readNextArchive() {
 /**
  * Loads the archives for the given datatables page so the Reader can navigate
  * between archives across DT page boundaries without re-rendering the index.
+ * TODO: given this can drift from how index builds DT search requests we might
+ * want to consolidate.
  *
  * @param {number} datatablesPage - The page number to load.
  * @returns {Promise<Array<string>|null>} - The list of archive IDs, or null on error
@@ -2153,6 +2155,12 @@ async function loadDatatablesArchives(datatablesPage) {
         searchUrlStr += `&sortby=${sortby}`;
         searchUrlStr += `&order=${indexOrder}`;
     }
+
+    // Carry over the index tank-grouping and hide-completed settings so the prefetched
+    // neighbor page matches the lineup the user is viewing.
+    if (localStorage.getItem("grouptanks") === "false") searchUrlStr += `&groupby_tanks=false`;
+    if (localStorage.getItem("hidecompleted") === "true") searchUrlStr += `&hidecompleted=true`;
+
     const searchUrl = new LRR.ApiURL(searchUrlStr);
 
     try {
