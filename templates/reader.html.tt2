@@ -93,7 +93,7 @@
             <br>
             <div style="margin-bottom:16px;">
                 <div class="id3 nocrop reader-thumbnail">
-                    <img id="reader-overview-thumbnail" src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
+                    <img id="reader-overview-thumbnail" src="[% IF is_tank %][% c.url_for("/api/tankoubons/$id/thumbnail") %][% ELSE %][% c.url_for("/api/archives/$id/thumbnail") %][% END %]" />
                 </div>
 
                 [% IF userlogged %]
