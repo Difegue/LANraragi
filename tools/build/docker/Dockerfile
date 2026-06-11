@@ -1,5 +1,5 @@
 # DOCKER-VERSION 0.3.4
-FROM  alpine:3.23 AS base
+FROM  alpine:3.24 AS base
 LABEL git="https://github.com/Difegue/LANraragi"
 
 ENV S6_KEEP_ENV=1
