@@ -83,8 +83,21 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # If we are replacing an existing one, just remove the old one first.
     if ($replace_dupe) {
-        $logger->debug("Delete archive $id before replacing it.");
-        LANraragi::Model::Archive::delete_archive($id);
+        my $redis_config = LANraragi::Model::Config->get_redis_config;
+        my $encoded_output_file = IS_UNIX ? encode_utf8( $output_file ) : $output_file;
+        my $old_id = $redis_config->hget( "LRR_FILEMAP", $encoded_output_file );
+        
+        # Same filename, different content: old_id found via filemap
+        if ( $old_id && $old_id ne $id ) {
+            $logger->debug("Delete archive $old_id before replacing it.");
+            LANraragi::Model::Archive::delete_archive($old_id);
+            $redis_config->hset( "LRR_FILEMAP", $encoded_output_file, $id );
+        } else {
+            $logger->debug("Delete archive $id before replacing it.");
+            LANraragi::Model::Archive::delete_archive($id);
+        }
+
+        $redis_config->quit();
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it
