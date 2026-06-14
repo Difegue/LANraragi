@@ -4,6 +4,8 @@
 
 import { h, render } from "preact";
 import { useState } from "preact/hooks";
+import { computed } from "@preact/signals";
+import { Show } from "@preact/signals/utils";
 import htm from "htm";
 
 import { state, stopAutoNextPage, toggleOverlay } from "./reader_common.js";
@@ -51,6 +53,9 @@ function SettingsPanel() {
         state.preloadCount.value = preloadCount;
     }
 
+    const notInfiniteScroll = computed(() => !state.infiniteScroll.value);
+    const isFitContainerMode = computed(() => state.fitMode.value === "fit-container");
+
     return html`
         <h2 class="ih" style="text-align:center">${I18N.ReaderOptions}</h2>
         <h1 class="ih config-panel">${I18N.OptionsAutoSave}</h1>
@@ -62,46 +67,46 @@ function SettingsPanel() {
             <${ToggleButton} id="fit-height" active=${state.fitMode.value === "fit-height"} onClick=${() => state.fitMode.value = "fit-height"} label=${I18N.FitHeight} />
         </div>
 
-        ${state.fitMode.value === "fit-container" && html`
-        <div id="container-width">
-            <h2 class="config-panel">${I18N.ContainerWidth}</h2>
-            <input id="container-width-input" class="stdinput" style="display:inline; width: 70%;" placeholder=${I18N.ContainerWidthDefaultValue} value=${containerWidth} onInput=${(e) => setContainerWidth(e.target.value)} />
-            <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updateContainerWidth} value=${I18N.Apply} />
-        </div>
-        `}
+        <${Show} when=${isFitContainerMode}>
+            <div id="container-width">
+                <h2 class="config-panel">${I18N.ContainerWidth}</h2>
+                <input id="container-width-input" class="stdinput" style="display:inline; width: 70%;" placeholder=${I18N.ContainerWidthDefaultValue} value=${containerWidth} onInput=${(e) => setContainerWidth(e.target.value)} />
+                <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updateContainerWidth} value=${I18N.Apply} />
+            </div>
+        <//>
 
-        ${!state.infiniteScroll.value && html`
-        <div id="toggle-double-mode">
-            <h2 class="config-panel">${I18N.PageRendering}</h2>
-            <${ToggleButton} id="single-page" active=${!state.doublePageMode.value} onClick=${() => state.doublePageMode.value = false} label=${I18N.Single} />
-            <${ToggleButton} id="fit-width" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
-        </div>
-        `}
+        <${Show} when=${notInfiniteScroll}>
+            <div id="toggle-double-mode">
+                <h2 class="config-panel">${I18N.PageRendering}</h2>
+                <${ToggleButton} id="single-page" active=${!state.doublePageMode.value} onClick=${() => state.doublePageMode.value = false} label=${I18N.Single} />
+                <${ToggleButton} id="fit-width" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
+            </div>
+        <//>
 
-        ${!state.infiniteScroll.value && html`
-        <div id="toggle-manga-mode">
-            <h2 class="config-panel">${I18N.ReadingDirection}</h2>
-            <span class="config-panel"></span>
-            <${ToggleButton} id="normal-mode" active=${!state.mangaMode.value} onClick=${() => state.mangaMode.value = false} label=${I18N.LeftToRight} />
-            <${ToggleButton} id="manga-mode" active=${state.mangaMode.value} onClick=${() => state.mangaMode.value = true} label=${I18N.RightToLeft} />
-        </div>
-        `}
+        <${Show} when=${notInfiniteScroll}>
+            <div id="toggle-manga-mode">
+                <h2 class="config-panel">${I18N.ReadingDirection}</h2>
+                <span class="config-panel"></span>
+                <${ToggleButton} id="normal-mode" active=${!state.mangaMode.value} onClick=${() => state.mangaMode.value = false} label=${I18N.LeftToRight} />
+                <${ToggleButton} id="manga-mode" active=${state.mangaMode.value} onClick=${() => state.mangaMode.value = true} label=${I18N.RightToLeft} />
+            </div>
+        <//>
 
-        ${!state.infiniteScroll.value && html`
-        <div id="preload-images">
-            <h2 class="config-panel">${I18N.HowManyToPreload}</h2>
-            <input id="preload-input" class="stdinput" style="display:inline" placeholder=${I18N.DefaultTwoImages} type="number" value=${preloadCount} onInput=${(e) => setPreloadCount(e.target.value)}  />
-            <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updatePreloadCount} value=${I18N.Apply} />
-        </div>
-        `}
+        <${Show} when=${notInfiniteScroll}>
+            <div id="preload-images">
+                <h2 class="config-panel">${I18N.HowManyToPreload}</h2>
+                <input id="preload-input" class="stdinput" style="display:inline" placeholder=${I18N.DefaultTwoImages} type="number" value=${preloadCount} onInput=${(e) => setPreloadCount(e.target.value)}  />
+                <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updatePreloadCount} value=${I18N.Apply} />
+            </div>
+        <//>
 
-        ${!state.infiniteScroll.value && html`
-        <div id="toggle-header">
-            <h2 class="config-panel">${I18N.Header}</h2>
-            <${ToggleButton} id="show-header" active=${!state.hideHeader.value} onClick=${() => state.hideHeader.value = false} label=${I18N.Visible} />
-            <${ToggleButton} id="hide-header" active=${state.hideHeader.value} onClick=${() => state.hideHeader.value = true} label=${I18N.Hidden} />
-        </div>
-        `}
+        <${Show} when=${notInfiniteScroll}>
+            <div id="toggle-header">
+                <h2 class="config-panel">${I18N.Header}</h2>
+                <${ToggleButton} id="show-header" active=${!state.hideHeader.value} onClick=${() => state.hideHeader.value = false} label=${I18N.Visible} />
+                <${ToggleButton} id="hide-header" active=${state.hideHeader.value} onClick=${() => state.hideHeader.value = true} label=${I18N.Hidden} />
+            </div>
+        <//>
 
         <div id="toggle-overlay">
             <h2 class="config-panel">${I18N.ShowArchiveOverlayByDefault}</h2>
@@ -130,12 +135,12 @@ function SettingsPanel() {
             <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" onClick=${updateAutoNextPageInterval} value=${I18N.Apply} />
         </div>
 
-        ${!state.infiniteScroll.value && html`
-        <div id="toggle-stamps-visibility">
-            <h2 class="config-panel">${I18N.ToggleStamps}</h2>
-            <input id="toggle-stamps" class="fa" type="checkbox" checked=${state.markersVisible.value} onClick=${() => state.markersVisible.value = !state.markersVisible.value} />
-        </div>
-        `}
+        <${Show} when=${notInfiniteScroll}>
+            <div id="toggle-stamps-visibility">
+                <h2 class="config-panel">${I18N.ToggleStamps}</h2>
+                <input id="toggle-stamps" class="fa" type="checkbox" checked=${state.markersVisible.value} onClick=${() => state.markersVisible.value = !state.markersVisible.value} />
+            </div>
+        <//>
     `;
 }
 
