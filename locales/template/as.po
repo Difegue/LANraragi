@@ -81,7 +81,7 @@ msgstr ""
 msgid "Timeout (max 20s):"
 msgstr ""
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
+msgid "This plugin recommends a cooldown of %1 seconds."
 msgstr ""
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
@@ -123,7 +123,7 @@ msgstr ""
 msgid "Start another job"
 msgstr ""
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
+msgid "Processed %1 out of %2"
 msgstr ""
 
 msgid "Preparing your data."

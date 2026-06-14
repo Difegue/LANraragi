@@ -82,8 +82,8 @@ msgstr "使用插件："
 msgid "Timeout (max 20s):"
 msgstr "超时（最多20秒）："
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "此插件建议冷却时间为<span id=\"cooldown\">-1</span>秒。"
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "此插件建议冷却时间为 %1 秒。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr "如果您多次调用插件，一些外部服务可能会因过载而暂时禁止您的机器！"
@@ -124,8 +124,8 @@ msgstr "取消"
 msgid "Start another job"
 msgstr "开始另一个任务"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "已处理<span id=\"arcs\"></span>个，共<span id=\"totalarcs\"></span>个"
+msgid "Processed %1 out of %2"
+msgstr "已处理 %1 个，共 %2 个"
 
 msgid "Preparing your data."
 msgstr "正在准备您的数据。"

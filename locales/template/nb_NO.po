@@ -88,10 +88,8 @@ msgstr "Bruk programvaretillegg :"
 msgid "Timeout (max 20s):"
 msgstr "Tidsavbrudd (maks 20s):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr ""
-"Dette programvaretillegget annbefaler en nedkjølingstid på <span id="
-"\"cooldown\">-1</span> sekunder."
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "Dette programvaretillegget annbefaler en nedkjølingstid på %1 sekunder."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -138,8 +136,8 @@ msgstr "Avbryt"
 msgid "Start another job"
 msgstr "Start en ny jobb"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "Behandlet <span id=\"arcs\"></span>av<span id=\"totalarcs\"></span>"
+msgid "Processed %1 out of %2"
+msgstr "Behandlet %1 av %2"
 
 msgid "Preparing your data."
 msgstr "Forbereder dataene dine."

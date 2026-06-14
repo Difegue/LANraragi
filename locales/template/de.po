@@ -90,10 +90,8 @@ msgstr "Nutze Erweiterung :"
 msgid "Timeout (max 20s):"
 msgstr "Zeitüberschreitung (max 20s):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr ""
-"Diese Erweiterung empfiehlt eine Abklingzeit/Pause von  <span "
-"id=\"cooldown\">-1</span> Sekunden."
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "Diese Erweiterung empfiehlt eine Abklingzeit/Pause von %1 Sekunden."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -142,8 +140,8 @@ msgstr "Abbrechen"
 msgid "Start another job"
 msgstr "Starte eine andere Aufgabe"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "<span id=\"arcs\"></span> von <span id=\"totalarcs\"></span> bearbeitet"
+msgid "Processed %1 out of %2"
+msgstr "%1 von %2 bearbeitet"
 
 msgid "Preparing your data."
 msgstr "Daten werden vorbereitet."

@@ -86,8 +86,8 @@ msgstr "사용 플러그인 :"
 msgid "Timeout (max 20s):"
 msgstr "시간 초과 (최대 20초):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "이 플러그인은 <span id=\"cooldown\">-1</span> 초의 쿨타임을 추천합니다."
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "이 플러그인은 %1 초의 쿨타임을 추천합니다."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr "너무 많은 플러그인을 호출하면 외부 서비스가 임시적으로 당신의 요청을 차단할 "
@@ -130,8 +130,8 @@ msgstr "취소"
 msgid "Start another job"
 msgstr "다른 작업 시작"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "처리된 아카이브: <span id=\"arcs\"></span> / <span id=\"totalarcs\"></span>"
+msgid "Processed %1 out of %2"
+msgstr "처리된 아카이브: %1 / %2"
 
 msgid "Preparing your data."
 msgstr "데이터를 준비하는 중입니다."

@@ -89,9 +89,8 @@ msgstr "Gunakan plugin:"
 msgid "Timeout (max 20s):"
 msgstr "Batas waktu (maks. 20 detik):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr ""
-"Plugin ini menyarankan jeda selama <span id=\"cooldown\">-1</span> detik."
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "Plugin ini menyarankan jeda selama %1 detik."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -138,8 +137,8 @@ msgstr "Batal"
 msgid "Start another job"
 msgstr "Mulai tugas lain"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "<span id=\"arcs\"></span> diproses dari <span id=\"totalarcs\"></span>"
+msgid "Processed %1 out of %2"
+msgstr "%1 diproses dari %2"
 
 msgid "Preparing your data."
 msgstr "Menyiapkan data Anda."

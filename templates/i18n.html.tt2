@@ -25,6 +25,7 @@ I18N.SaveError = "[% c.lh("Error saving data") %]";
 I18N.LoginRequired = (url) => `[% c.lh("<a href='\${url}'>Login</a> to toggle bookmark feature.") %]`;
 
 I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
+I18N.DiscardSelection = "[% c.lh("Discard Selection") %]";
 I18N.BatchSelectionBanner = (n) => `[% c.lh("Displaying \${n} Archives from previous selection.") %]`;
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";
 I18N.BatchFailHeader = "[% c.lh("An error occured during batch tagging!") %]";
@@ -285,5 +286,32 @@ I18N.AutoNextPageIntervalInSeconds = "[% c.lh("Auto next page interval in second
 I18N.TheDefaultIs10Seconds = "[% c.lh('The default is 10 seconds.') %]";
 
 I18N.ToggleStamps = "[% c.lh('Toggle Stamps') %]";
+
+I18N.UsePlugin = "[% c.lh("Use Plugin") %]";
+I18N.RemoveNewFlag = "[% c.lh("Remove New Flag") %]";
+I18N.ApplyTagRules = "[% c.lh("Apply Tag Rules") %]";
+I18N.AddToCategory = "[% c.lh("Add To Category") %]";
+I18N.DeleteArchive = "[% c.lh("Delete Archive") %]";
+I18N.Tasks = "[% c.lh("Task :") %]";
+I18N.Timeout = "[% c.lh("Timeout (max 20s):") %]";
+
+I18N.PluginRecommendsCooldown = "[%  c.lh("This plugin recommends a cooldown of %1 seconds.") %]";
+I18N.SomeServicesMayBanYou = "[% c.lh("Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!") %]";
+I18N.SetASuitableTimeout = "[% c.lh("Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned.") %]";
+I18N.OverridePluginGlobalArguments = "[% c.lh("Override Plugin Global Arguments") %]";
+I18N.ThisWillDeleteMetadataAndFiles = "[% c.lh("This will delete both metadata and matching files from your system! Please use with caution.") %]";
+
+I18N.ThisWillApplyTheFollowingTagRules = "[% c.lh("This will apply the following Tag Rules to the selected Archives.") %]";
+I18N.YouCanEditTagRulesInServerConfiguration = "[% c.lh("You can edit your Tag Rules in Server Configuration.") %]";
+I18N.ServerConfiguration = "[% c.lh("Server Configuration") %]";
+I18N.ThisRemovesTheNewFlag = `[% c.lh('This removes the "new" flag from the selected archives.') %]`;
+I18N.AddToCategoryColon = `[% c.lh("Add to Category :") %]`;
+I18N.CheckUncheckAll = `[% c.lh("Check/Uncheck all") %]`;
+I18N.StartTask = `[% c.lh("Start Task") %]`;
+I18N.Cancel = `[% c.lh("Cancel") %]`;
+I18N.StartAnotherJob = `[% c.lh("Start another job") %]`;
+I18N.ProcessedXofY = `[% c.lh("Processed %1 out of %2") %]`;
+I18N.PreparingYourData = `[% c.lh("Preparing your data.") %]`;
+I18N.NoArchivesInYourLibraryYet = `[%  c.lh("No Archives in your library yet.") %]`;
 
 export default I18N;

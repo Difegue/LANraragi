@@ -89,10 +89,8 @@ msgstr "Usa plugin :"
 msgid "Timeout (max 20s):"
 msgstr "Timeout (max 20s):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr ""
-"Per questo plugin è raccomandato un timer di <span id=\"cooldown\">-1</span> "
-"secondi."
+msgid "This plugin recommends a cooldown of %1 seconds."
+msgstr "Per questo plugin è raccomandato un timer di %1 secondi."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -140,8 +138,8 @@ msgid "Start another job"
 msgstr "Inizia un altro lavoro"
 
 #, fuzzy
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "Elaborato <span id=\"arcs\"></span> di <span id=\"totalarcs\"></span>"
+msgid "Processed %1 out of %2"
+msgstr "Elaborato %1 di %2"
 
 msgid "Preparing your data."
 msgstr "Preparando i tuoi dati."
