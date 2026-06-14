@@ -110,7 +110,7 @@
                         [% FOREACH arc_categories %]
                         <div class="gt" style="font-size:14px; padding:4px">
                             <a href="[% c.url_for("/").query("c=$id") %]">
-                                <span class="label">[% name %]</span>
+                                <span class="label">[% name | html %]</span>
                             </a>
                             <a href="#" class="remove-category" data-id="[% id %]"
                                 style="margin-left:4px; margin-right:2px">×</a>
@@ -124,7 +124,7 @@
                     <select id="category" class="favtag-btn" style="width:200px">
                         <option selected value="">[% c.lh(" -- No Category -- ") %]</option>
                         [% FOREACH categories %]
-                        <option value="[% id %]">[% name %]</option>
+                        <option value="[% id %]">[% name | html %]</option>
                         [% END %]
                     </select>
                     <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
