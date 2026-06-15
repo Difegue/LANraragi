@@ -5,15 +5,18 @@ use warnings;
 use utf8;
 
 use Mojo::JSON                 qw(decode_json);
+use Cwd                        qw(getcwd);
+use Config;
+use IPC::Cmd                   qw(run);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::PluginState qw(
-    plugin_needs_reload
-    record_load_failure
-    record_load_success
-    should_skip_reload
-);
 use LANraragi::Utils::Path     qw(path_to_package);
 use LANraragi::Utils::Redis    qw(redis_decode);
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
+BEGIN {
+    require Win32::Process if !IS_UNIX;
+}
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
@@ -23,7 +26,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin register_plugin unregister_plugin read_registered_plugins);
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin register_plugin unregister_plugin read_registered_plugins check_plugin_loads);
 
 # Get metadata of all registered plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -34,26 +37,15 @@ sub get_plugins {
     my %registered = read_registered_plugins($redis);
     my @validplugins;
 
-    # Skip plugins which are not registered by Redis.
     foreach my $ns_uc ( sort keys %registered ) {
         my $installed_path = $registered{$ns_uc};
         my $plugin         = path_to_package($installed_path);
 
-        if ( plugin_needs_reload( $redis, $ns_uc ) && !should_skip_reload( $redis, $ns_uc ) ) {
-            delete $INC{$installed_path};
-        }
-
-        my $loaded = eval {
-            no warnings 'redefine';
-            require $installed_path;
-            1;
-        };
+        my $loaded = eval { require $installed_path; 1; };
         unless ($loaded) {
-            record_load_failure( $redis, $ns_uc );
             $logger->warn("Skipping plugin '$plugin' while listing type '$type': require '$installed_path' failed: $@");
             next;
         }
-        record_load_success( $redis, $ns_uc );
 
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
@@ -115,14 +107,13 @@ sub get_enabled_plugins {
     return @enabled;
 }
 
-# Look for (and optionally reloads) a registered plugin by uc-normalized namespace for invokation.
+# Look up an installed plugin by namespace for invocation.
 sub get_plugin {
 
     my $name    = shift;
-    my $name_uc = uc($name);
     my $logger  = get_logger( "Plugin System", "lanraragi" );
 
-    # Plugin must have a discovered installed_path to be callable.
+    # Plugin must have a recorded installed_path to be callable.
     # Uninstall hdels installed_path while preserving user config; gating on
     # key-existence alone would let uninstalled namespaces remain callable.
     my $redis          = LANraragi::Model::Config->get_redis_config;
@@ -132,27 +123,72 @@ sub get_plugin {
         return 0;
     }
 
-    # Check if plugin needs (re)loading.
-    if ( plugin_needs_reload( $redis, $name_uc ) && !should_skip_reload( $redis, $name_uc ) ) {
-        delete $INC{$installed_path};
-        my $ok = eval {
-            no warnings 'redefine';
-            require $installed_path;
-            1;
-        };
-        if ($ok) {
-            record_load_success( $redis, $name_uc );
-            $logger->info("Reloaded plugin '$name' in worker $$");
-        } else {
-            record_load_failure( $redis, $name_uc );
-            $logger->warn("Failed to reload plugin '$name': $@");
-            $redis->quit();
-            return 0;
-        }
+    my $loaded = eval { require $installed_path; 1; };
+    $redis->quit();
+    unless ($loaded) {
+        $logger->warn("Failed to load plugin '$name': $@");
+        return 0;
     }
 
-    $redis->quit();
     return path_to_package($installed_path);
+}
+
+sub check_plugin_loads {
+    my ($install_relpath)   = @_;
+    my $script              = getcwd() . "/script/check_plugin_loads.pl";
+    my $timeout             = 20;
+
+    return IS_UNIX
+        ? check_plugin_loads_unix( $script, $install_relpath, $timeout )
+        : check_plugin_loads_win32( $script, $install_relpath, $timeout );
+}
+
+sub check_plugin_loads_unix {
+    my ( $script, $install_relpath, $timeout ) = @_;
+
+    my ( $ok, $err, undef, $stdout_buf, $stderr_buf ) = run(
+        command => [ $Config{perlpath}, $script, $install_relpath ],
+        timeout => $timeout,
+        verbose => 0,
+    );
+    return ( 'ok', undef ) if $ok;
+
+    if ( defined $err && $err =~ /\bIPC::Cmd::TimeOut\b/ ) {
+        return ( 'error', "timed out after ${timeout}s: $err" );
+    }
+
+    my $stdout = join( "", @{ $stdout_buf // [] } );
+    my $detail = join( "", @{ $stderr_buf // [] } );
+    $detail =~ s/\s+\z//;
+
+    return ( 'invalid', $detail || "plugin failed to load" ) if $stdout =~ /^PLUGIN_INVALID$/m;
+    return ( 'error', $detail || ( $err // "no diagnostic output" ) );
+}
+
+sub check_plugin_loads_win32 {
+    my ( $script, $install_relpath, $timeout ) = @_;
+ 
+    my $proc;
+    my $created = Win32::Process::Create(
+        $proc, undef,
+        "perl \"$script\" \"$install_relpath\"",
+        0, Win32::Process::NORMAL_PRIORITY_CLASS(), "."
+    );
+    return ( 'error', "could not start load check (Win32::Process::Create failed)" ) unless $created;
+
+    unless ( $proc->Wait( $timeout * 1000 ) ) {
+        $proc->Kill(1);
+        return ( 'error', "timed out after ${timeout}s" );
+    }
+
+    my $exit;
+    unless ( $proc->GetExitCode($exit) ) {
+        return ( 'error', "could not read load check exit code" );
+    }
+
+    return ( 'ok',      undef )                     if $exit == 0;
+    return ( 'invalid', "plugin failed to load" )   if $exit == 1;
+    return ( 'error',   "load check exited with code $exit" );
 }
 
 # Get the parameters for the specified plugin, either default values or input by the user in the settings page.

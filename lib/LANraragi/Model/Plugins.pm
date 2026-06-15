@@ -24,8 +24,7 @@ use LANraragi::Utils::Generic  qw(exec_with_lock_pure);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
-use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin);
-use LANraragi::Utils::PluginState qw(record_load_success signal_uninstalled signal_updated);
+use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin check_plugin_loads);
 use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Path     qw(create_path package_to_path);
 use LANraragi::Utils::Registry qw(
@@ -37,6 +36,7 @@ use LANraragi::Utils::Registry qw(
     MANAGED_TYPE_DIRS
 );
 use LANraragi::Model::Registry;
+use LANraragi::Model::Server   qw(set_restart_pending);
 
 # Max plugin file size for slurp (files will/should never reach this size anyways but stops OOM)
 use constant MAX_PLUGIN_FILE_SIZE => 100 * 1024 * 1024;      # 100 MB
@@ -375,8 +375,11 @@ sub install_plugin {
         return ( 400, undef, $artifact_error );
     }
 
+    # Whether this namespace was already registered before this install.
+    my $was_registered = $redis->hexists( $namerds, "installed_path" ) ? 1 : 0;
+
     my $abs_installed_path;
-    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+    if ($was_registered) {
         $abs_installed_path = resolve_installed_path( $redis->hget( $namerds, "installed_path" ) );
     }
 
@@ -422,10 +425,9 @@ sub install_plugin {
     };
 
     my $backup_path;
-    my $require_attempted = 0;
     if ( -e $install_path ) {
-        # stage: create backup of plugin
-        # rollback: restore from backup; if require was attempted, reload old plugin
+        # stage: back up the existing artifact
+        # rollback: restore it from the backup
         $backup_path = "$install_path.rollback";
         unlink $backup_path if -e $backup_path;
         unless ( rename $install_path, $backup_path ) {
@@ -434,13 +436,9 @@ sub install_plugin {
             return ( 500, undef, "Cannot back up existing artifact: $err" );
         }
         push @undo, [
-            "restore old_plugin_metadata artifact from $backup_path",
+            "restore previous artifact from $backup_path",
             sub {
-                return "$!"     unless rename( $backup_path, $install_path );
-                return          unless $require_attempted;
-                delete $INC{$install_relpath};
-                my $ok = eval { no warnings 'redefine'; require $install_relpath; 1 };
-                $ok ? undef : "$@";
+                rename( $backup_path, $install_path ) ? undef : "$!";
             },
         ];
     }
@@ -528,27 +526,23 @@ sub install_plugin {
         },
     ];
 
-    # stage: reload plugin module
-    $require_attempted = 1;
-    delete $INC{$install_relpath};
-    eval { require $install_relpath };
-    my $require_error = $@;
-    if ($require_error) {
-        delete $INC{$install_relpath}; # clear out undef resulting from require failure
-        if ( my @resp = $do_rollback->("Plugin '$namespace' failed to load: $require_error") ) {
+    # Check the artifact loads
+    my ( $check_status, $check_error ) = check_plugin_loads($install_relpath);
+    if ( $check_status ne 'ok' ) {
+        my ( $code, $reason ) =
+            $check_status eq 'invalid'
+            ? ( 422, "Plugin '$namespace' failed to load: $check_error" )
+            : ( 500, "Plugin '$namespace' load check failed: $check_error" );
+        if ( my @resp = $do_rollback->($reason) ) {
             return @resp;
         }
-        return ( 422, undef, "Plugin '$namespace' failed to load: $require_error" );
+        return ( $code, undef, $reason );
     }
 
     if ( $backup_path && -e $backup_path ) {
         unlink $backup_path or $logger->warn("Could not remove rollback backup at $backup_path: $!");
     }
-
-    # post-install signalling
-    signal_updated( $redis, $namespace );
-    record_load_success( $redis, $namespace );
-    $logger->debug("Plugin registered for '$namespace'");
+    set_restart_pending($redis) if $was_registered;
 
     my %installed_meta = (
         name               => $plugin_metadata->{name},
@@ -593,8 +587,8 @@ sub uninstall_plugin {
     }
 
     unregister_plugin( $redis, $namespace );
-    signal_uninstalled( $redis, $namespace );
     $logger->info("Uninstalled plugin: '$namespace'");
+    set_restart_pending($redis);
 
     return ( 200, undef );
 }
@@ -708,7 +702,6 @@ sub scan_plugins {
                 $logger->warn("Orphaned plugin key '$plugin_key' -- plugin not discovered. Clearing provenance.");
             }
             unregister_plugin( $redis, $nspart );
-            signal_uninstalled( $redis, $nspart );
         }
     }
 

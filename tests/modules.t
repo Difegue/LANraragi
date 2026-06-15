@@ -33,7 +33,7 @@ my @modules = (
     "LANraragi::Model::Reader",                  "LANraragi::Model::Search",
     "LANraragi::Model::Stats",                   "LANraragi::Model::Category",
     "LANraragi::Model::Upload",                  "LANraragi::Model::Opds",
-    "LANraragi::Model::Registry",
+    "LANraragi::Model::Registry",                "LANraragi::Model::Server",
     "LANraragi::Plugin::Metadata::Chaika",       "LANraragi::Plugin::Metadata::CopyTags",
     "LANraragi::Plugin::Metadata::DateAdded",    "LANraragi::Plugin::Metadata::EHentai",
     "LANraragi::Plugin::Metadata::Eze",          "LANraragi::Plugin::Metadata::HDoujin",
@@ -49,7 +49,6 @@ my @modules = (
     "LANraragi::Plugin::Metadata::HatH",         "LANraragi::Plugin::Metadata::CopyArchiveTags",
     "LANraragi::Plugin::Login::Pixiv",           "LANraragi::Plugin::Metadata::Pixiv",
     "LANraragi::Plugin::Metadata::EHDLInfo",     "LANraragi::Utils::Registry",
-    "LANraragi::Utils::PluginState",
 );
 
 # Test all modules load properly

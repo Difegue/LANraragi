@@ -8,6 +8,10 @@ description: Other APIs that don't fit a dedicated theme.
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
 
+{% openapi-operation spec="lanraragi-api" path="/server/status" method="get" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}
+
 {% openapi-operation spec="lanraragi-api" path="/tempfolder" method="delete" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}

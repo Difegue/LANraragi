@@ -394,7 +394,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerInfo'
-  
+
+  /server/status:
+    get:
+      security:
+        - api_key: []
+      operationId: getServerStatus
+      x-mojo-to: api-other#get_server_status
+      summary: 🔑 Get server status
+      description: >-
+        Returns runtime server status.
+      tags:
+        - misc
+      responses:
+        '200':
+          description: Server status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  restart_required:
+                    type: boolean
+                    description: Whether LRR needs a restart.
+
   /plugins/{type}:
     get:
       security:

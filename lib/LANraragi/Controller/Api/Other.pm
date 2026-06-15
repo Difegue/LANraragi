@@ -6,6 +6,7 @@ use Redis;
 
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
+use LANraragi::Model::Server     qw(is_restart_pending);
 use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
@@ -43,6 +44,20 @@ sub serve_serverinfo {
             excluded_namespaces    => [
                 split( /\s*,\s*/, $self->LRR_CONF->get_excludednamespaces )
             ]
+        }
+    );
+}
+
+sub get_server_status {
+    my $self = shift->openapi->valid_input or return;
+
+    my $redis   = $self->LRR_CONF->get_redis_config;
+    my $pending = is_restart_pending($redis);
+    $redis->quit();
+
+    $self->render(
+        openapi => {
+            restart_required => $pending ? true : false,
         }
     );
 }
