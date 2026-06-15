@@ -1,7 +1,7 @@
 package LANraragi::Controller::Api::Other;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(encode_json decode_json true false);
+use Mojo::JSON qw(encode_json decode_json);
 use Redis;
 
 use LANraragi::Model::Stats;
@@ -57,7 +57,7 @@ sub get_server_status {
 
     $self->render(
         openapi => {
-            restart_required => $pending ? true : false,
+            restart_required => $pending ? \1 : \0,
         }
     );
 }
