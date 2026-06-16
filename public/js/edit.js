@@ -27,6 +27,11 @@ Edit.initializeAll = function () {
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
     $(document).on("keydown.run-plugin-enter", "#arg", Edit.runPluginByEnter);
 
+    const lastPlugin = window.localStorage.getItem("last-plugin-id");
+    if (lastPlugin && $(`#plugin option[value=${lastPlugin}]`).length) {
+        $("#plugin").val(lastPlugin);
+    }
+
     if (Edit.isTank) {
         $(document).on("click.add-archive", "#add-archive-btn", Edit.addArchiveToTank);
         $(document).on("click.remove-archive", ".remove-archive", Edit.removeArchiveFromTank);
@@ -289,6 +294,7 @@ Edit.getTags = function () {
     Edit.hideTags();
 
     const pluginID = $("select#plugin option:checked").val();
+    window.localStorage.setItem("last-plugin-id", pluginID);
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
     Server.callAPI(`/api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, I18N.EditFetchTagError,
