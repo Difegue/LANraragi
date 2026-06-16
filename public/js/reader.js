@@ -1963,7 +1963,7 @@ async function requestWakeLock() {
         return;
     }
     if (!("wakeLock" in navigator)) {
-        console.error("Wake Lock API is not available.");
+        console.error("Wake Lock API is not available. You're likely running in an outdated browser or without HTTPS.");
         return;
     }
 
