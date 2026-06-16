@@ -44,7 +44,7 @@ sub get_tankoubon_full {
     my $tank_id = $self->stash('id');
     my $req     = $self->req;
 
-    my $fulldata = ( $self->req->param('include_full_data') && $self->req->param('include_full_data') ne "false" ) ? 1 : 0;
+    my $fulldata = 1;
     my $page     = $req->param('page') // -1;
 
     my ( $total, $filtered, %tankoubon );
