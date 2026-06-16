@@ -9,7 +9,7 @@ import I18N from "i18n";
 import * as marked from "marked";
 import DOMPurify from "dompurify";
 
-let selectedCategory = "";
+export let selectedCategory = "";
 let awesomplete = {};
 let carouselInitialized = false;
 let swiper = {};
