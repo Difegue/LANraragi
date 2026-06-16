@@ -58,8 +58,8 @@
 			[% IF categories.size > 0 %]
 			[% FOREACH categories %]
 			catList.push({
-				name: "[% name %]",
-				id: "[% id %]",
+				name: [% c.json_esc(name) %],
+				id: [% c.json_esc(id) %],
 			});
 			[% END %]
 			[% END %]

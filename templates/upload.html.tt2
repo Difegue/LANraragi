@@ -48,7 +48,7 @@
 				<select id="category" class="favtag-btn">
 					<option selected value="">[% c.lh(" -- No Category -- ") %]</option>
 					[% FOREACH categories %]
-					<option value="[% id %]">[% name %]</option>
+					<option value="[% id %]">[% name | html %]</option>
 					[% END %]
 				</select> <br><br>
 
