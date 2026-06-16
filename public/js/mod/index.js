@@ -332,7 +332,9 @@ export function loadTagSuggestions() {
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
             namespacesSet.forEach((element) => {
                 if (element !== "") {
-                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
+                    const encodedNs = LRR.encodeHTML(element);
+                    const nsLabel = LRR.encodeHTML(element.charAt(0).toUpperCase() + element.slice(1));
+                    $("#namespace-sortby").append(`<option value="${encodedNs}">${nsLabel}</option>`);
                 }
             });
 

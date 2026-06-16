@@ -165,7 +165,8 @@ export function renderColumn(namespace, type, data) {
                     // Don't capitalize URLs to avoid breaking the hotlink
                     tagText = tagText.replace(/\b./g, (m) => m.toUpperCase());
                 }
-                tagLinks += `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, tagText)}">${tagText}</a>, `;
+                const tagUrl = `${LRR.getTagSearchURL(namespace, tagText)}`;
+                tagLinks += `<a style="cursor:pointer" href="${LRR.encodeHTML(tagUrl)}">${LRR.encodeHTML(tagText)}</a>, `;
             });
 
             const spanTags = tagLinks.slice(0, -2); // remove the last comma and space

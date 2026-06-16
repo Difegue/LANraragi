@@ -62,7 +62,7 @@
 						<td style='text-align:left; width:100px'>[% c.lh("Current File Name:") %]</td>
 						<td>
 							<input class='stdinput edit-mode-stdinput' type='text' readonly='' size='20'
-								value="[% file %]" name='filename'>
+								value="[% file | html %]" name='filename'>
 						</td>
 					</tr>
 					[% END %]

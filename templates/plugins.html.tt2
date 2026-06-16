@@ -196,8 +196,8 @@
 					<td>
 						<input style="max-width:200px" size="20" name="[% plugin.namespace %]_CFG_[% IF param.exists('name') %][% param.name %][% ELSE %][% loop.count %][% END %]"
 							type=[% SWITCH param.type %] # time for some real-ass typage [% CASE 'string' %] "text"
-							value="[% param.value %]" class="stdinput" [% CASE 'bool' %] "checkbox" value="1" class="fa"
-							[% IF param.value %] checked [% END %] [% CASE 'int' %] "number" value="[% param.value %]"
+							value="[% param.value | html %]" class="stdinput" [% CASE 'bool' %] "checkbox" value="1" class="fa"
+							[% IF param.value %] checked [% END %] [% CASE 'int' %] "number" value="[% param.value | html %]"
 							class="stdinput" [% CASE %] # default (ayy lmao) "color" [% END %] />
 						<br />
 					</td>
