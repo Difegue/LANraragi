@@ -329,7 +329,7 @@ export function deleteArchive(arcId, callback) {
             } else {
                 LRR.toast({
                     heading: I18N.ArchiveDeleted,
-                    text: data.filename,
+                    text: LRR.encodeHTML(data.filename),
                     icon: "success",
                     hideAfter: 7000,
                 });

@@ -127,7 +127,7 @@ export function getTagSearchURL(namespace, tag) {
     const namespacedTag = buildNamespacedTag(namespace, tag);
     if (namespace !== "source") {
         return new ApiURL(`/?q=${encodeURIComponent(namespacedTag)}$`);
-    } else if (/https?:\/\//.test(tag)) {
+    } else if (/^https?:\/\//.test(tag)) {
         return `${tag}`;
     } else {
         return `https://${tag}`;
@@ -259,13 +259,13 @@ export function buildTagsDiv(tags) {
         line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
         tagsByNamespace[key].forEach((tag) => {
-            const url = getTagSearchURL(key, tag);
+            const url = `${getTagSearchURL(key, tag)}`;
             const searchTag = buildNamespacedTag(key, tag);
 
             const tagText = encodeHTML(/^(date|time)/.test(key) ? convertTimestamp(tag) : tag);
 
             line += `<div class="gt">
-                        <a href="${url}" search="${encodeHTML(searchTag)}">
+                        <a href="${encodeHTML(url)}" search="${encodeHTML(searchTag)}">
                             ${tagText}
                         </a>
                     </div>`;

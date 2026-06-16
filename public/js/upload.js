@@ -26,12 +26,12 @@ export function initializeAll() {
         done(e, data) {
             let result;
             if (data.result.success === 0) {
-                result = `<tr><td>${data.result.name}</td>
-                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${data.result.error}</td>
+                result = `<tr><td>${LRR.encodeHTML(data.result.name)}</td>
+                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${LRR.encodeHTML(data.result.error)}</td>
                           </tr>`;
             } else {
                 result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
-                                <a href="#" id="${data.result.job}-name" title="${data.result.name}">${data.result.name}</a>
+                                <a href="#" id="${data.result.job}-name" title="${LRR.encodeHTML(data.result.name)}">${LRR.encodeHTML(data.result.name)}</a>
                               </td>
                               <td><i id="${data.result.job}-icon" class="fa fa-spinner fa-spin" style="margin-left:20px; margin-right: 10px;"></i>
                                 <a href="#" id="${data.result.job}-link">${I18N.UploadProcessing(data.result.job)}</a>
@@ -56,8 +56,8 @@ export function initializeAll() {
         },
 
         fail(e, data) {
-            const result = `<tr><td>${data.result.name}</td>
-                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${data.errorThrown}</td>
+            const result = `<tr><td>${LRR.encodeHTML(data.result.name)}</td>
+                              <td><i class="fa fa-exclamation-circle" style="margin-left:20px; margin-right: 10px; color: red"></i>${LRR.encodeHTML(data.errorThrown)}</td>
                           </tr>`;
             $("#progress .bar").css("width", "0%");
             $("#files").append(result);
@@ -150,7 +150,7 @@ function downloadUrl() {
             .then((data) => {
                 if (data.success) {
                     const result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
-                                    <a href="#" id="${data.job}-name" title="${data.url}">${data.url}</a>
+                                    <a href="#" id="${data.job}-name" title="${LRR.encodeHTML(data.url)}">${LRR.encodeHTML(data.url)}</a>
                                 </td>
                                 <td><i id="${data.job}-icon" class="fa fa-spinner fa-spin" style="margin-left:20px; margin-right: 10px;"></i>
                                 <a href="#" id="${data.job}-link">${I18N.DownloadProcessing(data.job)}</a>

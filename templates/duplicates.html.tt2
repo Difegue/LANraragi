@@ -100,8 +100,8 @@
                                 </div>
                             </td>
                             <td><div class="thumbnail-wrapper">
-                                <a href="[% c.url_for("/reader?id=$archive.arcid") %]" onmouseover="IndexTable.buildImageTooltip(this)" title="[% archive.title %]">
-                                    [% archive.title %]
+                                <a href="[% c.url_for("/reader?id=$archive.arcid") %]" onmouseover="IndexTable.buildImageTooltip(this)" title="[% archive.title | html %]">
+                                    [% archive.title | html %]
                                 </a>
                                 <div class="caption" style="display: none;">
                                     <img style="height:300px" src="[% c.url_for("/api/archives/$archive.arcid/thumbnail") %]" 
@@ -109,7 +109,7 @@
                                 </div>
                             </div></td>
                             <td class="page-count">[% archive.pagecount %]</td>
-                            <td>[% archive.name %]</td>
+                            <td>[% archive.name | html %]</td>
                             <td class="file-size">
                                 [% arcsize_mb = archive.arcsize / (1024 * 1024) %]
                                 [% arcsize_mb FILTER format('%.2f') %] MB
@@ -117,7 +117,7 @@
                             <td class="date-added">[% archive.date_added %]</td>
 
                             <td>
-                                <span class="tag-tooltip" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv('[% archive.tags %]'); LRR.buildTagTooltip(this)" 
+                                <span class="tag-tooltip" data-tags="[% archive.tags | html %]" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv(this.dataset.tags); LRR.buildTagTooltip(this)"
                                       style="text-overflow:ellipsis;">
                                     <i class="fa-solid fa-tag"></i>
                                     [% archive.tags.split(",").size %]

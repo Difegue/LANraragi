@@ -1674,7 +1674,7 @@ function updateArchiveOverlay(forceUpdate = false) {
     let firstPage = currentChapter ? currentChapter.startPage : 1;
     let lastPage = currentChapter ? currentChapter.endPage : pages.length;
 
-    $("#overlay-section").html(currentChapter ? currentChapter.name : I18N.ReaderPages);
+    $("#overlay-section").text(currentChapter ? currentChapter.name : I18N.ReaderPages);
 
     if (currentChapter !== null) {
         // Create <select> options for jumping to other chapters
@@ -1682,12 +1682,12 @@ function updateArchiveOverlay(forceUpdate = false) {
         if (content.chapters) {
             content.chapters.forEach((chapter) => {
                 const selected = (currentChapter && chapter.startPage === currentChapter.startPage) ? "selected" : "";
-                chapterOptions += `<option value="${chapter.startPage}" ${selected}>${chapter.name}</option>`;
+                chapterOptions += `<option value="${chapter.startPage}" ${selected}>${LRR.encodeHTML(chapter.name)}</option>`;
 
                 if (chapter.chapters && chapter.chapters.length > 0) {
                     chapter.chapters.forEach((subChapter) => {
                         const subSelected = (currentChapter && subChapter.startPage === currentChapter.startPage) ? "selected" : "";
-                        chapterOptions += `<option value="${subChapter.startPage}" ${subSelected}>&nbsp;&nbsp;&nbsp;${subChapter.name}</option>`;
+                        chapterOptions += `<option value="${subChapter.startPage}" ${subSelected}>&nbsp;&nbsp;&nbsp;${LRR.encodeHTML(subChapter.name)}</option>`;
                     });
                 }
             });
