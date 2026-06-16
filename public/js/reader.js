@@ -51,6 +51,7 @@ let markersVisible = false;
 let markers = [];
 let overlayFiltered = false;
 let pageNaviState = true;
+let wakeLock = null;
 
 export function initializeAll(trackProgressLocally, authenticateProgress) {
     state.trackProgressLocally = trackProgressLocally;
@@ -1562,6 +1563,8 @@ function startAutoNextPage() {
         autoNextPageCountdown -= 1;
         aEls.text(autoNextPageCountdown);
     }, 1000);
+
+    requestWakeLock();
 }
 
 function stopAutoNextPage() {
@@ -1569,6 +1572,8 @@ function stopAutoNextPage() {
     clearInterval(autoNextPageCountdownTaskId);
     $(".toggle-auto-next-page").addClass("fa-stopwatch");
     $(".toggle-auto-next-page").text("");
+
+    releaseWakeLock();
 }
 
 function toggleAutoNextPage() {
@@ -1952,3 +1957,30 @@ jQuery(() => {
         }
     });
 });
+
+async function requestWakeLock() {
+    if (wakeLock !== null) {
+        return;
+    }
+    if (!("wakeLock" in navigator)) {
+        console.error("Wake Lock API is not available. You're likely running in an outdated browser or without HTTPS.");
+        return;
+    }
+
+    try {
+        wakeLock = await navigator.wakeLock.request();
+
+        wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+        });
+    } catch (err) {
+        console.error("Error acquiring wake lock:", err);
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release();
+    }
+}
+
