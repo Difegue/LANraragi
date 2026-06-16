@@ -326,8 +326,8 @@ sub is_supported {
     my $probe_path  = "$lockdir/.lrr-flock-probe.$$";
 
     # do a flock hit
-    if ( open( my $fh, '>', $probe_path ) ) {
-        $supported = flock( $fh, LOCK_EX | LOCK_NB ) ? 1 : 0;
+    if ( open( my $fh, '+>>', $probe_path ) ) {
+        $supported = flock( $fh, LOCK_SH | LOCK_NB ) ? 1 : 0;
         close $fh;
         unlink $probe_path;
     }
