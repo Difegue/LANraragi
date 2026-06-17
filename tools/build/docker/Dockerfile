@@ -54,7 +54,7 @@ RUN apk add --no-cache \
     vips \
     vips-jxl \
     vips-heif \
-    ghostscript \
+    vips-poppler \
     shadow \
     s6-overlay \
     procps-ng

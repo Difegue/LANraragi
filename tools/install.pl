@@ -115,12 +115,6 @@ if (IS_UNIX) {
     say("OK!");
 }
 
-#Check for GhostScript
-say("Checking for GhostScript...");
-can_run('gs')
-  or warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
-say("OK!");
-
 #Check for libarchive
 say("Checking for libarchive...");
 Config::AutoConf->new()->check_header("archive.h")

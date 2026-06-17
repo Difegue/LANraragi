@@ -21,7 +21,7 @@ RUN /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends build-essential make gnupg pkg-config \
     cpanminus valkey-server libarchive-dev webp libssl-dev zlib1g-dev \
-    perlmagick libvips-dev npm perltidy ghostscript exuberant-ctags 
+    perlmagick libvips-dev npm perltidy exuberant-ctags 
 
 # Install patched Crypt::DES
 RUN cpanm --notest --installdeps Crypt::DES

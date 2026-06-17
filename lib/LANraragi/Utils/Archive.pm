@@ -33,7 +33,7 @@ use LANraragi::Utils::Path       qw(get_archive_path);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
-# Relies on Libarchive (for zip, cbz) and GhostScript (for PDFs).
+# Relies on Libarchive (for zip, cbz) and VIPS (for PDFs).
 use Exporter 'import';
 our @EXPORT_OK =
   qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist);
@@ -59,32 +59,6 @@ sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
         my $logger = get_logger( "Archive", "lanraragi" );
         $logger->debug("Couldn't create thumbnail!");
     }
-}
-
-sub extract_pdf ( $destination, $to_extract ) {
-
-    my $logger = get_logger( "Archive", "lanraragi" );
-
-    # Raw Perl strings won't necessarily work in a terminal command, so we must decode the filepath here
-    $logger->debug("Decoding PDF filepath $to_extract before sending it to GhostScript");
-
-    eval {
-        # Try a guess to regular japanese encodings first
-        $to_extract = decode( "Guess", $to_extract );
-    };
-
-    # Fallback to utf8
-    $to_extract = decode_utf8($to_extract) if $@;
-
-    make_path($destination);
-
-    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o \"$destination/\%d.jpg\" \"$to_extract\"";
-    $logger->debug("Sending PDF $to_extract to GhostScript...");
-    $logger->debug($gscmd);
-
-    `$gscmd`;
-
-    return $destination;
 }
 
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
@@ -161,13 +135,12 @@ sub get_filelist ($archive, $arcid) {
     my @files = ();
 
     if ( is_pdf($archive) ) {
-
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
-        # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+        $archive = decode_utf8($archive);    # Decode path before passing it to VIPS
+        # This SHOULD only read header data = fast
+        my $pdf = LANraragi::Utils::Vips::vips_image_new_from_file($archive);
+        my $pages = LANraragi::Utils::Vips::vips_image_get_n_pages($pdf);
 
-        $archive = decode_utf8($archive);    # Decode path before passing it to GhostScript
-
-        my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
         }
@@ -349,18 +322,13 @@ sub extract_single_file ( $archive, $filepath ) {
         my $page = $filepath;
         $page =~ s/^(\d+).jpg$/$1/;
 
-        my ( $fh, $outfile ) = tempfile();
-
-        # Decode path before passing it to GhostScript
+        # Decode path before passing it to VIPS
         $archive = decode_utf8($archive);
-        $outfile = decode_utf8($outfile);
-
-        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
-        $logger->debug("Extracting page $filepath from PDF $archive");
-        $logger->debug($gscmd);
-
-        `$gscmd`;
-        return Mojo::File->new($outfile)->slurp;
+        my $pdf_page = LANraragi::Utils::Vips::pdfload_page_dpi($archive, $page - 1, 200);
+        # This is a bit Rube Goldberg, but the rest of the stack assumes that this function returns image file data...
+        my $buf = LANraragi::Utils::Vips::write_to_buffer($pdf_page, ".png", 100);
+        LANraragi::Utils::Vips::unref_image($pdf_page);
+        return $buf;
     } else {
 
         my $contents = "";
