@@ -78,11 +78,9 @@ sub extract_pdf ( $destination, $to_extract ) {
 
     make_path($destination);
 
-    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o \"$destination/\%d.jpg\" \"$to_extract\"";
     $logger->debug("Sending PDF $to_extract to GhostScript...");
-    $logger->debug($gscmd);
 
-    `$gscmd`;
+    system( 'gs', '-dNOPAUSE', '-sDEVICE=jpeg', '-r200', '-o', "$destination/%d.jpg", $to_extract );
 
     return $destination;
 }
@@ -167,7 +165,16 @@ sub get_filelist ($archive, $arcid) {
 
         $archive = decode_utf8($archive);    # Decode path before passing it to GhostScript
 
-        my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
+        # Escape the path for PostScript string context: \(, \), and \\
+        my $ps_path = $archive;
+        $ps_path =~ s/\\/\\\\/g;
+        $ps_path =~ s/\(/\\(/g;
+        $ps_path =~ s/\)/\\)/g;
+
+        my $ps_cmd = "($ps_path) (r) file runpdfbegin pdfpagecount = quit";
+        open( my $gs_fh, '-|', 'gs', '-q', '--permit-file-read=' . $archive, '-sDEVICE=jpeg', '-c', $ps_cmd );
+        my $pages = <$gs_fh>;
+        close($gs_fh);
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
         }
@@ -355,11 +362,10 @@ sub extract_single_file ( $archive, $filepath ) {
         $archive = decode_utf8($archive);
         $outfile = decode_utf8($outfile);
 
-        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
-        $logger->debug($gscmd);
+        $logger->debug("gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o $outfile $archive");
 
-        `$gscmd`;
+        system( 'gs', '-dNOPAUSE', "-dFirstPage=$page", "-dLastPage=$page", '-sDEVICE=jpeg', '-r200', '-o', $outfile, $archive );
         return Mojo::File->new($outfile)->slurp;
     } else {
 
