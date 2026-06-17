@@ -303,7 +303,7 @@ Edit.getTags = function () {
                 $("#title").val(result.data.title);
                 LRR.toast({
                     heading: I18N.EditTitleChangedTo,
-                    text: result.data.title,
+                    text: LRR.encodeHTML(result.data.title),
                     icon: "info",
                 });
             }
@@ -323,14 +323,14 @@ Edit.getTags = function () {
 
                 LRR.toast({
                     heading: I18N.EditTagsAdded,
-                    text: result.data.new_tags,
+                    text: LRR.encodeHTML(result.data.new_tags),
                     icon: "info",
                     hideAfter: 7000,
                 });
             } else {
                 LRR.toast({
                     heading: I18N.EditNoNewTags,
-                    text: result.data.new_tags,
+                    text: LRR.encodeHTML(result.data.new_tags),
                     icon: "info",
                 });
             }

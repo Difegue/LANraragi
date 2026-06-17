@@ -184,7 +184,7 @@ export function triggerScript(namespace) {
                         if (d.result.success === 1) {
                             LRR.toast({
                                 heading: I18N.ScriptResult,
-                                text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
+                                text: `<pre>${LRR.encodeHTML(JSON.stringify(d.result.data, null, 4))}</pre>`,
                                 icon: "info",
                                 hideAfter: 10000,
                                 closeOnClick: false,
@@ -279,7 +279,7 @@ export function regenerateThumbnails(force) {
                     $("#forcethumb-button").prop("disabled", false);
                     LRR.toast({
                         heading: I18N.RegenThumbnailSuccess,
-                        text: d.result.errors,
+                        text: LRR.encodeHTML(`${d.result.errors}`),
                         icon: "success",
                         hideAfter: 15000,
                         closeOnClick: false,
