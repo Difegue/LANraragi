@@ -25,9 +25,6 @@ fi
 
 WORKDIR /tmp/lrr
 
-# Ensure workdir folder is owned by the user
-RUN chown koyomi:koyomi .
-
 # Install base packages
 RUN apk add --no-cache \
     tzdata \
@@ -45,10 +42,8 @@ RUN apk add --no-cache \
     s6-overlay \
     procps-ng
 
-# Copy build time files
-COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh /tools/build/all/* tools/
-COPY --chown=koyomi:koyomi /package.json package.json
-COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
+# Ensure workdir folder is owned by the user
+RUN chown koyomi:koyomi .
 
 # Install build packages
 RUN apk add --no-cache \
@@ -67,6 +62,12 @@ RUN apk add --no-cache \
     imagemagick \
     imagemagick-perlmagick
 
+# Copy build time files
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh tools/
+COPY --chown=koyomi:koyomi /tools/build/all/* tools/build/all/
+COPY --chown=koyomi:koyomi /package.json package.json
+COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
+
 # Add sudo to make dev more practical, and allow passwordless sudo
 RUN apk add --no-cache sudo
 RUN echo "koyomi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/koyomi && chmod 0440 /etc/sudoers.d/koyomi
@@ -75,7 +76,7 @@ RUN echo "koyomi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/koyomi && chmod 0440 
 USER koyomi
 
 # Install perl dependencies
-RUN sh ./tools/install-perl-deps.sh
+RUN ./tools/install-perl-deps.sh
 
 RUN rm -rf /tmp/lrr
 

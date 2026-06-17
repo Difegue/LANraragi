@@ -42,12 +42,6 @@ fi
 
 WORKDIR /home/koyomi/lanraragi
 
-# Ensure workdir folder is owned by the user
-RUN chown koyomi:koyomi .
-
-# Copy package.json
-COPY --chown=koyomi:koyomi /package.json package.json
-
 # Install base packages
 RUN apk add --no-cache \
     tzdata \
@@ -65,12 +59,14 @@ RUN apk add --no-cache \
     s6-overlay \
     procps-ng
 
+# Ensure workdir folder is owned by the user
+RUN chown koyomi:koyomi .
+
+# Copy package.json
+COPY --chown=koyomi:koyomi /package.json package.json
+
 # Stage for building perl dependencies
 FROM base AS build
-
-# Copy build time files
-COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh /tools/build/all/* tools/
-COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
 
 # Install build packages
 RUN apk add --no-cache \
@@ -87,11 +83,16 @@ RUN apk add --no-cache \
     patch \
     perl-config-autoconf
 
+# Copy build time files
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh tools/
+COPY --chown=koyomi:koyomi /tools/build/all/* tools/build/all/
+COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
+
 # Switch to rootless
 USER koyomi
 
 # Install perl dependencies
-RUN sh ./tools/install-perl-deps.sh
+RUN ./tools/install-perl-deps.sh
 
 # Install npm dependencies
 RUN npm run lanraragi-installer install-front && rm -rf public/js/vendor/*.map public/css/vendor/*.map

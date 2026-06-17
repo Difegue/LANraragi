@@ -35,11 +35,6 @@ class Lanraragi < Formula
     sha256 "956060d94d6cfdba5512650c74707c87dff69b1f7a3b1449afa72705d8bf4507"
   end
 
-  resource "Minion" do
-    url "https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz"
-    sha256 "f84ef5ab2d6cb94b32efde8331553b925343a900707355d18205dc2a3dacf3ac"
-  end
-
   def install
     ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
     ENV["OPENSSL_PREFIX"] = Formula["openssl@3"].opt_prefix

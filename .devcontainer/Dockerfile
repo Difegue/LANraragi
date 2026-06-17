@@ -24,14 +24,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     perlmagick libvips-dev npm perltidy ghostscript exuberant-ctags 
 
 # Install patched Crypt::DES
-RUN cpanm --notest --installdeps Crypt::DES -M https://cpan.metacpan.org 
+RUN cpanm --notest --installdeps Crypt::DES
 RUN curl -L -s https://cpan.metacpan.org/authors/id/D/DP/DPARIS/Crypt-DES-2.07.tar.gz | tar -xz 
 RUN wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/build/all/perl-Crypt-DES-fedora-c99.patch
 RUN cd Crypt-DES-2.07 && patch -p1 < ../tools/perl-Crypt-DES-fedora-c99.patch && perl Makefile.PL && make install 
 RUN rm -rf Crypt-DES-2.07
-
-# cpanm can't find the correct version so manually download and install it
-RUN cpanm --notest https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz
 
 # Just re-grab cpanfile/install.pl/package.json from the online repo as codespaces' build context is super fucked and I don't get it at all
 # Dropping copies of the files in the .devcontainer folder should also work, but I cba to duplicate my build files for this and symlinks aint working I hate computers
