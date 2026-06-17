@@ -9,7 +9,7 @@ cp -R /ucrt64/bin ./win-dist/runtime
 cp -R /ucrt64/etc ./win-dist/runtime
 
 # Remove other exes
-find ./win-dist/runtime/bin -name "*.exe" -not -name "perl.exe" -not -name "gs.exe" -type f -delete
+find ./win-dist/runtime/bin -name "*.exe" -not -name "perl.exe" -type f -delete
 
 # Copy perl, openssl and magick libs
 mkdir -p ./win-dist/runtime/lib
