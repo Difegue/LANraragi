@@ -13,6 +13,8 @@ use utf8;
 use feature qw(say signatures);
 no warnings 'experimental::signatures';
 
+use local::lib;
+
 use FindBin;
 use MCE::Loop;
 use Sys::CpuAffinity;

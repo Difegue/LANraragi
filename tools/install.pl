@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use v5.36;
 use strict;
 use warnings;
 use utf8;
@@ -10,7 +11,7 @@ use Config;
 use feature    qw(say);
 use File::Path qw(make_path);
 
-use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+use constant IS_UNIX => ( $Config{osname} ne "MSWin32" );
 
 #Vendor dependencies
 my @vendor_css = (
@@ -163,14 +164,15 @@ if ( $back || $full ) {
     } else {
         say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
 
-        install_package( "Win32::Process", $cpanopt );
-        install_package( "Win32::FileSystemHelper",
-            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip " . $cpanopt );
-        install_package( "File::ChangeNotify::Watcher::Win32",
-            "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip "
-              . $cpanopt );
-        install_package( "Win32API::File", $cpanopt );
+        install_package( "Win32::Process",                     $cpanopt );
+        install_package( "Win32::FileSystemHelper",            $cpanopt,
+            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip" );
+        install_package( "File::ChangeNotify::Watcher::Win32", $cpanopt,
+            "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip" );
+        install_package( "Win32API::File",                     $cpanopt );
     }
+
+    install_package( "Net::IDN::Encode", $cpanopt, "ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz" );
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
@@ -218,9 +220,7 @@ say("   │              npm start              │");
 say("   │                                     │");
 say("   ╰─────────────────────────────────────╯");
 
-sub cp_node_module {
-
-    my ( $item, $newpath ) = @_;
+sub cp_node_module( $item, $newpath ) {
 
     my ( $nodename, $newname );
 
@@ -246,19 +246,24 @@ sub cp_node_module {
 
 }
 
-sub install_package {
+sub install_package( $package, $cpanopt, $url = undef ) {
 
-    my $package = $_[0];
-    my $cpanopt = $_[1];
-
-    ## no critic
-    eval "require $package";    #Run-time evals are needed here to check if the package has been properly installed.
-    ## use critic
-
-    if ($@) {
-        say("$package not installed! Trying to install now using cpanm$cpanopt");
-        system("cpanm --notest $package $cpanopt");
+    if ( !is_package_installed( $package ) ) {
+        say("$package not installed! Trying to install now using cpanm $cpanopt");
+        if ( system("cpanm --notest " . ( $url // $package ) . " $cpanopt") != 0 ) {
+            die "Something went wrong while installing $package - Bailing out.";
+        }
     } else {
         say("$package package installed, proceeding...");
     }
+
+}
+
+sub is_package_installed( $package ) {
+
+    ## no critic
+    eval "require $package"; #Run-time evals are needed here to check if the package has been properly installed.
+    ## use critic
+
+    return !$@;
 }
