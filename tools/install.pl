@@ -40,6 +40,9 @@ my @vendor_js = (
     [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
     "/sortablejs/Sortable.min.js",
     [ "/htm/dist/htm.mjs", "htm.js" ],
+    '/@preact/signals/dist/signals.module.js',
+    '/@preact/signals/utils/dist/utils.module.js',
+    '/@preact/signals-core/dist/signals-core.module.js',
 );
 
 my @vendor_woff = (
