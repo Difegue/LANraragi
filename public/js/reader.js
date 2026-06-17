@@ -1963,7 +1963,7 @@ async function requestWakeLock() {
         return;
     }
     if (!("wakeLock" in navigator)) {
-        console.error("Wake Lock API is not available. You're likely running in an outdated browser or without HTTPS.");
+        console.warn("Wake Lock API is not available. You're likely running in an outdated browser or without HTTPS.");
         return;
     }
 
@@ -1974,7 +1974,7 @@ async function requestWakeLock() {
             wakeLock = null;
         });
     } catch (err) {
-        console.error("Error acquiring wake lock:", err);
+        console.warn("Error acquiring wake lock:", err);
     }
 }
 
