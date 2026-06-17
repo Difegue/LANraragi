@@ -22,16 +22,11 @@ patch -p1 < ../build/all/perl-Crypt-DES-fedora-c99.patch
 perl Makefile.PL && make install
 cd ../ && rm -rf Crypt-DES-2.07
 
-#cpanm --notest --installdeps JSON::Validator@5.19
-curl -L -s https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.19.tar.gz | tar -xz
-cd JSON-Validator-5.19
-patch -p1 < ../build/all/perl-JSON-Validator.patch
-perl Makefile.PL && make install
-cd ../ && rm -rf JSON-Validator-5.19
+cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
 
 # Install the LRR dependencies proper
 cpanm --notest --installdeps .
 
 cd ..
 
-npm run lanraragi-installer install-back
+perl ./tools/install.pl install-back

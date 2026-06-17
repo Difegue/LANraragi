@@ -95,7 +95,7 @@ USER koyomi
 RUN ./tools/install-perl-deps.sh
 
 # Install npm dependencies
-RUN npm run lanraragi-installer install-front && rm -rf public/js/vendor/*.map public/css/vendor/*.map
+RUN perl ./tools/install.pl install-front && rm -rf public/js/vendor/*.map public/css/vendor/*.map
 
 FROM base AS runtime
 

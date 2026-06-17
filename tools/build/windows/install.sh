@@ -19,13 +19,6 @@ patch -p1 < ../build/all/perl-Crypt-DES-fedora-c99.patch
 perl Makefile.PL && mingw32-make install
 cd ../ && rm -rf Crypt-DES-2.07
 
-#cpanm --notest --installdeps JSON::Validator5.19
-curl -L -s https://cpan.metacpan.org/authors/id/J/JH/JHTHORSEN/JSON-Validator-5.19.tar.gz | tar -xz
-cd JSON-Validator-5.19
-patch -p1 < ../build/all/perl-JSON-Validator.patch
-perl Makefile.PL && mingw32-make install
-cd ../ && rm -rf JSON-Validator-5.19
-
 cpanm --notest --installdeps Minion@11.0
 curl -L -s https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz | tar -xz
 cd Minion-11.0
@@ -39,6 +32,8 @@ cd Image-Magick-7.1.2
 patch -p1 < ../build/windows/perl-Image-Magic-fix-msys2.patch
 perl Makefile.PL && mingw32-make install
 cd ../ && rm -rf Image-Magick-7.1.2
+
+cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
 
 # Install remaining modules
 cpanm --notest --installdeps .

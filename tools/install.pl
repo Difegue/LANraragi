@@ -11,7 +11,7 @@ use Config;
 use feature    qw(say);
 use File::Path qw(make_path);
 
-use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+use constant IS_UNIX => ( $Config{osname} ne "MSWin32" );
 
 #Vendor dependencies
 my @vendor_css = (
@@ -172,7 +172,7 @@ if ( $back || $full ) {
         install_package( "Win32API::File",                     $cpanopt );
     }
 
-    
+    install_package( "Net::IDN::Encode", $cpanopt, "ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz" );
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
