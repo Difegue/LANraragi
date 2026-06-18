@@ -2079,7 +2079,7 @@ function readPreviousArchive() {
                 const currentDTPage = parseInt(localStorage.getItem("currDatatablesPage") || "1", 10);
                 localStorage.setItem("currDatatablesPage", currentDTPage - 1);
             } else {
-                LRR.toast({ text: "This is the first archive" });
+                LRR.toast({ text: I18N.ReaderFirstArchive });
                 return;
             }
         } else {
@@ -2091,7 +2091,7 @@ function readPreviousArchive() {
         const newUrl = new LRR.ApiURL(`/reader?id=${previousArchiveId}`).toString();
         window.location.replace(newUrl);
     } else {
-        LRR.toast({ text: "This is the first archive" });
+        LRR.toast({ text: I18N.ReaderFirstArchive });
     }
 }
 
@@ -2114,7 +2114,7 @@ function readNextArchive() {
                 const currentDTPage = parseInt(localStorage.getItem("currDatatablesPage") || "1", 10);
                 localStorage.setItem("currDatatablesPage", currentDTPage + 1);
             } else {
-                LRR.toast({ text: "This is the last archive" });
+                LRR.toast({ text: I18N.ReaderLastArchive });
                 return;
             }
         } else {
@@ -2126,7 +2126,7 @@ function readNextArchive() {
         const newUrl = new LRR.ApiURL(`/reader?id=${nextArchiveId}`).toString();
         window.location.replace(newUrl);
     } else {
-        LRR.toast({ text: "This is the last archive" });
+        LRR.toast({ text: I18N.ReaderLastArchive });
     }
 }
 

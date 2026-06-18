@@ -1049,6 +1049,12 @@ msgstr "Set Rating"
 msgid "Clear Rating"
 msgstr "Clear Rating"
 
+msgid "This is the first archive"
+msgstr "This is the first archive"
+
+msgid "This is the last archive"
+msgstr "This is the last archive"
+
 msgid " -- Select Rating -- "
 msgstr " -- Select Rating -- "
 
