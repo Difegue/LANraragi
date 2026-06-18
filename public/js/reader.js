@@ -1879,8 +1879,6 @@ function generateThumbnails() {
     const fetchThumbsForArc = function(arc) {
         fetch(new LRR.ApiURL(`/api/archives/${arc.id}/files/thumbnails`), {
             method: "POST",
-            mode: "same-origin",
-            credentials: "same-origin",
         })
             .then(response => {
                 if (response.status === 200) {

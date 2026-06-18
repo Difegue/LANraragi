@@ -95,11 +95,7 @@ export function callAPIBody(endpoint, method, body, successMessage, errorMessage
  */
 export function checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback = null) {
     let endpoint = new LRR.ApiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
-    fetch(endpoint, {
-        method: "GET",
-        mode: "same-origin",
-        credentials: "same-origin",
-    })
+    fetch(endpoint, { method: "GET" })
         .then((response) => response.json())
         .then((data) => {
             if (data.error) throw new Error(data.error);
