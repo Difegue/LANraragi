@@ -2010,6 +2010,7 @@ async function setupArchiveNavigation() {
             archiveIds = ids;
             archiveIndex = ids.indexOf(id);
             if (archiveIndex !== -1) {
+                $(".archive-nav-link").show();
                 if (archiveIndex === 0) {
                     const previousArchives = await loadPreviousDatatablesArchives();
                     if (previousArchives) {
