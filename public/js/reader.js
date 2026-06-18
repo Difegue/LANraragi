@@ -2145,7 +2145,7 @@ async function loadDatatablesArchives(datatablesPage) {
     const datatablesPageSize = parseInt(localStorage.getItem("datatablesPageSize") || "100", 10);
     const indexSort = localStorage.getItem("indexSort") || "0";
     const indexOrder = localStorage.getItem("indexOrder") || "asc";
-    let searchUrlStr = `/api/search?start=${(datatablesPage - 1) * datatablesPageSize}`;
+    let searchUrlStr = `/api/search/ids?start=${(datatablesPage - 1) * datatablesPageSize}`;
     if (indexSearchQuery) searchUrlStr += `&filter=${encodeURIComponent(indexSearchQuery)}`;
     if (indexSelectedCategory) searchUrlStr += `&category=${encodeURIComponent(indexSelectedCategory)}`;
 
@@ -2174,7 +2174,7 @@ async function loadDatatablesArchives(datatablesPage) {
         }
         const data = await response.json();
         if (data && data.data && data.data.length > 0) {
-            return data.data.map(archive => archive.arcid);
+            return data.data;
         }
         return null;
     } catch (error) {
