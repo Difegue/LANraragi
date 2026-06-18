@@ -1939,17 +1939,9 @@ function changePage(targetPage, resetAuto = false) {
     }
     let destination;
     if (targetPage === "first") {
-        const firstPage = mangaMode ? maxPage : 0;
-        if (currentPage === firstPage) {
-            return readPreviousArchive();
-        }
-        destination = firstPage;
+        destination = mangaMode ? maxPage : 0;
     } else if (targetPage === "last") {
-        const lastPage = mangaMode ? 0 : maxPage;
-        if (currentPage === lastPage) {
-            return readNextArchive();
-        }
-        destination = lastPage;
+        destination = mangaMode ? 0 : maxPage;
     } else {
         let offset = targetPage;
         if (doublePageMode && !showingSinglePage && currentPage > 0) {
