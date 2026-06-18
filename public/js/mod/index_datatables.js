@@ -35,7 +35,7 @@ export function initializeAll() {
     });
 
     // Mark datatables-originated reader links so Reader can decide whether to enable cross-archive navigation.
-    // Excludes anything inside the carousel; that's tagged separately in Index.initializeAll.
+    // Excludes anything inside the carousel; that's tagged separately in ContextMenu.initializeAll.
     $(document).on("click.datatables-navstate", "a[href*='/reader?id=']", function () {
         if ($(this).closest(".swiper-wrapper").length > 0) return;
         sessionStorage.setItem("navigationState", "datatables");
