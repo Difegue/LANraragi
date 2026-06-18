@@ -2061,8 +2061,8 @@ async function loadNextDatatablesArchives() {
 }
 
 function readPreviousArchive() {
-    const isIphone = /iPhone/.test(navigator.userAgent);
-    if (!isIphone && fscreen.inFullscreen()) {
+    if (fscreen.inFullscreen()) {
+        console.warn("[previous] Archive navigation not supported in fullscreen mode.");
         return;
     }
     if (archiveIds.length > 0) {
@@ -2096,8 +2096,8 @@ function readPreviousArchive() {
 }
 
 function readNextArchive() {
-    const isIphone = /iPhone/.test(navigator.userAgent);
-    if (!isIphone && fscreen.inFullscreen()) {
+    if (fscreen.inFullscreen()) {
+        console.warn("[next] Archive navigation not supported in fullscreen mode.");
         return;
     }
     if (archiveIds.length > 0) {
