@@ -279,8 +279,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     await setupArchiveNavigation();
 
     // Intercept return-to-index so we can re-apply the search/page state the user came from
-    $(document).on("click.return-to-index", "#return-to-index", (e) => {
-        e.preventDefault();
+    $(document).on("click.return-to-index", "#return-to-index", () => {
         returnToIndex();
     });
 
