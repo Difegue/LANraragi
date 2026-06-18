@@ -739,7 +739,6 @@ function handleShortcuts(e) {
     }
     switch (e.which) {
         case 8: // backspace
-            e.preventDefault();
             returnToIndex();
             break;
         case 27: // escape
