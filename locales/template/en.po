@@ -1082,8 +1082,8 @@ msgstr "Touching the left/right side of the image."
 msgid "When reading an archive from search results, you can also navigate between archives using:"
 msgstr "When reading an archive from search results, you can also navigate between archives using:"
 
-msgid "The square bracket keys"
-msgstr "The square bracket keys"
+msgid "The , and . keys"
+msgstr "The , and . keys"
 
 msgid "Reading past the first/last page"
 msgstr "Reading past the first/last page"

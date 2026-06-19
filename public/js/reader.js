@@ -737,6 +737,15 @@ function handleShortcuts(e) {
     if (e.target.tagName === "INPUT") {
         return;
     }
+
+    switch (e.key) {
+        case ",":
+            readPreviousArchive();
+            return;
+        case ".":
+            readNextArchive();
+            return;
+    }
     switch (e.which) {
         case 8: // backspace
             returnToIndex();
@@ -818,12 +827,6 @@ function handleShortcuts(e) {
             if (!infiniteScroll) {
                 addStamp();
             }
-            break;
-        case 219: // [
-            readPreviousArchive();
-            break;
-        case 221: // ]
-            readNextArchive();
             break;
         default:
             break;
