@@ -224,8 +224,8 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
                 const { arcId, localPage } = getArchiveForPage(page);
                 Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", null, I18N.StampError,
                     (data) => {
-                        if (["error", "errors"].some(prop => Object.hasOwn(data, prop))) {
-                            LRR.showErrorToast(I18N.StampError, data.error ?? "Authentication required."); // If OpenAPI returns its own responses for other cases, then this will not be correct.
+                        if (Object.hasOwn(data, "errors")) {
+                            LRR.showErrorToast(I18N.StampError, "Authentication required."); // If OpenAPI returns its own responses for other cases, then this will not be exact.
                             return;
                         }
 
