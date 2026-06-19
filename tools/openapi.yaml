@@ -1855,7 +1855,7 @@ paths:
     get:
       operationId: stampedPages
       x-mojo-to: api-stamp#get_stamped_pages
-      summary: 🔑 Get pages that contain at least one stamp in the archive
+      summary: Get pages that contain at least one stamp in the archive
       description: Get pages that contain at least one stamp in the archive.
       tags:
         - stamps
@@ -1883,7 +1883,7 @@ paths:
     get:
       operationId: stampsByPage
       x-mojo-to: api-stamp#get_stamps_by_page
-      summary: 🔑 Get the stamps linked to the page
+      summary: Get the stamps linked to the page
       description: Get the stamps linked to the page.
       tags:
         - stamps

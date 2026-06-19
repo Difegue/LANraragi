@@ -222,8 +222,18 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             markerMode = false;
             if (result.isConfirmed && result.value.trim() !== "") {
                 const { arcId, localPage } = getArchiveForPage(page);
-                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", "Stamp added!", I18N.StampError,
+                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", null, I18N.StampError,
                     (data) => {
+                        if (["error", "errors"].some(prop => Object.hasOwn(data, prop))) {
+                            LRR.showErrorToast(I18N.StampError, data.error ?? "Authentication required."); // If OpenAPI returns its own responses for other cases, then this will not be correct.
+                            return;
+                        }
+
+                        LRR.toast({
+                            heading: "Stamp added!",
+                            icon: "success",
+                            hideAfter: 7000,
+                        });
                         markerData.id = data["stamp_id"];
                         markerData.name = result.value;
 
@@ -636,7 +646,7 @@ export function initializeSettings() {
 
 function initFullscreen() {
     // Apply full-screen utility
-    // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
+    // F11 Fullscreen is totally another "Fullscreen", so its support is beyond consideration.
     // Small override function, always returns boolean
     fscreen.inFullscreen = () => !!fscreen.fullscreenElement;
     if (!fscreen.fullscreenEnabled) {
@@ -954,7 +964,6 @@ function createMarkerElement(markerData, index) {
     const xPx = (markerData.x / 100) * rect.width;
     const yPx = (markerData.y / 100) * rect.height;
 
-    const displayRect = display.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
 
     let leftFix = rect.left - containerRect.left;
@@ -966,8 +975,8 @@ function createMarkerElement(markerData, index) {
         leftFix += img.width+2;
     }
 
-    marker.style.left = `${rect.left + xPx - displayRect.left + leftFix}px`;
-    marker.style.top = `${rect.top + yPx - displayRect.top + topFix}px`;
+    marker.style.left = `${leftFix + xPx}px`;
+    marker.style.top = `${topFix + yPx}px`;
 
     marker.title = markerData.name;
     marker.dataset.index = index;
@@ -1041,7 +1050,7 @@ function createMarkerElement(markerData, index) {
 }
 
 function renderMarkers() {
-    if (infiniteScroll) return;
+    if (infiniteScroll || fscreen.inFullscreen()) return;
     // Clean markers
     const existing = document.querySelectorAll(".marker");
     existing.forEach(el => el.remove());
