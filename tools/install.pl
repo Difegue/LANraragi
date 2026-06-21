@@ -115,29 +115,59 @@ if (IS_UNIX) {
     say("OK!");
 }
 
+if (IS_UNIX) {
+    say("Checking for pkg-config...");
+    can_run('pkg-config')
+        ? say("OK!")
+        : say("NOT FOUND! This will make libvips not work/be detectable.")
+    ;
+}
+
+#Check for libvips
+#Note, this check is probably not perfect so it will only complain rather than stop the install
+say("Checking for libvips...");
+my $vips_found;
+if (IS_UNIX) {
+    $vips_found = 
+        ( can_run('pkg-config') && system("pkg-config --exists vips") == 0 )
+        || ( can_run('pkg-config') && system("pkg-config --exists vips-42") == 0 )
+;
+
+} else {
+    #TODO: Some windows-pilled MS-maxxer can implement this check 
+    say("UNKNOWN - This check is not yet implemented, but let's pretend libvips is installed!");
+    $vips_found = 1;
+}
+$vips_found
+    ? say("OK!")
+    : say("NOT FOUND - Install libvips for much faster image processing and PDF support.\nlibvips may end up a requirement in future versions!");
+
 #Check for libarchive
 say("Checking for libarchive...");
 Config::AutoConf->new()->check_header("archive.h")
   or die 'NOT FOUND! Please install libarchive and ensure its headers are present.';
 say("OK!");
 
-#Check for PerlMagick
-say("Checking for ImageMagick/PerlMagick...");
-my $imgk;
+if (!$vips_found) {
+    #Check for PerlMagick if libvips isn't installed
+    say("Checking for ImageMagick/PerlMagick...");
+    my $imgk;
 
-eval {
-    require Image::Magick;
-    $imgk = Image::Magick->QuantumDepth;
-};
+    eval {
+        require Image::Magick;
+        $imgk = Image::Magick->QuantumDepth;
+    };
 
-if ($@) {
-    say("NOT FOUND");
-    say("Please install ImageMagick with Perl for thumbnail support.");
-    say("Further instructions are available at https://www.imagemagick.org/script/perl-magick.php .");
-    say("The ImageMagick detection command returned: $imgk -- $@");
-} else {
-    say( "Returned QuantumDepth: " . $imgk );
-    say("OK!");
+    if ($@) {
+        say("NOT FOUND");
+        say("Please install libvips (recommended) OR ImageMagick with Perl installed for thumbnail support.");
+        say("libvips is probably available in your package manager if you run linux.");
+        say("Further instructions for ImageMagick are available at https://www.imagemagick.org/script/perl-magick.php .");
+        say("The ImageMagick detection command returned: $imgk -- $@");
+    } else {
+        say( "Returned QuantumDepth: " . $imgk );
+        say("OK!");
+    }
 }
 
 #Build & Install CPAN Dependencies
