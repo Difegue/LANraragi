@@ -79,7 +79,7 @@
 						<td style='text-align:left; width:100px'>[% c.lh("Title:") %]</td>
 						<td>
 							<input id='title' class='stdinput edit-mode-stdinput' type='text' maxlength='255' size='20'
-								value="[% arctitle %]" name='title'>
+								value="[% arctitle | html %]" name='title'>
 						</td>
 					</tr>
 
@@ -87,7 +87,7 @@
 						<td style='text-align:left; width:100px'>[% c.lh("Summary:") %]</td>
 						<td>
 							<textarea id='summary' class='stdinput edit-mode-stdinput' type='text'
-								style="min-height:72px;" name='summary'>[% summary %]</textarea>
+								style="min-height:72px;" name='summary'>[% summary | html %]</textarea>
 						</td>
 					</tr>
 

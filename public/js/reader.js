@@ -439,7 +439,7 @@ export function addCategoryBadge(categoryId) {
     const url = new LRR.ApiURL(`/?c=${categoryId}`);
     const html = `<div class="gt" style="font-size:14px; padding:4px">
         <a href="${url}">
-        <span class="label">${categoryName}</span>
+        <span class="label">${LRR.encodeHTML(categoryName)}</span>
         <a href="#" class="remove-category" data-id="${categoryId}"
             style="margin-left:4px; margin-right:2px">×</a>
     </a>`;
