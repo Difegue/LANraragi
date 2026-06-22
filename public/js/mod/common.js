@@ -596,3 +596,25 @@ export function setProgressTracking(_isProgressLocal, _isProgressAuthenticated) 
     isProgressLocal = _isProgressLocal;
     isProgressAuthenticated = _isProgressAuthenticated;
 }
+
+/**
+ * @param {string} text
+ */
+export async function copyLink(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        toast({
+            heading: I18N.IndexCopyLinkSuccess,
+            icon: "info",
+            hideAfter: 3000,
+        });
+    }
+    catch(e) {
+        console.warn(`Failed copying to clipboard: ${e}`);
+        toast({
+            heading: I18N.IndexCopyLinkFail,
+            icon: "error",
+            hideAfter: false,
+        });
+    }
+}

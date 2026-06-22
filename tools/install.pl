@@ -35,7 +35,7 @@ my @vendor_js = (
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.module.js",
     "/clsx/dist/clsx.m.js",                               "/preact/compat/dist/compat.module.js",
     "/preact/hooks/dist/hooks.module.js",                 "/sweetalert2/dist/sweetalert2.esm.min.js",
-    "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
+    "/fscreen/dist/fscreen.esm.js",
     "/raty-js/build/raty.min.js",
     [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
     "/sortablejs/Sortable.min.js",

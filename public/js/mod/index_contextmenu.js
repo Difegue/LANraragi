@@ -7,8 +7,6 @@ import * as Index from "./index.js";
 import * as IndexTable from "./index_datatables.js";
 import I18N from "i18n";
 
-let pseudoCopyBtn = undefined;
-
 function handleDelete(id) {
     const isTank = id.startsWith("TANK_");
     LRR.showPopUp({
@@ -53,8 +51,7 @@ function handleContextMenu(option, id) {
             LRR.openInNewTab(new LRR.ApiURL(`/api/archives/${id}/download`));
             break;
         case "copy link":
-            pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.ApiURL(`/reader?id=${id}`).toString()}`);
-            pseudoCopyBtn.click();
+            LRR.copyLink(`${window.location.origin}${new LRR.ApiURL(`/reader?id=${id}`).toString()}`);
             break;
         case "msm-toggle-archive":
             if (!Index.isMultiSelectMode) Index.toggleMultiSelectMode();
@@ -174,25 +171,6 @@ function loadContextMenuRatings(id, refreshCallback) {
 
 export function initialize(catListData) {
     const catList = catListData || [];
-    pseudoCopyBtn = $("#pseudo-copy-btn");
-    const clipboard = new window.ClipboardJS("#pseudo-copy-btn");
-
-    clipboard.on("success", function (e) {
-        LRR.toast({
-            heading: I18N.IndexCopyLinkSuccess,
-            icon: "info",
-            hideAfter: 3000,
-        });
-        e.clearSelection();
-    });
-
-    clipboard.on("error", function (_e) {
-        LRR.toast({
-            heading: I18N.IndexCopyLinkFail,
-            icon: "error",
-            hideAfter: false,
-        });
-    });
 
     // Initialize context menu
     $.contextMenu({
