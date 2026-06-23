@@ -76,6 +76,7 @@ if ($VIPS_LOADED) {
     $vips_ffi->attach( vips_image_get_width => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_image_get_height => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_image_get_bands => ['VipsImage'] => 'int' );
+    $vips_ffi->attach( vips_image_get_n_pages => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_black => ['VipsImage*', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_crop => ['VipsImage', 'VipsImage*', 'int', 'int', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_colourspace => ['VipsImage', 'VipsImage*', 'int'] => ['opaque'] => 'int' );
@@ -95,6 +96,7 @@ if ($VIPS_LOADED) {
     *vips_image_get_width = sub { die "libvips is not loaded. Cannot call vips_image_get_width." };
     *vips_image_get_height = sub { die "libvips is not loaded. Cannot call vips_image_get_height." };
     *vips_image_get_bands = sub { die "libvips is not loaded. Cannot call vips_image_get_bands." };
+    *vips_image_get_n_pages = sub { die "libvips is not loaded. Cannot call vips_image_get_n_pages." };
     *vips_black = sub { die "libvips is not loaded. Cannot call vips_black." };
     *vips_crop = sub { die "libvips is not loaded. Cannot call vips_crop." };
     *vips_colourspace = sub { die "libvips is not loaded. Cannot call vips_colourspace." };
@@ -144,6 +146,14 @@ sub new_from_file ($filename) {
     return $image;
 }
 
+sub pdfload_page_dpi ($filename, $page, $dpi) {
+    my $func = $vips_ffi->function( vips_pdfload => ['string', 'VipsImage*', 'string', 'int', 'string', 'double'] => ['opaque'] => 'int' );
+    my $image;
+    my $ret = $func->call($filename, \$image, "page", $page, "dpi", $dpi, undef);
+    die "Error creating image from file, page, dpi: ".fetch_and_clear_error() if $ret != 0;
+    return $image;
+}
+
 sub new_from_buffer ($buffer) {
     my $image = vips_image_new_from_buffer($buffer, length($buffer), "", undef);
     die "Error creating image from buffer: ".fetch_and_clear_error() if !$image;
@@ -160,6 +170,11 @@ sub height ($image) {
 
 sub bands ($image) {
     return vips_image_get_bands($image);
+}
+
+# Returns the number of pages, useful for PDFs
+sub get_n_pages ($image) {
+    return vips_image_get_n_pages($image);
 }
 
 sub black ($width, $height) {
