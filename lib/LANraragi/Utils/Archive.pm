@@ -144,6 +144,7 @@ sub get_filelist ($archive, $arcid) {
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
         }
+        LANraragi::Utils::Vips::unref_image($pdf);
     } else {
 
         my $r = Archive::Libarchive::ArchiveRead->new;
