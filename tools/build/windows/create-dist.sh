@@ -25,7 +25,6 @@ find ./win-dist/runtime/lib/ImageMagick-7.1.2/ -name "*.a" -type f -delete
 cp -R /ucrt64/lib/vips-modules-8.18 ./win-dist/runtime/lib
 
 # Remove unused vips modules
-rm ./win-dist/runtime/lib/vips-modules-8.18/vips-poppler.dll
 rm ./win-dist/runtime/lib/vips-modules-8.18/vips-openslide.dll
 
 # Copy more openssl stuff

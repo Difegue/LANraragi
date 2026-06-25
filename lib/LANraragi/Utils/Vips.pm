@@ -66,6 +66,7 @@ if ($VIPS_LOADED) {
     $vips_ffi->attach( vips_init => ['string'] => 'int' );
     $vips_ffi->attach( vips_error_buffer => [] => 'string' );
     $vips_ffi->attach( vips_error_clear => [] => 'void' );
+    $vips_ffi->attach( vips_cache_set_max => ['int'] => 'void' );;
     $vips_ffi->attach( vips_image_new_from_file => ['string'] => ['opaque'] => 'VipsImage' );
     $vips_ffi->attach( vips_resize => ['VipsImage', 'VipsImage*', 'double'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_jpegsave => ['VipsImage', 'string'] => ['opaque'] => 'int' );
@@ -87,6 +88,7 @@ if ($VIPS_LOADED) {
     *vips_init = sub { die "libvips is not loaded. Cannot call vips_init." };
     *vips_error_buffer = sub { die "libvips is not loaded. Cannot call vips_error_buffer." };
     *vips_error_clear = sub { die "libvips is not loaded. Cannot call vips_error_clear." };
+    *vips_cache_set_max = sub { die "libvips is not loaded. Cannot call vips_cache_set_max." };
     *vips_image_new_from_file = sub { die "libvips is not loaded. Cannot call vips_image_new_from_file." };
     *vips_jpegsave = sub { die "libvips is not loaded. Cannot call vips_jpegsave." };
     *vips_image_write_to_buffer = sub { die "libvips is not loaded. Cannot call vips_image_write_to_buffer." };
@@ -122,6 +124,7 @@ sub init ($program_name) {
         my $ret = vips_init($program_name);
         die "Error initializing libvips: ".fetch_and_clear_error() if $ret != 0;
         $initialized = 1;
+        vips_cache_set_max(0); # Disable cache
     }
     return 1;
 }
