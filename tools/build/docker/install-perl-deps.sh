@@ -25,7 +25,7 @@ cd ../ && rm -rf Crypt-DES-2.07
 cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
 
 # Install the LRR dependencies proper
-cpanm --notest --installdeps .
+cpanm --notest --installdeps . --configure-timeout 300
 
 cd ..
 

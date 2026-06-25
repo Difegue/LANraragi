@@ -80,6 +80,8 @@ RUN apk add --no-cache \
     perl-dev \
     libarchive-dev \
     linux-headers \
+    libffi-dev \
+    pkgconf \
     patch \
     perl-config-autoconf
 
