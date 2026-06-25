@@ -96,7 +96,7 @@ function updateUploadCounters() {
 // Handle a completed job from minion.
 // Update the line in upload results with the title, ID, message.
 function handleCompletedUpload(jobID, d) {
-    $(`#${jobID}-name`).html(d.result.title);
+    $(`#${jobID}-name`).text(d.result.title);
 
     if (d.result.id) {
         $(`#${jobID}-name`).attr("href", new LRR.ApiURL(`/reader?id=${d.result.id}`));
