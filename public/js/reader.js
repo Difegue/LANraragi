@@ -1293,25 +1293,28 @@ async function goToPage(page) {
     if (infiniteScroll) {
         $("#display img").get(currentPage).scrollIntoView({ block: "nearest" });
     } else {
-        $("#img_doublepage").attr("src", "");
-        $("#img_doublepage").attr("data-filename", "");
-        $("#display").removeClass("double-mode");
         if (doublePageMode && currentPage > 0
             && currentPage < maxPage) {
             // Composite an image and use that as the source
             const img1 = await loadImage(currentPage);
             const img1Filename = getFilename(currentPage);
+            const img1Size = await getImageSize(img1);
             const img2 = await loadImage(currentPage + 1);
             const img2Filename = getFilename(currentPage + 1);
+            const img2Size = await getImageSize(img2);
             // If w > h on one of the images(widespread), set canvasdata to the first image only
-            if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+            if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
                 // Depending on whether we were going forward or backward, display img1 or img2
                 const wideSrc = previousPage > currentPage ? img2 : img1;
                 const wideFilename = previousPage > currentPage ? img2Filename : img1Filename;
                 $("#img").attr("src", wideSrc);
                 $("#img").attr("data-filename", wideFilename);
+                $("#display").removeClass("double-mode");
+                $("#img_doublepage").attr("src", "");
+                $("#img_doublepage").attr("data-filename", "");
                 showingSinglePage = true;
             } else {
+                $("#display").addClass("double-mode");
                 if (mangaMode) {
                     $("#img").attr("src", img2);
                     $("#img").attr("data-filename", img2Filename);
@@ -1323,13 +1326,15 @@ async function goToPage(page) {
                     $("#img_doublepage").attr("src", img2);
                     $("#img_doublepage").attr("data-filename", img2Filename);
                 }
-                $("#display").addClass("double-mode");
             }
         } else {
             const img = await loadImage(currentPage);
             const imgFilename = getFilename(currentPage);
             $("#img").attr("src", img);
             $("#img").attr("data-filename", imgFilename);
+            $("#display").removeClass("double-mode");
+            $("#img_doublepage").attr("src", "");
+            $("#img_doublepage").attr("data-filename", "");
             showingSinglePage = true;
         }
 
@@ -1918,6 +1923,22 @@ function handlePaginator() {
 
 function getFilename(index) {
     return new URLSearchParams(pages[index].split("?")[1]).get("path");
+}
+
+function getImageSize(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            resolve({
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+            });
+        };
+        img.onerror = (err) => {
+            reject(err);
+        };
+        img.src = url;
+    });
 }
 
 /**
