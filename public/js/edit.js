@@ -88,7 +88,6 @@ Edit.initSortable = function () {
 };
 
 Edit.addArchiveToTank = function () {
-    const tankId = $("#archiveID").val();
     const arcId = $("#add-archive-id").val().trim();
     if (!arcId) return;
 
@@ -237,8 +236,6 @@ Edit.updateOneShotArg = function () {
 Edit.saveMetadata = function () {
     Edit.hideTags();
     const id = $("#archiveID").val();
-
-    let fetchPromise;
 
     if (Edit.isTank) {
         const metadata = {

@@ -34,7 +34,7 @@ const config = {
     rules: {
         "func-names": ["error", "never"],
         "no-alert": "off",
-        "no-console": "warn",
+        "no-console": "off",
         "no-else-return": "off",
         "no-implicit-globals": "error",
         "no-multi-assign": ["error", {

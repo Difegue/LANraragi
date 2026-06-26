@@ -10,7 +10,6 @@ import * as marked from "marked";
 import DOMPurify from "dompurify";
 
 export let selectedCategory = "";
-let awesomplete = {};
 let carouselInitialized = false;
 let swiper = {};
 let serverVersion = "";
@@ -281,7 +280,7 @@ export function bookmarkIconOn(arcid) {
 
 export function toggleBookmarkStatusByIcon(e) {
     const icon = e.currentTarget;
-    const id = icon.id;
+    const {id} = icon;
 
     if (!LRR.isUserLogged()) {
         LRR.toast({
@@ -339,7 +338,7 @@ export function loadTagSuggestions() {
             });
 
             // Setup awesomplete for the tag search bar
-            awesomplete = new Awesomplete("#search-input", {
+            new Awesomplete("#search-input", {
                 list: data,
                 data(tag) {
                     // Format tag objects from the API into a format awesomplete likes.
@@ -963,7 +962,7 @@ export function migrateProgress() {
                         return null;
                     }
                     if (!response.ok) {
-                        // eslint-disable-next-line no-console
+                         
                         console.warn(`Failed to migrate progress for ${id} (status ${response.status})`);
                         return null;
                     }
@@ -995,7 +994,7 @@ export function migrateProgress() {
             hideAfter: 13000,
         }));
     } else {
-        // eslint-disable-next-line no-console
+         
         console.log("No local reading progression to migrate");
     }
 }

@@ -254,7 +254,7 @@ Batch.startBatch = function () {
     Batch.socket.onopen = function () {
         const command = commandBase;
         command.archive = arcs.splice(0, 1)[0];
-        // eslint-disable-next-line no-console
+         
         console.log(command);
         Batch.socket.send(JSON.stringify(command));
     };
@@ -277,7 +277,7 @@ Batch.startBatch = function () {
         setTimeout(() => {
             const command = commandBase;
             command.archive = arcs.splice(0, 1)[0];
-            // eslint-disable-next-line no-console
+             
             console.log(command);
             Batch.socket.send(JSON.stringify(command));
         }, timeout * 1000);

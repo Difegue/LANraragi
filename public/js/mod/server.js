@@ -27,25 +27,25 @@ export function callAPI(endpoint, method, successMessage, errorMessage, successC
                 throw new Error(data.errors[0].message);
             }
             else // Handle LRR API-style error messages (success=0 + error string)
-            if (Object.hasOwn(data, "success") && !data.success) {
-                throw new Error(data.error);
-            } else {
-                let message = successMessage;
-                if ("successMessage" in data && data.successMessage) {
-                    message = data.successMessage;
-                }
-                if (message !== null) {
-                    LRR.toast({
-                        heading: message,
-                        icon: "success",
-                        hideAfter: 7000,
-                    });
-                }
+                if (Object.hasOwn(data, "success") && !data.success) {
+                    throw new Error(data.error);
+                } else {
+                    let message = successMessage;
+                    if ("successMessage" in data && data.successMessage) {
+                        message = data.successMessage;
+                    }
+                    if (message !== null) {
+                        LRR.toast({
+                            heading: message,
+                            icon: "success",
+                            hideAfter: 7000,
+                        });
+                    }
 
-                if (successCallback !== null) return successCallback(data);
+                    if (successCallback !== null) return successCallback(data);
 
-                return null;
-            }
+                    return null;
+                }
         })
         .catch((error) => LRR.showErrorToast(errorMessage, error));
 }

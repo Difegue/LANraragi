@@ -148,7 +148,7 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
         // Stop event propagation to avoid going to page
         e.stopPropagation();
     });
-    $(document).on("click.edit-toc", ".edit-toc", (e) => addTocSection(currentChapter.startPage, currentChapter.name));
+    $(document).on("click.edit-toc", ".edit-toc", () => addTocSection(currentChapter.startPage, currentChapter.name));
     $(document).on("click.remove-toc", ".remove-toc", removeTocSection);
 
     $(document).on("click.set-thumbnail", ".set-thumbnail", (e) => {
@@ -1232,7 +1232,7 @@ function loadBookmarkStatus() {
 
 function updateMetadata() {
     const img = $("#img")[0];
-    const filename = img.dataset.filename;
+    const {filename} = img.dataset;
 
     const imgDoublePage = $("#img_doublepage")[0];
     const filenameDoublePage = imgDoublePage.dataset.filename;

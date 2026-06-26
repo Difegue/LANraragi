@@ -72,7 +72,7 @@ Duplicates.pollMinionJob = function (job) {
     Server.checkJobStatus(
         job,
         true,
-        (d) => {
+        () => {
             // Refresh the window so that the newly found duplicates are shown.
             // Make sure the URL doesn't contain delete=1 so we don't instantly delete them.
             if (window.location.href.includes("delete=1")) {
