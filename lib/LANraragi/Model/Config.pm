@@ -191,7 +191,7 @@ sub get_disable_openapi {
         return 1;
     }
 
-    return &get_redis_conf( "disableopenapi", "1" );
+    return &get_redis_conf( "disableopenapi", "0" );
 }
 
 sub get_htmltitle        { return xml_escape( &get_redis_conf( "htmltitle", "LANraragi" ) ) }
