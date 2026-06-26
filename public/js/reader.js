@@ -222,18 +222,9 @@ export function initializeAll(trackProgressLocally, authenticateProgress) {
             markerMode = false;
             if (result.isConfirmed && result.value.trim() !== "") {
                 const { arcId, localPage } = getArchiveForPage(page);
-                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, "PUT", null, I18N.StampError,
+                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, 
+                    "PUT", "Stamp added!", I18N.StampError,
                     (data) => {
-                        if (Object.hasOwn(data, "errors")) {
-                            LRR.showErrorToast(I18N.StampError, "Authentication required."); // If OpenAPI returns its own responses for other cases, then this will not be exact.
-                            return;
-                        }
-
-                        LRR.toast({
-                            heading: "Stamp added!",
-                            icon: "success",
-                            hideAfter: 7000,
-                        });
                         markerData.id = data["stamp_id"];
                         markerData.name = result.value;
 
@@ -939,6 +930,7 @@ function toggleHelp() {
 
 function addStamp() {
     if (infiniteScroll) return;
+    if (!LRR.isUserLogged()) return;
     markerMode = true;
     clearMarkers();
     $(".reader-image").css("cursor", "cell");
