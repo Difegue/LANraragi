@@ -21,7 +21,13 @@ export function callAPI(endpoint, method, successMessage, errorMessage, successC
     return fetch(endpointUrl, { method })
         .then((response) => response.json())
         .then((data) => {
-            if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
+
+            // Handle OpenAPI-style error messages (HTTP status code + message)
+            if (Object.hasOwn(data, "errors")) {
+                throw new Error(data.errors[0].message);
+            }
+            else // Handle LRR API-style error messages (success=0 + error string)
+            if (Object.hasOwn(data, "success") && !data.success) {
                 throw new Error(data.error);
             } else {
                 let message = successMessage;
