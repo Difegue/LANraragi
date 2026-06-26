@@ -49,6 +49,7 @@ let AutoNextPageInterval;
 let markerMode = false;
 let markersVisible = false;
 let markers = [];
+let ISMarkersLoaded = true;
 let overlayFiltered = false;
 let pageNaviState = true;
 let wakeLock = null;
@@ -1041,13 +1042,132 @@ function createMarkerElement(markerData, index) {
     display.appendChild(marker);
 }
 
+function createISMarker(markerData, index) {
+
+    let page = markerData.id.split("_")[1];
+
+    const img = page == '1'
+        ? document.getElementById("img")
+        : document.getElementById("page-"+(parseInt(page)-1));
+    if(!img) return false;
+
+    const display = document.getElementById("display");
+    const container = document.getElementById("i1");
+
+    const marker = document.createElement("div");
+    marker.className = "marker marker-context-menu";
+
+    // Compute the px coordinates from the percentage based coordinates
+    const rect = img.getBoundingClientRect();
+    const xPx = (markerData.x / 100) * rect.width;
+    const yPx = (markerData.y / 100) * rect.height;
+
+    const containerRect = container.getBoundingClientRect();
+
+    let leftFix = rect.left - containerRect.left;
+    let topFix = rect.top - containerRect.top;
+
+    marker.style.left = `${leftFix + xPx}px`;
+    marker.style.top = `${topFix + yPx}px`;
+
+    marker.title = markerData.name;
+    marker.dataset.index = index;
+
+    // Edit
+    let isDragging = false;
+
+    marker.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        isDragging = true;
+
+        // So no text gets selected during the D&D
+        document.body.style.userSelect = "none";
+        pageNaviState = false;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        const imgRect = img.getBoundingClientRect();
+        const dispRect = display.getBoundingClientRect();
+
+        // Ensure that the stamp remains inside the image
+        let x = e.clientX - imgRect.left + leftFix;
+        let y = e.clientY - imgRect.top + topFix;
+
+        x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
+        y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
+
+        marker.style.left = `${imgRect.left + x - dispRect.left}px`;
+        marker.style.top = `${imgRect.top + y - dispRect.top}px`;
+    });
+
+    document.addEventListener("mouseup", (e) => {
+        e.stopPropagation();
+        // Each marker individually run this event when on mouseup
+        // this line ensures that only one of them execute the action
+        // also a good improvement would be to change this to an attachable event only for the dragged marker
+        if (!isDragging) return;
+
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+
+        const imgRect = img.getBoundingClientRect();
+
+        let x = e.clientX - imgRect.left;
+        let y = e.clientY - imgRect.top;
+
+        x = Math.max(0, Math.min(x, imgRect.width));
+        y = Math.max(0, Math.min(y, imgRect.height));
+
+        const xPercent = (x / imgRect.width) * 100;
+        const yPercent = (y / imgRect.height) * 100;
+
+        const i = marker.dataset.index;
+        let inputValue = markerData.name;
+
+        Server.callAPI(`/api/stamps/${markerData.id}?position=${xPercent},${yPercent}`, "PUT", "Stamp updated!", I18N.StampError,
+            () => {
+                markers[i].x = xPercent;
+                markers[i].y = yPercent;
+
+                pageNaviState = true;
+                renderMarkers();
+            }
+        );
+    });
+
+    display.appendChild(marker);
+    return true;
+}
+
+function renderISMarkers() {
+    if (ISMarkersLoaded) return;
+
+    let setted = [];
+
+    markers.forEach((markerData, index) => {
+        setted.push(createISMarker(markerData, index));
+    });
+
+    if (setted.every(Boolean)) {
+        ISMarkersLoaded = true;
+    }
+}
+
 function renderMarkers() {
-    if (infiniteScroll || fscreen.inFullscreen()) return;
-    // Clean markers
-    const existing = document.querySelectorAll(".marker");
-    existing.forEach(el => el.remove());
+    if (fscreen.inFullscreen()) return;
+    clearMarkers();
 
     if (!markersVisible) return;
+
+    if (infiniteScroll) {
+        // Need to create the markers on this new function instead of the previous one, because for some reason
+        // the same code only works here to put the markers on the right place.
+        renderISMarkers();
+        return;
+    }
 
     // Draw markers
     markers.forEach((markerData, index) => {
@@ -1067,9 +1187,33 @@ function toggleStamps() {
 }
 
 function loadStamps(currentPage) {
-    if (infiniteScroll) return;
     markers = [];
     const { arcId: id1, localPage: p1 } = getArchiveForPage(currentPage);
+
+    if (infiniteScroll) {
+        // This gets called every page progress update, even when all markers are already loaded.
+        Server.callAPI(`/api/archives/${id1}/stamps/0`, "GET", null, I18N.ServerInfoError,
+            (data) => {
+                console.log(data);
+                for (var i = data.result.length - 1; i >= 0; i--) {
+                    let markerData = {};
+                    let x = data.result[i].position.split(",")[0];
+                    let y = data.result[i].position.split(",")[1];
+                    markerData.x = x;
+                    markerData.y = y;
+                    markerData.name = data.result[i].content
+                    markerData.id = data.result[i].id
+                    markerData.left = true;
+                    markers.push(markerData);
+                }
+                ISMarkersLoaded = false;
+                
+                // Render markers
+                renderMarkers();
+            }
+        );
+        return
+    }
     // Call for the first page
     Server.callAPI(`/api/archives/${id1}/stamps/${p1}`, "GET", null, I18N.ServerInfoError,
         (data) => {
@@ -1377,6 +1521,8 @@ function updateProgress() {
 
     // Load stamps
     if (!infiniteScroll) {
+        const stamps = loadStamps(page);
+    } else {
         const stamps = loadStamps(page);
     }
 }
