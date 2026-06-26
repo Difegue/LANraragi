@@ -327,7 +327,7 @@ sub extract_single_file ( $archive, $filepath ) {
         $archive = decode_utf8($archive);
         my $pdf_page = LANraragi::Utils::Vips::pdfload_page_dpi($archive, $page - 1, 200);
         # This is a bit Rube Goldberg, but the rest of the stack assumes that this function returns image file data...
-        my $buf = LANraragi::Utils::Vips::write_to_buffer($pdf_page, ".png", 100);
+        my $buf = LANraragi::Utils::Vips::write_to_buffer($pdf_page, ".jpg", 80);
         LANraragi::Utils::Vips::unref_image($pdf_page);
         return $buf;
     } else {
