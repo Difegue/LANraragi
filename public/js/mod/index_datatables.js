@@ -347,24 +347,13 @@ export function drawCallback() {
             }
         }
 
-        let currentSort = dataTable.order()[0][0];
+        const sortColumn = dataTable.order()[0][0];
         const currentOrder = dataTable.order()[0][1];
+        const currentSort = dataTable.settings()[0].aoColumns[sortColumn].sName;
 
         // Save sort/order/page to localStorage
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
-
-        // get current columns count, except title and tags
-        const currentCustomColumnCount = dataTable.columns().count() - 2;
-        // check currentSort, if out of range, back to use title
-        if (currentSort > currentCustomColumnCount) {
-            localStorage.indexSort = 0;
-        }
-        if (currentSort >= 1 && currentSort <= Index.getColumnCount()) {
-            currentSort = localStorage.getItem(`customColumn${currentSort}`) || `Header ${currentSort}`;
-        } else {
-            currentSort = "title";
-        }
 
         Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
 
@@ -387,7 +376,10 @@ export function buildURLParameters() {
     // Check each parameter and append them to the URL if they exist
     let params = "?";
     if (page !== 1) params += `p=${page}&`;
-    if (sortby !== 0) params += `sort=${sortby}&`;
+    if (sortby !== 0) {
+        const encodedSortBy = encodeURIComponent(dataTable.settings()[0].aoColumns[sortby].sName);
+        params += `sort=${encodedSortBy}&`;
+    }
     if (sortorder !== "asc") params += `sortdir=${sortorder}&`;
     if (encodedSearch !== "") params += `q=${encodedSearch}&`;
     if (cat !== "") params += `c=${cat}&`;
@@ -406,19 +398,23 @@ export function consumeURLParameters() {
     // Get order from URL, fallback to localstorage if available
     const order = [[0, "asc"]];
 
-    // Query params and localStorage values are always strings, parse them so order[0][0] is always
-    // a number. (This lets us correctly compare to 0 using !== above.)
+    // Resolve the sort sName to a column index.
+    // Unresolvable values (an old numeric bookmark, or a namespace with no column) fall back to title (0).
+    let sortName;
     if (params.has("sort")) {
-        order[0][0] = parseInt(params.get("sort"), 10);
-    } else if (localStorage.indexSort) {
-        order[0][0] = parseInt(localStorage.indexSort, 10);
+        sortName = params.get("sort");
+    } else {
+        console.info("No sort field in query params; falling back to localStorage.indexSort.");
+        sortName = localStorage.indexSort;
     }
-    // get current columns count, except title and tags
-    const currentCustomColumnCount = dataTable.columns().count() - 2;
-    // check currentSort, if out of range, back to use title
-    if (localStorage.indexSort > currentCustomColumnCount) {
-        localStorage.indexSort = 0;
-        order[0][0] = parseInt(localStorage.indexSort, 10);
+    if (sortName) {
+        const sortColumn = dataTable.settings()[0].aoColumns.findIndex((col) => col.sName === sortName);
+        if (sortColumn !== -1) {
+            order[0][0] = sortColumn;
+        } else {
+            console.warn(`Unresolvable sortColumn: ${sortColumn}`);
+            order[0][0] = 0;
+        }
     }
 
     if (params.has("sortdir")) {

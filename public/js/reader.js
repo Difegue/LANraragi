@@ -2135,16 +2135,13 @@ async function loadDatatablesArchives(datatablesPage) {
     const indexSearchQuery = localStorage.getItem("currentSearch") || "";
     const indexSelectedCategory = localStorage.getItem("selectedCategory") || "";
     const datatablesPageSize = parseInt(localStorage.getItem("datatablesPageSize") || "100", 10);
-    const indexSort = localStorage.getItem("indexSort") || "0";
+    const indexSort = localStorage.getItem("indexSort") || "title";
     const indexOrder = localStorage.getItem("indexOrder") || "asc";
     let searchUrlStr = `/api/search/ids?start=${(datatablesPage - 1) * datatablesPageSize}`;
     if (indexSearchQuery) searchUrlStr += `&filter=${encodeURIComponent(indexSearchQuery)}`;
     if (indexSelectedCategory) searchUrlStr += `&category=${encodeURIComponent(indexSelectedCategory)}`;
-
-    // Mirrors the sortby resolution from index_datatables.drawCallback
-    if (indexSort && indexSort !== "0") {
-        const sortby = indexSort >= 1 ? localStorage[`customColumn${indexSort}`] || `Header ${indexSort}` : "title";
-        searchUrlStr += `&sortby=${sortby}`;
+    if (indexSort && indexSort !== "title") {
+        searchUrlStr += `&sortby=${encodeURIComponent(indexSort)}`;
         searchUrlStr += `&order=${indexOrder}`;
     }
 
@@ -2183,14 +2180,18 @@ async function loadDatatablesArchives(datatablesPage) {
 function returnToIndex() {
     const indexSearchQuery = localStorage.getItem("currentSearch") || "";
     const indexSelectedCategory = localStorage.getItem("selectedCategory") || "";
-    const indexSort = localStorage.getItem("indexSort") || 0;
+    const indexSort = localStorage.getItem("indexSort") || "title";
     const indexOrder = localStorage.getItem("indexOrder") || "asc";
     const currentDTPage = localStorage.getItem("currDatatablesPage") || "1";
     let returnUrl = "/";
     const params = new URLSearchParams();
     if (indexSearchQuery) params.append("q", indexSearchQuery);
     if (indexSelectedCategory) params.append("c", indexSelectedCategory);
-    if (indexSort) params.append("sort", indexSort);
+    // indexSort is the column's tag-namespace name (sName); the index reads ?sort= by name,
+    // so pass it straight through. Title is the default and is omitted, matching buildURLParameters.
+    if (indexSort && indexSort !== "title") {
+        params.append("sort", indexSort);
+    }
     if (indexOrder !== "asc") params.append("sortdir", indexOrder);
     if (currentDTPage !== "1") params.append("p", currentDTPage);
     const queryString = params.toString();
