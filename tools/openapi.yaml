@@ -1,3 +1,4 @@
+---
 openapi: 3.1.0
 info:
   version: 0.9.6
@@ -2226,18 +2227,18 @@ paths:
                   recordsTotal:
                     type: integer
               example:
-                  data:
-                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
-                      isnew: false
-                      extension: rar
-                      pagecount: 34
-                      progress: 3
-                      tags: parody:jojo's bizarre adventure
-                      lastreadtime: 1337038281
-                      title: Rohan Kishibe goes to Gucci
-                      filename: Gucc
-                      summary: cool summary
-                  recordsTotal: 2
+                data:
+                  - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                    isnew: false
+                    extension: rar
+                    pagecount: 34
+                    progress: 3
+                    tags: parody:jojo's bizarre adventure
+                    lastreadtime: 1337038281
+                    title: Rohan Kishibe goes to Gucci
+                    filename: Gucc
+                    summary: cool summary
+                recordsTotal: 2
   /search/cache:
     delete:
       security:
@@ -2299,7 +2300,7 @@ paths:
                 items:
                   type: object
                   required:
-                      - text
+                    - text
                   properties:
                     namespace:
                       type: [string, "null"]
@@ -2793,30 +2794,30 @@ paths:
               schema:
                 type: object
                 example:
-                    args: [/tmp/QF3UCnKdMr/myfile.zip]
-                    attempts: 1
-                    children: []
-                    created: 1601145004
-                    delayed: 1601145004
-                    expires: null
-                    finished: 1601145004
-                    id: 7
-                    lax: 0
-                    notes: {}
-                    parents: []
-                    priority: 0
-                    queue: default
-                    result: 
-                      id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
-                      message: This file already exists in the Library.
-                      success: 0
-                    retried: null
-                    retries: 0
-                    started: 1601145004
-                    state: finished
-                    task: handle_upload
-                    time: 1601145005
-                    worker: 1
+                  args: [/tmp/QF3UCnKdMr/myfile.zip]
+                  attempts: 1
+                  children: []
+                  created: 1601145004
+                  delayed: 1601145004
+                  expires: null
+                  finished: 1601145004
+                  id: 7
+                  lax: 0
+                  notes: {}
+                  parents: []
+                  priority: 0
+                  queue: default
+                  result:
+                    id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
+                    message: This file already exists in the Library.
+                    success: 0
+                  retried: null
+                  retries: 0
+                  started: 1601145004
+                  state: finished
+                  task: handle_upload
+                  time: 1601145005
+                  worker: 1
   /minion/{jobname}/queue:
     post:
       security:
@@ -3373,12 +3374,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}:
     parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the Tankoubon desired
-          schema:
-            type: string
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
     get:
       operationId: getTankoubon
       x-mojo-to: api-tankoubon#get_tankoubon
@@ -3529,12 +3530,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}/full:
     parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the Tankoubon desired
-          schema:
-            type: string
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
     get:
       operationId: getTankoubonFull
       x-mojo-to: api-tankoubon#get_tankoubon_full
@@ -3608,12 +3609,12 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}/thumbnail:
     parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the Tankoubon desired
-          schema:
-            type: string
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
     get:
       operationId: getTankoubonThumbnail
       x-mojo-to: api-tankoubon#serve_tankoubon_thumbnail
@@ -4104,10 +4105,10 @@ components:
           type: string
           description: Type of the plugin
           enum:
-              - download
-              - login
-              - metadata
-              - script
+            - download
+            - login
+            - metadata
+            - script
         namespace:
           type: string
           description: Unique namespace for the plugin
@@ -4138,10 +4139,10 @@ components:
         version: 2.1
         parameters: 
           - desc: ipb_pass_hash cookie
-            type:	string
+            type: string
           - default_value: 0
-            desc:	Force resampled archive download
-            name:	forceresampled
+            desc: Force resampled archive download
+            name: forceresampled
             type: bool
     PluginParameter:
       type: object
@@ -4157,16 +4158,16 @@ components:
           type: string
           description: Type of the parameter. This isn't really checked server-side and is used to inform the config page for the plugin.
           enum:
-              - bool
-              - int
-              - string
+            - bool
+            - int
+            - string
         default_value:
           type: [string, "null"]
           description: Default value of the parameter
       example:
         default_value: 0
-        desc:	Force resampled archive download
-        name:	forceresampled
+        desc: Force resampled archive download
+        name: forceresampled
         type: bool
     OperationResponse:
       type: object
