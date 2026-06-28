@@ -8,7 +8,6 @@ import { categories, selectedCategory } from "../store.js";
 
 export function AddCategoryOptions() {
     function setCategory(e) {
-        console.log(e.target.value);
         selectedCategory.value = e.target.value;
     }
 
@@ -18,7 +17,7 @@ export function AddCategoryOptions() {
                 <tr class="operation addcat-operation">
                     <td>${I18N.AddToCategoryColon}</td>
                     <td>
-                        <select class="favtag-btn"  value=${selectedCategory} onchange=${setCategory}>
+                        <select class="favtag-btn" value=${selectedCategory} onchange=${setCategory}>
                             <${For} each=${categories}>
                                 ${(item) => html`<option value=${item.id}>${item.name}</option>`}
                             </${For}>
