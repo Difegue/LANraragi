@@ -412,7 +412,7 @@ export function consumeURLParameters() {
         if (sortColumn !== -1) {
             order[0][0] = sortColumn;
         } else {
-            console.warn(`Unresolvable sortColumn: ${sortColumn}`);
+            console.warn(`Unresolvable sort "${sortName}"; no matching column, falling back to title.`);
             order[0][0] = 0;
         }
     }
