@@ -259,6 +259,10 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     });
     $(document).on("click.filter-stamped", "#filter-stamped", filterStampedOverlay);
 
+    // Return to index, re-applying the search/page state the user came from
+    $(document).on("click.return-to-index", "#return-to-index", () => {
+        returnToIndex();
+    });
 
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
@@ -277,11 +281,6 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
 
     // Set up archive navigation state from the entry source (datatables vs carousel vs direct nav)
     await setupArchiveNavigation();
-
-    // Intercept return-to-index so we can re-apply the search/page state the user came from
-    $(document).on("click.return-to-index", "#return-to-index", () => {
-        returnToIndex();
-    });
 
     // Remove the "new" tag with an api call (archives only; tanks don't have an isnew flag)
     if (!id.startsWith("TANK_"))
