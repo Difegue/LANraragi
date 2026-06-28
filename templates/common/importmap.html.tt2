@@ -19,7 +19,7 @@
 
             "marked": "[% c.url_for("/js/$version/vendor/marked.esm.js?$version") %]",
             "dompurify": "[% c.url_for("/js/$version/vendor/purify.js?$version") %]",
-
+            "swiper": "[% c.url_for("/js/$version/vendor/swiper-bundle.js") %]",
             "sweetalert2": "[% c.url_for("/js/$version/vendor/sweetalert2.esm.min.js") %]"
         }
     }

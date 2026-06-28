@@ -8,6 +8,7 @@ import * as IndexTable from "./index_datatables.js";
 import I18N from "i18n";
 import * as marked from "marked";
 import DOMPurify from "dompurify";
+import Swiper from "swiper";
 
 export let selectedCategory = "";
 let carouselInitialized = false;

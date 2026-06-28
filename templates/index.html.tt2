@@ -33,7 +33,6 @@
 	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/swiper-bundle.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/clipboard.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script type="module">

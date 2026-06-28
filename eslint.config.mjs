@@ -27,7 +27,6 @@ const config = {
             Awesomplete: "readonly",
             Raty: "readonly",
             Sortable: "readonly",
-            Swiper: "readonly",
             tagger: "readonly",
             tippy: "readonly",
         },
