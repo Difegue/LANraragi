@@ -440,7 +440,10 @@ export function updateCarousel(e) {
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
     const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
-    const category = selectedCategory ? `&category=${selectedCategory}` : "";
+
+    // See LANraragi::Controller::Api::Search::handle_databases
+    const isBuiltinSelector = selectedCategory === "NEW_ONLY" || selectedCategory === "UNTAGGED_ONLY";
+    const category = (selectedCategory && !isBuiltinSelector) ? `&category=${selectedCategory}` : "";
 
     switch (localStorage.carouselType) {
         case "random":
