@@ -54,6 +54,11 @@ export function initializeAll() {
         if (id) toggleArchiveSelection(id);
     });
 
+    // Mark carousel-originated reader links so Reader can decide whether to enable cross-archive navigation
+    $(document).on("click.carousel-navstate", ".swiper-wrapper .swiper-slide a[href*='/reader?id=']", () => {
+        sessionStorage.setItem("navigationState", "carousel");
+    });
+
     // 0 = List view
     // 1 = Thumbnail view
     // List view is at 0 but became the non-default state later so here's some legacy weirdness
@@ -1000,8 +1005,6 @@ export function migrateProgress() {
 }
 
 // #endregion
-
-
 
 // #region Category buttons
 

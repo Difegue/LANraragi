@@ -32,7 +32,7 @@
         const trackProgressLocally = "[% use_local %]" === "1";
         const authenticateProgress = "[% auth_progress %]" === "1";
 
-        Reader.initializeAll(trackProgressLocally, authenticateProgress);
+        await Reader.initializeAll(trackProgressLocally, authenticateProgress);
     </script>
 </head>
 
@@ -66,7 +66,7 @@
 
         <div id="i5">
             <div class="sb">
-                <a href="[% c.url_for("/").query(ref_query) %]" id="return-to-index" title="[% c.lh('Done reading? Go back to Archive Index') %]">
+                <a id="return-to-index" style="cursor:pointer;" title="[% c.lh('Done reading? Go back to Archive Index') %]">
                     <i class="fa fa-angle-down fa-3x"></i>
                 </a>
             </div>
@@ -172,6 +172,11 @@
                 <li>[% c.lh("Your keyboard arrows (and the spacebar)") %]</li>
                 <li>[% c.lh("Touching the left/right side of the image.") %]</li>
             </ul>
+            [% c.lh("When reading an archive from search results, you can also navigate between archives using:") %]
+            <ul>
+                <li>[% c.lh("The , and . keys") %]</li>
+                <li>[% c.lh("Reading past the first/last page") %]</li>
+            </ul>
             <br>[% c.lh("Other keyboard shortcuts:") %]
             <ul>
                 <li>[% c.lh("M: toggle manga mode (right-to-left reading)") %]</li>
@@ -182,6 +187,7 @@
                 <li>[% c.lh("F: toggle fullscreen mode") %]</li>
                 <li>[% c.lh("B: toggle bookmark") %]</li>
                 <li>[% c.lh("N: toggle auto next page") %]</li>
+                <li>[% c.lh("shift+Left/Right: go to first page/last page") %]</li>
                 <li>[% c.lh("G: go to page number") %]</li>
                 <li>[% c.lh("S: set a Stamp") %]</li>
             </ul>
@@ -284,6 +290,7 @@
 <!-- -->
 [% BLOCK arrows %]
 <div class="sn paginator">
+    <a class="fa fa-backward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-left"></a>
     <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
     <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
@@ -294,6 +301,7 @@
 
     <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
     <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
+    <a class="fa fa-forward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-right"></a>
 </div>
 [% END %]
 <!-- -->

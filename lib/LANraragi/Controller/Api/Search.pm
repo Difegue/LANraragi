@@ -107,6 +107,52 @@ sub handle_api {
     }
 }
 
+# Search endpoint returning only archive IDs for a query.
+sub handle_api_ids {
+
+    my $self = shift->openapi->valid_input or return;
+    my $req  = $self->req;
+
+    my $filter        = $req->param('filter');
+    my $category      = $req->param('category') || "";
+    my $start         = $req->param('start')    || 0;
+    my $sortkey       = $req->param('sortby');
+    my $sortorder     = $req->param('order');
+    my $newfilter     = $req->param('newonly')       // "false";
+    my $untaggedf     = $req->param('untaggedonly')  // "false";
+    my $grouptanks    = $req->param('groupby_tanks') // "true";
+    my $hidecompleted = $req->param('hidecompleted') // "false";
+
+    $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
+        $filter,    $category,            $start,               $sortkey,
+        $sortorder, $newfilter eq "true", $untaggedf eq "true", $grouptanks eq "true",
+        $hidecompleted eq "true"
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                recordsTotal    => 0,
+                recordsFiltered => 0,
+                data            => []
+            },
+            status => 204
+        );
+    } else {
+        $self->render(
+            openapi => {
+                recordsTotal    => $total,
+                recordsFiltered => $filtered,
+                data            => \@ids
+            }
+        );
+    }
+}
+
 sub clear_cache {
     invalidate_cache();
     render_api_response( shift, "clear_cache" );

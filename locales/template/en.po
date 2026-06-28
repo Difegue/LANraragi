@@ -1049,6 +1049,12 @@ msgstr "Set Rating"
 msgid "Clear Rating"
 msgstr "Clear Rating"
 
+msgid "This is the first archive"
+msgstr "This is the first archive"
+
+msgid "This is the last archive"
+msgstr "This is the last archive"
+
 msgid " -- Select Rating -- "
 msgstr " -- Select Rating -- "
 
@@ -1072,6 +1078,15 @@ msgstr "Your keyboard arrows (and the spacebar)"
 
 msgid "Touching the left/right side of the image."
 msgstr "Touching the left/right side of the image."
+
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "When reading an archive from search results, you can also navigate between archives using:"
+
+msgid "The , and . keys"
+msgstr "The , and . keys"
+
+msgid "Reading past the first/last page"
+msgstr "Reading past the first/last page"
 
 msgid "Other keyboard shortcuts:"
 msgstr "Other keyboard shortcuts:"
@@ -1099,6 +1114,9 @@ msgstr "B: toggle bookmark"
 
 msgid "N: toggle auto next page"
 msgstr "N: toggle auto next page"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "shift+Left/Right: go to first page/last page"
 
 msgid "G: go to page number"
 msgstr "G: go to page number"
