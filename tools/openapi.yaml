@@ -2147,6 +2147,122 @@ paths:
                   recordsTotal: 2
         '204':
           description: Search engine is not initialized yet. Please wait a few seconds.
+  /search/ids:
+    get:
+      operationId: searchArchiveIds
+      x-mojo-to: api-search#handle_api_ids
+      summary: Search Archive IDs
+      description: >-
+        Search for Archives like `/api/search`, but returns only the ordered
+        list of matching Archive IDs without the accompanying metadata.
+      tags:
+        - search
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: ID of the category you want to restrict this search to.
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: filter
+          in: query
+          required: false
+          description: Search query. This follows the same rules as the queries in `/api/search`.
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          description: >-
+            From which archive in the total result count this enumeration should
+            start. The total number of archives displayed depends on the
+            server-side page size preference.
+
+
+            From 0.8.2 onwards, you can use "-1" here to get the full, unpaged list of IDs.
+          schema:
+            type: integer
+        - name: sortby
+          in: query
+          required: false
+          description: >-
+            Namespace by which you want to sort the results. There are specific
+            sort keys you can use:
+
+            - *title* if you want to sort by title
+
+            - *lastread* if you want to sort by last read time. (If
+            **Server-side Progress Tracking** is enabled)
+
+
+            (Default value is title. If you sort by lastread, IDs that have
+            never been read will be removed from the search.)
+          schema:
+            type: string
+        - name: order
+          in: query
+          required: false
+          description: Order of the sort, either `asc` or `desc`.
+          schema:
+            type: string
+        - name: newonly
+          in: query
+          required: false
+          description: Limit search to new archives only.
+          schema:
+            type: boolean
+        - name: untaggedonly
+          in: query
+          required: false
+          description: Limit search to untagged archives only.
+          schema:
+            type: boolean
+        - name: hidecompleted
+          in: query
+          required: false
+          description: Hide archives where reading progress has reached the end.
+          schema:
+            type: boolean
+        - name: groupby_tanks
+          in: query
+          required: false
+          description: >-
+            Enable or disable Tankoubon grouping. Defaults to true.
+
+            When enabled, Tankoubons will show in search results, replacing all
+            the archive IDs they contain.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive IDs for each search result
+                    items:
+                      type: string
+                  recordsFiltered:
+                    type: integer
+                    description: Amount of archives in the search result
+                  recordsTotal:
+                    type: integer
+                    description: Total number of archives available. This result will change depending on the `groupby_tanks` parameter.
+                example:
+                  data:
+                    - 28697b96f0ac5858be2614ed10ca47742c9522fd
+                    - 5cf64ec2f3c2c627fb8a64df198af2a8527c4fdb
+                  recordsFiltered: 2
+                  recordsTotal: 2
+        '204':
+          description: Search engine is not initialized yet. Please wait a few seconds.
   /search/random:
     get:
       operationId: searchRandomArchives

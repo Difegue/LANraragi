@@ -47,6 +47,7 @@ function handleContextMenu(option, id) {
             handleDelete(id);
             break;
         case "read":
+            sessionStorage.setItem("navigationState", window.contextMenuSource === "carousel" ? "carousel" : "datatables");
             LRR.openInNewTab(new LRR.ApiURL(`/reader?id=${id}`));
             break;
         case "download":
@@ -197,6 +198,15 @@ export function initialize(catListData) {
     // Initialize context menu
     $.contextMenu({
         selector: ".context-menu",
+        events: {
+            // Record whether this context menu was opened from the carousel or datatables,
+            // so Reader can later decide whether to enable cross-archive navigation.
+            show: function (_options) {
+                window.contextMenuSource = $(this).closest(".swiper-wrapper").length > 0
+                    ? "carousel"
+                    : "datatables";
+            }
+        },
         build: ($trigger, _e) => {
             const id = $trigger.attr("id");
             const isTankoubon = id && id.startsWith("TANK_");
