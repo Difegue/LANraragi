@@ -2138,7 +2138,15 @@ async function loadDatatablesArchives(datatablesPage) {
     const indexOrder = localStorage.getItem("indexOrder") || "asc";
     let searchUrlStr = `/api/search/ids?start=${(datatablesPage - 1) * datatablesPageSize}`;
     if (indexSearchQuery) searchUrlStr += `&filter=${encodeURIComponent(indexSearchQuery)}`;
-    if (indexSelectedCategory) searchUrlStr += `&category=${encodeURIComponent(indexSelectedCategory)}`;
+    
+    // See Index.updateCarousel
+    if (indexSelectedCategory === "NEW_ONLY") {
+        searchUrlStr += `&newonly=true`;
+    } else if (indexSelectedCategory === "UNTAGGED_ONLY") {
+        searchUrlStr += `&untaggedonly=true`;
+    } else if (indexSelectedCategory) {
+        searchUrlStr += `&category=${encodeURIComponent(indexSelectedCategory)}`;
+    }
     if (indexSort && indexSort !== "title") {
         searchUrlStr += `&sortby=${encodeURIComponent(indexSort)}`;
         searchUrlStr += `&order=${indexOrder}`;
