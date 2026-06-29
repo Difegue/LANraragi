@@ -2484,7 +2484,121 @@ paths:
                     description: Amount of archives in the search result
                   recordsTotal:
                     type: integer
-                    description: Total number of archives available
+                    description: Total number of archives available. This result will change depending on the `groupby_tanks` parameter.
+        '204':
+          description: Search engine is not initialized yet. Please wait a few seconds.
+
+  /search/composite/ids:
+    post:
+      operationId: compositeSearchArchiveIds
+      x-mojo-to: api-search#handle_composite_ids
+      summary: Composite Search Archive IDs
+      description: >-
+        Perform a composite search like `/api/search/composite`, but returns
+        only the ordered list of matching Archive IDs without the accompanying
+        metadata.
+      tags:
+        - search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - clauses
+              properties:
+                clauses:
+                  type: array
+                  minItems: 1
+                  description: >-
+                    Array of search clauses. Each clause is an independent AND
+                    conjunction. Multiple clauses are OR-unioned.
+                  items:
+                    type: object
+                    properties:
+                      filter:
+                        type: string
+                        description: Search filter string (same syntax as /search filter parameter).
+                      categories:
+                        type: array
+                        description: Category filters to apply to this clause.
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - mode
+                          properties:
+                            id:
+                              type: string
+                              description: Category ID.
+                              minLength: 14
+                              maxLength: 14
+                            mode:
+                              type: string
+                              description: Whether to include or exclude this category.
+                              enum:
+                                - include
+                                - exclude
+                      newonly:
+                        type: integer
+                        enum: [-1, 0, 1]
+                        description: >-
+                          New archive filter. 1 = only new, -1 = exclude new, 0 = off.
+                      untaggedonly:
+                        type: integer
+                        enum: [-1, 0, 1]
+                        description: >-
+                          Untagged archive filter. 1 = only untagged, -1 = exclude untagged, 0 = off.
+                      hidecompleted:
+                        type: boolean
+                        description: >-
+                          Hide completed archives (progress >= pagecount). Defaults to false.
+                start:
+                  type: integer
+                  description: >-
+                    Pagination offset. Use -1 to get all results.
+                sortby:
+                  type: string
+                  description: >-
+                    Namespace by which to sort results. Use "title" for title sort,
+                    "lastread" for last read time sort.
+                order:
+                  type: string
+                  description: Sort order.
+                  enum:
+                    - asc
+                    - desc
+                groupby_tanks:
+                  type: boolean
+                  default: true
+                  description: >-
+                    Enable or disable Tankoubon grouping. Defaults to true.
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive IDs for each search result
+                    items:
+                      type: string
+                  recordsFiltered:
+                    type: integer
+                    description: Amount of archives in the search result
+                  recordsTotal:
+                    type: integer
+                    description: Total number of archives available. This result will change depending on the `groupby_tanks` parameter.
+                example:
+                  data:
+                    - 28697b96f0ac5858be2614ed10ca47742c9522fd
+                    - 5cf64ec2f3c2c627fb8a64df198af2a8527c4fdb
+                  recordsFiltered: 2
+                  recordsTotal: 2
         '204':
           description: Search engine is not initialized yet. Please wait a few seconds.
 
