@@ -11,20 +11,17 @@ cp -R /ucrt64/etc ./win-dist/runtime
 # Remove other exes
 find ./win-dist/runtime/bin -name "*.exe" -not -name "perl.exe" -type f -delete
 
-# Copy perl, openssl and magick libs
+# Copy perl and openssl libs
 mkdir -p ./win-dist/runtime/lib
 
 cp -R /ucrt64/lib/perl5 ./win-dist/runtime/lib
 cp -R /ucrt64/lib/p11-kit ./win-dist/runtime/lib
-cp -R /ucrt64/lib/ImageMagick-7.1.2 ./win-dist/runtime/lib
-
-# We don't need .a files, they are used only during compilation
-find ./win-dist/runtime/lib/ImageMagick-7.1.2/ -name "*.a" -type f -delete
 
 # Copy vips modules
 cp -R /ucrt64/lib/vips-modules-8.18 ./win-dist/runtime/lib
 
 # Remove unused vips modules
+rm ./win-dist/runtime/lib/vips-modules-8.18/vips-magick.dll
 rm ./win-dist/runtime/lib/vips-modules-8.18/vips-openslide.dll
 
 # Copy more openssl stuff

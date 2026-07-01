@@ -26,13 +26,6 @@ sed -i "s/croak 'Minion workers do not support fork emulation'/#croak 'Minion wo
 perl Makefile.PL && mingw32-make install
 cd ../ && rm -rf Minion-11.0
 
-cpanm --notest --installdeps Image::Magick
-curl -L -s https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/Image-Magick-7.1.2-3.tar.gz | tar -xz
-cd Image-Magick-7.1.2
-patch -p1 < ../build/windows/perl-Image-Magic-fix-msys2.patch
-perl Makefile.PL && mingw32-make install
-cd ../ && rm -rf Image-Magick-7.1.2
-
 cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
 
 # Install remaining modules
