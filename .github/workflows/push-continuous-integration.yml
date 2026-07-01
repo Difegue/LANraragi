@@ -43,8 +43,7 @@ jobs:
         file: ./tools/build/docker/Dockerfile
         tags: lanraragi:test
         outputs: type=docker
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=buildkit-linux-amd64
     - name: Copy tests
       run: cp -R tests .github/action-run-tests
     - name: LANraragi Test Suite
@@ -74,8 +73,7 @@ jobs:
           file: lanraragi/tools/build/docker/Dockerfile
           tags: lanraragi:ci
           outputs: type=docker,dest=${{ runner.temp }}/lanraragi-ci.tar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=buildkit-linux-amd64
       - name: Load LRR Docker image
         run: docker load -i "${{ runner.temp }}/lanraragi-ci.tar"
       - name: Checkout aio-lanraragi integration tests
