@@ -5,6 +5,7 @@
 ![The default password for a new LRR install is "kamimamita".](<../.gitbook/assets/login.png>)
 
 * [ ] Change Security Settings
+* [ ] Change Server Language (although you'll need English to read this documentation...)
 * [ ] Enable and configure wanted Plugins to tag your content
 * [ ] Move the Thumbnail Folder to a dedicated folder if you don't want them alongside your content
 * [ ] Change the default Content Folder to your personal folder, or start adding files to the default Content Folder!
@@ -34,6 +35,27 @@ If you don't want any page of the app to be accessible to outsiders, you should 
 {% hint style="warning" %}
 If you enable No-Fun Mode, you'll have to set an **API Key** to be able to use the Public API methods. See more information in the API page.
 {% endhint %}
+
+## Server Language  
+
+By default, LANraragi will display its interface following the language your browser is set to. (Via Accept-Language headers).  
+
+If you dislike this behavior, you can set a specific language option for every browser instead in Server Settings.  
+LANraragi currently supports the following languages:  
+
+* English
+* French
+* Simplified Chinese
+* Traditional Chinese
+* German
+* Spanish
+* Japanese
+* Indonesian
+* Korean
+* Norwegian
+* Portuguese
+* Italian
+* Vietnamese  
 
 ## Content Folder
 

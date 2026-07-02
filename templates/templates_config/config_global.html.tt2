@@ -38,7 +38,6 @@
             <option value="ko" [% IF language == 'ko' %]selected[% END %]>한국어 (Korean)</option>
             <option value="no" [% IF language == 'no' %]selected[% END %]>Norsk (Norwegian)</option>
             <option value="pt" [% IF language == 'pt' %]selected[% END %]>Português (Portuguese)</option>
-            <option value="de" [% IF language == 'de' %]selected[% END %]>Deutsch (German)</option>
             <option value="it" [% IF language == 'it' %]selected[% END %]>Italiano (Italian)</option>
             <option value="vi" [% IF language == 'vi' %]selected[% END %]>Tiếng Việt (Vietnamese)</option>
         </select>
