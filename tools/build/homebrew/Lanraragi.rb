@@ -19,7 +19,7 @@ class Lanraragi < Formula
   depends_on "node"
   depends_on "openssl@3"
   depends_on "perl"
-  depends_on "valkey" 
+  depends_on "redis" # TODO: migrate to `valkey`
   depends_on "zstd"
 
   uses_from_macos "libffi"
