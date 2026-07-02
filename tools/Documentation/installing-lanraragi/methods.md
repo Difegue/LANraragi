@@ -26,7 +26,7 @@ While not a part of the main repo, you can check out the [Nix](community.md) pac
 ## Windows 10/11: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only.
+This method works on **64-bit** editions of Windows only.
 {% endhint %}
 
 ![win10](../.gitbook/assets/karen.png)
@@ -37,7 +37,7 @@ I provide a dedicated installer for Windows machines as of 0.6.0, complete with 
 [windows.md](windows.md)
 {% endcontent-ref %}
 
-## Linux/macOS/Windows 10: _Docker_
+## Linux/macOS/Windows: _Docker_
 
 Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.\
 They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!

@@ -99,7 +99,7 @@ See the Adding Metadata section for more information.
 
 ## Uploading Archives
 
-![LRR Upload Center](<../.gitbook/assets/uploading (1).png>)
+![LRR Upload Center](<../.gitbook/assets/uploading.png>)
 
 You can add archives to the application by either copying them to the content folder, or using the built-in uploader tool.\
 They'll be automatically indexed and added to the database.\

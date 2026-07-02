@@ -27,9 +27,10 @@ perlmagick npm libvips-dev
 _Base software dependencies._
 
 {% hint style="info" %}
-ImageMagick and libvips are optional, but you need to install at least one to get thumbnail support.
-libvips is faster than ImageMagick and will be used automatically if both are installed.
-Also, libvips is required for PDF support.
+ImageMagick+PerlMagick and libvips are optional, but you need to install at least one to get thumbnail support.
+libvips is faster than ImageMagick and will be used automatically if both are installed.  
+
+libvips is required for PDF support.
 {% endhint %}
 
 {% hint style="info" %}

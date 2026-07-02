@@ -8,7 +8,7 @@ The main page will show all the Archives loaded into the application, sorted by 
 
 You can customize display options to show the index in compact mode, as well as add extra namespaces and select which namespaces to show in said columns.
 
-![Customized compact mode with three columns and a sort by ratings](<../.gitbook/assets/ratings (1).png>)
+![Customized compact mode with three columns and a sort by ratings](<../.gitbook/assets/ratings.png>)
 
 The topmost **carousel** view will show random archives from your current search in both thumbnail and compact modes -- It can also be configured to show New or Untagged archives instead.
 
@@ -28,18 +28,21 @@ In the reader, you can use the keyboard arrows or the built-in arrow icons to mo
 You can also simply click the right or left side of the image.\
 When reading an archive, various features are available to you with the side button controls — Feel free to hover over them to see what options are available.
 
-![Reader View](<../.gitbook/assets/reader (1).jpg>)
+![Reader View](<../.gitbook/assets/reader.jpg>)
 
 You can click the help icon on the left side of the Reader to get a quick refresher about its controls.\
 The cog/Reader Options button shows the various options you can toggle to change the reading experience. (Double page, Japanese read order, etc.)
 
 The Page Overlay button (also actionable by pressing **CTRL**) will show all the pages of the current archive, allowing for quick navigation and preview.
 
-![Reader with overlay](../.gitbook/assets/reader_overlay.jpg)
+![Reader with overlay](../.gitbook/assets/reader_overlay.jpg)  
+
+The overlay is also where you can filter pages to only show pages with [Stamps](../advanced-usage/stamps.md), and jump to a different [Chapter](../advanced-usage/tankoubons-and-chapters.md) if your Archive has any.  
+
+![Overlay Chapter list](../.gitbook/assets/chapters.jpg)  
 
 The Reader comes with its own set of clientside options to customize the reading experience as you want.
-
-![Reader Options](<../.gitbook/assets/reader_options (1).png>)
+![Reader Options](<../.gitbook/assets/reader_options.png>)
 
 If "Progression Tracking" is enabled, when you close and reopen the archive, it'll show you the page you last stopped at.
 
