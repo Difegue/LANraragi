@@ -2,7 +2,7 @@
 
 ## Quick To-Do List for newcomers
 
-![The default password for a new LRR install is "kamimamita".](<../.gitbook/assets/login (1).png>)
+![The default password for a new LRR install is "kamimamita".](<../.gitbook/assets/login.png>)
 
 * [ ] Change Security Settings
 * [ ] Enable and configure wanted Plugins to tag your content
@@ -73,7 +73,7 @@ If you have a large number of archives (More than 500), you might want to ignore
 
 Starting with 0.7.7, the thumbnail folder can be dissociated from the Content Folder, if you want to move it to a SSD or keep your Content Folder fully read-only.
 
-![Thumbnail Options](<../.gitbook/assets/thumbchange (1).png>)
+![Thumbnail Options](<../.gitbook/assets/thumbchange.png>)
 
 {% hint style="warning" %}
 There is no support for moving your thumbnails from the old folder to the new one, so make sure to move them manually once you've switched!

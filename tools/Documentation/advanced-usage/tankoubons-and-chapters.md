@@ -33,7 +33,9 @@ For example, if you create "Chapter X" at page 20 in a 50-page Archive, the list
 **Tankoubons** are a special type of Archive that regroups multiple Archives within them in a user-specified order.  
 Basically, you can select multiple Archives in your collection, and **merge** them into a single element to show in your Index/Library instead.  
 
+{% hint style="info" %}
 This does **not** modify the physical files in any fashion. Tankoubons are a database-only thing.  
+{% endhint %}
 
 To create a Tank, use the Selection mechanism like with [Batch Operations](./batch-tagging.md), but click the "Compress" icon instead of the Hammer.  
 
