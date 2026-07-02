@@ -151,6 +151,9 @@
 										<img style="height:300px" src='[% c.url_for("/api/archives/$archive.arcid/thumbnail") %]'
 											onerror="this.src=`new LRR.ApiURL('/img/noThumb.png')`">
 									</div>
+									<a class="edit-archive-link" title="[% c.lh("Edit Archive Metadata") %]" href="[% c.url_for("/edit").query("id=$archive.arcid") %]" target="_blank" rel="noopener">
+										<i class="fas fa-pencil-alt"></i>
+									</a>
 									<a class="remove-archive" title="[% c.lh("Remove from Tankoubon") %]">	
 										<i class="fas fa-close" style="text-align:right;"></i>
 									</a>

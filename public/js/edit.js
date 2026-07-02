@@ -104,6 +104,9 @@ Edit.addArchiveToTank = function () {
                     <img style="height:300px" src='${new LRR.ApiURL("/api/archives/"+arcId+"/thumbnail")}'
                         onerror="this.src='${new LRR.ApiURL("/img/noThumb.png")}'">
                 </div>
+                <a class="edit-archive-link" title="${I18N.EditArchiveMetadata}" href="${new LRR.ApiURL(`/edit?id=${arcId}`)}" target="_blank" rel="noopener">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
                 <a class="remove-archive" title="${I18N.TankoubonRemoveFromMenu}">	
                     <i class="fas fa-close" style="text-align:right"></i>
                 </a>

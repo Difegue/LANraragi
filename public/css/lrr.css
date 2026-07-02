@@ -999,6 +999,17 @@ body.infinite-scroll .fullscreen-infinite img {
   white-space: nowrap;
 }
 
+#tank-archive-list li .edit-archive-link,
+#tank-archive-list li .remove-archive {
+  margin-left: 12px;
+  opacity: 0.7;
+}
+
+#tank-archive-list li .edit-archive-link:hover,
+#tank-archive-list li .remove-archive:hover {
+  opacity: 1;
+}
+
 /* Prevent absolute options from blocking the paginator */
 @media (max-width: 768px) {
   .absolute-options {
