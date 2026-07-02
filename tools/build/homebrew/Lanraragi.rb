@@ -13,7 +13,8 @@ class Lanraragi < Formula
   depends_on "pkgconf" => :build
 
   depends_on "cpanminus"
-  depends_on "poppler"
+  depends_on "ghostscript"
+  depends_on "imagemagick"
   depends_on "vips"
   depends_on "libarchive"
   depends_on "node"
@@ -24,11 +25,27 @@ class Lanraragi < Formula
 
   uses_from_macos "libffi"
 
+  resource "Image::Magick" do
+    url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/Image-Magick-7.1.1-28.tar.gz"
+    sha256 "bc54137346c1d45626e7075015f7d1dae813394af885457499f54878cfc19e0b"
+  end
+
   def install
     ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
     ENV["OPENSSL_PREFIX"] = Formula["openssl@3"].opt_prefix
     ENV["ARCHIVE_LIBARCHIVE_LIB_DLL"] = Formula["libarchive"].opt_lib/shared_library("libarchive")
     ENV["ALIEN_INSTALL_TYPE"] = "system"
+
+    imagemagick = Formula["imagemagick"]
+    resource("Image::Magick").stage do
+      inreplace "Makefile.PL",
+                "/usr/local/include/ImageMagick-#{imagemagick.version.major}",
+                "#{imagemagick.opt_include}/ImageMagick-#{imagemagick.version.major}"
+
+      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
+      system "make"
+      system "make", "install"
+    end
 
     system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
     system "npm", "install", *std_npm_args(prefix: false)
