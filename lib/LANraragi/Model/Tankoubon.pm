@@ -98,6 +98,8 @@ sub create_tankoubon ( $name, $tank_id ) {
             $redis->zrem( $tank_id, $n );
         }
     }
+    # Encode name
+    $name = redis_encode( $name );
 
     # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
     # Title must be lowercased to match how search queries are processed.
@@ -106,7 +108,7 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Default values for metadata
     # Score 0 is reserved for the name of the tank
-    $redis->zadd( $tank_id, $TANK_METADATA{"name"},     redis_encode("name_${name}") );
+    $redis->zadd( $tank_id, $TANK_METADATA{"name"},     "name_${name}" );
     $redis->zadd( $tank_id, $TANK_METADATA{"summary"},  "summary_" );
     $redis->zadd( $tank_id, $TANK_METADATA{"tags"},     "tags_" );
     $redis->zadd( $tank_id, $TANK_METADATA{"progress"}, "progress_0" );
