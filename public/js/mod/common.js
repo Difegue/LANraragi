@@ -11,8 +11,8 @@ import I18N from "i18n";
 const html = htm.bind(h);
 
 let toastsInitialized = false;
-let isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
-let isProgressAuthenticated = true;  // Whether progress requires authentication
+export let isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
+export let isProgressAuthenticated = true;  // Whether progress requires authentication
 
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
