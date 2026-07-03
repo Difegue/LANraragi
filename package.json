@@ -34,6 +34,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "6.2.1",
         "@jcubic/tagger": "0.4.2",
+        "@preact/signals": "^2.9.2",
         "allcollapsible": "1.1.0",
         "awesomplete": "1.1.5",
         "blueimp-file-upload": "10.32.0",
@@ -49,7 +50,7 @@
         "jquery": "3.6.0",
         "jquery-contextmenu": "2.9.2",
         "marked": "^18.0.4",
-        "preact": "10.7.1",
+        "preact": "^10.29.2",
         "raty-js": "^4.3.0",
         "react-toastify": "9.0.0-rc-2",
         "sortablejs": "1.15.6",
