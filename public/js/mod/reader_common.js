@@ -440,7 +440,7 @@ function enterInfiniteScrollView() {
     $img.on("load.infinite-scroll", imgOnLoad);
 
     $("body").addClass("infinite-scroll");
-    $img.attr("src", state.pages[0]).addClass(".infinite-scroll-image");
+    $img.attr("src", state.pages[0]).addClass("infinite-scroll-image");
 
     // Disable other options that don't work with infinite scroll
     state.mangaMode.value = false;
@@ -903,7 +903,7 @@ export async function goToPage(page) {
     state.currentPage = Math.min(state.maxPage, Math.max(0, +page));
 
     if (state.infiniteScroll.value) {
-        $("#display img").get(state.currentPage).scrollIntoView({ block: "nearest" });
+        $("#display img:not(#img_doublepage)").get(state.currentPage).scrollIntoView({ block: "nearest" });
     } else {
         if (state.doublePageMode.value && state.currentPage > 0
             && state.currentPage < state.maxPage) {
@@ -1260,7 +1260,7 @@ function changePage(targetPage, resetAuto = false) {
 
     // Sync position if in infinite scroll mode
     if (state.infiniteScroll.value) {
-        const images = [...document.querySelectorAll(".reader-image")];
+        const images = [...document.querySelectorAll(".reader-image:not(#img_doublepage)")];
         const midViewport = window.innerHeight / 2;
         for (let i = 0; i < images.length; i++) {
             const rect = images[i].getBoundingClientRect();
