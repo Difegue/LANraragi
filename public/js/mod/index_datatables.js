@@ -8,7 +8,7 @@ import I18N from "i18n";
 export let dataTable = {};
 let originalTitle = document.title;
 let isComingFromPopstate = false;
-let currentSearch = "";
+export let currentSearch = "";
 
 /**
  * Initialize DataTables.
