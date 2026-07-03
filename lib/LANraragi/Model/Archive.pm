@@ -45,6 +45,7 @@ sub get_title ($id) {
 # Functions used when dealing with archives.
 
 # Generates an array of all the archive JSONs in the database that have existing files.
+# This doesn't include Tanks. 
 sub generate_archive_list {
 
     my $redis = LANraragi::Model::Config->get_redis;
@@ -110,7 +111,7 @@ sub generate_page_thumbnails {
 
     # Get the number of pages in the archive
     my $redis = LANraragi::Model::Config->get_redis;
-    my $pages = $redis->hget( $id, "pagecount" );
+    my $pages = $redis->hget( $id, "pagecount" ) // 0;
 
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.$format";
@@ -391,6 +392,22 @@ sub delete_archive ($id) {
     foreach my $cat ( LANraragi::Model::Category::get_categories_containing_archive($id) ) {
         my $catid = %{$cat}{"id"};
         LANraragi::Model::Category::remove_from_category( $catid, $id );
+    }
+
+    # Remove Stamps
+    my $stamps    = $redis->hget( $id, "stamps" );
+    my @stamps;
+
+    if ( $redis->hexists( $id, "stamps" )) {
+        eval { @stamps = @{ decode_json($stamps) } };
+        if ($@) {
+            die;
+        }
+        foreach my $stamp ( @stamps ) {
+            $redis->del($stamp);
+        }
+    } else {
+        # Stamps attribute was not set, do nothing.
     }
 
     $redis->del($id);

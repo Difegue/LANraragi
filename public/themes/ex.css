@@ -249,6 +249,10 @@ tr.gtr1 {
     background: #43464e
 }
 
+#search-input {
+    width: 100vw;
+}
+
 .stdinput {
     font-size: 8pt;
     color: #f1f1f1;
@@ -639,4 +643,14 @@ div.id4 {
     color: #dddddd;
     border-radius: 0;
     border: 1px solid #000000;
+}
+
+/** Archive selection highlight **/
+#thumbs_container .id1.msm-selected {
+    outline: 3px solid #3b97ea;
+    outline-offset: -3px;
+}
+
+.datatables tbody tr.msm-selected td {
+    background-color: rgba(240, 165, 0, 0.2) !important;
 }

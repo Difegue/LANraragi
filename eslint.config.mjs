@@ -1,5 +1,5 @@
 import js from "@eslint/js";
-import { defineConfig } from "eslint/config";
+import { defineConfig, globalIgnores } from "eslint/config";
 import stylistic from "@stylistic/eslint-plugin";
 import globals from "globals";
 
@@ -9,7 +9,6 @@ import globals from "globals";
  */
 const config = {
     files: ["**/*.js"],
-    ignores: ["public/js/vendor/*.js"],
     plugins: {
         js,
         "@stylistic": stylistic,
@@ -22,27 +21,10 @@ const config = {
         globals: {
             ...globals.browser,
             ...globals.jquery,
-            // LANraragi specific
-            // TODO rework all main scripts to no longer store data in the global scope, probably transition to ES modules
-            Backup: "readonly",
-            Batch: "readonly",
-            Category: "readonly",
-            Common: "readonly",
-            Config: "readonly",
-            Duplicates: "readonly",
-            Edit: "readonly",
-            I18N: "readonly",
-            Index: "readonly",
-            IndexTable: "readonly",
-            Logs: "readonly",
-            LRR: "readonly",
-            Plugins: "readonly",
-            Reader: "readonly",
-            Server: "readonly",
-            Stats: "readonly",
             // external packages
             Awesomplete: "readonly",
-            marked: "readonly",
+            Raty: "readonly",
+            Sortable: "readonly",
             Swiper: "readonly",
             tagger: "readonly",
             tippy: "readonly",
@@ -52,7 +34,7 @@ const config = {
     rules: {
         "func-names": ["error", "never"],
         "no-alert": "off",
-        "no-console": "warn",
+        "no-console": "off",
         "no-else-return": "off",
         "no-implicit-globals": "error",
         "no-multi-assign": ["error", {
@@ -84,4 +66,7 @@ const config = {
     },
 };
 
-export default defineConfig(config);
+export default defineConfig([
+    globalIgnores(["public/js/vendor/*.js", "tests/samples/*"]),
+    config,
+]);

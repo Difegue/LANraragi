@@ -2,7 +2,7 @@
 
 The search bar in LANraragi tries to not be too dumb and will actively suggest tags to you as you type.
 
-![Search suggestions](<../.gitbook/assets/search (1).png>)
+![Search suggestions](<../.gitbook/assets/search.png>)
 
 If you want to queue multiple terms/tags, you have to use **commas** to separate them, much like how tags are entered in the metadata field when editing an archive.\
 You can mix both tags and a specific title in a search if you want.\
@@ -25,3 +25,10 @@ Exclusion. When placed before a term, prevents search results from including tha
 
 **Dollar Sign ($)**\
 Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Can be used as an exclusion to ignore misc tags in the search query.
+
+{% hint style="info" %}
+When you open the Web Reader from a set of search results, you can read through the entire result set without leaving the Reader!  
+Simply proceeding to the next page at the end of an Archive will automatically load the next one.  
+
+You can also go between Archives in the search set with the "," and "." keys.  
+{% endhint %}

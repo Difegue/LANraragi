@@ -10,12 +10,20 @@ It's a pretty common occurence: You imported archives without enabling automatic
 
 Editing tags manually for each file ain't gonna cut it...
 
-Enter **Batch Tagging**, allowing for laser-focus, one-time operations over large sets of archives.
+Enter **Batch Tagging**, allowing for laser-focus, one-time operations over large sets of archives.  
 
-![Batch Tagging interface as of 0.5.6](../.gitbook/assets/batch.png)
+Within the Archive Index, you can enable _Selection Mode_ either through the context menu or the "Select Archives" button.  
 
-All your archives are shown in the checklist on the right, with archives with no tags pre-checked for ease of access.
+![Selection Mode UI](../.gitbook/assets/msm.png)  
 
+In this mode, you can search the Index as usual, but clicking on an Archive will add it to the selection, hosted within the carousel interface. The selection persists across searches.  
+You can also add every Archive in the current page to the selection by clicking the double-checkmark icon.  
+
+Once you've selected all the Archives you want to work on, you can click the Hammer button to go to the Batch Tagging interface.  
+
+![Batch Tagging interface as of 0.5.6](../.gitbook/assets/batch.png)  
+
+Your selection will be shown in the checklist on the right.
 Past that, it's just a matter of selecting what you want to do, optionally plugging in special arguments for the run, and going ham on batching!
 
 The currently available operations are:

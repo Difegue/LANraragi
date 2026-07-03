@@ -1,7 +1,10 @@
 /**
  * Batch Operations
- * @global
  */
+import * as LRR from "./mod/common.js";
+import * as Server from "./mod/server.js";
+import I18N from "i18n";
+
 const Batch = {};
 
 Batch.socket = {};
@@ -19,32 +22,31 @@ Batch.initializeAll = function () {
     $(document).on("click.start-batch", "#start-batch", Batch.startBatchCheck);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
-    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.apiURL("/config")));
-    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.apiURL("/config/plugins")));
-    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
+    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.ApiURL("/config")));
+    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.ApiURL("/config/plugins")));
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.ApiURL("/"); });
+    $(document).on("click.batch-reset-selection", "#batch-reset-selection", Batch.loadAllArchives);
 
     Batch.selectOperation();
     Batch.showOverride();
 
-    // Load all archives, showing a spinner while doing so
-    $("#arclist").hide();
 
-    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
-        (data) => {
-            // Parse the archive list and add <li> elements to arclist
-            data.forEach((archive) => {
-                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
-                const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
-                $("#arclist").append(html);
-            });
+    // If a selected subset of archives is present, load only those archives.
+    // Otherwise load the full archive list.
+    const msmSelection = localStorage.getItem("msmSelection");
+    if (msmSelection) {
+        try {
+            const ids = JSON.parse(msmSelection);
+            if (Array.isArray(ids) && ids.length > 0) {
+                Batch.loadSelectionOnly(ids);
+                return;
+            }
+        } catch (e) {
+            console.warn("Failed to parse msmSelection:", e);
+        }
+    }
 
-            Batch.checkUntagged();
-        },
-    )
-        .finally(() => {
-            $("#arclist").show();
-            $("#loading-placeholder").hide();
-        });
+    Batch.loadAllArchives();
 };
 
 /**
@@ -73,24 +75,102 @@ Batch.showOverride = function () {
 };
 
 /**
- * Check untagged archives, using the matching API endpoint.
+ * Load only the archives from the MSM selection, fetching each archive's metadata individually.
+ * Tankoubons are expanded to their constituent archives.
+ * Shows the MSM selection banner and pre-checks all loaded archives.
+ * @param {string[]} ids Array of archive IDs from msmSelection
  */
-Batch.checkUntagged = function () {
-    Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
-        (data) => {
-            // Check untagged archives
-            data.forEach((id) => {
-                const checkbox = document.getElementById(id);
+Batch.loadSelectionOnly = function (ids) {
 
-                if (checkbox != null) {
-                    checkbox.checked = true;
-                    // Prepend matching <li> element to the top of the list
-                    checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
-                }
+    const tankIds = ids.filter((id) => id.startsWith("TANK_"));
+    const archiveIds = ids.filter((id) => !id.startsWith("TANK_"));
+
+    // Acquire archive IDs from Tanks and merge with directly selected archive IDs, then fetch metadata for each archive ID
+    const tankFetches = tankIds.map((id) => 
+        Server.callAPI(`/api/tankoubons/${id}`, "GET", null, I18N.ArchiveListLoadFailure, (data) => {
+            archiveIds.push(...(data.archives || []));
+        }));
+        
+    Promise.all(tankFetches).then(() => {
+
+        const archiveFetches = archiveIds.map((id) =>
+            Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, null, (data) => data)
+                .catch(() => null),
+        );
+
+        Promise.all(archiveFetches).then((results) => { 
+
+            const addedIds = new Set();
+
+            results.forEach((archive) => {
+                if (!archive) return;
+                const arcId = archive.arcid;
+                if (!arcId || addedIds.has(arcId)) return;
+                addedIds.add(arcId);
+                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+                const html = `<li><input type='checkbox' name='archive' id='${arcId}' class='archive' checked><label for='${arcId}'>${escapedTitle}</label></li>`;
+                $("#archivelist").append(html);
             });
-        },
-    );
+
+            if (addedIds.size > 0) $("#no-archives-msg").hide();
+
+            // Show the MSM selection banner
+            $("#msm-banner-count").text(I18N.BatchSelectionBanner(ids.length));
+            $("#msm-banner").show();
+        }).finally(() => {
+            $("#arclist-container").show();
+            $("#loading-placeholder").hide();
+        });
+    });
 };
+
+/**
+ * Load the full archive list from the API.
+ * Hides the selection banner (if present) and prechecks untagged archives.
+ */
+Batch.loadAllArchives = function () {
+    $("#archivelist").empty();
+    $("#no-archives-msg").show();
+    $("#msm-banner").html("");
+    $("#arclist-container").hide();
+    $("#loading-placeholder").show();
+
+    // Clear selection if present
+    localStorage.removeItem("msmSelection");
+
+    Server.callAPI("/api/archives", "GET", null, I18N.ArchiveListLoadFailure,
+        (data) => {
+            data.forEach((archive) => {
+                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+                const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
+                $("#archivelist").append(html);
+            });
+
+            if (data.length > 0) $("#no-archives-msg").hide();
+
+            Server.callAPI("/api/archives/untagged", "GET", null, I18N.UntaggedLoadFailure,
+                (data) => { preCheckInternal(data); },
+            );
+        },
+    ).finally(() => {
+        $("#arclist-container").show();
+        $("#check-uncheck").show();
+        $("#loading-placeholder").hide();
+    });
+};
+
+
+function preCheckInternal(ids) {
+    ids.forEach((id) => {
+        const checkbox = document.getElementById(id);
+
+        if (checkbox != null) {
+            checkbox.checked = true;
+            // Prepend matching <li> element to the top of the list
+            checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
+        }
+    });
+}
 
 /**
  * Pop up a confirm dialog if operation is destructive.
@@ -168,13 +248,13 @@ Batch.startBatch = function () {
 
     let wsProto = "ws://";
     if (document.location.protocol === "https:") wsProto = "wss://";
-    let socket_path = new LRR.apiURL("/batch/socket");
+    let socket_path = new LRR.ApiURL("/batch/socket");
     Batch.socket = new WebSocket(`${wsProto + window.location.host}${socket_path}`);
 
     Batch.socket.onopen = function () {
         const command = commandBase;
         command.archive = arcs.splice(0, 1)[0];
-        // eslint-disable-next-line no-console
+         
         console.log(command);
         Batch.socket.send(JSON.stringify(command));
     };
@@ -197,7 +277,7 @@ Batch.startBatch = function () {
         setTimeout(() => {
             const command = commandBase;
             command.archive = arcs.splice(0, 1)[0];
-            // eslint-disable-next-line no-console
+             
             console.log(command);
             Batch.socket.send(JSON.stringify(command));
         }, timeout * 1000);

@@ -82,9 +82,6 @@ msgstr "Aplicar reglas de etiquetas"
 msgid "Add To Category"
 msgstr "Agregar a categoría"
 
-msgid "Delete Archive"
-msgstr ""
-
 msgid "Use plugin :"
 msgstr "Utilizar complemento:"
 
@@ -713,9 +710,6 @@ msgstr ""
 msgid "Save Metadata"
 msgstr "Guardar metadatos"
 
-msgid "Delete Archive"
-msgstr ""
-
 msgid "Read Archive"
 msgstr "Leer archivo"
 
@@ -789,7 +783,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr ""
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
 
 msgid "Go to Page:"
@@ -856,6 +850,18 @@ msgstr ""
 "<a href=\"/login\">Inicia sesión</a> con la contraseña \"kamimamita\" y <a "
 "href=\"/config\">cámbiala inmediatamente</a>.<br/>... ¡O deshabilítala! <br/>"
 "¿Por qué no revisas las opciones de configuraciones, ya que estás en ello? "
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1192,9 +1198,6 @@ msgstr "Desplazamiento infinito"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Muestra todas las imágenes en una vista vertical en la misma página."
 
-msgid "Reader Settings"
-msgstr "Configuración del lector"
-
 msgid "Help"
 msgstr "Ayuda"
 
@@ -1323,6 +1326,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Ocurrió un error al restaurar la copia de seguridad.<br/> Por favor revisa "
 "el registro del servidor y que el JSON esté en el formato correcto."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr ""

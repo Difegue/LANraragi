@@ -1,3 +1,4 @@
+---
 openapi: 3.1.0
 info:
   version: 0.9.6
@@ -23,6 +24,8 @@ tags:
     description: Endpoints related to OPDS catalog generation and serving.
   - name: misc
     description: Other APIs that don't fit a dedicated theme.
+  - name: stamps
+    description: Stamps.
 
 paths:
   /opds:
@@ -463,8 +466,8 @@ paths:
                       - use_plugin
                   type:
                     type: string
-                    nullable: true
-                    enum: 
+                    description: Plugin type. Omitted when the plugin is not found.
+                    enum:
                       - download
                       - login
                       - metadata
@@ -476,8 +479,7 @@ paths:
                       - 0
                       - 1
                   error:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                   data:
                     type: object
                     description: Arbitrary data returned by the Plugin.
@@ -511,10 +513,10 @@ paths:
         - name: priority
           in: query
           required: false
-          default: 0
           description: Priority of the Minion job. The higher the number, the more important the job is.
           schema:
             type: integer
+            default: 0
         - name: plugin
           in: query
           description: Namespace of the plugin to use.
@@ -580,9 +582,8 @@ paths:
                       - 0
                       - 1
                   error:
-                    type: string
+                    type: [string, "null"]
                     description: Error message if something went wrong during cleanup. (The call will still return 200)
-                    nullable: true
                   newsize:
                     type: integer
                     description: Current size of the temporary folder post-cleanup.
@@ -633,7 +634,6 @@ paths:
                 catid:
                   type: string
                   description: Category ID to add the downloaded URL to.
-                  type: string
                   minLength: 14
                   maxLength: 14
       responses:
@@ -652,8 +652,7 @@ paths:
                     type: string
                     description: URL queued for download
                   category:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                   success:
                     type: integer
                     enum:
@@ -719,7 +718,7 @@ paths:
       x-mojo-to: api-archive#serve_archivelist
       summary: Get all Archives
       description: > 
-        Returns a list of all archives in the database. 
+        Returns a list of all Archives in the database. This doesn't include Tankoubons by design. 
         You can use the IDs of this JSON with the other endpoints.
       tags:
         - archives
@@ -738,8 +737,8 @@ paths:
       x-mojo-to: api-archive#serve_untagged_archivelist
       summary: Get all untagged archives
       description: >
-        Get archives that don't have any tags recorded. 
-        This follows the same rules as the Batch Tagging filter and will include archives that have parody:, date_added:, series: or artist: tags.
+        Get Archives that don't have any tags recorded. 
+        This follows the same rules as the Batch Tagging filter and will include Archives that have parody:, date_added:, series: or artist: tags.
       tags:
         - archives
       responses:
@@ -1626,7 +1625,9 @@ paths:
         - name: path
           in: query
           required: true
-          description: Path to the image. 
+          description: Path to the image.
+          schema:
+            type: string
       responses:
         '200':
           description: Archive page
@@ -1851,6 +1852,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps:
+    get:
+      operationId: stampedPages
+      x-mojo-to: api-stamp#get_stamped_pages
+      summary: Get pages that contain at least one stamp in the archive
+      description: Get pages that contain at least one stamp in the archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /archives/{id}/stamps/{index}:
+    get:
+      operationId: stampsByPage
+      x-mojo-to: api-stamp#get_stamps_by_page
+      summary: Get the stamps linked to the page
+      description: Get the stamps linked to the page.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: addStamp
+      x-mojo-to: api-stamp#add_stamp
+      summary: 🔑 Add a stamp annotation
+      description: Add a new Stamp to the page at the given coordinates.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the archive.
+          schema:
+            type: string
+        - name: index
+          in: path
+          required: true
+          description: Page of the archive.
+          schema:
+            type: integer
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - add_stamp
+                  stamp_id:
+                    type: string
+                    description: Stamp ID
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
 
   /search:
     get:
@@ -1966,7 +2094,6 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
-          default: false
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -1974,6 +2101,7 @@ paths:
             the archive IDs they contain.
           schema:
             type: boolean
+            default: true
       responses:
         '200':
           description: Search results
@@ -2019,12 +2147,14 @@ paths:
                   recordsTotal: 2
         '204':
           description: Search engine is not initialized yet. Please wait a few seconds.
-  /search/random:
+  /search/ids:
     get:
-      operationId: searchRandomArchives
-      x-mojo-to: api-search#get_random_archives
-      summary: Search random Archives
-      description: Get randomly selected Archives from the given filter and/or category.
+      operationId: searchArchiveIds
+      x-mojo-to: api-search#handle_api_ids
+      summary: Search Archive IDs
+      description: >-
+        Search for Archives like `/api/search`, but returns only the ordered
+        list of matching Archive IDs without the accompanying metadata.
       tags:
         - search
       parameters:
@@ -2039,21 +2169,44 @@ paths:
         - name: filter
           in: query
           required: false
-          description: >-
-            Search query. This follows the same rules as the queries in `/api/search`.
+          description: Search query. This follows the same rules as the queries in `/api/search`.
           schema:
             type: string
-        - name: count
+        - name: start
           in: query
           required: false
-          default: 5
           description: >-
-            How many archives you want to pull randomly. Defaults to 5.  
+            From which archive in the total result count this enumeration should
+            start. The total number of archives displayed depends on the
+            server-side page size preference.
 
 
-            If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
+            From 0.8.2 onwards, you can use "-1" here to get the full, unpaged list of IDs.
           schema:
             type: integer
+        - name: sortby
+          in: query
+          required: false
+          description: >-
+            Namespace by which you want to sort the results. There are specific
+            sort keys you can use:
+
+            - *title* if you want to sort by title
+
+            - *lastread* if you want to sort by last read time. (If
+            **Server-side Progress Tracking** is enabled)
+
+
+            (Default value is title. If you sort by lastread, IDs that have
+            never been read will be removed from the search.)
+          schema:
+            type: string
+        - name: order
+          in: query
+          required: false
+          description: Order of the sort, either `asc` or `desc`.
+          schema:
+            type: string
         - name: newonly
           in: query
           required: false
@@ -2082,6 +2235,98 @@ paths:
             the archive IDs they contain.
           schema:
             type: boolean
+            default: true
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Archive IDs for each search result
+                    items:
+                      type: string
+                  recordsFiltered:
+                    type: integer
+                    description: Amount of archives in the search result
+                  recordsTotal:
+                    type: integer
+                    description: Total number of archives available. This result will change depending on the `groupby_tanks` parameter.
+                example:
+                  data:
+                    - 28697b96f0ac5858be2614ed10ca47742c9522fd
+                    - 5cf64ec2f3c2c627fb8a64df198af2a8527c4fdb
+                  recordsFiltered: 2
+                  recordsTotal: 2
+        '204':
+          description: Search engine is not initialized yet. Please wait a few seconds.
+  /search/random:
+    get:
+      operationId: searchRandomArchives
+      x-mojo-to: api-search#get_random_archives
+      summary: Search random Archives
+      description: Get randomly selected Archives from the given filter and/or category.
+      tags:
+        - search
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: ID of the category you want to restrict this search to.
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+        - name: filter
+          in: query
+          required: false
+          description: >-
+            Search query. This follows the same rules as the queries in `/api/search`.
+          schema:
+            type: string
+        - name: count
+          in: query
+          required: false
+          description: >-
+            How many archives you want to pull randomly. Defaults to 5.  
+
+
+            If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
+          schema:
+            type: integer
+            default: 5
+        - name: newonly
+          in: query
+          required: false
+          description: Limit search to new archives only.
+          schema:
+            type: boolean
+        - name: untaggedonly
+          in: query
+          required: false
+          description: Limit search to untagged archives only.
+          schema:
+            type: boolean
+        - name: hidecompleted
+          in: query
+          required: false
+          description: Hide archives where reading progress has reached the end.
+          schema:
+            type: boolean
+        - name: groupby_tanks
+          in: query
+          required: false
+          default: true
+          description: >-
+            Enable or disable Tankoubon grouping. Defaults to true.
+
+            When enabled, Tankoubons will show in search results, replacing all
+            the archive IDs they contain.
+          schema:
+            type: boolean
       responses:
         '200':
           description: Search results
@@ -2098,18 +2343,18 @@ paths:
                   recordsTotal:
                     type: integer
               example:
-                  data:
-                    - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
-                      isnew: false
-                      extension: rar
-                      pagecount: 34
-                      progress: 3
-                      tags: parody:jojo's bizarre adventure
-                      lastreadtime: 1337038281
-                      title: Rohan Kishibe goes to Gucci
-                      filename: Gucc
-                      summary: cool summary
-                  recordsTotal: 2
+                data:
+                  - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
+                    isnew: false
+                    extension: rar
+                    pagecount: 34
+                    progress: 3
+                    tags: parody:jojo's bizarre adventure
+                    lastreadtime: 1337038281
+                    title: Rohan Kishibe goes to Gucci
+                    filename: Gucc
+                    summary: cool summary
+                recordsTotal: 2
   /search/cache:
     delete:
       security:
@@ -2170,14 +2415,14 @@ paths:
                 type: array
                 items:
                   type: object
+                  required:
+                    - text
                   properties:
                     namespace:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       description: Namespace of the tag
                     text:
                       type: string
-                      required: true
                       description: The tag itself
                     weight:
                       type: integer
@@ -2204,6 +2449,7 @@ paths:
       summary: 🔑 Get a backup JSON
       description: >-
         Scans the entire database and returns a backup in JSON form.  
+        Consider using the POST variant if your database is large, as this basic GET endpoint might time out if it takes too long to generate the backup.  
 
         This backup can be reimported manually through the Backup and Restore feature.
       tags:
@@ -2230,7 +2476,7 @@ paths:
                     type: array
                     description: Array of tankoubon metadata
                     items:
-                      $ref: '#/components/schemas/TankoubonMetadataJson'
+                      $ref: '#/components/schemas/TankoubonBackupJson'
                 example:
                   archives:
                     - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
@@ -2256,6 +2502,137 @@ paths:
                       archives:
                         - 28697b96f0ac5858be2614ed10ca47742c9522fd
                         - d1858d5dc36925aa66be072a97817650d39de166
+    post:
+      security:
+        - api_key: []
+      operationId: queueBackupJob
+      x-mojo-to: api-database#queue_backup
+      summary: 🔑 Queue a backup job
+      description: >-
+        Queues a Minion job to generate a backup JSON file.  
+
+        Use the returned job ID to check progress and download the file once complete.
+      tags:
+        - database
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - queue_backup
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 42
+                  operation: queue_backup
+                  success: 1
+  /database/backup/{jobid}:
+    get:
+      security:
+        - api_key: []
+      operationId: downloadBackup
+      x-mojo-to: api-database#download_backup
+      summary: 🔑 Download backup JSON from completed job
+      description: >-
+        Downloads the backup JSON file generated by a completed backup job.
+      tags:
+        - database
+      parameters:
+        - name: jobid
+          in: path
+          required: true
+          description: ID of the completed backup job.
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: false
+          description: >-
+            Format of the returned backup. Defaults to `file`. `json` will return the backup as a JSON response.
+          schema:
+            type: string
+            enum:
+              - json
+              - file
+      responses:
+        '200':
+          description: Backup JSON file
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Job not found or not completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /database/restore:
+    post:
+      security:
+        - api_key: []
+      operationId: queueRestoreJob
+      x-mojo-to: api-database#queue_restore
+      summary: 🔑 Queue a restore job
+      description: >-
+        Queues a Minion job to restore from a backup JSON file.  
+
+        Use the returned job ID to check progress.
+      tags:
+        - database
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Backup JSON file to restore
+              required:
+                - file
+      responses:
+        '200':
+          description: Enqueued job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - queue_restore
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  job:
+                    type: integer
+                example:
+                  job: 43
+                  operation: queue_restore
+                  success: 1
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
   /database/isnew:
     delete:
       security:
@@ -2495,13 +2872,10 @@ paths:
                       - finished
                       - failed
                   notes:
-                    type: object
+                    type: [object, "null"]
                     description: Arbitrary data attached to the Job.
-                    required: false
-                    nullable: true
                   error:
-                    type: string
-                    nullable: true
+                    type: [string, "null"]
                 example:
                   state: finished
                   task: handle_upload
@@ -2536,30 +2910,30 @@ paths:
               schema:
                 type: object
                 example:
-                    args: [/tmp/QF3UCnKdMr/myfile.zip]
-                    attempts: 1
-                    children: []
-                    created: 1601145004
-                    delayed: 1601145004
-                    expires: null
-                    finished: 1601145004
-                    id: 7
-                    lax: 0
-                    notes: {}
-                    parents: []
-                    priority: 0
-                    queue: default
-                    result: 
-                      id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
-                      message: This file already exists in the Library.
-                      success: 0
-                    retried: null
-                    retries: 0
-                    started: 1601145004
-                    state: finished
-                    task: handle_upload
-                    time: 1601145005
-                    worker: 1
+                  args: [/tmp/QF3UCnKdMr/myfile.zip]
+                  attempts: 1
+                  children: []
+                  created: 1601145004
+                  delayed: 1601145004
+                  expires: null
+                  finished: 1601145004
+                  id: 7
+                  lax: 0
+                  notes: {}
+                  parents: []
+                  priority: 0
+                  queue: default
+                  result:
+                    id: 75d18ce470dc99f83dc355bdad66319d1f33c82b
+                    message: This file already exists in the Library.
+                    success: 0
+                  retried: null
+                  retries: 0
+                  started: 1601145004
+                  state: finished
+                  task: handle_upload
+                  time: 1601145005
+                  worker: 1
   /minion/{jobname}/queue:
     post:
       security:
@@ -2585,6 +2959,7 @@ paths:
             type: string
             enum:
               - thumbnail_task
+              - tank_thumbnail_task
               - page_thumbnails
               - regen_all_thumbnails
               - find_duplicates
@@ -2601,10 +2976,10 @@ paths:
         - name: priority
           in: query
           required: false
-          default: 0
           description: Priority of the Minion job. The higher the number, the more important the job is.
           schema:
             type: integer
+            default: 0
       responses:
         '200':
           description: Enqueued job
@@ -2826,6 +3201,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
   /categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 14
+          maxLength: 14
     get:
       operationId: getCategory
       x-mojo-to: api-category#get_category
@@ -2833,14 +3216,6 @@ paths:
       description: Get the details of the specified category ID.
       tags:
         - categories
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            minLength: 14
-            maxLength: 14
       responses:
         '200':
           description: Category
@@ -2950,7 +3325,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Archive ID to add.
+          description: Category ID to add to.
           required: true
           schema:
             type: string
@@ -2961,7 +3336,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':
@@ -2999,7 +3374,7 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 40
+            minLength: 15
             maxLength: 40
       responses:
         '200':
@@ -3114,36 +3489,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
     get:
       operationId: getTankoubon
       x-mojo-to: api-tankoubon#get_tankoubon
       summary: Get a single Tankoubon
       description: >-
-        Get the details of the specified tankoubon ID, with the archives list paginated.  
-
-        The amount of archives per page depends on the server `archives_per_page` setting.
+         Get the details of the specified tankoubon ID.
       tags:
         - tankoubons
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the Tankoubon desired
-          schema:
-            type: string
-        - name: include_full_data
-          in: query
-          required: false
-          description: If set to true, a `full_data` array will be added to the response with full Archive metadata.
-          schema:
-            type: boolean
-        - name: page
-          in: query
-          required: false
-          default: 0
-          description: Page of the Archives list. You can use -1 to return all archives if needed.  
-          schema:
-            type: integer
       responses:
         '200':
           description: Tankoubon
@@ -3152,32 +3512,32 @@ paths:
               schema:
                 type: object
                 properties:
-                  result:
-                    type: object
-                    properties:
-                      archives:
-                        type: array
-                        description: Paginated list of archive IDs or tankoubon IDs.
-                        items:
-                          type: string
-                          oneOf:
-                            - minLength: 40
-                              maxLength: 40
-                              pattern: "^[0-9a-f]{40}$"
-                            - minLength: 15
-                              maxLength: 15
-                              pattern: "^TANK_[0-9]{10}$"
-                        uniqueItems: true
-                      full_data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/ArchiveMetadataJson'
-                  total:
+                  id:
+                    type: string
+                    description: ID of this Tankoubon.
+                  name:
+                    type: string
+                    description: Name of this Tankoubon.
+                  summary:
+                    type: string
+                  tags:
+                    type: string
+                  archives:
+                    type: array
+                    description: Full list of archive IDs contained in this Tankoubon.
+                    items:
+                      type: string
+                      oneOf:
+                        - minLength: 40
+                          maxLength: 40
+                          pattern: "^[0-9a-f]{40}$"
+                        - minLength: 15
+                          maxLength: 15
+                          pattern: "^TANK_[0-9]{10}$"
+                    uniqueItems: true
+                  progress:
                     type: integer
-                    description: The total amount of archives in this Tankoubon.
-                  filtered:
-                    type: integer
-                    description: The amount of archives in the current page.
+                    description: Reading progress (page number) for this Tankoubon.
         '400':
           description: Error response
           content:
@@ -3233,7 +3593,10 @@ paths:
                       description: Summary of the Tankoubon
                     tags:
                       type: string
-                      description: Additional tags for the Tankoubon, in LRR comma-separated format.
+                      description: Additional tags for the Tankoubon, in LRR comma-separated format. This will replace whatever additional tags the Tank already has, unless append=true.
+                    append:
+                      type: boolean
+                      description: If true, tags are appended to the Tank's existing own tags instead of replacing them. Defaults to false.
       responses:
         '200':
           description: Success response
@@ -3281,6 +3644,280 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/full:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
+    get:
+      operationId: getTankoubonFull
+      x-mojo-to: api-tankoubon#get_tankoubon_full
+      summary: Get a single Tankoubon with full detail
+      description: >-
+        Get the details of the specified tankoubon ID with paginated archive metadata.
+
+        The amount of archives per page depends on the server `archives_per_page` setting.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page of the Archives list. Defaults to -1, which returns all archives.
+          schema:
+            type: integer
+            default: -1
+      responses:
+        '200':
+          description: Tankoubon
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: ID of this Tankoubon.
+                      name:
+                        type: string
+                        description: Name of this Tankoubon.
+                      summary:
+                        type: string
+                      tags:
+                        type: string
+                      progress:
+                        type: integer
+                        description: Reading progress (page number) for this Tankoubon.
+                      archives:
+                        type: array
+                        description: Paginated list of archive IDs contained in this Tankoubon.
+                        items:
+                          type: string
+                          oneOf:
+                            - minLength: 40
+                              maxLength: 40
+                              pattern: "^[0-9a-f]{40}$"
+                            - minLength: 15
+                              maxLength: 15
+                              pattern: "^TANK_[0-9]{10}$"
+                        uniqueItems: true
+                      full_data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ArchiveMetadataJson'
+                  total:
+                    type: integer
+                    description: The total amount of archives in this Tankoubon.
+                  filtered:
+                    type: integer
+                    description: The amount of archives in the current page.
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/thumbnail:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          type: string
+    get:
+      operationId: getTankoubonThumbnail
+      x-mojo-to: api-tankoubon#serve_tankoubon_thumbnail
+      summary: Get Tankoubon thumbnail
+      description: >-
+        Get the cover thumbnail for a given Tankoubon. 
+        By default, the thumbnail is sourced from the first page of the first archive. 
+        This endpoint will return a placeholder image if it doesn't already exist. 
+        If you want to queue generation of the thumbnail in the background, 
+        you can use the no_fallback query parameter. 
+      tags:
+        - tankoubons
+      parameters:
+        - name: no_fallback
+          in: query
+          required: false
+          description: >-
+            Disables the placeholder image, queues the thumbnail for extraction
+            and returns a JSON with code 202. This parameter does nothing if the
+            image already exists. (You will get the image with code 200 no
+            matter what)
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+      responses:
+        '200':
+          description: If the thumbnail was already extracted, you get it directly.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinionJobResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateTankoubonThumbnail
+      x-mojo-to: api-tankoubon#update_tankoubon_thumbnail
+      summary: 🔑 Update Tankoubon thumbnail
+      description: >-
+        Set the cover thumbnail for the given Tankoubon using a global page
+        number that spans all archives in the tank (in order). The global page
+        is translated to the correct archive and local page automatically.
+      tags:
+        - tankoubons
+      parameters:
+        - name: page
+          in: query
+          required: true
+          description: >-
+            Global 1-indexed page number across all archives in the tankoubon.
+            Page 1 is the first page of the first archive, and so on.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Tankoubon thumbnail updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_tankoubon_thumbnail
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  new_thumbnail:
+                    type: string
+                    description: Path to the new thumbnail file
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/progress/{page}:
+    put:
+      operationId: updateTankoubonProgress
+      x-mojo-to: api-tankoubon#update_tank_progress
+      summary: Update Tankoubon reading progression
+      description: >-
+        Tell the server which page of this Tankoubon you're currently
+        reading, so that it updates its internal reading progression accordingly.
+
+        The page number is global across all Archives in the tank 
+        (If a tank has two Archives with 20 and 25 pages, page 26 will be page 6 in Archive #2).
+
+        ⚠ If the server is configured to use clientside progress tracking, this
+        API call will return an error!
+
+        Make sure to check using `/api/info` whether the server tracks reading
+        progression or not before calling this endpoint.
+      tags:
+        - tankoubons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Tankoubon to update.
+          schema:
+            type: string
+            minLength: 15
+            maxLength: 15
+        - name: page
+          in: path
+          required: true
+          description: >-
+            Global 1-indexed page number to update the reading progress to.
+            Must be a positive integer.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 15
+                    maxLength: 15
+                    description: ID of the tankoubon updated
+                  operation:
+                    type: string
+                    description: Name of the operation
+                    enum:
+                      - update_tank_progress
+                  page:
+                    type: integer
+                    description: Updated reading progress
+                  lastreadtime:
+                    type: integer
+                    description: Last read time in epoch seconds
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: Returns 1 if successful, else 0
+              example:
+                id: TANK_1589141306
+                operation: update_tank_progress
+                page: 5
+                lastreadtime: 123943543
+                success: 1
+        '400':
+          description: Generic error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: Server-side Progress Tracking is disabled on this instance.
+                success: 0
+        '401':
+          description: Authentication required when authprogress is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_tank_progress
+                error: This operation requires authentication.
+                success: 0
   /tankoubons/{id}/{archive}:
     put:
       security:
@@ -3363,6 +4000,122 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
         '423':
           description: The Tankoubon is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /stamps/{id}:
+    get:
+      operationId: getStamp
+      x-mojo-to: api-stamp#get_stamp
+      summary: Get Stamp
+      description: Get a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StampsData'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateStamp
+      x-mojo-to: api-stamp#update_stamp
+      summary: 🔑 Update Stamp
+      description: Update a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+        - name: content
+          in: query
+          required: false
+          description: Text of the stamp.
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Position of the stamp in the page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteStamp
+      x-mojo-to: api-stamp#delete_stamp
+      summary: 🔑 Delete Stamp
+      description: Remove a stamp from an Archive.
+      tags:
+        - stamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the stamp.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: The Stamp is currently locked for modification
           content:
             application/json:
               schema:
@@ -3468,10 +4221,10 @@ components:
           type: string
           description: Type of the plugin
           enum:
-              - download
-              - login
-              - metadata
-              - script
+            - download
+            - login
+            - metadata
+            - script
         namespace:
           type: string
           description: Unique namespace for the plugin
@@ -3483,16 +4236,13 @@ components:
           type: string
           description: Version of the plugin
         oneshot_arg:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Description of the manual one-shot argument users can fill in for manual plugin calls
         url_regex:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: For downloader plugins, regex where it should be used
         login_from:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Namespace of the login plugin this plugin depends on
       example:
         author: Difegue
@@ -3505,19 +4255,18 @@ components:
         version: 2.1
         parameters: 
           - desc: ipb_pass_hash cookie
-            type:	string
+            type: string
           - default_value: 0
-            desc:	Force resampled archive download
-            name:	forceresampled
+            desc: Force resampled archive download
+            name: forceresampled
             type: bool
     PluginParameter:
       type: object
       description: Parameter for a LRR Plugin.
       properties:
         name:
-          type: string
+          type: [string, "null"]
           description: Name of the parameter
-          nullable: true
         desc:
           type: string
           description: Description of the parameter
@@ -3525,17 +4274,16 @@ components:
           type: string
           description: Type of the parameter. This isn't really checked server-side and is used to inform the config page for the plugin.
           enum:
-              - bool
-              - int
-              - string
+            - bool
+            - int
+            - string
         default_value:
-          type: string
+          type: [string, "null"]
           description: Default value of the parameter
-          nullable: true
       example:
         default_value: 0
-        desc:	Force resampled archive download
-        name:	forceresampled
+        desc: Force resampled archive download
+        name: forceresampled
         type: bool
     OperationResponse:
       type: object
@@ -3613,14 +4361,13 @@ components:
           type: string
           description: Comma-separated list of tags associated with the archive
         summary:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Summary description of the archive
         isnew:
           oneOf:
             - type: boolean
             - type: string
-          nullable: true
+            - type: "null"
           description: Whether the archive is newly added.
         extension:
           type: string
@@ -3682,15 +4429,14 @@ components:
           type: string
           description: Name of the category
         pinned:
-          type: integer
+          type: [integer, string]
           description: Whether this category should be pinned in the UI
           enum:
             - 0
             - 1
         search:
-          type: string
+          type: [string, "null"]
           description: Category search filter (if this is a dynamic category, empty otherwise)
-          nullable: true
       example:
         id: SET_1613080290
         name: My great category
@@ -3701,10 +4447,22 @@ components:
           - 7f03b8b1f337e1e42b2c2890533c0de7479d41ca
     TankoubonMetadataJson:
       type: object
-      description: Tankoubon metadata
+      description: Tankoubon metadata as returned by the list endpoint
       required:
-        - tankid
+        - id
       properties:
+        id:
+          type: string
+          description: ID of the tankoubon
+        name:
+          type: string
+          description: Name of the tankoubon
+        summary:
+          type: string
+          description: Summary of the tankoubon
+        tags:
+          type: string
+          description: Tags associated with the tankoubon
         archives:
           type: array
           description: Array of archive IDs
@@ -3712,12 +4470,43 @@ components:
             type: string
             minLength: 40
             maxLength: 40
+        progress:
+          type: integer
+          description: Reading progress (page number) for this Tankoubon
+      example:
+        id: TANK_1749925516
+        name: sailor moon
+        summary: ""
+        tags: ""
+        archives:
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebf
+          - e69e43e1355267f7d32a4f9b7f2fe108d2401ebg
+        progress: 0
+    TankoubonBackupJson:
+      type: object
+      description: Tankoubon metadata as returned in a backup
+      required:
+        - tankid
+      properties:
         tankid:
           type: string
           description: ID of the tankoubon
         name:
           type: string
           description: Name of the tankoubon
+        summary:
+          type: string
+          description: Summary of the tankoubon
+        tags:
+          type: string
+          description: Tags associated with the tankoubon
+        archives:
+          type: array
+          description: Array of archive IDs
+          items:
+            type: string
+            minLength: 40
+            maxLength: 40
       example:
         tankid: TANK_1749925516
         name: sailor moon
@@ -3746,12 +4535,10 @@ components:
           type: string
           description: Comma-separated list of tags associated with the archive
         summary:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Summary description of the archive
         thumbhash:
-          type: string
-          nullable: true
+          type: [string, "null"]
           minLength: 40
           maxLength: 40
           description: Thumbnail hash, or null if not set
@@ -3783,5 +4570,31 @@ components:
         search:
           type: string
           description: Category search filter
+    StampsData:
+      type: object
+      description: JSON object for the Stamp model
+      required:
+        - position
+        - content
+      properties:
+        id:
+          type: string
+          description: ID of the stamp
+        position:
+          type: string
+          description: Position of the stamp in the page in normalized coordinates (0-100)
+        content:
+          type: string
+          description: Text of the stamp
+      example:
+        position: 12,34
+        content: Lorem ipsum dolore
+    StampsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: string
 servers:
   - url: https://lrr.tvc-16.science/api

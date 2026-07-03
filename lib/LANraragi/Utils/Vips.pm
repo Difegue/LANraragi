@@ -66,6 +66,7 @@ if ($VIPS_LOADED) {
     $vips_ffi->attach( vips_init => ['string'] => 'int' );
     $vips_ffi->attach( vips_error_buffer => [] => 'string' );
     $vips_ffi->attach( vips_error_clear => [] => 'void' );
+    $vips_ffi->attach( vips_cache_set_max => ['int'] => 'void' );;
     $vips_ffi->attach( vips_image_new_from_file => ['string'] => ['opaque'] => 'VipsImage' );
     $vips_ffi->attach( vips_resize => ['VipsImage', 'VipsImage*', 'double'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_jpegsave => ['VipsImage', 'string'] => ['opaque'] => 'int' );
@@ -76,16 +77,18 @@ if ($VIPS_LOADED) {
     $vips_ffi->attach( vips_image_get_width => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_image_get_height => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_image_get_bands => ['VipsImage'] => 'int' );
+    $vips_ffi->attach( vips_image_get_n_pages => ['VipsImage'] => 'int' );
     $vips_ffi->attach( vips_black => ['VipsImage*', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_crop => ['VipsImage', 'VipsImage*', 'int', 'int', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_colourspace => ['VipsImage', 'VipsImage*', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_pngsave => ['VipsImage', 'string'] => ['opaque'] => 'int' );
-    $vips_ffi->attach( vips_thumbnail_buffer => ['string', 'uint64', 'VipsImage*', 'int'] => ['string', 'int', 'string', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_thumbnail_buffer => ['string', 'size_t', 'VipsImage*', 'int'] => ['string', 'int', 'string', 'int', 'opaque'] => 'int' );
 } else {
     # Dummy functions if libvips is not loaded
     *vips_init = sub { die "libvips is not loaded. Cannot call vips_init." };
     *vips_error_buffer = sub { die "libvips is not loaded. Cannot call vips_error_buffer." };
     *vips_error_clear = sub { die "libvips is not loaded. Cannot call vips_error_clear." };
+    *vips_cache_set_max = sub { die "libvips is not loaded. Cannot call vips_cache_set_max." };
     *vips_image_new_from_file = sub { die "libvips is not loaded. Cannot call vips_image_new_from_file." };
     *vips_jpegsave = sub { die "libvips is not loaded. Cannot call vips_jpegsave." };
     *vips_image_write_to_buffer = sub { die "libvips is not loaded. Cannot call vips_image_write_to_buffer." };
@@ -95,6 +98,7 @@ if ($VIPS_LOADED) {
     *vips_image_get_width = sub { die "libvips is not loaded. Cannot call vips_image_get_width." };
     *vips_image_get_height = sub { die "libvips is not loaded. Cannot call vips_image_get_height." };
     *vips_image_get_bands = sub { die "libvips is not loaded. Cannot call vips_image_get_bands." };
+    *vips_image_get_n_pages = sub { die "libvips is not loaded. Cannot call vips_image_get_n_pages." };
     *vips_black = sub { die "libvips is not loaded. Cannot call vips_black." };
     *vips_crop = sub { die "libvips is not loaded. Cannot call vips_crop." };
     *vips_colourspace = sub { die "libvips is not loaded. Cannot call vips_colourspace." };
@@ -120,6 +124,7 @@ sub init ($program_name) {
         my $ret = vips_init($program_name);
         die "Error initializing libvips: ".fetch_and_clear_error() if $ret != 0;
         $initialized = 1;
+        vips_cache_set_max(0); # Disable cache
     }
     return 1;
 }
@@ -144,6 +149,14 @@ sub new_from_file ($filename) {
     return $image;
 }
 
+sub pdfload_page_dpi ($filename, $page, $dpi) {
+    my $func = $vips_ffi->function( vips_pdfload => ['string', 'VipsImage*', 'string', 'int', 'string', 'double'] => ['opaque'] => 'int' );
+    my $image;
+    my $ret = $func->call($filename, \$image, "page", $page, "dpi", $dpi, undef);
+    die "Error creating image from file, page, dpi: ".fetch_and_clear_error() if $ret != 0;
+    return $image;
+}
+
 sub new_from_buffer ($buffer) {
     my $image = vips_image_new_from_buffer($buffer, length($buffer), "", undef);
     die "Error creating image from buffer: ".fetch_and_clear_error() if !$image;
@@ -160,6 +173,11 @@ sub height ($image) {
 
 sub bands ($image) {
     return vips_image_get_bands($image);
+}
+
+# Returns the number of pages, useful for PDFs
+sub get_n_pages ($image) {
+    return vips_image_get_n_pages($image);
 }
 
 sub black ($width, $height) {
@@ -188,7 +206,7 @@ sub fit_resize($buffer, $target_width, $target_height) {
 # Resize the image, respecting aspect ratio and cropping if needed (focus on center)
 sub cover_resize($buffer, $target_width, $target_height) {
     my $out;
-    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int'] => ['string', 'int', 'string', 'int', 'opaque'] => 'int' );
+    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'size_t', 'VipsImage*', 'int'] => ['string', 'int', 'string', 'int', 'opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, 'height', $target_height, 'crop', VIPS_INTERESTING_CENTRE, undef);
     die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);
@@ -198,7 +216,7 @@ sub cover_resize($buffer, $target_width, $target_height) {
 # Resize the image, respecting aspect ratio
 sub resize_to_width($buffer, $target_width) {
     my $out;
-    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int'] => ['opaque'] => 'int' );
+    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'size_t', 'VipsImage*', 'int'] => ['opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, undef);
     die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);

@@ -29,7 +29,7 @@ use LANraragi::Model::Config;
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK = qw(
-  invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
+  invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file update_indexes
   get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis
   redis_decode redis_encode
 );
@@ -200,16 +200,19 @@ sub get_archive_json_multi (@ids) {
 
     # Build the archive JSONs.
     for my $i ( 0 .. $#results ) {
+        my $id = $ids[$i];
 
         # If we got no results for one ID/hgetall, skip it.
         next unless ( $results[$i] );
-        my %hash = @{ $results[$i] };
-        my $id   = $ids[$i];
+
         my $arcdata;
 
         if ( $id =~ /^TANK/ ) {
+            # For tanks, $results[$i] is just the name array from zrangebyscore, not a hash
+            # build_tank_json will fetch the full data
             $arcdata = build_tank_json($id);
         } else {
+            my %hash = @{ $results[$i] };
             $arcdata = build_json( $id, %hash );
         }
 
@@ -291,39 +294,41 @@ sub build_tank_json ($id) {
     my %tank = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
 
     # Aggregate data of all archives in the tank
-    my $aggregate_tags      = "";
     my $aggregate_names     = "";
     my $aggregate_isnew     = 0;
-    my $aggregate_progress  = 0;
     my $aggregate_pagecount = 0;
     my $latest_readtime     = 0;
     my $aggregate_size      = 0;
 
+    my @archive_tag_strings;
     foreach my $archive_info ( @{ $tank{full_data} } ) {
-        $aggregate_tags  .= %$archive_info{tags} . ",";
+        push @archive_tag_strings, %$archive_info{tags} // "";
         $aggregate_names .= %$archive_info{title} . ",";
-        $aggregate_isnew     = $aggregate_isnew || %$archive_info{isnew};
-        $aggregate_progress  = $aggregate_progress + %$archive_info{progress};
+        $aggregate_isnew     = $aggregate_isnew || (%$archive_info{isnew} eq "true");
         $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
         $aggregate_size      = $aggregate_size + %$archive_info{size};
-        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} );
+        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} // 0);
     }
 
-    chop $aggregate_tags;
     chop $aggregate_names;
 
+    # Get unified tagset using shared function
+    my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags( $id, \@archive_tag_strings );
+    my $deduped_tags = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
+
     my $arcdata = {
-        arcid        => $id,
-        title        => $tank{name},
-        filename     => "",
-        tags         => $aggregate_tags,
-        summary      => "Tankoubon containing: $aggregate_names",
-        isnew        => $aggregate_isnew ? $aggregate_isnew : "false",
-        extension    => ".tank",
-        progress     => $aggregate_progress,
-        pagecount    => $aggregate_pagecount,
-        lastreadtime => $latest_readtime,
-        size         => $aggregate_size
+        arcid         => $id,
+        title         => $tank{name},
+        filename      => "",
+        tags          => $deduped_tags,
+        summary       => "Tankoubon containing: $aggregate_names",
+        isnew         => $aggregate_isnew ? "true" : "false",
+        extension     => ".tank",
+        progress      => $tank{progress} || 0,
+        pagecount     => $aggregate_pagecount,
+        lastreadtime  => $latest_readtime,
+        size          => $aggregate_size,
+        archive_count => scalar @{ $tank{archives} }
     };
 
     return $arcdata;
@@ -457,6 +462,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     my $redis   = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = LANraragi::Utils::Redis::redis_decode($oldtags);
+    my $original_oldtags = $oldtags // "";
 
     if ($append) {
 
@@ -479,6 +485,11 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
 
     $redis->hset( $id, "tags", LANraragi::Utils::Redis::redis_encode($newtags) );
     $redis->quit;
+
+    # Update imputed indexes for any tanks containing this archive
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
+        LANraragi::Model::Tankoubon::update_tank_imputed_indexes( $tank_id, [ split_tags_to_array($original_oldtags) ] );
+    }
 
     invalidate_cache();
 }
@@ -518,7 +529,8 @@ sub set_isnew ( $id, $isnew ) {
 # Adds it back to all sets of the new tags.
 sub update_indexes ( $id, $oldtags, $newtags ) {
 
-    my $redis = LANraragi::Model::Config->get_redis_search;
+    my $is_tank = ( $id =~ /^TANK/ );
+    my $redis   = LANraragi::Model::Config->get_redis_search;
     $redis->multi;
 
     my @oldtags  = split( /,\s?/, $oldtags // "" );
@@ -527,9 +539,11 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 
     foreach my $tag (@oldtags) {
 
-        if ( $tag =~ /source:(.*)/i ) {
-            my $url = trim_url($1);
-            $redis->hdel( "LRR_URLMAP", $url );
+        unless ($is_tank) {
+            if ( $tag =~ /source:(.*)/i ) {
+                my $url = trim_url($1);
+                $redis->hdel( "LRR_URLMAP", $url );
+            }
         }
 
         # Tag is lowercased here to avoid redundancy/dupes
@@ -545,10 +559,12 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         # The following are basic and therefore don't count as "tagged"
         $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
-        # If the tag is a source: tag, add it to the URL index
-        if ( $tag =~ /source:(.*)/i ) {
-            my $url = trim_url($1);
-            $redis->hset( "LRR_URLMAP", $url, $id );
+        unless ($is_tank) {
+            # If the tag is a source: tag, add it to the URL index
+            if ( $tag =~ /source:(.*)/i ) {
+                my $url = trim_url($1);
+                $redis->hset( "LRR_URLMAP", $url, $id );
+            }
         }
 
         $tag = LANraragi::Utils::Redis::redis_encode( lc($tag) );
@@ -558,11 +574,13 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         $redis->zincrby( "LRR_STATS", 1, $tag );
     }
 
-    # Add or remove the ID from the untagged list
-    if ($has_tags) {
-        $redis->srem( "LRR_UNTAGGED", $id );
-    } else {
-        $redis->sadd( "LRR_UNTAGGED", $id );
+    # Add or remove the ID from the untagged list (not applicable to tanks)
+    unless ($is_tank) {
+        if ($has_tags) {
+            $redis->srem( "LRR_UNTAGGED", $id );
+        } else {
+            $redis->sadd( "LRR_UNTAGGED", $id );
+        }
     }
 
     $redis->exec;

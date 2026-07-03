@@ -42,8 +42,8 @@ msgstr "You can apply modifications to multiple archives in one go here."
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 
-msgid "Archives with no tags have been pre-checked."
-msgstr "Archives with no tags have been pre-checked."
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr "Archives with no tags or from your last selection have been pre-checked."
 
 msgid "Task :"
 msgstr "Task :"
@@ -59,9 +59,6 @@ msgstr "Apply Tag Rules"
 
 msgid "Add To Category"
 msgstr "Add To Category"
-
-msgid "Delete Archive"
-msgstr "Delete Archive"
 
 msgid "Use plugin :"
 msgstr "Use plugin :"
@@ -122,6 +119,12 @@ msgstr "Plugin Configuration"
 
 msgid "Return to Library"
 msgstr "Return to Library"
+
+msgid "Discard Selection"
+msgstr "Discard Selection"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Displaying ${n} Archives from previous selection."
 
 # ------End of Batch.html.tt2------
 
@@ -189,6 +192,18 @@ msgstr "New Static Category"
 
 msgid "New Dynamic Category"
 msgstr "New Dynamic Category"
+
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "No Tankoubons in your library yet."
+msgstr "No Tankoubons in your library yet."
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "No Archives in your library yet."
+msgstr "No Archives in your library yet."
 
 # ------End of Category.html.tt2------
 
@@ -615,6 +630,9 @@ msgstr "Editing %1 by %2"
 msgid "Editing %1"
 msgstr "Editing %1"
 
+msgid "Editing %1 (Tankoubon)"
+msgstr "Editing %1 (Tankoubon)"
+
 msgid "Current File Name:"
 msgstr "Current File Name:"
 
@@ -648,8 +666,23 @@ msgstr "Using a Plugin will save any modifications to archive metadata you might
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
-msgid "Delete Archive"
-msgstr "Delete Archive"
+msgid "Delete Tankoubon"
+msgstr "Delete Tankoubon"
+
+msgid "Read Tankoubon"
+msgstr "Read Tankoubon"
+
+msgid "Archives:"
+msgstr "Archives:"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "Add Archive to Tankoubon:"
+
+msgid "Archive ID (40-character long)"
+msgstr "Archive ID (40-character long)"
+
+msgid "Add"
+msgstr "Add"
 
 msgid "Read Archive"
 msgstr "Read Archive"
@@ -724,8 +757,14 @@ msgstr "If enabled, thumbnails that don't fit a regular A4 page will be cropped 
 msgid "Hide completed"
 msgstr "Hide completed"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
-msgstr "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr "If enabled, Archives you've already completed will be hidden from the list."
+
+msgid "Group Tankoubons"
+msgstr "Group Tankoubons"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr "If enabled, Archives belonging to a Tankoubon will show as a single item."
 
 msgid "Go to Page:"
 msgstr "Go to Page:"
@@ -733,11 +772,17 @@ msgstr "Go to Page:"
 msgid "Columns:"
 msgstr "Columns:"
 
-msgid "Switch to Compact Mode"
-msgstr "Switch to Compact Mode"
+msgid "Index Settings"
+msgstr "Index Settings"
 
-msgid "Switch to Thumbnail Mode"
-msgstr "Switch to Thumbnail Mode"
+msgid "Display Mode"
+msgstr "Display Mode"
+
+msgid "Compact"
+msgstr "Compact"
+
+msgid "Thumbnail"
+msgstr "Thumbnail"
 
 msgid "Title"
 msgstr "Title"
@@ -789,6 +834,21 @@ msgstr "You\'re using the default password and that\'s super baka of you"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr "<a href=\"/login\">Login</a> with password \"kamimamita\" and <a href=\"/config\">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
+
+msgid "Select Archives"
+msgstr "Select Archives"
+
+msgid "Run Batch Operations on selection"
+msgstr "Run Batch Operations on selection"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "Merge Archives into Tankoubon"
+
+msgid "Clear selection"
+msgstr "Clear selection"
+
+msgid "Select All in Page"
+msgstr "Select All in Page"
 
 # ------End of Index.html.tt2------
 
@@ -962,6 +1022,9 @@ msgstr "Clean Archive Cache"
 msgid "Edit Archive Metadata"
 msgstr "Edit Archive Metadata"
 
+msgid "Edit Tankoubon"
+msgstr "Edit Tankoubon"
+
 msgid "Delete Archive"
 msgstr "Delete Archive"
 
@@ -986,6 +1049,12 @@ msgstr "Set Rating"
 msgid "Clear Rating"
 msgstr "Clear Rating"
 
+msgid "This is the first archive"
+msgstr "This is the first archive"
+
+msgid "This is the last archive"
+msgstr "This is the last archive"
+
 msgid " -- Select Rating -- "
 msgstr " -- Select Rating -- "
 
@@ -1009,6 +1078,15 @@ msgstr "Your keyboard arrows (and the spacebar)"
 
 msgid "Touching the left/right side of the image."
 msgstr "Touching the left/right side of the image."
+
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "When reading an archive from search results, you can also navigate between archives using:"
+
+msgid "The , and . keys"
+msgstr "The , and . keys"
+
+msgid "Reading past the first/last page"
+msgstr "Reading past the first/last page"
 
 msgid "Other keyboard shortcuts:"
 msgstr "Other keyboard shortcuts:"
@@ -1036,6 +1114,15 @@ msgstr "B: toggle bookmark"
 
 msgid "N: toggle auto next page"
 msgstr "N: toggle auto next page"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "shift+Left/Right: go to first page/last page"
+
+msgid "G: go to page number"
+msgstr "G: go to page number"
+
+msgid "S: set a Stamp"
+msgstr "S: set a Stamp"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
@@ -1130,9 +1217,6 @@ msgstr "Auto next page interval in seconds"
 msgid "The default is 10 seconds."
 msgstr "The default is 10 seconds."
 
-msgid "Reader Settings"
-msgstr "Reader Settings"
-
 msgid "Help"
 msgstr "Help"
 
@@ -1150,6 +1234,15 @@ msgstr "FullScreen"
 
 msgid "Toggle Bookmark"
 msgstr "Toggle Bookmark"
+
+msgid "Toggle Stamps"
+msgstr "Toggle Stamps"
+
+msgid "Set Stamp"
+msgstr "Set Stamp"
+
+msgid "Filter stamped pages"
+msgstr "Filter stamped pages"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------
@@ -1251,6 +1344,15 @@ msgstr "Backup restored!"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+
+msgid "Backup generation in progress..."
+msgstr "Backup generation in progress..."
+
+msgid "Uploading backup file..."
+msgstr "Uploading backup file..."
+
+msgid "Backup complete! Download will start automatically."
+msgstr "Backup complete! Download will start automatically."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Couldn't load the complete archive list! Please reload the page."
@@ -1375,6 +1477,39 @@ msgstr "Writing a Predicate"
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
+msgid "Error saving tankoubon metadata"
+msgstr "Error saving tankoubon metadata"
+
+msgid "Remove from Tankoubon"
+msgstr "Remove from Tankoubon"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+
+msgid "Tankoubon deleted"
+msgstr "Tankoubon deleted"
+
+msgid "Error deleting tankoubon"
+msgstr "Error deleting tankoubon"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "Error adding archive to Tankoubon"
+
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
+msgid "Pages read / Total pages"
+msgstr "Pages read / Total pages"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "Pages read / Total pages / Archives in Tankoubon"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 
@@ -1395,6 +1530,12 @@ msgstr "About Plugins"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+
+msgid "About Tankoubons"
+msgstr "About Tankoubons"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
 
 msgid "Metadata saved!"
 msgstr "Metadata saved!"
@@ -1723,6 +1864,63 @@ msgstr "Error while downloading file."
 
 msgid "Error sending job to Minion"
 msgstr "Error sending job to Minion"
+
+msgid "Go to page:"
+msgstr "Go to page:"
+
+msgid "Selection"
+msgstr "Selection"
+
+msgid "\${n} selected"
+msgstr "\${n} selected"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr "Click Archives to add them to the selection. Your selection carries over across searches."
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "Exit selection mode? Your current selection will be lost. "
+
+msgid "Add to selection"
+msgstr "Add to selection"
+
+msgid "Remove from selection"
+msgstr "Remove from selection"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "Enter a name for the new Tankoubon."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "This will contain all the selected Archives as a single item in your Library."
+
+msgid "Please enter a name."
+msgstr "Please enter a name."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "Added \${n} Archives to \${tank}!"
+
+msgid "Error creating Tankoubon"
+msgstr "Error creating Tankoubon"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "Error adding archives to Tankoubon"
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "Merge selection into a Tankoubon"
+
+msgid "Hide completed Archives"
+msgstr "Hide completed Archives"
+
+msgid "Enter Stamp name:"
+msgstr "Enter Stamp name:"
+
+msgid "Stamp name"
+msgstr "Stamp name"
+
+msgid "Error setting up the Stamp"
+msgstr "Error setting up the Stamp"
 
 # ------End of i18n.html.tt2------
 

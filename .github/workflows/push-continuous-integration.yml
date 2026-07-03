@@ -10,14 +10,26 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3'
+        default: '5429c517c5cba2c93ad6294316cb2e384c6a91fe'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '5429c517c5cba2c93ad6294316cb2e384c6a91fe' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: "22"
+        cache: npm
+    - run: npm ci
+    - run: npm run lint
+
   testSuite:
     name: Run Test Suite and Perl Critic
     runs-on: ubuntu-latest
@@ -31,8 +43,9 @@ jobs:
         file: ./tools/build/docker/Dockerfile
         tags: lanraragi:test
         outputs: type=docker
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=buildkit-linux-amd64
+    - name: Copy tests
+      run: cp -R tests .github/action-run-tests
     - name: LANraragi Test Suite
       uses: ./.github/action-run-tests
     - name: Perl Critic
@@ -60,8 +73,7 @@ jobs:
           file: lanraragi/tools/build/docker/Dockerfile
           tags: lanraragi:ci
           outputs: type=docker,dest=${{ runner.temp }}/lanraragi-ci.tar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=buildkit-linux-amd64
       - name: Load LRR Docker image
         run: docker load -i "${{ runner.temp }}/lanraragi-ci.tar"
       - name: Checkout aio-lanraragi integration tests
@@ -85,18 +97,27 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
-        timeout-minutes: 30
+        timeout-minutes: 70
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
           uv run pytest tests --log-cli-level=INFO \
             --image lanraragi:ci \
             --staging "$GITHUB_WORKSPACE/staging" \
+            --server-logs "$GITHUB_WORKSPACE/server-logs" \
+            --cache-backend valkey \
             --playwright \
-            --npseed 42 \
-            -k "not test_double_page_navigation and not test_handler_resource_management"
+            --no-rate-limit \
+            --npseed 42
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-logs-ubuntu
+          path: ${{ github.workspace }}/server-logs/
+          retention-days: 14
 
   integrationTestsWindows:
     name: Run Windows Integration Tests
@@ -131,30 +152,13 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          # Keep in sync with tools/build/windows/install-deps.sh
-          install: >-
-            mingw-w64-ucrt-x86_64-perl
-            mingw-w64-ucrt-x86_64-perl-win32-api
-            mingw-w64-ucrt-x86_64-openssl
-            mingw-w64-ucrt-x86_64-imagemagick
-            mingw-w64-ucrt-x86_64-libjxl
-            mingw-w64-ucrt-x86_64-libheif
-            mingw-w64-ucrt-x86_64-ghostscript
-            mingw-w64-ucrt-x86_64-zlib
-            mingw-w64-ucrt-x86_64-lzo2
-            mingw-w64-ucrt-x86_64-libarchive
-            mingw-w64-ucrt-x86_64-ca-certificates
-            mingw-w64-ucrt-x86_64-libvips
-            libxcrypt
-            unzip
-            mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-make
-            make
-            mingw-w64-ucrt-x86_64-diffutils
-            libbz2-devel
-            patch
-            mingw-w64-ucrt-x86_64-nodejs
-            mingw-w64-ucrt-x86_64-tools
+          cache: false
+      - name: Install deps
+        if: steps.cache-windist.outputs.cache-hit != 'true'
+        shell: msys2 {0}
+        working-directory: LANraragi
+        run: |
+          ./tools/build/windows/install-deps.sh
       - name: Build
         if: steps.cache-windist.outputs.cache-hit != 'true'
         shell: msys2 {0}
@@ -215,13 +219,21 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
       - name: Run integration tests against local LANraragi build
         working-directory: aio-lanraragi/integration_tests
-        timeout-minutes: 50
+        timeout-minutes: 100
         run: |
           $env:CI='true'
           uv run pytest tests `
           --log-cli-level=INFO `
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
+          --server-logs "$env:GITHUB_WORKSPACE\server-logs" `
           --playwright `
-          --npseed 42 `
-          -k "not test_double_page_navigation and not test_handler_resource_management"
+          --no-rate-limit `
+          --npseed 42
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-logs-windows
+          path: ${{ github.workspace }}\server-logs\
+          retention-days: 14

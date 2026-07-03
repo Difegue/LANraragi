@@ -10,6 +10,7 @@ jobs:
       run: |
         cd tools/build/homebrew
         brew tap-new difegue/lanraragi
+        brew trust difegue/lanraragi
 
         echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
         sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb

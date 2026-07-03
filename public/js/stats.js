@@ -1,7 +1,10 @@
 /**
  * Stats Operations
- * @global
  */
+import * as Server from "./mod/server.js";
+import * as LRR from "./mod/common.js";
+import I18N from "i18n";
+
 const Stats = {};
 
 Stats.initializeAll = function () {
@@ -23,12 +26,13 @@ Stats.initializeAll = function () {
             const tagList = $("#tagList");
             data.forEach((tag) => {
                 const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
-                const url = LRR.getTagSearchURL(tag.namespace, tag.text);
+                const url = `${LRR.getTagSearchURL(tag.namespace, tag.text)}`;
+                const encodedNamespacedTag = LRR.encodeHTML(namespacedTag);
 
                 const ocss = "max-width: 95%; display: flex;";
                 const icss = "text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0; max-width: 100%;";
 
-                const html = `<a href="${url}" title="${namespacedTag}" class="${tag.namespace}-tag" style="${ocss}"><span style="${icss}">${namespacedTag}</span>&nbsp;<b>(${tag.weight})</b>`;
+                const html = `<a href="${LRR.encodeHTML(url)}" title="${encodedNamespacedTag}" class="${LRR.encodeHTML(tag.namespace)}-tag" style="${ocss}"><span style="${icss}">${encodedNamespacedTag}</span>&nbsp;<b>(${tag.weight})</b>`;
                 tagList.append(html);
             });
 

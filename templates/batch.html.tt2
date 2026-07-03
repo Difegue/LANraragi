@@ -19,19 +19,11 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
-	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
+	[% INCLUDE common/importmap %]
 
-	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/batch.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+
+	<script src="[% c.url_for("/js/batch.js?$version") %]" type="module"></script>
 
 </head>
 
@@ -42,7 +34,7 @@
 
 		[% c.lh("You can apply modifications to multiple archives in one go here.") %]<br><br>
 		[% c.lh("Select what you'd like to do, check archives you want to use it on, and get rolling!") %]<br>
-		[% c.lh("Archives with no tags have been pre-checked.") %]<br><br>
+		[% c.lh("Archives with no tags or from your last selection have been pre-checked.") %]<br><br>
 
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>
@@ -129,7 +121,7 @@
 								<td>
 									<select id="category" class="favtag-btn">
 										[% FOREACH categories %]
-										<option value="[% id %]">[% name %]</option>
+										<option value="[% id %]">[% name | html %]</option>
 										[% END %]
 									</select>
 								</td>
@@ -173,11 +165,19 @@
 					</table>
 				</div>
 
-				<div class="tag-options" style="text-align:center">
+				<!-- Shown when arriving with a premade selection of IDs -->
+				<div id="msm-banner" style="display:none; text-align:center;">
+					<br />
+					<b id="msm-banner-count"></b>
 					<br /><br />
+					<input type='button' id="batch-reset-selection" value='[% c.lh("Discard Selection") %]' class='stdbtn' />
 					<input type='button' id="check-uncheck" value='[% c.lh("Check/Uncheck all") %]' class='stdbtn' checked='false'>
-					<input type='button' id="start-batch" value='[% c.lh("Start Task") %]' class='stdbtn'>
+				</div>
 
+				<div class="tag-options" style="text-align:center">
+					<br />
+					<input type='button' style="display:none" id="check-uncheck" value='[% c.lh("Check/Uncheck all") %]' class='stdbtn' checked='false'>
+					<input type='button' id="start-batch" value='[% c.lh("Start Task") %]' class='stdbtn'>
 				</div>
 
 				<div class="job-status" style="display:none; text-align:center">
@@ -198,8 +198,12 @@
 
 			<div class="id1 right-column"
 				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
-				<ul class='checklist' id="arclist">
-				</ul>
+				<div id="arclist-container" style="display:none; overflow-y: auto; height: 100%;">
+					<div id="archivesection">
+						<ul class="checklist" id="archivelist" style="list-style: none; padding-left: 0; margin: 0;"></ul>
+						<p id="no-archives-msg" style="font-style: italic;">[% c.lh("No Archives in your library yet.") %]</p>
+					</div>
+				</div>
 
 				<div id="loading-placeholder"
 					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">

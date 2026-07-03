@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use v5.36;
 use strict;
 use warnings;
 use utf8;
@@ -10,11 +11,12 @@ use Config;
 use feature    qw(say);
 use File::Path qw(make_path);
 
-use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+use constant IS_UNIX => ( $Config{osname} ne "MSWin32" );
 
 #Vendor dependencies
 my @vendor_css = (
-    "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
+    "/blueimp-file-upload/css/jquery.fileupload.css",
+    [ "/\@fortawesome/fontawesome-free/css/all.min.css", "fontawesome-all.min.css" ],
     "/jqcloud2/dist/jqcloud.min.css",                      "/react-toastify/dist/ReactToastify.min.css",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
     "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
@@ -25,16 +27,19 @@ my @vendor_css = (
 my @vendor_js = (
     "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
     "/datatables.net/js/jquery.dataTables.min.js",        "/jqcloud2/dist/jqcloud.min.js",
-    "/jquery/dist/jquery.min.js",                         "/react-toastify/dist/react-toastify.umd.js",
+    "/jquery/dist/jquery.min.js",                         "/react-toastify/dist/react-toastify.esm.js",
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
-    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
-    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
-    "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
-    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
+    "/\@jcubic/tagger/tagger.js",                         "/marked/lib/marked.esm.js",
+    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.module.js",
+    "/clsx/dist/clsx.m.js",                               "/preact/compat/dist/compat.module.js",
+    "/preact/hooks/dist/hooks.module.js",                 "/sweetalert2/dist/sweetalert2.esm.min.js",
     "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
     "/raty-js/build/raty.min.js",
+    [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
+    "/sortablejs/Sortable.min.js",
+    [ "/htm/dist/htm.mjs", "htm.js" ],
 );
 
 my @vendor_woff = (
@@ -110,11 +115,32 @@ if (IS_UNIX) {
     say("OK!");
 }
 
-#Check for GhostScript
-say("Checking for GhostScript...");
-can_run('gs')
-  or warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
-say("OK!");
+if (IS_UNIX) {
+    say("Checking for pkg-config...");
+    can_run('pkg-config')
+        ? say("OK!")
+        : say("NOT FOUND! This will make libvips not work/be detectable.")
+    ;
+}
+
+#Check for libvips
+#Note, this check is probably not perfect so it will only complain rather than stop the install
+say("Checking for libvips...");
+my $vips_found;
+if (IS_UNIX) {
+    $vips_found = 
+        ( can_run('pkg-config') && system("pkg-config --exists vips") == 0 )
+        || ( can_run('pkg-config') && system("pkg-config --exists vips-42") == 0 )
+;
+
+} else {
+    #TODO: Some windows-pilled MS-maxxer can implement this check 
+    say("UNKNOWN - This check is not yet implemented, but let's pretend libvips is installed!");
+    $vips_found = 1;
+}
+$vips_found
+    ? say("OK!")
+    : say("NOT FOUND - Install libvips for much faster image processing and PDF support.\nlibvips may end up a requirement in future versions!");
 
 #Check for libarchive
 say("Checking for libarchive...");
@@ -122,23 +148,26 @@ Config::AutoConf->new()->check_header("archive.h")
   or die 'NOT FOUND! Please install libarchive and ensure its headers are present.';
 say("OK!");
 
-#Check for PerlMagick
-say("Checking for ImageMagick/PerlMagick...");
-my $imgk;
+if (!$vips_found) {
+    #Check for PerlMagick if libvips isn't installed
+    say("Checking for ImageMagick/PerlMagick...");
+    my $imgk;
 
-eval {
-    require Image::Magick;
-    $imgk = Image::Magick->QuantumDepth;
-};
+    eval {
+        require Image::Magick;
+        $imgk = Image::Magick->QuantumDepth;
+    };
 
-if ($@) {
-    say("NOT FOUND");
-    say("Please install ImageMagick with Perl for thumbnail support.");
-    say("Further instructions are available at https://www.imagemagick.org/script/perl-magick.php .");
-    say("The ImageMagick detection command returned: $imgk -- $@");
-} else {
-    say( "Returned QuantumDepth: " . $imgk );
-    say("OK!");
+    if ($@) {
+        say("NOT FOUND");
+        say("Please install libvips (recommended) OR ImageMagick with Perl installed for thumbnail support.");
+        say("libvips is probably available in your package manager if you run linux.");
+        say("Further instructions for ImageMagick are available at https://www.imagemagick.org/script/perl-magick.php .");
+        say("The ImageMagick detection command returned: $imgk -- $@");
+    } else {
+        say( "Returned QuantumDepth: " . $imgk );
+        say("OK!");
+    }
 }
 
 #Build & Install CPAN Dependencies
@@ -159,14 +188,15 @@ if ( $back || $full ) {
     } else {
         say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
 
-        install_package( "Win32::Process", $cpanopt );
-        install_package( "Win32::FileSystemHelper",
-            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip " . $cpanopt );
-        install_package( "File::ChangeNotify::Watcher::Win32",
-            "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip "
-              . $cpanopt );
-        install_package( "Win32API::File", $cpanopt );
+        install_package( "Win32::Process",                     $cpanopt );
+        install_package( "Win32::FileSystemHelper",            $cpanopt,
+            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip" );
+        install_package( "File::ChangeNotify::Watcher::Win32", $cpanopt,
+            "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip" );
+        install_package( "Win32API::File",                     $cpanopt );
     }
+
+    install_package( "Net::IDN::Encode", $cpanopt, "ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz" );
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
@@ -196,9 +226,6 @@ if ( $front || $full ) {
         cp_node_module( $css, "/public/css/vendor/" );
     }
 
-    #Rename the fontawesome css to something a bit more explanatory
-    copy( getcwd . "/public/css/vendor/all.min.css", getcwd . "/public/css/vendor/fontawesome-all.min.css" );
-
     for my $js (@vendor_js) {
         cp_node_module( $js, "/public/js/vendor/" );
     }
@@ -217,13 +244,22 @@ say("   │              npm start              │");
 say("   │                                     │");
 say("   ╰─────────────────────────────────────╯");
 
-sub cp_node_module {
+sub cp_node_module( $item, $newpath ) {
 
-    my ( $item, $newpath ) = @_;
+    my ( $nodename, $newname );
 
-    my $nodename = getcwd . "/node_modules" . $item;
-    $item =~ /([^\/]+$)/;
-    my $newname     = getcwd . $newpath . $&;
+    if ( ref($item) eq 'ARRAY' ) {
+        # First element = source filename
+        # Second element = target filename
+        $nodename = getcwd . "/node_modules" . $item->[0];
+        $newname  = getcwd . $newpath . $item->[1];
+    } else {
+        # Reuse source filename as target filename
+        $nodename = getcwd . "/node_modules" . $item;
+        $item =~ /([^\/]+$)/;
+        $newname = getcwd . $newpath . $&;
+    }
+
     my $nodemapname = $nodename . ".map";
     my $newmapname  = $newname . ".map";
 
@@ -234,19 +270,24 @@ sub cp_node_module {
 
 }
 
-sub install_package {
+sub install_package( $package, $cpanopt, $url = undef ) {
 
-    my $package = $_[0];
-    my $cpanopt = $_[1];
-
-    ## no critic
-    eval "require $package";    #Run-time evals are needed here to check if the package has been properly installed.
-    ## use critic
-
-    if ($@) {
-        say("$package not installed! Trying to install now using cpanm$cpanopt");
-        system("cpanm --notest $package $cpanopt");
+    if ( !is_package_installed( $package ) ) {
+        say("$package not installed! Trying to install now using cpanm $cpanopt");
+        if ( system("cpanm --notest " . ( $url // $package ) . " $cpanopt") != 0 ) {
+            die "Something went wrong while installing $package - Bailing out.";
+        }
     } else {
         say("$package package installed, proceeding...");
     }
+
+}
+
+sub is_package_installed( $package ) {
+
+    ## no critic
+    eval "require $package"; #Run-time evals are needed here to check if the package has been properly installed.
+    ## use critic
+
+    return !$@;
 }

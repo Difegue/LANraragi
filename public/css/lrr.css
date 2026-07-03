@@ -10,6 +10,14 @@ td.itd {
   white-space: nowrap;
 }
 
+#category-container {
+  margin-bottom: 12px;
+}
+
+.searchbtn {
+  margin-top: 4px !important;
+}
+
 .itdc {
   min-width: 35px;
 }
@@ -167,6 +175,12 @@ table thead .sorting_disabled a:after {
   margin-top: -10px;
 }
 
+
+#msm-selection-count {
+  font-weight: bold;
+  vertical-align: center;
+}
+
 .carousel-prev {
   position: absolute;
   top: 136px;
@@ -304,6 +318,36 @@ p#nb {
   user-select: none;
   align-self: center;
   cursor: pointer;
+  z-index: 19;
+}
+
+.marker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+
+  background-image: url('../favicon.ico');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter:
+    drop-shadow(0 0 1px black) drop-shadow(0 0 1px black) drop-shadow(0 0 1px black);
+
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  z-index: 23;
+  cursor: pointer;
+}
+
+.focus-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 21;
+  display: none;
 }
 
 .caption-reader {
@@ -379,12 +423,12 @@ li {
   height: 480px;
   overflow: auto;
   text-align: left;
-  margin-left: -30px;
+  margin-left: 10px;
   margin-right: 5px;
   font-size: 9pt;
 }
 
-.checklist>li {
+.checklist li {
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -713,9 +757,37 @@ body.swal2-shown>[aria-hidden="true"] {
   height: 90vh;
 }
 
+.overlay-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.overlay-bar #overlay-section {
+  flex: 0 0 auto;
+  margin: 0;
+  max-width: 50%;
+}
+
+.overlay-bar-left {
+  flex: 1;
+  text-align: left;
+  padding-left: 32px;
+}
+
+.favtag-btn {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+#chapter-select {
+  width: 200px;
+}
+
 .chapter-selector {
+  flex: 1;
   text-align: right;
-  margin: -40px 32px 8px 0px;
+  padding-right: 32px;
 }
 
 .archive-summary {
@@ -741,6 +813,7 @@ body.swal2-shown>[aria-hidden="true"] {
 
 #changelog>*>img {
   max-width: 400px;
+  height: auto;
 }
 
 /* Infinite Scrolling Reader */
@@ -796,7 +869,7 @@ div.fullscreen img {
 }
 
 .fullscreen #display {
-    height: 100%;
+  height: 100%;
 }
 
 .fullscreen-infinite {
@@ -880,4 +953,84 @@ body.infinite-scroll .fullscreen-infinite img {
   position: absolute;
   top: 5px;
   left: 25%
+}
+
+/* Tankoubon sortable archive list */
+.sortable-ghost {
+  opacity: 0.4;
+}
+
+.sortable-chosen {
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.drag-handle {
+  cursor: grab;
+  opacity: 0.5;
+  margin-right: 8px;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+#tank-archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+#tank-archive-list li {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
+}
+
+#tank-archive-list li:last-child {
+  border-bottom: none;
+}
+
+#tank-archive-list li span.arc-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#tank-archive-list li .edit-archive-link,
+#tank-archive-list li .remove-archive {
+  margin-left: 12px;
+  opacity: 0.7;
+}
+
+#tank-archive-list li .edit-archive-link:hover,
+#tank-archive-list li .remove-archive:hover {
+  opacity: 1;
+}
+
+/* Prevent absolute options from blocking the paginator */
+@media (max-width: 768px) {
+  .absolute-options {
+    position: fixed !important;
+    z-index: 100;
+  }
+
+  .absolute-left {
+    bottom: 15px !important;
+    left: 10px !important;
+    top: auto !important;
+  }
+
+  .absolute-right {
+    bottom: 15px !important;
+    right: 10px !important;
+    top: auto !important;
+  }
+
+  /* Ensure the paginator isn't blocked */
+  .sn {
+    margin-bottom: 60px !important;
+  }
 }

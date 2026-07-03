@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2026-03-21 23:48+0000\n"
+"PO-Revision-Date: 2026-05-27 23:29+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -789,12 +789,14 @@ msgstr "Couper les miniatures"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
 msgstr ""
+"Si activé, les miniatures qui ne rentrent pas dans un format A4 seront "
+"coupées pour ne montrer que le côté gauche."
 
 msgid "Hide completed"
-msgstr ""
+msgstr "Cacher archives lues"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
-msgstr ""
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr "Si activé, les archives déjà lues seront enlevées des résultats."
 
 msgid "Go to Page:"
 msgstr "Aller à la page :"
@@ -1182,9 +1184,6 @@ msgstr "Défilement infini"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Affichez toutes les images dans une vue verticale sur la même page."
 
-msgid "Reader Settings"
-msgstr "Paramètres de la liseuse"
-
 msgid "Help"
 msgstr "Aide"
 
@@ -1312,6 +1311,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Une erreur a eu lieu lors de la restauration de la sauvegarde.<br/> Vérifiez "
 "les logs serveur et votre JSON."
+
+msgid "Backup generation in progress..."
+msgstr "Génération de la sauvegarde en cours..."
+
+msgid "Uploading backup file..."
+msgstr "Téléversement de la sauvegarde..."
+
+msgid "Backup complete! Download will start automatically."
+msgstr "Sauvegarde complète ! Le téléchargement va démarrer automatiquement."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Impossible de charger la liste d'archives ! Veuillez recharger la page."
@@ -2002,3 +2010,208 @@ msgstr ""
 
 msgid "Untitled Chapter"
 msgstr "Chapitre sans nom"
+
+msgid "G: go to page number"
+msgstr "G : Aller à une page spécifique"
+
+msgid "Go to page:"
+msgstr "Aller à la page:"
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr ""
+"Les Archives sans tags ou provenant de votre dernière sélection ont été "
+"préselectionnées."
+
+msgid "Discard Selection"
+msgstr "Abandonner la sélection"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Affichage de ${n} Archives provenant de la dernière sélection."
+
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "No Tankoubons in your library yet."
+msgstr "Pas encore de Tankoubons dans votre bibliothèque."
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "No Archives in your library yet."
+msgstr "Pas encore d'Archives dans votre bibliothèque."
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "Modification de %1 (Tankoubon)"
+
+msgid "Delete Tankoubon"
+msgstr "Supprimer le Tankoubon"
+
+msgid "Read Tankoubon"
+msgstr "Lire le Tankoubon"
+
+msgid "Archives:"
+msgstr "Archives :"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "Ajouter une Archive au Tankoubon :"
+
+msgid "Archive ID (40-character long)"
+msgstr "ID de l'Archive (40 caractères)"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Group Tankoubons"
+msgstr "Regrouper par Tankoubon"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr ""
+"Si activé, les archives qui appartienent à un Tankoubon seront affichées "
+"comme un seul élément."
+
+msgid "Index Settings"
+msgstr "Paramètres de l'index"
+
+msgid "Display Mode"
+msgstr "Mode d'affichage"
+
+msgid "Compact"
+msgstr "Compact"
+
+msgid "Thumbnail"
+msgstr "Miniatures"
+
+msgid "Select Archives"
+msgstr "Sélectionner des éléments"
+
+msgid "Run Batch Operations on selection"
+msgstr "Exécuter des Opérations en série sur la sélection"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "Fusionner les archives dans un Tankoubon"
+
+msgid "Clear selection"
+msgstr "Vider la sélection"
+
+msgid "Select All in Page"
+msgstr "Sélectionner toute la page"
+
+msgid "Edit Tankoubon"
+msgstr "Modifier le Tankoubon"
+
+msgid "S: set a Stamp"
+msgstr "S : Ajouter un Tampon"
+
+msgid "Toggle Stamps"
+msgstr "Afficher/cacher les Tampons"
+
+msgid "Set Stamp"
+msgstr "Poser un Tampon"
+
+msgid "Filter stamped pages"
+msgstr "Filtrer les pages tamponnées"
+
+msgid "Error saving tankoubon metadata"
+msgstr "Erreur lors de la sauvegarde des métadonnées du Tankoubon"
+
+msgid "Remove from Tankoubon"
+msgstr "Retirer du Tankoubon"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"Voulez-vous vraiment supprimer ce Tankoubon ? Les Archives resteront dans "
+"votre bibliothèque mais ne seront plus groupées ensemble."
+
+msgid "Tankoubon deleted"
+msgstr "Tankoubon supprimé"
+
+msgid "Error deleting tankoubon"
+msgstr "Erreur lors de la suppression du Tankoubon"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "Erreur lors de l'ajout de l'archive au Tankoubon"
+
+msgid "New archive"
+msgstr "Nouvelle archive"
+
+msgid "Archive read"
+msgstr "Archive lue"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
+msgid "Pages read / Total pages"
+msgstr "Pages lues / Pages au total"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "Pages lues / Pages au total / Archives contenues dans le Tankoubon"
+
+msgid "About Tankoubons"
+msgstr "A propos des Tankoubons"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"Les Tankoubons sont des collections d'Archives. <br/>Vous pouvez changer "
+"l'ordre des archives contenues ici en glissant les poignées à la gauche des "
+"noms, ainsi qu'ajouter/supprimer des archives au Tankoubon.<br/>N'oubliez "
+"pas de cliquer Sauvegarder lorsque vous en avez terminé."
+
+msgid "Selection"
+msgstr "Sélection"
+
+msgid "\${n} selected"
+msgstr "${n} sélectionnés"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr ""
+"Cliquez sur des archives pour les ajouter à la sélection. Votre séléction "
+"reste en mémoire si vous faites une nouvelle recherche."
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "Sortir du mode de sélection ? Votre sélection actuelle sera perdue. "
+
+msgid "Add to selection"
+msgstr "Ajouter à la sélection"
+
+msgid "Remove from selection"
+msgstr "Retirer de la sélection"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "Entrez un nom pour le nouveau Tankoubon."
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr ""
+"Cet élément contiendra toutes les Archives que vous avez sélectionnées comme "
+"un seul élément dans votre bibliothèque."
+
+msgid "Please enter a name."
+msgstr "Veuillez entrer un nom."
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "Ajouté ${n} archives à ${tank} !"
+
+msgid "Error creating Tankoubon"
+msgstr "Erreur lors de la création du Tankoubon"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "Erreur lors de l'ajout des archives au Tankoubon"
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr ""
+"Cette opération va ajouter ${n} archives au Tankoubon ${name}. Voulez-vous "
+"continuer ?"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "Fusionner la sélection dans un Tankoubon"
+
+msgid "Hide completed Archives"
+msgstr "Cacher les archives lues"
+
+msgid "Enter Stamp name:"
+msgstr "Entrez le nom du Tampon :"
+
+msgid "Stamp name"
+msgstr "Nom du Tampon"
+
+msgid "Error setting up the Stamp"
+msgstr "Erreur lors de la création du Tampon"

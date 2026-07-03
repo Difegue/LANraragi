@@ -1,10 +1,10 @@
 /**
  * Functions for Generic API calls.
- * @global
  */
-const Server = {};
+import * as LRR from "./common.js";
+import I18N from "i18n";
 
-Server.isScriptRunning = false;
+let isScriptRunning = false;
 
 /**
  * Call that shows a popup to the user on success/failure.
@@ -16,10 +16,56 @@ Server.isScriptRunning = false;
  * @param {*} successCallback called if request succeeded
  * @returns The result of the callback, or NULL.
  */
-Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
-    let endpointUrl = new LRR.apiURL(endpoint);
+export function callAPI(endpoint, method, successMessage, errorMessage, successCallback) {
+    let endpointUrl = new LRR.ApiURL(endpoint);
     return fetch(endpointUrl, { method })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
+        .then((data) => {
+
+            // Handle OpenAPI-style error messages (HTTP status code + message)
+            if (Object.hasOwn(data, "errors")) {
+                throw new Error(data.errors[0].message);
+            }
+            else // Handle LRR API-style error messages (success=0 + error string)
+                if (Object.hasOwn(data, "success") && !data.success) {
+                    throw new Error(data.error);
+                } else {
+                    let message = successMessage;
+                    if ("successMessage" in data && data.successMessage) {
+                        message = data.successMessage;
+                    }
+                    if (message !== null) {
+                        LRR.toast({
+                            heading: message,
+                            icon: "success",
+                            hideAfter: 7000,
+                        });
+                    }
+
+                    if (successCallback !== null) return successCallback(data);
+
+                    return null;
+                }
+        })
+        .catch((error) => LRR.showErrorToast(errorMessage, error));
+}
+
+/**
+ *
+ * @param {*} endpoint URL endpoint
+ * @param {*} method GET/PUT/DELETE/POST
+ * @param {*} body Request body
+ * @param {*} successMessage Message written in the toast if request succeeded (success = 1)
+ * @param {*} errorMessage Header of the error message if request fails (success = 0)
+ * @param {*} successCallback called if request succeeded
+ * @param {*} contentType content type
+ * @returns The result of the callback, or NULL.
+ */
+export function callAPIBody(endpoint, method, body, successMessage, errorMessage, successCallback, contentType = null) {
+    let endpointUrl = new LRR.ApiURL(endpoint);
+    const headers = contentType ? { "Content-Type": contentType } : undefined;
+    return fetch(endpointUrl, { method, body, headers })
+        .then((response) => response.json())
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
@@ -42,35 +88,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
             }
         })
         .catch((error) => LRR.showErrorToast(errorMessage, error));
-};
-
-Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
-    let endpointUrl = new LRR.apiURL(endpoint);
-    return fetch(endpointUrl, { method, body })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
-        .then((data) => {
-            if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
-                throw new Error(data.error);
-            } else {
-                let message = successMessage;
-                if ("successMessage" in data && data.successMessage) {
-                    message = data.successMessage;
-                }
-                if (message !== null) {
-                    LRR.toast({
-                        heading: message,
-                        icon: "success",
-                        hideAfter: 7000,
-                    });
-                }
-
-                if (successCallback !== null) return successCallback(data);
-
-                return null;
-            }
-        })
-        .catch((error) => LRR.showErrorToast(errorMessage, error));
-};
+}
 
 /**
  * Check the status of a Minion job until it's completed.
@@ -81,10 +99,10 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
  * @param {*} failureCallback Execute a callback on unsuccessful job completion.
  * @param {*} progressCallback Execute a callback if the job reports progress. (aka, if there's anything in notes)
  */
-Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, progressCallback = null) {
-    let endpoint = new LRR.apiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
+export function checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback = null) {
+    let endpoint = new LRR.ApiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
     fetch(endpoint, { method: "GET" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (data.error) throw new Error(data.error);
 
@@ -95,7 +113,7 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
             if (data.state === "inactive") {
                 // Job isn't even running yet, wait longer
                 setTimeout(() => {
-                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
+                    checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
                 }, 5000);
                 return;
             }
@@ -108,7 +126,7 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
 
                 // Job is in progress, check again in a bit
                 setTimeout(() => {
-                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
+                    checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
                 }, 1000);
             }
 
@@ -118,7 +136,7 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
             }
         })
         .catch((error) => { LRR.showErrorToast(I18N.MinionCheckError, error); failureCallback(error); });
-};
+}
 
 /**
  * POSTs the data of the specified form to the page.
@@ -126,11 +144,11 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
  * @param {*} formSelector The form to POST
  * @returns the promise object so you can chain more callbacks.
  */
-Server.saveFormData = function (formSelector) {
+export function saveFormData(formSelector) {
     const postData = new FormData($(formSelector)[0]);
 
     return fetch(window.location.href, { method: "POST", body: postData })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((response) => response.json())
         .then((data) => {
             if (data.success) {
                 LRR.toast({
@@ -142,37 +160,37 @@ Server.saveFormData = function (formSelector) {
             }
         })
         .catch((error) => LRR.showErrorToast(I18N.SaveError, error));
-};
+}
 
-Server.triggerScript = function (namespace) {
+export function triggerScript(namespace) {
     const scriptArg = $(`#${namespace}_ARG`).val();
 
-    if (Server.isScriptRunning) {
+    if (isScriptRunning) {
         LRR.showErrorToast(I18N.ScriptRunning, I18N.ScriptRunningDesc);
         return;
     }
 
-    Server.isScriptRunning = true;
+    isScriptRunning = true;
     $(".script-running").show();
     $(".stdbtn").hide();
 
     // Save data before triggering script
-    Server.saveFormData("#editPluginForm")
-        .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, I18N.ScriptError,
+    saveFormData("#editPluginForm")
+        .then(callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, I18N.ScriptError,
             (data) => {
                 // Check minion job state periodically while we're on this page
-                Server.checkJobStatus(
+                checkJobStatus(
                     data.job,
                     true,
                     (d) => {
-                        Server.isScriptRunning = false;
+                        isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
 
                         if (d.result.success === 1) {
                             LRR.toast({
                                 heading: I18N.ScriptResult,
-                                text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
+                                text: `<pre>${LRR.encodeHTML(JSON.stringify(d.result.data, null, 4))}</pre>`,
                                 icon: "info",
                                 hideAfter: 10000,
                                 closeOnClick: false,
@@ -181,28 +199,28 @@ Server.triggerScript = function (namespace) {
                         } else LRR.showErrorToast(I18N.ScriptResultFail(d.result.error));
                     },
                     () => {
-                        Server.isScriptRunning = false;
+                        isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
                     },
                 );
             },
         ));
-};
+}
 
-Server.cleanTemporaryFolder = function () {
-    Server.callAPI("/api/tempfolder", "DELETE", I18N.ClearCache, I18N.ClearCacheError, null);
-};
+export function cleanTemporaryFolder() {
+    return callAPI("/api/tempfolder", "DELETE", I18N.ClearCache, I18N.ClearCacheError, null);
+}
 
-Server.invalidateCache = function () {
-    Server.callAPI("/api/search/cache", "DELETE", I18N.CleanedCacheFolder, I18N.ErrorDeletingCache, null);
-};
+export function invalidateCache() {
+    return callAPI("/api/search/cache", "DELETE", I18N.CleanedCacheFolder, I18N.ErrorDeletingCache, null);
+}
 
-Server.clearAllNewFlags = function () {
-    Server.callAPI("/api/database/isnew", "DELETE", I18N.CleanedNewStats, I18N.CleanedError, null);
-};
+export function clearAllNewFlags() {
+    return callAPI("/api/database/isnew", "DELETE", I18N.CleanedNewStats, I18N.CleanedError, null);
+}
 
-Server.dropDatabase = function () {
+export function dropDatabase() {
     LRR.showPopUp({
         title: I18N.ConfirmVeryDestructive,
         text: I18N.DropDatabaseMsg,
@@ -214,17 +232,17 @@ Server.dropDatabase = function () {
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            Server.callAPI("/api/database/drop", "POST", I18N.DropDatabaseConfirm, I18N.GenericReponseError,
+            callAPI("/api/database/drop", "POST", I18N.DropDatabaseConfirm, I18N.GenericReponseError,
                 () => {
                     setTimeout(() => { document.location.href = "./"; }, 1500);
                 },
             );
         }
     });
-};
+}
 
-Server.cleanDatabase = function () {
-    Server.callAPI("/api/database/clean", "POST", null, I18N.CleanedError,
+export function cleanDatabase() {
+    return callAPI("/api/database/clean", "POST", null, I18N.CleanedError,
         (data) => {
             LRR.toast({
                 heading: I18N.CleanDatabaseMsg(data.deleted),
@@ -242,11 +260,15 @@ Server.cleanDatabase = function () {
             }
         },
     );
-};
+}
 
-Server.regenerateThumbnails = function (force) {
+/**
+ * @param {boolean} force
+ * @returns {Promise<any>}
+ */
+export function regenerateThumbnails(force) {
     const forceparam = force ? 1 : 0;
-    Server.callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
+    return callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
         I18N.RegenThumbnailStarted,
         I18N.GenericReponseError,
         (data) => {
@@ -255,7 +277,7 @@ Server.regenerateThumbnails = function (force) {
             $("#forcethumb-button").prop("disabled", true);
 
             // Check minion job state periodically while we're on this page
-            Server.checkJobStatus(
+            checkJobStatus(
                 data.job,
                 true,
                 (d) => {
@@ -263,7 +285,7 @@ Server.regenerateThumbnails = function (force) {
                     $("#forcethumb-button").prop("disabled", false);
                     LRR.toast({
                         heading: I18N.RegenThumbnailSuccess,
-                        text: d.result.errors,
+                        text: LRR.encodeHTML(`${d.result.errors}`),
                         icon: "success",
                         hideAfter: 15000,
                         closeOnClick: false,
@@ -278,28 +300,28 @@ Server.regenerateThumbnails = function (force) {
             );
         },
     );
-};
+}
 
 // Adds an archive to a category. Basic implementation to use everywhere.
-Server.addArchiveToCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId, catId), I18N.CategoryEditError, null);
-};
+export function addArchiveToCategory(arcId, catId) {
+    return callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId, catId), I18N.CategoryEditError, null);
+}
 
 // Ditto, but for removing.
-Server.removeArchiveFromCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId, catId), I18N.CategoryEditError, null);
-};
+export function removeArchiveFromCategory(arcId, catId) {
+    return callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId, catId), I18N.CategoryEditError, null);
+}
 
 /**
  * Sends a DELETE request for that archive ID,
  * deleting the Redis key and attempting to delete the archive file.
- * @param {*} arcId Archive ID
+ * @param {string} arcId Archive ID
  * @param {*} callback Callback to execute once the archive is deleted (usually a redirection)
  */
-Server.deleteArchive = function (arcId, callback) {
-    let endpoint = new LRR.apiURL(`/api/archives/${arcId}`);
-    fetch(endpoint, { method: "DELETE" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+export function deleteArchive(arcId, callback) {
+    let endpoint = new LRR.ApiURL(`/api/archives/${arcId}`);
+    return fetch(endpoint, { method: "DELETE" })
+        .then((response) => response.json())
         .then((data) => {
             if (!data.success) {
                 LRR.toast({
@@ -313,7 +335,7 @@ Server.deleteArchive = function (arcId, callback) {
             } else {
                 LRR.toast({
                     heading: I18N.ArchiveDeleted,
-                    text: data.filename,
+                    text: LRR.encodeHTML(data.filename),
                     icon: "success",
                     hideAfter: 7000,
                 });
@@ -321,25 +343,36 @@ Server.deleteArchive = function (arcId, callback) {
             }
         })
         .catch((error) => LRR.showErrorToast(I18N.ArchiveDeletedError, error));
-};
+}
+
+/**
+ * Deletes a Tankoubon by ID. The archives remain in the library.
+ * @param {string} id Tankoubon ID
+ * @param {Function} callback Called after successful deletion
+ */
+export function deleteTankoubon(id, callback) {
+    return callAPI(`/api/tankoubons/${id}`, "DELETE", I18N.TankoubonDeleted, I18N.TankoubonDeleteError,
+        () => { setTimeout(callback, 1500); }
+    );
+}
 
 /**
  * Sends a UPDATE request for the metadata of the archive ID
- * @param {*} arcId Archive ID
+ * @param {string} arcId Archive ID
  */
-Server.updateTagsFromArchive = function (arcId, tags) {
+export function updateTagsFromArchive(arcId, tags) {
     const formData = new FormData();
     formData.append("tags", tags);
 
-    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, I18N.EditMetadataSaved, I18N.EditMetadataError, null);
-};
+    return callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, I18N.EditMetadataSaved, I18N.EditMetadataError, null);
+}
 
 /**
  * Updates local storage with the category ID corresponding to the bookmark icon.
  * @returns a promise containing the category ID if exists or an empty string.
  */
-Server.loadBookmarkCategoryId = function () {
-    return Server.callAPI("/api/categories/bookmark_link", "GET", null, I18N.GetBookmarkError, (data) => {
+export function loadBookmarkCategoryId() {
+    return callAPI("/api/categories/bookmark_link", "GET", null, I18N.GetBookmarkError, (data) => {
         localStorage.setItem("bookmarkCategoryId", data.category_id);
         return data.category_id;
     });
@@ -351,8 +384,12 @@ Server.loadBookmarkCategoryId = function () {
  * @param {*} id Archive ID
  * @param {number} currentPage Page the user navigated to
  */
-Server.updateServerSideProgress = function (id, currentPage) {
-    let endpointUrl = new LRR.apiURL(`/api/archives/${id}/progress/${currentPage}`);
+export function updateServerSideProgress(id, currentPage) {
+
+    let endpointUrl = id.startsWith("TANK_") ? 
+        new LRR.ApiURL(`/api/tankoubons/${id}/progress/${currentPage}`) : 
+        new LRR.ApiURL(`/api/archives/${id}/progress/${currentPage}`);
+
     return fetch(endpointUrl, { method: "PUT" })
         .then((response) => (response.ok ? {code: response.status, data: response.json()} : { code: response.status, data: {success: 0, error: I18N.GenericReponseError} }))
         .then((response) => {
@@ -380,4 +417,4 @@ Server.updateServerSideProgress = function (id, currentPage) {
             }
         })
         .catch((error) => LRR.showErrorToast(I18N.ReaderErrorProgress, error));
-};
+}

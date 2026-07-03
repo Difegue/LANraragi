@@ -62,6 +62,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
     #that the file it references still exists on the filesystem
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $redis_config = LANraragi::Model::Config->get_redis_config;
     my $replace_dupe = LANraragi::Model::Config->get_replacedupe;
     my $isdupe       = $redis->exists($id) && -e get_archive_path( $redis, $id );
 
@@ -81,10 +82,32 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
         return ( 409, $id, $filename, $msg );
     }
 
-    # If we are replacing an existing one, just remove the old one first.
+    # If we are replacing an existing file, remove the old one first.
     if ($replace_dupe) {
-        $logger->debug("Delete archive $id before replacing it.");
-        LANraragi::Model::Archive::delete_archive($id);
+
+        if ($isdupe) {
+            $logger->debug("Deleting existing version of archive $id.");
+
+            # Basic case, delete an exact ID match.
+            LANraragi::Model::Archive::delete_archive($id);
+        }
+        elsif (-e $output_file) {
+
+            $logger->debug("Deleting existing file with the same name as the uploaded file: $output_file");
+            # More complex, the new file doesn't match an existing ID, but it matches an existing filename. 
+            # We need to find the ID of the file with that name and delete it. 
+            my $existing_id = $redis_config->hget("LRR_FILEMAP", $output_file);
+
+            if ($redis->exists($existing_id)) {
+                $logger->debug("Found existing file with the same name, ID: $existing_id. Deleting it.");
+                LANraragi::Model::Archive::delete_archive($existing_id);
+            } else {
+                # We didn't find an equivalent in the filemap. (potentially due to filesystem encoding)
+                # The only thing we can do here is delete the file manually and leave cleanup to Shinobu. 
+                $logger->warn("Found existing file with the same name, but no matching ID in Redis. Deleting the file as-is.");
+                unlink_path $output_file;
+            }
+        }
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it
@@ -148,6 +171,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
     add_arcsize( $redis, $id );
     $redis->quit();
     $redis_search->quit();
+    $redis_config->quit();
 
     # Generate thumbnail
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;

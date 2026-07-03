@@ -15,7 +15,7 @@ For creating the jail on a regular FreeBSD installation, refer to its [documenta
 
 For creating the jail on FreeNAS, simply navigate to the jails tab in the webui and click on 'add'.
 
-![Jail Overview](<../.gitbook/assets/jails (1).jpg>)
+![Jail Overview](<../.gitbook/assets/jails.jpg>)
 
 After creating the jail enter it, type `pkg` and confirm the next prompt.
 
@@ -85,9 +85,9 @@ ee /usr/local/etc/LANraragi/lrr
 #!/bin/share/doc/handbook/jails-build
 lrr_start()
 {
-	user='root'
-	cd /usr/local/etc/LANraragi
-	su ${user} -c "/usr/local/bin/npm start /usr/local/etc/LANraragi/"
+ user='root'
+ cd /usr/local/etc/LANraragi
+ su ${user} -c "/usr/local/bin/npm start /usr/local/etc/LANraragi/"
 }
 
 

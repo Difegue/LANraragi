@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2025-11-20 07:51+0000\n"
-"Last-Translator: tomo <miyano.tomonari@gmail.com>\n"
+"PO-Revision-Date: 2026-06-01 09:52+0000\n"
+"Last-Translator: 四迷二葉亭 <sumu32000@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
 "Language: ja\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 2026.6\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -20,27 +20,28 @@ msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
-msgstr "既存のデータベースのバックアップまたは復元を行います。"
+msgstr "データベースのバックアップまたは復元を行います。"
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr "バックアップすると、すべてのカテゴリとアーカイブID、それに対応するメタデータ"
 "を含むJSONファイルをダウンロードできます。"
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
-msgstr "バックアップから復元すると、このメタデータは<b>あなたのデータベース内に既に存"
-"在しているIDに対して復元されます。</b>"
+msgstr ""
+"バックアップから復元すると、このメタデータは <b>あなたのデータベース内に既に"
+"存在しているIDに対して復元されます。</b>"
 
 msgid "(Categories will always be restored)"
 msgstr "（カテゴリは常に復元されます）"
 
 msgid "Backup Database"
-msgstr "データベースの保存"
+msgstr "データベースのバックアップ"
 
 msgid "Restore Backup"
 msgstr "バックアップの復元"
 
 msgid "Restoring your backup ..."
-msgstr "バックアップからの復元 ..."
+msgstr "バックアップを復元中です..."
 
 msgid "Return to Library"
 msgstr ""
@@ -51,16 +52,16 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "複数のアーカイブを一括して修正を行うことができます。"
+msgstr "複数のアーカイブをまとめて編集できます。"
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
-msgstr "やりたいことを選び、変更したいアーカイブを選択し、始めましょう！"
+msgstr "操作を選択し、対象のアーカイブにチェックを入れて実行してください！"
 
 msgid "Archives with no tags have been pre-checked."
 msgstr "タグのないアーカイブは事前にチェックされます。"
 
 msgid "Task :"
-msgstr "タスク："
+msgstr "タスク:"
 
 msgid "Use Plugin"
 msgstr "プラグインの使用"
@@ -78,62 +79,66 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Read Archive"
-msgstr ""
+msgstr "アーカイブを読む"
 
 msgid "Use plugin :"
-msgstr "使用するプラグイン："
+msgstr "使用するプラグイン:"
 
 msgid "Timeout (max 20s):"
-msgstr "タイムアウト（最大20秒）："
+msgstr "タイムアウト (最大20秒):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "このプラグインでは、 <span id=\"cooldown\">-1</span> "
-"秒の待機時間を推奨しています。"
+msgstr ""
+"このプラグインは <span id=\"cooldown\">-1</span> 秒の待機時間を推奨しています"
+"。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
-msgstr "外部サービスの中には、プラグインを何度も使用すると高負担で一時的にマシンを使"
-"用禁止にするものがあります！"
+msgstr ""
+"プラグインを短時間に何度も実行すると、一部の外部サービスから一時的にアクセス"
+"制限を受ける場合があります！"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
-msgstr "このピッカーを使ってアーカイブ間の<b>タイムアウト</b>を適切に設定してください"
-"。使用したいプラグインによっては重要です。"
+msgstr ""
+"使用するプラグインに応じて、この設定でアーカイブ間の適切な <b>タイムアウト</"
+"b> を設定してください。"
 
 msgid "Override Plugin Global Arguments"
 msgstr "プラグインのグローバル引数を上書きする"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr "これにより、選択したアーカイブに次のタグ ルールが適用されます。"
+msgstr "以下のタグルールが選択したアーカイブに適用されます。"
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr "タグルールはサーバー設定で編集できます。"
+msgstr "タグルールはサーバー設定画面で編集できます。"
 
 msgid "Server Configuration"
 msgstr "サーバー設定"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "選択したアーカイブから「new」フラグを削除します。"
+msgstr "選択したアーカイブの「新着」フラグを解除します。"
 
 msgid "Add to Category :"
 msgstr "カテゴリに追加 :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
-msgstr "これはメタデータと一致するファイルの両方をあなたのシステムから削除します！十"
+msgstr ""
+"これにより、システムからメタデータと該当するファイルの両方が削除されます！十"
 "分注意して使用してください。"
 
 msgid "Check/Uncheck all"
 msgstr "すべてチェック/すべてのチェックを外す"
 
 msgid "Start Task"
-msgstr "タスクスタート"
+msgstr "タスク開始"
 
 msgid "Cancel"
 msgstr "キャンセル"
 
 msgid "Start another job"
-msgstr "別のジョブを開始"
+msgstr "別の処理を開始"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "<span id=\"totalarcs\"></span> のうち <span id=\"arcs\"></span> を処理済み"
+msgstr "<span id=\"arcs\"></span> /<span id=\"totalarcs\"></span> を処理済"
 
 msgid "Preparing your data."
 msgstr "データを準備しています。"
@@ -150,125 +155,137 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr "ライブラリーを閲覧する際、ウィンドウの上部にカテゴリーが表示されます。"
+msgstr "ライブラリ閲覧時、カテゴリはウィンドウ上部に表示されます。"
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "2種類あります :"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"静的カテゴリは、アーカイブを任意にまとめたもので、アイテムを自由に追加できま"
+"す。"
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"動的カテゴリには、指定した条件に一致するすべてのアーカイブが含まれ、"
+"ライブラリの更新にあわせて自動的に更新されます。"
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "ここでは新しいカテゴリを作成したり、既存のカテゴリを編集したりできます。"
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"下のコンボボックスからカテゴリを選択して、名前・含まれるアーカイブ・条件式を"
+"編集します。"
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "変更内容はすべて自動的に保存されます。"
 
 msgid "Category:"
-msgstr ""
+msgstr "カテゴリ :"
 
 msgid "Name:"
-msgstr ""
+msgstr "名前 :"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "条件式 :"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "このカテゴリをピン留めする"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "カテゴリを削除"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"的カテゴリを選択すると、ここにアーカイブ一覧が表示され、カテゴリへの追加・削"
+"除を行えます。"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "このカテゴリにブックマークを保存する"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "ブックマークボタンのリンクにエラーが発生しました :"
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "ブックマークのリンク解除ボタンでエラーが発生しました :"
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "ブックマークのカテゴリーを取得できませんでした :"
 
 msgid "New Static Category"
-msgstr ""
+msgstr "新規静的カテゴリー"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "新規動的カテゴリー"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "管理者設定"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "バージョン %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "カテゴリを選択して設定を表示します。"
 
 msgid "Save Settings"
-msgstr ""
+msgstr "設定を保存"
 
 msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr "データベースバックアップ・復元"
+msgstr "データベースのバックアップ/復元"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "一般設定"
 
 msgid "Theme"
-msgstr ""
+msgstr "テーマ"
 
 msgid "Security"
-msgstr ""
+msgstr "セキュリティ"
 
 msgid "Archive Files"
-msgstr ""
+msgstr "アーカイブファイル"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "タグとサムネイル"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "バックグラウンド処理"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr ""
+msgstr "アーカイブディレクトリ"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
-msgstr ""
+msgstr "アーカイブが保存されるディレクトリ。存在しない場合は作成されます。"
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
+"LANraragi を実行している OS ユーザーが、このディレクトリへの読み取り権限を持"
+"っていることを確認してください。"
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr ""
+msgstr "Synology eCryptFS 互換モード"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
+"有効にすると、LANraragi は eCryptFS の制限に合わせて、アーカイブのファイル名"
+"を 143 バイト以内に短縮します。"
 
 msgid "Rescan Archive Directory"
 msgstr ""
@@ -277,343 +294,403 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "最大<br>キャッシュサイズ"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
+"MBで指定。キャッシュには最近表示したページが保存されており、次回の表示を高速"
+"化します。"
 
 msgid "It is automatically emptied when it grows past this specified size."
-msgstr ""
+msgstr "指定したサイズを超えると、自動的に削除されます。"
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "キャッシュをクリア"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "現在のサイズ :"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "このボタンでキャッシュを手動でクリアできます。"
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "検索キャッシュをリセット"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"アーカイブ一覧で実行した最近の検索結果は、表示を高速化するためにキャッシュさ"
+"れます。"
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
-msgstr ""
+msgstr "キャッシュに問題が発生した場合は、このボタンからリセットできます。"
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "新規フラグをクリア"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"新しくアップロードされたアーカイブは、開くまで一覧で「新着」として表示されま"
+"す。"
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "これらのフラグを解除するには、このボタンをクリックしてください。"
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "重複するアーカイブを置き換える"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"有効にすると、Web アップローダーまたはダウンロードシステムから同名の新しい"
+"アーカイブがアップロードされたとき、LANraragi は既存のアーカイブを上書きしま"
+"す。"
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"ファイルを置き換える際、古いファイルのメタデータは削除されます。使用には注意"
+"してください。"
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "サイト名"
 
 msgid "The site title appears on most pages as...their title."
-msgstr ""
+msgstr "サイト名は、各ページのタイトルとして使用されます。"
 
 msgid "MOTD"
-msgstr ""
+msgstr "本日のお知らせ"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
-msgstr ""
+msgstr "本日のお知らせです。ライブラリのメイン画面上部に表示されます。"
 
 msgid "Archives per page"
-msgstr ""
+msgstr "1ページあたりのアーカイブ数"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "メイン一覧の1ページに表示されるアーカイブ数です。"
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "リーダーで画像サイズを調整"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"有効にすると、通信量を抑えるため、一定サイズを超えるページは表示時に縮小され"
+"ます。"
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"この設定を有効にすると、大きな画像で大量のメモリを消費する可能性があります。"
+"注意して使用してください。"
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "画像サイズのしきい値"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr ""
+msgstr "（KB単位）このサイズを超えた画像はリサイズされます。"
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "リサイズ時の画質"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
-msgstr ""
+msgstr "リサイズ後の画像品質です。値を低くすると画像サイズが小さくなります。(0～100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "クライアント側で進行状況を追跡"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
-msgstr ""
+msgstr "この設定を有効にすると、閲覧状況はサーバーではなくブラウザに保存されます。"
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"LANraragi を複数人で共有している場合は、この設定を有効にすることをおすすめし"
+"ます！"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "デバッグモード"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
+"デバッグモードを有効にすると、より詳細なログが表示され、アップデート通知が無"
+"効になります。"
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "データベースをクリーンアップ"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "統計情報を有効化"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 msgstr ""
+"統計情報の収集を有効化し、Prometheus 形式で metrics エンドポイントを公開しま"
+"す。"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"データベースをクリーンアップすると、実際には存在しないファイルのエントリが削"
+"除されます。"
 
 msgid "Reset Database"
-msgstr ""
+msgstr "データベースをリセット"
 
 msgid "Danger zone!"
-msgstr ""
+msgstr "危険な操作！"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"このボタンをクリックすると、データベース全体がリセットされ、すべての設定と"
+"メタデータが削除されます。"
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "パスワードを有効化"
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr ""
+msgstr "有効にすると、閲覧を除くすべての機能でパスワード認証が必要になります。"
 
 msgid "New Password"
-msgstr ""
+msgstr "新しいパスワード"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "新しいパスワード（確認）"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "パスワードを変更する場合のみ入力してください。"
 
 msgid "The one already stored will be used otherwise."
-msgstr ""
+msgstr "変更しない場合は、現在のパスワードがそのまま使用されます。"
 
 msgid "No-Fun Mode"
-msgstr ""
+msgstr "閲覧制限モード"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
-msgstr ""
+msgstr "有効にすると、アーカイブの閲覧にもパスワードが必要になります。"
 
 msgid "Fully effective after restarting LANraragi."
-msgstr ""
+msgstr "LANraragi を再起動すると完全に反映されます。"
 
 msgid "API Key"
-msgstr ""
+msgstr "API キー"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"パスワードを有効にした状態で Client API を使用する場合は、ここでキーを設定し"
+"てください。"
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr ""
+msgstr "キーが空欄の場合は <b>動作しません</b> ！"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
+"保護された API を呼び出す際は、このキーを <i>Authorization</i> ヘッダーに指定"
+"する必要があります。"
 
 msgid "Enable CORS for the Client API"
-msgstr ""
+msgstr "Client API の CORS を有効化"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
+"API リクエストで CORS を有効にし、他ドメインからブラウザ経由でアクセスできる"
+"ようにします。"
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
+"他ドメイン上の Web ベースツール（ユーザースクリプトなど）からアクセスする場合"
+"は、有効にしてください。"
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr ""
+msgstr "Shinobu ステータス"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr ""
+msgstr "Shinobu File Watcher は現在"
 
 msgid "OK!"
-msgstr ""
+msgstr "動作中！"
 
 msgid "Kaput!"
-msgstr ""
+msgstr "停止中！"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
+"この File Watcher はコンテンツディレクトリを監視し、新しいアーカイブを自動的"
+"に取り込みます。"
 
 msgid "Restart File Watcher"
-msgstr ""
+msgstr "File Watcher を再起動"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
+"Shinobu が動作していない、または応答しない場合は、このボタンで再起動してくだ"
+"さい。"
 
 msgid "Open Minion Console"
-msgstr ""
+msgstr "Minion コンソールを開く"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
 msgstr ""
+"Minion Worker は、Web アプリケーション上で即時処理できない長時間タスクを実行"
+"します。"
 
 msgid "The console shows currently running and concluded tasks."
-msgstr ""
+msgstr "コンソールでは、現在実行中のタスクや完了済みのタスクを確認できます。"
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "サムネイル保存先ディレクトリ"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"アーカイブのサムネイルを保存するディレクトリです。存在しない場合は自動的に作"
+"成されます。"
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
-msgstr ""
+msgstr "LANraragi 実行ユーザーに、このディレクトリへの読み書き権限が必要です。"
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "ページサムネイルを高画質化"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi はパフォーマンス向上のため、アーカイブページのサムネイルを低画質で"
+"生成します。"
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"この設定を有効にすると、ページサムネイルも表紙サムネイルと同じ画質で生成され"
+"ます。"
 
 msgid "Use JPEG XL for thumbnails"
-msgstr ""
+msgstr "サムネイルに JPEG XL を使用"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi は互換性とパフォーマンスを考慮し、JPEG 形式でサムネイルを生成します"
+"。"
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
-msgstr ""
+msgstr "この設定を有効にすると、サムネイルは JPEG XL 形式で生成されます。"
 
 msgid "Generate Missing Thumbnails"
-msgstr ""
+msgstr "未生成のサムネイルを生成"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr ""
+msgstr "サムネイル未生成のアーカイブにサムネイルを生成します。"
 
 msgid "Regenerate all Thumbnails"
-msgstr ""
+msgstr "すべてのサムネイルを再生成"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr ""
+msgstr "すべてのサムネイルを再生成します。完了まで時間がかかる場合があります！"
 
 msgid "Add Timestamp Tag"
-msgstr ""
+msgstr "日時タグを追加"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
 msgstr ""
+"有効にすると、新しく追加されたアーカイブに現在時刻の UNIX タイムスタンプが "
+"\"date_added\" タグとして追加されます。"
 
 msgid "Use \"Last modified\" Time"
-msgstr ""
+msgstr "最終更新日時を使用"
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
 msgstr ""
+"有効にすると、「date_added」には現在時刻ではなくファイルの最終更新日時が使用"
+"されます。"
 
 msgid "Tag Rules"
-msgstr ""
+msgstr "タグルール"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
 msgstr ""
+"プラグインによるタグ付け時、ここで指定したルールがタグへ適用されてから"
+"データベースに保存されます。"
 
 msgid "Split rules with linebreaks."
-msgstr ""
+msgstr "ルールは改行で区切ってください。"
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr ""
+msgstr "<b>-tag | tag</b> : 指定したタグを削除します（ブラックリストとして動作）"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr ""
+msgstr "<b>-namespace:*</b> : 指定した名前空間内のすべてのタグを削除します"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr ""
+msgstr "<b>~namespace</b> : タグから名前空間を削除します"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr ""
+msgstr "<b>tag -> new-tag</b> : タグを別のタグへ置き換えます"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
+"<b>tag => new-tag</b> : タグを別のタグへ置き換えます。内部的に"
+"ハッシュテーブルを使用するため高速です。これらのルールは、他のすべてのルール"
+"適用後に <i>一度だけ</i> 実行されます。"
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
+"<b>namespace:* -> new-namespace:*</b> : 名前空間を新しい名前空間へ置き換えま"
+"す"
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
 msgstr ""
+"選択したテーマはアプリケーション全体に適用され、すべてのユーザーに表示されま"
+"す。"
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
-msgstr ""
+msgstr "「theme-color」に対応したブラウザでは、テーマのメインカラーも適用されます。"
 
 msgid "Click on a theme to preview it before saving!"
-msgstr ""
+msgstr "テーマをクリックすると、保存前にプレビューできます！"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr ""
+msgstr "%2 による %1 の編集"
 
 msgid "Editing %1"
-msgstr ""
+msgstr "%1 を編集"
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "現在のファイル名 :"
 
 msgid "ID:"
-msgstr ""
+msgstr "ID :"
 
 msgid "Title:"
-msgstr ""
+msgstr "タイトル :"
 
 msgid "Summary:"
-msgstr ""
+msgstr "概要 :"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "（ハイフン区切り 例 : tag1-tag2）"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "プラグインからタグをインポート :"
 
 msgid "Help"
 msgstr ""
 
 msgid "Go!"
-msgstr ""
+msgstr "実行！"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
-msgstr ""
+msgstr "プラグインを使用すると、アーカイブメタデータの変更が保存されます！"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "メタデータを保存"
 
 msgid "Delete Archive"
 msgstr ""
@@ -624,76 +701,78 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "アーカイブを追加"
 
 msgid "Batch Operations"
-msgstr "バッチ操作"
+msgstr "バッチ処理"
 
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "カテゴリを編集"
 
 msgid "Statistics"
-msgstr ""
+msgstr "統計情報"
 
 msgid "Logs"
-msgstr ""
+msgstr "ログ"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "管理者ログイン"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr ""
+msgstr "タイトル・作者・シリーズ・言語・タグで検索"
 
 msgid "Apply Filter"
-msgstr ""
+msgstr "フィルターを適用"
 
 msgid "Clear Filter"
-msgstr ""
+msgstr "フィルターをクリア"
 
 msgid "Click to show archives from the current search with the specified filter"
-msgstr ""
+msgstr "指定したフィルターで現在の検索結果のアーカイブを表示します"
 
 msgid "Refresh Selection"
-msgstr ""
+msgstr "選択を更新"
 
 msgid "Carousel Options"
-msgstr ""
+msgstr "スライド表示設定"
 
 msgid "No results here."
-msgstr ""
+msgstr "結果はありません。"
 
 msgid "Sort by:"
-msgstr ""
+msgstr "並び替え :"
 
 msgid "Title"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "日付"
 
 msgid "Sort Order"
-msgstr ""
+msgstr "並び順"
 
 msgid "Crop thumbnails"
-msgstr ""
+msgstr "サムネイルをトリミング"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
 msgstr ""
+"有効にすると、A4サイズに収まらないサムネイルは左側のみが表示されるように"
+"トリミングされます。"
 
 msgid "Hide completed"
-msgstr ""
+msgstr "完了済を非表示"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
-msgstr ""
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr "有効にすると、すでに完了したアーカイブは一覧から非表示になります。"
 
 msgid "Go to Page:"
-msgstr ""
+msgstr "ページへ移動 :"
 
 msgid "Columns:"
-msgstr ""
+msgstr "列数 :"
 
 msgid "Switch to Compact Mode"
 msgstr ""
@@ -705,10 +784,10 @@ msgid "Title"
 msgstr ""
 
 msgid "Artist"
-msgstr ""
+msgstr "作者"
 
 msgid "Series"
-msgstr ""
+msgstr "シリーズ"
 
 msgid "Tags"
 msgstr ""
@@ -717,107 +796,129 @@ msgid "Edit this column"
 msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
-msgstr ""
+msgstr "全部は分からないけど、このデータベースは間違いなく壊れてるぞ"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
-msgstr ""
+msgstr "データベースキャッシュが破損しているため、アーカイブ一覧を表示できません。"
 
 msgid "Read"
-msgstr ""
+msgstr "読む"
 
 msgid "Download"
-msgstr ""
+msgstr "ダウンロード"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "メタデータを編集"
 
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "評価を追加"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "カテゴリに追加"
 
 msgid "New Version Release Notes"
-msgstr ""
+msgstr "新バージョンの更新内容"
 
 msgid "You\'re using the default password and that\'s super baka of you"
 msgstr ""
+"デフォルトのパスワードが設定されています。安全のため変更することをおすすめし"
+"ます"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
+"<a href=\"/login\">ログイン</a> してパスワード「kamimamita」でアクセスし、す"
+"ぐに <a href=\"/config\">設定を変更</a> してください。<br/>…あるいは無効にし"
+"てしまうのもありです。<br/>その後に設定オプションもチェックしてみてはいかが"
+"？ "
+
+msgid "Select Archives"
+msgstr "アーカイブを選択"
+
+msgid "Run Batch Operations on selection"
+msgstr "選択したアーカイブに一括操作を実行"
+
+msgid "Clear selection"
+msgstr "選択を解除"
+
+msgid "Select All in Page"
+msgstr "このページをすべて選択"
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "このページを表示するにはログインしてください。"
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "管理者パスワード :"
 
 msgid "Login"
-msgstr ""
+msgstr "ログイン"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "パスワードが正しくありません。"
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr ""
+msgstr "<a href='${url}'>ログイン</a> してブックマーク機能を有効化してください。"
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr ""
+msgstr "アプリケーションログ"
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr ""
+msgstr "デバッグのため LANraragi のログをここから確認できます。"
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
+"デフォルトでは、各ログファイルの最新100行のみを表示し、最新の行が最後に表示さ"
+"れます。"
 
 msgid "General Logs pertain to the main application."
-msgstr ""
+msgstr "一般ログには、メインアプリケーションのログが含まれます。"
 
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr ""
+msgstr "Shinobu ログはバックグラウンドワーカーの処理に関するログです。"
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr ""
+msgstr "プラグインログはメタデータプラグイン専用です。"
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
 msgstr ""
+"Mojolicious ログは、デバッグモードを有効にしないと詳細な情報は表示されません"
+"。"
 
 msgid "Redis logs won't be available from here if you're running from source!"
-msgstr ""
+msgstr "ソースから実行している場合、Redis のログはここでは表示できません！"
 
 msgid "Currently Viewing:"
-msgstr ""
+msgstr "現在表示中 : "
 
 msgid "general"
-msgstr ""
+msgstr "一般"
 
 msgid "Refresh"
-msgstr ""
+msgstr "更新"
 
 msgid "Lines:"
-msgstr ""
+msgstr "行数 : "
 
 msgid "View LANraragi Logs"
-msgstr ""
+msgstr "LANraragi のログを表示"
 
 msgid "View Shinobu Logs"
-msgstr ""
+msgstr "Shinobu のログを表示"
 
 msgid "View Plugin Logs"
-msgstr ""
+msgstr "プラグインのログを表示"
 
 msgid "View Mojolicious Logs"
-msgstr ""
+msgstr "Mojolicious のログを表示"
 
 msgid "View Redis Logs"
-msgstr ""
+msgstr "Redis のログを表示"
 
 msgid "Return to Library"
 msgstr ""
@@ -825,287 +926,290 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "プラグインの設定"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
-msgstr ""
+msgstr "メタデータプラグインのトグルで、自動プラグインの有効/無効を切り替えられます。"
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
-msgstr ""
+msgstr "ここで有効化したプラグインは、新しいアーカイブに自動的に適用されます。"
 
 msgid "If they have configuration variables, you can set them here as well."
-msgstr ""
+msgstr "設定可能な変数がある場合は、ここで設定できます。"
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
-msgstr ""
+msgstr "ここからスクリプトを実行できます。実行前にプラグイン設定が保存されます。"
 
 msgid "Login Plugins"
-msgstr ""
+msgstr "ログインプラグイン"
 
 msgid "Downloaders"
-msgstr ""
+msgstr "ダウンローダー"
 
 msgid "Scripts"
-msgstr ""
+msgstr "スクリプト"
 
 msgid "Metadata Plugins"
-msgstr ""
+msgstr "メタデータプラグイン"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr ""
+msgstr "プラグインによるアーカイブタイトルの置き換えを許可 :"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
+"有効にすると、メタデータプラグインはタグの追加に加えてアーカイブのタイトルも"
+"変更できるようになります。"
 
 msgid "A script is running..."
-msgstr ""
+msgstr "スクリプトを実行中..."
 
 msgid "Save Plugin Configuration"
-msgstr ""
+msgstr "プラグイン設定を保存"
 
 msgid "Upload Plugin"
-msgstr ""
+msgstr "プラグインをアップロード"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
-msgstr ""
+msgstr "このプラグインは、この正規表現に一致するURLで実行されます！"
 
 msgid "This plugin depends on the login plugin"
-msgstr ""
+msgstr "このプラグインはログインプラグインに依存しています"
 
 msgid "Trigger Script"
-msgstr ""
+msgstr "スクリプトを実行"
 
 msgid "Run Automatically"
-msgstr ""
+msgstr "自動的に実行"
 
 msgid "Plugin Settings"
-msgstr ""
+msgstr "プラグイン設定"
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr ""
+msgstr "読み終わりましたか？アーカイブ一覧に戻る"
 
 msgid "View full-size image"
-msgstr ""
+msgstr "フルサイズ画像を表示"
 
 msgid "Switch to another random archive"
-msgstr ""
+msgstr "別のランダムなアーカイブに切り替え"
 
 msgid "Archive Overview"
 msgstr ""
 
 msgid "Admin Options"
-msgstr ""
+msgstr "管理者オプション"
 
 msgid "Set this Page as Thumbnail"
-msgstr ""
+msgstr "このページをサムネイルに設定"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
-msgstr ""
+msgstr "現在のページをこのアーカイブのサムネイルに設定します。"
 
 msgid "Clean Archive Cache"
-msgstr ""
+msgstr "アーカイブキャッシュをクリア"
 
 msgid "Edit Archive Metadata"
-msgstr ""
+msgstr "アーカイブメタデータを編集"
 
 msgid "Delete Archive"
 msgstr "アーカイブの削除"
 
 msgid "Categories"
-msgstr ""
+msgstr "カテゴリ"
 
 msgid "Add to : "
-msgstr ""
+msgstr "追加先 : "
 
 msgid " -- No Category -- "
 msgstr ""
 
 msgid "Add Archive to Category"
-msgstr ""
+msgstr "アーカイブをカテゴリに追加"
 
 msgid "Pages"
-msgstr ""
+msgstr "ページ"
 
 msgid "Working on it..."
-msgstr ""
+msgstr "処理中..."
 
 msgid "You can navigate between pages using:"
-msgstr ""
+msgstr "以下の方法でページ間を移動できます :"
 
 msgid "The arrow icons"
-msgstr ""
+msgstr "矢印アイコン"
 
 msgid "The a/d keys"
-msgstr ""
+msgstr "A/D キー"
 
 msgid "Your keyboard arrows (and the spacebar)"
-msgstr ""
+msgstr "キーボードの矢印キー（およびスペースキー）"
 
 msgid "Touching the left/right side of the image."
-msgstr ""
+msgstr "画像の左側/右側をタップ。"
 
 msgid "Other keyboard shortcuts:"
-msgstr ""
+msgstr "その他のキーボードショートカット :"
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr ""
+msgstr "M : マンガモードに切り替え（右→左読み）"
 
 msgid "O: show advanced reader options."
-msgstr ""
+msgstr "O : リーダーの詳細オプション表示。"
 
 msgid "P: toggle double page mode"
-msgstr ""
+msgstr "P : 見開き表示の切り替え"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr ""
+msgstr "Q : サムネイル一覧とアーカイブオプションを表示。"
 
 msgid "R: open a random archive."
-msgstr ""
+msgstr "R : ランダムなアーカイブを開く。"
 
 msgid "F: toggle fullscreen mode"
-msgstr ""
+msgstr "F : フルスクリーンモードの切り替え"
 
 msgid "B: toggle bookmark"
-msgstr ""
+msgstr "B : ブックマークの切り替え"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr ""
+"アーカイブ一覧に戻るには、下向きの矢印をタップするか Backspace キーを押してく"
+"ださい。"
 
 msgid "Reader Options"
-msgstr ""
+msgstr "リーダー設定"
 
 msgid "Those options save automatically -- Click around and find out!"
-msgstr ""
+msgstr "これらの設定は自動保存されます。自由に操作してみてください！"
 
 msgid "Fit display to"
-msgstr ""
+msgstr "表示サイズの調整"
 
 msgid "Container"
-msgstr ""
+msgstr "表示領域"
 
 msgid "Width"
-msgstr ""
+msgstr "幅"
 
 msgid "Height"
-msgstr ""
+msgstr "高さ"
 
 msgid "Container Width (in pixels or percentage)"
-msgstr ""
+msgstr "表示領域の幅（ピクセルまたはパーセント）"
 
 msgid "The default value is 1200px, or 90% in Double Page Mode."
-msgstr ""
+msgstr "デフォルト値は1200pxです。見開き表示モードでは90%になります。"
 
 msgid "Apply"
-msgstr ""
+msgstr "適用"
 
 msgid "Page Rendering"
-msgstr ""
+msgstr "ページ描画"
 
 msgid "Single"
-msgstr ""
+msgstr "単ページ表示"
 
 msgid "Double"
-msgstr ""
+msgstr "見開き表示"
 
 msgid "Reading Direction"
 msgstr ""
 
 msgid "Left to Right"
-msgstr ""
+msgstr "左から右"
 
 msgid "Right to Left"
-msgstr ""
+msgstr "右から左"
 
 msgid "How many images to preload"
-msgstr ""
+msgstr "事前読み込みする画像数"
 
 msgid "The default is two images."
-msgstr ""
+msgstr "デフォルトは2枚です。"
 
 msgid "Header"
 msgstr ""
 
 msgid "Visible"
-msgstr ""
+msgstr "表示"
 
 msgid "Hidden"
-msgstr ""
+msgstr "非表示"
 
 msgid "Show Archive Overlay by default"
-msgstr ""
+msgstr "アーカイブオーバーレイをデフォルトで表示"
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
-msgstr ""
+msgstr "新しいリーダーページを開くたびに、サムネイル付きオーバーレイが表示されます。"
 
 msgid "Enabled"
-msgstr ""
+msgstr "有効"
 
 msgid "Disabled"
-msgstr ""
+msgstr "無効"
 
 msgid "Progression Tracking"
-msgstr ""
+msgstr "進行状況の記録"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
 msgstr ""
+"トラッキングを無効にすると、リーダーを再度開くたびに最初のページから読み始め"
+"ます。"
 
 msgid "Infinite Scrolling"
-msgstr ""
+msgstr "無限スクロール"
 
 msgid "Display all images in a vertical view in the same page."
-msgstr ""
-
-msgid "Reader Settings"
-msgstr ""
+msgstr "すべての画像を1ページ内で縦表示します。"
 
 msgid "Help"
-msgstr ""
+msgstr "ヘルプ"
 
 msgid "Reading Direction"
-msgstr ""
+msgstr "ページ送り方向"
 
 msgid "Archive Overview"
-msgstr ""
+msgstr "アーカイブ概要"
 
 msgid "FullScreen"
-msgstr ""
+msgstr "全画面表示"
 
 msgid "Toggle Bookmark"
-msgstr ""
+msgstr "ブックマークの切り替え"
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr ""
+msgstr "ライブラリ統計"
 
 msgid "Archives on record"
-msgstr ""
+msgstr "登録済みアーカイブ数"
 
 msgid "Different tags existing"
-msgstr ""
+msgstr "異なるタグ数"
 
 msgid "in content folder"
-msgstr ""
+msgstr "コンテンツフォルダ内"
 
 msgid "pages read"
-msgstr ""
+msgstr "読了ページ数"
 
 msgid "Tag Cloud"
-msgstr ""
+msgstr "タグクラウド"
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr ""
+msgstr "タグ統計情報を取得しています…"
 
 msgid "Detailed Stats"
-msgstr ""
+msgstr "詳細統計"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
-msgstr ""
+msgstr "（これらの統計には、データベース内で2回以上出現するタグのみが表示されます。）"
 
 msgid "Return to Library"
 msgstr ""
@@ -1113,557 +1217,915 @@ msgstr ""
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr ""
+msgstr "アップロードセンター"
 
 msgid "Adding Archives to the Library"
-msgstr ""
+msgstr "アーカイブをライブラリに追加しています"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
-msgstr ""
+msgstr "PCやインターネットから、LANraragi にファイルを追加できます。"
 
 msgid "Add uploaded files to category:"
-msgstr ""
+msgstr "アップロードファイルの追加先カテゴリ :"
 
 msgid " -- No Category -- "
-msgstr ""
+msgstr " -- なし -- "
 
 msgid "From your computer"
-msgstr ""
+msgstr "お使いのコンピューターから"
 
 msgid "You can drag and drop files into this window, or click the upload button."
 msgstr ""
+"このウィンドウにファイルをドラッグ＆ドロップするか、アップロードボタンを"
+"クリックしてください。"
 
 msgid "Add from your computer"
-msgstr ""
+msgstr "コンピューターから追加"
 
 msgid "From the Internet"
-msgstr ""
+msgstr "インターネットから"
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
-msgstr ""
+msgstr "ここからURLを指定して、ファイルを直接 LANraragi にダウンロードできます。"
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr ""
+msgstr "このウィンドウを閉じても、ダウンロード処理は継続されます！"
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
-msgstr ""
+msgstr "URLを改行で区切って入力し、ダウンロードボタンをクリックしてください。"
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
 msgstr ""
+"URLに対応する<a href=\"[% c.url_for(\"/config/plugins\") %]\">"
+"ダウンローダープラグイン</a>があれば、自動的に使用されます。"
 
 msgid "URL(s) to download:"
-msgstr ""
+msgstr "ダウンロードするURL :"
 
 msgid "Add from URL(s)"
-msgstr ""
+msgstr "URLから追加"
 
 msgid "Return to Library"
-msgstr "ライブラリーに戻る"
+msgstr "ライブラリに戻る"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr ""
+msgstr "アーカイブディレクトリを再スキャン"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"ファイルや、総ページ数などのデータが欠落している場合は、このボタンをクリック"
+"してアーカイブディレクトリの再スキャンを実行してください。<br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
-msgstr ""
+msgstr "バックアップを復元しました！"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
+"バックアップの復元中にエラーが発生しました。<br/> サーバーログを確認し、JSON "
+"の形式が正しいことを確認してください。"
+
+msgid "Backup generation in progress..."
+msgstr "バックアップを作成しています..."
+
+msgid "Uploading backup file..."
+msgstr "バックアップファイルをアップロードしています..."
+
+msgid "Backup complete! Download will start automatically."
+msgstr "バックアップが完了しました！ ダウンロードを自動的に開始します。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr ""
+msgstr "アーカイブ一覧を完全に読み込めませんでした！ ページを再読み込みしてください。"
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr ""
+msgstr "タグ統計を読み込めませんでした！ ページを再読み込みしてください。"
 
 msgid "Error getting untagged archives!"
-msgstr ""
+msgstr "未タグのアーカイブ取得中にエラーが発生しました！"
 
 msgid "Are you sure you want to delete this archive?"
-msgstr ""
+msgstr "このアーカイブを削除してもよろしいですか？"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr ""
+msgstr "選択したアーカイブを削除してもよろしいですか？"
 
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "この操作は取り消せません！"
 
 msgid "This action (truly) cannot be undone!"
-msgstr ""
+msgstr "この操作は絶対に取り消せません！"
 
 msgid "Yes, delete it!"
-msgstr ""
+msgstr "はい、削除します！"
 
 msgid "No, keep it!"
-msgstr ""
+msgstr "いいえ、そのまま残します！"
 
 msgid "Error while deleting cache! Check application logs."
 msgstr ""
+"キャッシュの削除中にエラーが発生しました！アプリケーションログを確認してくだ"
+"さい。"
 
 msgid "Error while processing request"
-msgstr ""
+msgstr "リクエストの処理中にエラーが発生しました"
 
 msgid "Error checking Minion job status"
-msgstr ""
+msgstr "Minion ジョブの状態確認中にエラーが発生しました"
 
 msgid "Saved!"
-msgstr ""
+msgstr "保存しました！"
 
 msgid "Error saving data"
-msgstr ""
+msgstr "データの保存中にエラーが発生しました"
 
 msgid "Started Batch Operation..."
-msgstr ""
+msgstr "一括処理を開始しました..."
 
 msgid "Batch Operation complete!"
-msgstr ""
+msgstr "一括処理が完了しました！"
 
 msgid "An error occured during batch tagging!"
-msgstr ""
+msgstr "一括タグ付け中にエラーが発生しました！"
 
 msgid "Please check application logs."
-msgstr ""
+msgstr "アプリケーションログを確認してください。"
 
 msgid "Error! Terminating session."
-msgstr ""
+msgstr "エラーが発生しました！ セッションを終了します。"
 
 msgid "Sleeping for \${x} seconds."
-msgstr ""
+msgstr "${x} 秒待機します。"
 
 msgid "Error while processing ID \${id} (\${msg})"
-msgstr ""
+msgstr "ID ${id} の処理中にエラーが発生しました (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr ""
+msgstr "ID ${id} を \"${plug}\" で処理しました（追加タグ : ${tags}）"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr ""
+msgstr "ID ${id} を削除しました（ファイル名 : ${filename}）"
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr ""
+msgstr "ID ${id} のタグを置き換えました（新しいタグ : ${tags}）"
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr ""
+msgstr "ID ${id} をカテゴリ ${category} に追加しました！(${msg})"
 
 msgid "Cleared new flag for ID \${id}!"
-msgstr ""
+msgstr "ID ${id} の新着フラグを解除しました！"
 
 msgid "Unknown operation \${oper} (\${msg})"
-msgstr ""
+msgstr "不明な操作です ${oper} (${msg})"
 
 msgid "Changed title to: \${title}"
-msgstr ""
+msgstr "タイトルを変更しました : ${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
-msgstr ""
+msgstr "削除されたアーカイブを反映するため、5 秒後にページを再読み込みします..."
 
 msgid "Cancelling Batch Operation..."
-msgstr ""
+msgstr "一括処理をキャンセルしています..."
 
 msgid "Enter a name for the new category"
-msgstr ""
+msgstr "新しいカテゴリ名を入力してください"
 
 msgid "My Category"
-msgstr ""
+msgstr "マイカテゴリ"
 
 msgid "Please enter a category name."
-msgstr ""
+msgstr "カテゴリ名を入力してください。"
 
 msgid "No category"
-msgstr ""
+msgstr "カテゴリなし"
 
 msgid "Error getting categories from server"
-msgstr ""
+msgstr "サーバーからカテゴリを取得中にエラーが発生しました"
 
 msgid "Error modifying category"
-msgstr ""
+msgstr "カテゴリの変更中にエラーが発生しました"
 
 msgid "The category will be deleted permanently."
-msgstr ""
+msgstr "このカテゴリは完全に削除されます。"
 
 msgid "Category deleted!"
-msgstr ""
+msgstr "カテゴリを削除しました！"
 
 msgid "Error deleting category"
-msgstr ""
+msgstr "カテゴリの削除中にエラーが発生しました"
 
 msgid "Writing a Predicate"
-msgstr ""
+msgstr "条件式の作成"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
+"条件式は、アーカイブ一覧の検索と同じ構文を使用します。詳細については、 <a "
+"href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">"
+"ドキュメント</a> を参照してください。"
 
 msgid "Background Worker restarted!"
-msgstr ""
+msgstr "バックグラウンドワーカーを再起動しました！"
 
 msgid "Error restarting Worker:"
-msgstr ""
+msgstr "ワーカーの再起動中にエラーが発生しました :"
 
 msgid "Content folder rescan started!"
-msgstr ""
+msgstr "コンテンツフォルダの再スキャンを開始しました！"
 
 msgid "Error starting content folder rescan:"
-msgstr ""
+msgstr "コンテンツフォルダの再スキャン開始中にエラーが発生しました :"
 
 msgid "Error while querying Shinobu status:"
-msgstr ""
+msgstr "Shinobu の状態確認中にエラーが発生しました :"
 
 msgid "About Plugins"
-msgstr ""
+msgstr "プラグインについて"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
+"プラグインを使用すると、このアーカイブのメタデータを自動取得できます。 <br/> "
+"ドロップダウンからプラグインを選択し、「実行！」を押してください <br/> "
+"プラグインによっては、任意の引数を指定できる場合があります。その場合は、引数"
+"入力用のテキストボックスが表示されます。"
 
 msgid "Metadata saved!"
-msgstr ""
+msgstr "メタデータを保存しました！"
 
 msgid "Error saving archive metadata"
-msgstr ""
+msgstr "アーカイブのメタデータ保存中にエラーが発生しました"
 
 msgid "Error while fetching tags"
-msgstr ""
+msgstr "タグ取得中にエラーが発生しました"
 
 msgid "Archive title changed to"
-msgstr ""
+msgstr "アーカイブタイトルを変更しました"
 
 msgid "Archive summary updated!"
-msgstr ""
+msgstr "アーカイブ概要を更新しました！"
 
 msgid "Added the following tags"
-msgstr ""
+msgstr "以下のタグを追加しました"
 
 msgid "No new tags added!"
-msgstr ""
+msgstr "新しいタグは追加されませんでした！"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr ""
+msgstr "_TOTAL_ 件中 _START_ ～ _END_ 件を表示しています。"
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
+"表示できるアーカイブがありません！<a href=\"${url}\")>アップロード</a>してみ"
+"ますか？"
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr ""
+msgstr "LANraragi ${version} へようこそ！"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
 msgstr ""
+"アーカイブに対して高度な操作を行いたい場合は、名前を右クリックしてください。"
+"快適な読書を！"
 
 msgid "Error getting basic server info."
-msgstr ""
+msgstr "サーバー基本情報の取得中にエラーが発生しました。"
 
 msgid "You're running in Debug Mode!"
-msgstr ""
+msgstr "デバッグモードで動作しています！"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
-msgstr ""
+msgstr "サーバーの詳細統計情報は<a href=\"${url}\")>こちら</a>で確認できます。"
 
 msgid "Enter a tag namespace for this column"
-msgstr ""
+msgstr "この列のタグ名前空間を入力してください"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr ""
+msgstr "コロンを含まない完全な名前空間（例 : \"artist\"）を入力してください。"
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
-msgstr ""
+msgstr "同じ名前空間のタグが複数ある場合、列には最後のタグのみ表示されます。"
 
 msgid "Tag namespace"
-msgstr ""
+msgstr "タグ名前空間"
 
 msgid "Please enter a tag namespace."
-msgstr ""
+msgstr "タグ名前空間を入力してください。"
 
 msgid "Randomly Picked"
-msgstr ""
+msgstr "ランダム選択"
 
 msgid "New Archives"
-msgstr ""
+msgstr "新着アーカイブ"
 
 msgid "Untagged Archives"
-msgstr ""
+msgstr "未タグのアーカイブ"
 
 msgid "On Deck"
-msgstr ""
+msgstr "続きから"
 
 msgid "Error getting carousel data!"
-msgstr ""
+msgstr "表示データの取得中にエラーが発生しました！"
 
 msgid "Edit this column"
-msgstr ""
+msgstr "この列を編集"
 
 msgid "Title"
-msgstr ""
+msgstr "タイトル"
 
 msgid "Tags"
-msgstr ""
+msgstr "タグ"
 
 msgid "Header"
-msgstr ""
+msgstr "ヘッダー"
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr ""
+msgstr "新しいバージョンの LANraragi (${version}) が利用可能です！"
 
 msgid "Click here to check it out."
-msgstr ""
+msgstr "こちらをクリックして確認してください。"
 
 msgid "Error getting changelog for new version"
-msgstr ""
+msgstr "新バージョンの更新履歴取得中にエラーが発生しました"
 
 msgid "Couldn't load data for \${id}!"
-msgstr ""
+msgstr "${id} のデータを読み込めませんでした！"
 
 msgid "Github API rate limit exceeded."
-msgstr ""
+msgstr "GitHub API のレート制限を超過しました。"
 
 msgid "Github API returned status: \${status}"
-msgstr ""
+msgstr "GitHub API がステータス : ${status} を返しました"
 
 msgid "This archive isn't in any category."
-msgstr ""
+msgstr "このアーカイブはどのカテゴリにも属していません。"
 
 msgid "No Categories yet..."
-msgstr ""
+msgstr "カテゴリはまだありません..."
 
 msgid "Remove rating"
-msgstr ""
+msgstr "評価を削除"
 
 msgid "Click here to display new archives only."
-msgstr ""
+msgstr "こちらをクリックすると、新着アーカイブのみ表示します。"
 
 msgid "Click here to display untagged archives only."
-msgstr ""
+msgstr "こちらをクリックすると、未タグのアーカイブのみ表示します。"
 
 msgid "Click here to display archives in this category only."
-msgstr ""
+msgstr "こちらをクリックすると、このカテゴリのアーカイブのみ表示します。"
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr ""
+msgstr "読書進捗をサーバーに保存しました！"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
 msgstr ""
+"ローカルに読書進捗データが残っているようです -- サーバーへ移行していますので"
+"、しばらくお待ちください。"
 
 msgid "Error while migrating local progression to server"
-msgstr ""
+msgstr "ローカルの読書進捗をサーバーへ移行中にエラーが発生しました"
 
 msgid "Reading Progression has been fully migrated"
-msgstr ""
+msgstr "読書進捗の移行が完了しました"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
-msgstr ""
+msgstr "移行後の進捗を反映するには、リーダーでアーカイブを再度開いてください。"
 
 msgid "Plugin uploaded successfully!"
-msgstr ""
+msgstr "プラグインをアップロードしました！"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr ""
+msgstr "プラグイン ${name} を追加しました。ページを再読み込みすると表示されます。"
 
 msgid "Error uploading plugin"
-msgstr ""
+msgstr "プラグインのアップロード中にエラーが発生しました"
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr ""
+msgstr "ページ ${page} をサムネイルに設定しました！"
 
 msgid "Error updating thumbnail"
-msgstr ""
+msgstr "サムネイル更新中にエラーが発生しました"
 
 msgid "Error clearing new flag"
-msgstr ""
+msgstr "新着フラグの解除中にエラーが発生しました"
 
 msgid "Error getting the archive's imagelist."
-msgstr ""
+msgstr "アーカイブの画像一覧取得中にエラーが発生しました。"
 
 msgid "This archive seems to be in RAR format!"
-msgstr ""
+msgstr "このアーカイブは RAR 形式のようです！"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
 msgstr ""
+"RAR アーカイブは、作成方法によっては LANraragi で正常に動作しない場合がありま"
+"す。閲覧中にエラーが発生する場合は、ZIP 形式への変換を検討してください。"
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr ""
+msgstr "LANraragi の EPUB サポートは限定的です"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
+"EPUB 書籍は Web リーダーでは画像のみ表示され、順序が正しくならない場合があり"
+"ます。テキスト表示を利用したい場合は、LANraragi と <a href='https://"
+"sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-"
+"readers'>OPDS リーダーを併用することを検討してください。</a>"
 
 msgid "Navigation Help"
-msgstr ""
+msgstr "操作方法"
 
 msgid "Error updating reading progression"
-msgstr ""
+msgstr "読書進捗の更新中にエラーが発生しました"
 
 msgid "Page \${page}"
-msgstr ""
+msgstr "ページ ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
 msgstr ""
+"ページサムネイル生成処理が正常に完了しませんでした。アーカイブが破損している"
+"可能性があります。"
 
 msgid "A script is already running."
-msgstr ""
+msgstr "スクリプトは既に実行中です。"
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr ""
+msgstr "新しいスクリプトを開始する前に、現在の処理が完了するまでお待ちください。"
 
 msgid "An error occured while running the script"
-msgstr ""
+msgstr "スクリプトの実行中にエラーが発生しました"
 
 msgid "Script result"
-msgstr ""
+msgstr "スクリプト結果"
 
 msgid "Script failed with error: \${error}"
-msgstr ""
+msgstr "スクリプトがエラーで失敗しました : ${error}"
 
 msgid "Temporary folder cleaned!"
-msgstr ""
+msgstr "一時フォルダをクリーンアップしました！"
 
 msgid "Error cleaning temporary folder"
-msgstr ""
+msgstr "一時フォルダのクリーンアップ中にエラーが発生しました"
 
 msgid "Threw away the cache!"
-msgstr ""
+msgstr "キャッシュを破棄しました！"
 
 msgid "Error clearing the cache"
-msgstr ""
+msgstr "キャッシュの削除中にエラーが発生しました"
 
 msgid "Threw away the search cache!"
-msgstr ""
+msgstr "検索キャッシュを破棄しました！"
 
 msgid "All archives are no longer new!"
-msgstr ""
+msgstr "すべてのアーカイブの新着フラグを解除しました！"
 
 msgid "Error during cleanup procedure"
-msgstr ""
+msgstr "クリーンアップ処理中にエラーが発生しました"
 
 msgid "Are you sure you want to wipe the database?"
-msgstr ""
+msgstr "データベースを初期化してもよろしいですか？"
 
 msgid "Sayonara! Redirecting you..."
-msgstr ""
+msgstr "さようなら！リダイレクトします..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
-msgstr ""
+msgstr "データベースをクリーンアップし、 ${entries} 件のエントリを削除しました。"
 
 msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
 msgstr ""
+"${entries} 件の他のエントリがデータベースからリンク解除され、次回の"
+"クリーンアップで削除されます！"
 
 msgid "Do a backup now if some files disappeared from your archive index."
 msgstr ""
+"アーカイブインデックスからファイルが消えている場合は、今すぐバックアップを作"
+"成してください。"
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
 msgstr ""
+"サムネイル再生成ジョブをキューに追加しました！進捗は更新を待つか、Minion "
+"コンソールで確認してください。"
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
-msgstr ""
+msgstr "すべてのサムネイルが生成されました！エラーがある場合は以下に表示されます。"
 
 msgid "Added \${id} to category \${cat}!"
-msgstr ""
+msgstr "${id} をカテゴリ ${cat} に追加しました！"
 
 msgid "Removed \${id} from category \${cat}!"
-msgstr ""
+msgstr "${id} をカテゴリ ${cat} から削除しました！"
 
 msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
 msgstr ""
+"アーカイブファイルを削除できませんでした。<br/>（すでに削除されている可能性が"
+"あります）"
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
 msgstr ""
+"アーカイブのメタデータは正常に削除されました。<br> アーカイブ一覧に戻る前に、"
+"ファイルを手動で削除してください。"
 
 msgid "Archive successfully deleted. Redirecting you..."
-msgstr ""
+msgstr "アーカイブを削除しました。リダイレクトします..."
 
 msgid "Error while deleting archive"
-msgstr ""
+msgstr "アーカイブの削除中にエラーが発生しました"
 
 msgid "Processing your upload... (Job #\${jobid})"
-msgstr ""
+msgstr "アップロードを処理しています...（ジョブ : #${jobid}）"
 
 msgid "Downloading file... (Job #\${jobid})"
-msgstr ""
+msgstr "ファイルをダウンロードしています...（ジョブ : #${jobid}）"
 
 msgid "Processing"
-msgstr ""
+msgstr "処理中"
 
 msgid "Completed"
-msgstr ""
+msgstr "完了"
 
 msgid "Failed"
-msgstr ""
+msgstr "失敗"
 
 msgid "Total"
-msgstr ""
+msgstr "合計"
 
 msgid "Click here to edit metadata."
-msgstr ""
+msgstr "こちらをクリックしてメタデータを編集してください。"
 
 msgid "Error while processing file."
-msgstr ""
+msgstr "ファイルの処理中にエラーが発生しました。"
 
 msgid "Error while downloading file."
-msgstr ""
+msgstr "ファイルのダウンロード中にエラーが発生しました。"
 
 msgid "Error sending job to Minion"
-msgstr ""
+msgstr "Minion へのジョブ送信中にエラーが発生しました"
 
 # ------End of i18n.html.tt2------
 # ------Start of Duplicates.html.tt2------
 msgid "Duplicate Detection"
-msgstr ""
+msgstr "重複検出"
 
 msgid "This page allows you to search for potential duplicates in your library."
-msgstr ""
+msgstr "このページでは、ライブラリ内の重複候補を検索できます。"
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
 msgstr ""
+"「検索開始」をクリックすると、ライブラリ全体の重複をスキャンする"
+"バックグラウンドジョブが開始されます。"
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
-msgstr ""
+msgstr "その後、削除するアーカイブを選択し、一括で削除できます。"
 
 msgid "Found %1 duplicate group(s)."
-msgstr ""
+msgstr "%1 件の重複グループが見つかりました。"
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
 msgstr ""
+"下のルールのドロップダウンを使用して、削除対象のアーカイブを事前に選択できま"
+"す。"
 
 msgid "For every duplicate group..."
-msgstr ""
+msgstr "各重複グループについて…"
 
 msgid "Keep all files"
-msgstr ""
+msgstr "すべてのファイルを保持する"
 
 msgid "Keep the file with the most tags"
-msgstr ""
+msgstr "最もタグが多いファイルを保持する"
 
 msgid "Keep the file with the most pages"
-msgstr ""
+msgstr "ページ数が最も多いファイルを保持する"
 
 msgid "Keep the largest file"
-msgstr ""
+msgstr "最もサイズの大きいファイルを保持する"
 
 msgid "Keep the youngest file"
-msgstr ""
+msgstr "最新のファイルを保持する"
 
 msgid "Keep the oldest file"
-msgstr ""
+msgstr "最も古いファイルを保持する"
 
 msgid "Start searching for duplicates"
-msgstr ""
+msgstr "重複の検索を開始する"
 
 msgid "Search for duplicates again"
-msgstr ""
+msgstr "重複を再検索する"
 
 msgid "Delete all selected items"
-msgstr ""
+msgstr "選択したすべての項目を削除する"
 
 msgid "Filename"
-msgstr ""
+msgstr "ファイル名"
 
 msgid "Filesize"
-msgstr ""
+msgstr "ファイルサイズ"
 
 msgid "Action"
-msgstr ""
+msgstr "操作"
 
 msgid "Searching for duplicates..."
-msgstr ""
+msgstr "重複を検索中..."
 
 # ------End of Duplicates.html.tt2------
+msgid "The maximum value allowed is 4GB."
+msgstr "設定可能な最大値は 4GB です。"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Automatic (browser default)"
+msgstr "自動（ブラウザのデフォルト）"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"ユーザーインターフェースの言語を選択します。自動に設定すると、ブラウザの言語"
+"設定を使用します。"
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr "タグのないアーカイブと前回選択したアーカイブは事前にチェックされています。"
+
+msgid "Discard Selection"
+msgstr "選択を解除"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "前回選択した ${n} 件のアーカイブを表示しています。"
+
+msgid "Tankoubons"
+msgstr "単行本"
+
+msgid "No Tankoubons in your library yet."
+msgstr "ライブラリーにはまだ単行本がありません。"
+
+msgid "Archives"
+msgstr "アーカイブ"
+
+msgid "No Archives in your library yet."
+msgstr "ライブラリにはまだアーカイブがありません。"
+
+msgid "No duplicates found!"
+msgstr "重複は見つかりませんでした！"
+
+msgid "Authenticated Progress Tracking"
+msgstr "ログインユーザーごとの進行状況管理"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"有効にすると、サーバー側の閲覧状況はログイン中のみ保存され、クライアント側の"
+"閲覧状況より優先されます。ゲストが閲覧しても、メインユーザーの閲覧状況には影"
+"響しません。"
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"クライアント側の閲覧状況管理と組み合わせることで、未ログインユーザーも"
+"ローカルで閲覧状況を保存できます。"
+
+msgid "Disable OpenAPI Validation"
+msgstr "OpenAPI 検証を無効化"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"OpenAPI の API スキーマ検証を無効化します。古い API クライアントで問題が発生"
+"する場合に有効にしてください。"
+
+msgid "Excluded Namespaces"
+msgstr "除外する名前空間"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "検索候補およびタグ統計から除外するタグ名前空間を、カンマ区切りで指定します。"
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr ""
+"クライアントはこのリストを使用して、オートコンプリートやタグクラウドから不要"
+"なタグを除外します。"
+
+msgid "Group Tankoubons"
+msgstr "単行本をグループ化"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr ""
+"有効にすると、単行本に属するアーカイブはまとめて1つのアイテムとして表示されま"
+"す。"
+
+msgid "Index Settings"
+msgstr "インデックス設定"
+
+msgid "Display Mode"
+msgstr "表示モード"
+
+msgid "Compact"
+msgstr "コンパクト"
+
+msgid "Thumbnail"
+msgstr "サムネイル"
+
+msgid "Copy link"
+msgstr "リンクをコピー"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "アーカイブを単行本にまとめる"
+
+msgid "Rating"
+msgstr "評価"
+
+msgid "Set Rating"
+msgstr "評価を設定"
+
+msgid "Clear Rating"
+msgstr "評価をクリア"
+
+msgid " -- Select Rating -- "
+msgstr " -- 評価を選択 -- "
+
+msgid "N: toggle auto next page"
+msgstr "N : 自動ページ送りの切り替え"
+
+msgid "G: go to page number"
+msgstr "G : 指定ページへ移動"
+
+msgid "S: set a Stamp"
+msgstr "S : スタンプを設定"
+
+msgid "Auto next page interval in seconds"
+msgstr "自動ページ送り間隔（秒）"
+
+msgid "The default is 10 seconds."
+msgstr "デフォルトは10秒です。"
+
+msgid "Auto Next Page"
+msgstr "自動ページ送り"
+
+msgid "Toggle Stamps"
+msgstr "スタンプの切り替え"
+
+msgid "Set Stamp"
+msgstr "スタンプを設定"
+
+msgid "Filter stamped pages"
+msgstr "スタンプ済みページをフィルタ"
+
+msgid "New archive"
+msgstr "新着アーカイブ"
+
+msgid "Archive read"
+msgstr "既読アーカイブ"
+
+msgid "Tankoubon (collection)"
+msgstr "単行本（シリーズ）"
+
+msgid "Pages read / Total pages"
+msgstr "読了ページ数 / 総ページ数"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "読了ページ数 / 総ページ数 / 単行本内のアーカイブ数"
+
+msgid "Link copied successfully."
+msgstr "リンクをコピーしました。"
+
+msgid "Copy failed."
+msgstr "コピーに失敗しました。"
+
+msgid "Starting auto next page failed!"
+msgstr "自動ページめくりの開始に失敗しました！"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "自動ページめくりの間隔には、0 より大きい数値を設定してください。"
+
+msgid "Chapters"
+msgstr "区切り"
+
+msgid "Add Chapter at this Page"
+msgstr "このページに区切りを追加"
+
+msgid "Edit Chapter name"
+msgstr "区切り名を編集"
+
+msgid "Delete Chapter"
+msgstr "区切りを削除"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "この区切りを削除してもよろしいですか？"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "この区切りのタイトルを入力してください :"
+
+msgid "Chapter added!"
+msgstr "区切りを追加しました！"
+
+msgid "Error adding/removing chapter:"
+msgstr "区切りの追加または削除中にエラーが発生しました :"
+
+msgid "Untitled Chapter"
+msgstr "無題の区切り"
+
+msgid "Go to page:"
+msgstr "ページへ移動 :"
+
+msgid "Selection"
+msgstr "選択項目"
+
+msgid "\${n} selected"
+msgstr "${n} 件選択中"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr ""
+"アーカイブをクリックして選択に追加できます。検索を変えても選択は保持されます"
+"。"
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "選択モードを終了しますか？現在の選択は失われます。 "
+
+msgid "Add to selection"
+msgstr "選択に追加する"
+
+msgid "Remove from selection"
+msgstr "選択から削除する"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "新しい単行本の名前を入力してください。"
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr ""
+"これは、選択したすべてのアーカイブをライブラリ内の1つのアイテムとしてまとめる"
+"ものです。"
+
+msgid "Please enter a name."
+msgstr "名前を入力してください。"
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "${n} 件のアーカイブを ${tank} に追加しました！"
+
+msgid "Error creating Tankoubon"
+msgstr "単行本の作成中にエラーが発生しました"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "単行本へのアーカイブ追加中にエラーが発生しました"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "選択した項目を単行本にまとめる"
+
+msgid "Hide completed Archives"
+msgstr "完了済みのアーカイブを非表示にする"
+
+msgid "Enter Stamp name:"
+msgstr "スタンプ名を入力してください :"
+
+msgid "Stamp name"
+msgstr "スタンプ名"
+
+msgid "Error setting up the Stamp"
+msgstr "スタンプの設定中にエラーが発生しました"
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "%1（単行本）を編集中"
+
+msgid "Delete Tankoubon"
+msgstr "単行本を削除する"
+
+msgid "Read Tankoubon"
+msgstr "単行本を読む"
+
+msgid "Archives:"
+msgstr "アーカイブ :"
+
+msgid "Add Archive to Tankoubon:"
+msgstr "単行本にアーカイブを追加 :"
+
+msgid "Archive ID (40-character long)"
+msgstr "アーカイブID（40文字）"
+
+msgid "Add"
+msgstr "追加する"
+
+msgid "Edit Tankoubon"
+msgstr "単行本を編集する"
+
+msgid "Error saving tankoubon metadata"
+msgstr "単行本のメタデータ保存中にエラーが発生しました"
+
+msgid "Remove from Tankoubon"
+msgstr "単行本から削除する"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"この単行本を削除してもよろしいですか？アーカイブはライブラリ内に残りますが、"
+"単行本としてのグループ化は解除されます。"
+
+msgid "Tankoubon deleted"
+msgstr "単行本を削除しました"
+
+msgid "Error deleting tankoubon"
+msgstr "単行本の削除中にエラーが発生しました"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "単行本へのアーカイブ追加中にエラーが発生しました"
+
+msgid "About Tankoubons"
+msgstr "単行本について"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"単行本は、複数のアーカイブを1つにまとめたコレクションです。 <br/>左側の"
+"ハンドルをドラッグして収録アーカイブの順番を変更したり、単行本からアーカイブ"
+"を削除したりできます。 <br/> 変更が完了したら、［保存］をクリックしてください"
+"。"
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "${n} 件のアーカイブを単行本「${name}」に追加します。続行しますか？"

@@ -1,7 +1,10 @@
 /**
  * Duplicate Operations
- * @global
  */
+import * as LRR from "./mod/common.js";
+import * as Server from "./mod/server.js";
+import I18N from "i18n";
+
 const Duplicates = {};
 
 Duplicates.dt = {};
@@ -14,7 +17,7 @@ Duplicates.initializeAll = function () {
     $(document).on("mouseleave.thumbnail-wrapper", ".thumbnail-wrapper", (e) => $(e.currentTarget).find(".thumbnail-popover").hide());
 
     $(document).on("click.find-duplicates", ".find-duplicates", Duplicates.findDuplicates);
-    $(document).on("click.clear-duplicates", ".clear-duplicates", () => { window.location.href = new LRR.apiURL("/duplicates?delete=1"); });
+    $(document).on("click.clear-duplicates", ".clear-duplicates", () => { window.location.href = new LRR.ApiURL("/duplicates?delete=1"); });
     $(document).on("click.delete-archive", ".delete-archive", Duplicates.deleteArchive);
     $(document).on("click.delete-selected", ".delete-selected", Duplicates.deleteArchives);
 
@@ -69,7 +72,7 @@ Duplicates.pollMinionJob = function (job) {
     Server.checkJobStatus(
         job,
         true,
-        (d) => {
+        () => {
             // Refresh the window so that the newly found duplicates are shown.
             // Make sure the URL doesn't contain delete=1 so we don't instantly delete them.
             if (window.location.href.includes("delete=1")) {

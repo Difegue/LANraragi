@@ -275,6 +275,11 @@ tr.gtr1 {
   background-color: #43464E;
 }
 
+#search-input {
+  height: 26px;
+  width: 50vw;
+}
+
 .stdinput {
   background: none repeat scroll 0 0 #ECF0F1;
   font-family: "Geist", arial, sans-serif;
@@ -451,9 +456,8 @@ div.idi {
   border-collapse: collapse;
   border-radius: 9px;
   margin: 0 auto 25px;
-  padding: 15px;
+  padding: 8px;
   text-align: center;
-  /*width: 598px;*/
 }
 
 div#toppane {
@@ -622,4 +626,14 @@ div.id4 {
 .swal2-popup {
   background: #43464e;
   color: #dddddd;
+}
+
+/** Archive selection highlight **/
+#thumbs_container .id1.msm-selected {
+  outline: 3px solid #3b97ea;
+  outline-offset: -3px;
+}
+
+.datatables tbody tr.msm-selected td {
+  background-color: rgba(59, 151, 234, 0.2) !important;
 }

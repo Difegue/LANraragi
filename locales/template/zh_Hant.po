@@ -686,7 +686,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr ""
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
 
 msgid "Go to Page:"
@@ -751,6 +751,18 @@ msgstr ""
 "請使用預設密碼 \"kamimamita\" <a href=\"/login\">登入</a>然後立刻把這密碼<a "
 "href=\"/config\">改掉</a>。<br/"
 ">...或者乾脆關掉密碼功能！順便去查看其他設定選項也不錯？。 "
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1057,9 +1069,6 @@ msgstr "無限滾動"
 msgid "Display all images in a vertical view in the same page."
 msgstr "在同一頁面中以垂直方式顯示所有圖片。"
 
-msgid "Reader Settings"
-msgstr "閱讀器設定"
-
 msgid "Help"
 msgstr "幫助"
 
@@ -1173,6 +1182,15 @@ msgstr "備份還原成功！"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "還原備份時發生錯誤。<br/>請檢查伺服器日誌，並確認 JSON 格式正確。"
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "無法載入完整的檔案清單！請重新整理頁面。"

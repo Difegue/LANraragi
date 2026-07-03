@@ -19,20 +19,18 @@
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
     [% csshead %]
 
+    [% INCLUDE common/importmap %]
+
     <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-    <script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/category.js?$version") %]" type="text/JAVASCRIPT"></script>
+    <script type="module">
+        import * as Category from "[% c.url_for("/js/category.js?$version") %]";
+        window.Category = Category;
 
+        jQuery(() => {
+            Category.initializeAll();
+        });
+    </script>
 </head>
 
 <body>
@@ -128,9 +126,29 @@
                     <h2>[% c.lh("If you select a Static Category, your archives will appear here so you can add/remove them from the category.") %]</h2>
                 </div>
 
-                <ul id="archivelist" class='checklist' style="display:none">
-                    [% arclist %]
-                </ul>
+                <div id="staticcontent" class="checklist" style="display:none;">
+                    <div id="tankoubonsection" style="margin-bottom: 10px;">
+                        <h3 style="margin-top: 0;">[% c.lh("Tankoubons") %]</h3>
+                        <ul id="tankoubonlist" style="list-style: none; padding-left: 0; margin: 0;">
+                            [% IF tanklist %]
+                                [% tanklist %]
+                            [% ELSE %]
+                                <li style="font-style: italic;">[% c.lh("No Tankoubons in your library yet.") %]</li>
+                            [% END %]
+                        </ul>
+                    </div>
+
+                    <div id="archivesection">
+                        <h3>[% c.lh("Archives") %]</h3>
+                        <ul id="archivelist" style="list-style: none; padding-left: 0; margin: 0;">
+                            [% IF arclist %]
+                                [% arclist %]
+                            [% ELSE %]
+                                <li style="font-style: italic;">[% c.lh("No Archives in your library yet.") %]</li>
+                            [% END %]
+                        </ul>
+                    </div>
+                </div>
             </div>
             <br><br>
         </div>

@@ -680,7 +680,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr ""
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
 
 msgid "Go to Page:"
@@ -741,6 +741,18 @@ msgid "You\'re using the default password and that\'s super baka of you"
 msgstr ""
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
+msgstr ""
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
 msgstr ""
 
 # ------End of Index.html.tt2------
@@ -1054,9 +1066,6 @@ msgstr ""
 msgid "Display all images in a vertical view in the same page."
 msgstr ""
 
-msgid "Reader Settings"
-msgstr ""
-
 msgid "Help"
 msgstr ""
 
@@ -1166,6 +1175,15 @@ msgid "Backup restored!"
 msgstr ""
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+msgstr ""
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
 msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."

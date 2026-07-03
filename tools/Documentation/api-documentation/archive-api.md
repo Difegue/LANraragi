@@ -79,3 +79,15 @@ description: Everything dealing with Archives.
 {% openapi-operation spec="lanraragi-api" path="/archives/{id}/isnew" method="delete" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
+
+{% openapi-operation spec="lanraragi-api" path="/archives/{id}/stamps" method="get" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}
+
+{% openapi-operation spec="lanraragi-api" path="/archives/{id}/stamps/{index}" method="get" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}
+
+{% openapi-operation spec="lanraragi-api" path="/archives/{id}/stamps/{index}" method="put" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}

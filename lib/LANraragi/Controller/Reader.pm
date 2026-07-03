@@ -36,6 +36,7 @@ sub index {
             use_local      => $self->LRR_CONF->enable_localprogress,
             auth_progress  => $self->LRR_CONF->enable_authprogress,
             id             => $id,
+            is_tank        => ( $id =~ /^TANK_/ ? 1 : 0 ),
             arc_categories => \@arc_categories,
             categories     => \@categories,
             csshead        => generate_themes_header($self),

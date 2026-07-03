@@ -21,14 +21,16 @@ apt-get update
 apt-get upgrade -y
 apt-get install build-essential make gnupg pkg-config \
 cpanminus redis-server libarchive-dev imagemagick webp libssl-dev zlib1g-dev libjxl-dev \
-perlmagick ghostscript npm libvips-dev
+perlmagick npm libvips-dev
 ```
 
 _Base software dependencies._
 
 {% hint style="info" %}
-ImageMagick and libvips are optional, but you need to install at least one to get thumbnail support.
-libvips is faster than ImageMagick and will be used automatically if both are installed.
+ImageMagick+PerlMagick and libvips are optional, but you need to install at least one to get thumbnail support.
+libvips is faster than ImageMagick and will be used automatically if both are installed.  
+
+libvips is required for PDF support.
 {% endhint %}
 
 {% hint style="info" %}

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-03-23 13:12+0000\n"
+"PO-Revision-Date: 2026-05-15 02:11+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.5.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -675,13 +675,13 @@ msgid "Crop thumbnails"
 msgstr "裁剪缩略图"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
-msgstr ""
+msgstr "启用后，无法放入标准 A4 页面的缩略图将被裁剪，仅显示左侧部分。"
 
 msgid "Hide completed"
-msgstr ""
+msgstr "隐藏已读完"
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
-msgstr ""
+msgid "If enabled, Archives you've already completed will be hidden from the list."
+msgstr "启用后，您已经读完的档案将从列表中隐藏。"
 
 msgid "Go to Page:"
 msgstr "跳转到页面："
@@ -745,6 +745,18 @@ msgstr ""
 "使用默认密码\"kamimamita\"<a href=\"/login\">登录</a><br/>然后立刻<a href="
 "\"/config\">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/"
 ">为什么不顺便检查一下配置选项呢？"
+
+msgid "Select Archives"
+msgstr "选择档案"
+
+msgid "Run Batch Operations on selection"
+msgstr "对选中项运行批量操作"
+
+msgid "Clear selection"
+msgstr "清除选择"
+
+msgid "Select All in Page"
+msgstr "本页全选"
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -931,6 +943,15 @@ msgstr "键盘方向键（和空格键）"
 msgid "Touching the left/right side of the image."
 msgstr "点击图像的左/右侧。"
 
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "从搜索结果阅读时，您也可以尝试以下方式读前后档案："
+
+msgid "The , and . keys"
+msgstr "“,”和“.”键"
+
+msgid "Reading past the first/last page"
+msgstr "跨书翻页"
+
 msgid "Other keyboard shortcuts:"
 msgstr "其他键盘快捷键："
 
@@ -954,6 +975,9 @@ msgstr "F：切换全屏模式"
 
 msgid "B: toggle bookmark"
 msgstr "B：切换书签"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "shift+箭头键：跳到首尾页"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "要返回档案索引，请点击向下的箭头或使用退格键。"
@@ -1047,9 +1071,6 @@ msgstr "无极滚动"
 
 msgid "Display all images in a vertical view in the same page."
 msgstr "在同一页面中以垂直视图显示所有图片。"
-
-msgid "Reader Settings"
-msgstr "阅读器设置"
 
 msgid "Help"
 msgstr "帮助"
@@ -1164,6 +1185,15 @@ msgstr "还原备份成功！"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr "恢复备份时出错。<br/>请查看服务器日志并检查JSON格式是否正确。"
+
+msgid "Backup generation in progress..."
+msgstr "正在生成备份..."
+
+msgid "Uploading backup file..."
+msgstr "正在上传备份文件..."
+
+msgid "Backup complete! Download will start automatically."
+msgstr "备份完成！将自动开始下载。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "无法加载完整档案列表！请刷新页面。"
@@ -1798,3 +1828,108 @@ msgstr "以逗号分隔的标签命名空间列表，用于从搜索建议和标
 
 msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
 msgstr "客户端将使用此列表从自动完成和标签云中过滤掉干扰标签。"
+
+msgid "G: go to page number"
+msgstr "G：跳转页码"
+
+msgid "Go to page:"
+msgstr "跳转页面："
+
+msgid "Discard Selection"
+msgstr "放弃选择"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "正在显示先前选择中的 ${n} 个档案。"
+
+msgid "Tankoubons"
+msgstr "单行本"
+
+msgid "No Tankoubons in your library yet."
+msgstr "您的库中尚无单行本。"
+
+msgid "Archives"
+msgstr "档案"
+
+msgid "No Archives in your library yet."
+msgstr "您的库中尚无档案。"
+
+msgid "Group Tankoubons"
+msgstr "归组单行本"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr "如果启用，属于同一单行本的档案将显示为单个项目。"
+
+msgid "Index Settings"
+msgstr "索引设置"
+
+msgid "Display Mode"
+msgstr "显示模式"
+
+msgid "Compact"
+msgstr "紧凑"
+
+msgid "Thumbnail"
+msgstr "缩略图"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "将档案合并为单行本"
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr "无标签或您上次选择的档案已预先勾选。"
+
+msgid "New archive"
+msgstr "新建档案"
+
+msgid "Archive read"
+msgstr "已读档案"
+
+msgid "Tankoubon (collection)"
+msgstr "单行本（合集）"
+
+msgid "Selection"
+msgstr "选择"
+
+msgid "\${n} selected"
+msgstr "已选择 ${n} 项"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr "点击档案将其加入选择。您的选择会在不同搜索间保留。"
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "退出选择模式？您当前的选择将会丢失。 "
+
+msgid "Add to selection"
+msgstr "加入选择"
+
+msgid "Remove from selection"
+msgstr "从选择中移除"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "为新的单行本输入名称。"
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "这会将所有选择的档案合并为库中的单个项目。"
+
+msgid "Please enter a name."
+msgstr "请输入名称。"
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "已将 ${n} 个档案添加到 ${tank} ！"
+
+msgid "Error creating Tankoubon"
+msgstr "创建单行本出错"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "将档案添加到单行本时出错"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "将选择合并为单行本"
+
+msgid "Hide completed Archives"
+msgstr "隐藏已读完的档案"
+
+msgid "Pages read / Total pages"
+msgstr "已读页数 / 总页数"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "已读页数 / 总页数 / 单行本档案数"

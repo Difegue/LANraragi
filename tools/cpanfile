@@ -40,12 +40,13 @@ requires 'Mojolicious',                          9.39;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::OpenAPI',         5.11;
+requires 'JSON::Validator',                      5.19;
 requires 'IO::Socket::Socks',                    0.74;
 requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
 
 # Job Queue (Minion)
-requires 'Minion',                 10.31;
+requires 'Minion',                 '>= 10.31, < 12.0';
 requires 'Minion::Backend::Redis', 0.002;
 
 # Background Worker (Shinobu)

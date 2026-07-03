@@ -5,6 +5,7 @@ use utf8;
 use Data::Dumper;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
+use Mojo::JSON qw(encode_json);
 
 use Cwd qw( getcwd );
 
@@ -43,6 +44,26 @@ sub gallerydl_test {
         trap { LANraragi::Plugin::Metadata::GalleryDL::get_tags( "", \%dummyhash ); };
     return %gallerydltags;
 
+}
+
+sub gallerydl_test_from_data {
+
+    my ($data) = @_;
+
+    my ( $fh, $filename ) = tempfile();
+    print {$fh} encode_json($data);
+    close $fh;
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::GalleryDL::get_plugin_logger         = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::GalleryDL::extract_file_from_archive = sub { $filename };
+    local *LANraragi::Plugin::Metadata::GalleryDL::is_file_in_archive        = sub { 1 };
+
+    my %dummyhash = ( something => 42, file_path => "dummy" );
+
+    my %gallerydltags =
+        trap { LANraragi::Plugin::Metadata::GalleryDL::get_tags( "", \%dummyhash ); };
+    return %gallerydltags;
 }
 
 #Testing the processing of an array of tag strings with no values, just keys. Also test absence of source/category metadata
@@ -104,6 +125,81 @@ note("gallerydl no tags in file");
     is( $gallerydltags{title}, undef, "no title returned 1/3");
     is( $gallerydltags{tags}, undef, "no tags returned 2/3");
     isnt( $gallerydltags{error}, undef, "Proper error returned 3/3");
+}
+
+note("gallerydl top-level metadata enrichment");
+{
+    my %gallerydltags = gallerydl_test_from_data(
+        {
+            title      => "[Alp] Amoral Island: Episode 5 (COMIC Anthurium 2025-10) [Chinese] [無邪気漢化組]",
+            title_en   => "[Alp] Amoral Island: Episode 5 (COMIC Anthurium 2025-10) [Chinese] [無邪気漢化組]",
+            title_ja   => "[あるぷ] アモラルアイランド5 (COMIC アンスリウム 2025年10月号) [中国翻訳] [DL版]",
+            gallery_id => 603754,
+            media_id   => 3586848,
+            date       => 1760535129,
+            scanlator  => "",
+            artist     => ["alp"],
+            group      => [],
+            parody     => [],
+            characters => [],
+            tags       => [ "anal", "nakadashi", "glasses", "twintails", "full censorship", "anal intercourse", "kissing", "big ass", "fingering", "small breasts", "focus anal" ],
+            type       => "manga",
+            lang       => "zh",
+            language   => "Chinese",
+            count      => 50,
+            category   => "nhentai",
+            subcategory => "gallery"
+        }
+    );
+
+    is(
+        $gallerydltags{title},
+        "[Alp] Amoral Island: Episode 5 (COMIC Anthurium 2025-10) [Chinese] [無邪気漢化組]",
+        "title parsing test 1/2"
+    );
+
+    is(
+        $gallerydltags{tags},
+        "anal, nakadashi, glasses, twintails, full censorship, anal intercourse, kissing, big ass, fingering, small breasts, focus anal, artist:alp, language:Chinese, type:manga, category:nhentai",
+        "top-level metadata mapped to namespaced tags 2/2"
+    );
+}
+
+note("gallerydl lang fallback");
+{
+    my %gallerydltags = gallerydl_test_from_data(
+        {
+            title    => "Synthetic lang fallback sample",
+            tags     => ["nakadashi"],
+            lang     => "en",
+            type     => "manga",
+            category => "nhentai"
+        }
+    );
+
+    is(
+        $gallerydltags{tags},
+        "nakadashi, language:en, type:manga, category:nhentai",
+        "lang field falls back to language namespace when language is absent"
+    );
+}
+
+note("gallerydl character field merge");
+{
+    my %gallerydltags = gallerydl_test_from_data(
+        {
+            title      => "Synthetic character merge sample",
+            tags       => ["nakadashi"],
+            character  => ["alice"],
+            characters => [ "bob", "alice" ]
+        }
+    );
+
+    is(
+        $gallerydltags{tags},
+        "nakadashi, character:alice, character:bob",
+        "character and characters merge without duplicate tags"
+    );
 }
 
 done_testing();

@@ -1,0 +1,23 @@
+<script type="importmap">
+    {
+        "imports": {
+            "i18n": "[% c.url_for("/js/i18n.js?$version") %]",
+            "fscreen": "[% c.url_for("/js/$version/vendor/fscreen.esm.js") %]",
+
+            "preact": "[% c.url_for("/js/$version/vendor/preact.module.js") %]",
+            "preact/hooks": "[% c.url_for("/js/$version/vendor/hooks.module.js") %]",
+            "preact/compat": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
+            "htm": "[% c.url_for("/js/$version/vendor/htm.js") %]",
+            "clsx": "[% c.url_for("/js/$version/vendor/clsx.m.js") %]",
+            "react-toastify": "[% c.url_for("/js/$version/vendor/react-toastify.esm.js") %]",
+
+            "react": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
+            "react-dom": "[% c.url_for("/js/$version/vendor/compat.module.js") %]",
+
+            "marked": "[% c.url_for("/js/$version/vendor/marked.esm.js?$version") %]",
+            "dompurify": "[% c.url_for("/js/$version/vendor/purify.js?$version") %]",
+
+            "sweetalert2": "[% c.url_for("/js/$version/vendor/sweetalert2.esm.min.js") %]"
+        }
+    }
+</script>

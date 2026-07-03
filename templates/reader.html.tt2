@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-
+<html>
 <head>
     <title>[% title %]</title>
 
@@ -17,28 +17,22 @@
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
     <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
     [% csshead %]
 
-    <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/javascript"></script>
-    <script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-    <script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
+    [% INCLUDE common/importmap %]
 
-    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/common.js?$version") %]" type="text/javascript"></script>
-    <script src="[% c.url_for("/js/server.js?$version") %]" type="text/javascript"></script>
-    <script src="[% c.url_for("/js/reader.js?$version") %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/vendor/raty.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script type="module">
-        import('[% c.url_for("/js/vendor/fscreen.esm.js") %]').then(r => {
-            window.fscreen = r.default;
-            Reader.initializeAll();
-        })
+        import * as Reader from "[% c.url_for("/js/reader.js?$version") %]";
+
+        const trackProgressLocally = "[% use_local %]" === "1";
+        const authenticateProgress = "[% auth_progress %]" === "1";
+
+        await Reader.initializeAll(trackProgressLocally, authenticateProgress);
     </script>
 </head>
 
@@ -58,6 +52,8 @@
                 </p>
             </div>
 
+            <div id="overlay-page" class="focus-overlay"></div>
+
             <a id="display">
                 <img id="img" class="reader-image" src="" fetchpriority="high"><img id="img_doublepage" class="reader-image" src="" fetchpriority="high">
             </a>
@@ -70,7 +66,7 @@
 
         <div id="i5">
             <div class="sb">
-                <a href="[% c.url_for("/").query(ref_query) %]" id="return-to-index" title="[% c.lh('Done reading? Go back to Archive Index') %]">
+                <a id="return-to-index" style="cursor:pointer;" title="[% c.lh('Done reading? Go back to Archive Index') %]">
                     <i class="fa fa-angle-down fa-3x"></i>
                 </a>
             </div>
@@ -90,12 +86,6 @@
 
     </div>
 
-    <script>
-        // This would be better in the reader.js file, but it's faster to source this data from the server template for now.
-        Reader.trackProgressLocally = "[% use_local %]" === "1";
-        Reader.authenticateProgress = "[% auth_progress %]" === "1";
-    </script>
-
     <div id="overlay-shade"></div>
     <div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
         <h2 class="ih" id="archive-title-overlay" style="text-align:center">[% c.lh("Archive Overview") %]</h2>
@@ -103,7 +93,7 @@
             <br>
             <div style="margin-bottom:16px;">
                 <div class="id3 nocrop reader-thumbnail">
-                    <img src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
+                    <img id="reader-overview-thumbnail" src="[% IF is_tank %][% c.url_for("/api/tankoubons/$id/thumbnail") %][% ELSE %][% c.url_for("/api/archives/$id/thumbnail") %][% END %]" />
                 </div>
 
                 [% IF userlogged %]
@@ -111,8 +101,8 @@
 
                     <h2>[% c.lh("Admin Options") %]</h2>
 
-                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"/>
-                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"/>
+                    <input id="edit-archive" class='stdbtn' type='button' value="[% IF is_tank %][% c.lh("Edit Tankoubon") %][% ELSE %][% c.lh("Edit Archive Metadata") %][% END %]"/>
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% IF is_tank %][% c.lh("Delete Tankoubon") %][% ELSE %][% c.lh("Delete Archive") %][% END %]"/><br>
 
                     <h2>[% c.lh("Categories") %]</h2>
 
@@ -120,7 +110,7 @@
                         [% FOREACH arc_categories %]
                         <div class="gt" style="font-size:14px; padding:4px">
                             <a href="[% c.url_for("/").query("c=$id") %]">
-                                <span class="label">[% name %]</span>
+                                <span class="label">[% name | html %]</span>
                             </a>
                             <a href="#" class="remove-category" data-id="[% id %]"
                                 style="margin-left:4px; margin-right:2px">×</a>
@@ -134,24 +124,29 @@
                     <select id="category" class="favtag-btn" style="width:200px">
                         <option selected value="">[% c.lh(" -- No Category -- ") %]</option>
                         [% FOREACH categories %]
-                        <option value="[% id %]">[% name %]</option>
+                        <option value="[% id %]">[% name | html %]</option>
                         [% END %]
                     </select>
                     <a class="fas fa-plus" id="add-category" href="#" style="padding:12px" title="[% c.lh('Add Archive to Category') %]"></a>
 
+                    [% UNLESS is_tank %]
                     <h2>[% c.lh("Rating") %]</h2>
                     <div data-raty></div>
-                
+                    [% END %]
                 </div>
                 [% END %]
             </div>
-
         </div>
 
         <br><br>
 
-        <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
-        <div class="chapter-selector"></div>
+        <div class="overlay-bar">
+            <div class="overlay-bar-left">
+                <a class="fas fa-stamp" id="filter-stamped" href="#" style="padding:8px; font-size:14px" title="[% c.lh("Filter stamped pages") %]"></a>
+            </div>
+            <h2 id="overlay-section" class="ih">[% c.lh("Pages") %]</h2>
+            <div class="chapter-selector"></div>
+        </div>
 
         <div id="extract-spinner" style="width: 80%; margin-left: auto; margin-right: auto">
             <p class="loading-spinner">
@@ -168,8 +163,6 @@
         [% INCLUDE config %]
     </div>
 
-    <canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
-
     <div id="reader-help" style="display: none;">
         <div class="navigation-help-toast">
             [% c.lh("You can navigate between pages using:") %]
@@ -178,6 +171,11 @@
                 <li>[% c.lh("The a/d keys") %]</li>
                 <li>[% c.lh("Your keyboard arrows (and the spacebar)") %]</li>
                 <li>[% c.lh("Touching the left/right side of the image.") %]</li>
+            </ul>
+            [% c.lh("When reading an archive from search results, you can also navigate between archives using:") %]
+            <ul>
+                <li>[% c.lh("The , and . keys") %]</li>
+                <li>[% c.lh("Reading past the first/last page") %]</li>
             </ul>
             <br>[% c.lh("Other keyboard shortcuts:") %]
             <ul>
@@ -189,6 +187,9 @@
                 <li>[% c.lh("F: toggle fullscreen mode") %]</li>
                 <li>[% c.lh("B: toggle bookmark") %]</li>
                 <li>[% c.lh("N: toggle auto next page") %]</li>
+                <li>[% c.lh("shift+Left/Right: go to first page/last page") %]</li>
+                <li>[% c.lh("G: go to page number") %]</li>
+                <li>[% c.lh("S: set a Stamp") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
@@ -280,10 +281,16 @@
     <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
 </div>
 
+<div id="toggle-stamps-visibility">
+    <h2 class="config-panel"> [% c.lh('Toggle Stamps') %]</h2>
+    <input id="toggle-stamps" class="fa" type="checkbox" value="[% c.lh('Disabled') %]">
+</div>
+
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
 <div class="sn paginator">
+    <a class="fa fa-backward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-left"></a>
     <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
     <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
@@ -294,12 +301,13 @@
 
     <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
     <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
+    <a class="fa fa-forward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-right"></a>
 </div>
 [% END %]
 <!-- -->
 [% BLOCK pagesel %]
 <div class="absolute-options absolute-left">
-    <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Settings') %]"></a>
+    <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Options') %]"></a>
     <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title="[% c.lh('Help') %]"></a>
 </div>
 

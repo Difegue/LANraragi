@@ -330,6 +330,11 @@ tr.gtr1 {
     color: #f1f1f1
 }
 
+#search-input {
+    height: 26px;
+    width: 100vw;
+}
+
 .stdinput {
     background: none repeat scroll 0 0 #fcfcfc;
     font-family: 'Inter UI', arial, sans-serif;
@@ -444,19 +449,11 @@ td.itdc {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
-#reload-carousel {
+.carousel-icon {
     color: #e1e7e9;
 }
 
-#reload-carousel:hover {
-    color: #ed2553;
-}
-
-#carousel-mode-menu {
-    color: #e1e7e9;
-}
-
-#carousel-mode-menu:hover {
+.carousel-icon:hover {
     color: #ed2553;
 }
 
@@ -562,7 +559,7 @@ div.idi {
     border-collapse: collapse;
     border-radius: 9px 9px 9px 9px;
     margin: 0 auto 25px;
-    padding: 15px;
+    padding: 8px;
     text-align: center;
 }
 
@@ -763,4 +760,14 @@ div.id4 a:hover {
 .swal2-popup {
     background: #34495e;
     color: #FCFCFC;
+}
+
+/** Archive selection highlight **/
+#thumbs_container .id1.msm-selected {
+    outline: 3px solid #ed2553;
+    outline-offset: -3px;
+}
+
+.datatables tbody tr.msm-selected td {
+    background-color: rgba(237, 37, 83, 0.15) !important;
 }

@@ -5,7 +5,7 @@
 ## Installing LANraragi
 
 * [❓ Which installation method is best for me?](installing-lanraragi/methods.md)
-* [🪟 LRR for Windows (Win10)](installing-lanraragi/windows.md)
+* [🪟 LRR for Windows (Win10/11)](installing-lanraragi/windows.md)
 * [🍎 Homebrew (macOS)](installing-lanraragi/macos.md)
 * [🐳 Docker (All platforms)](installing-lanraragi/docker.md)
 * [🛠️ Source Code (Linux/macOS)](installing-lanraragi/source.md)
@@ -18,19 +18,22 @@
 * [📚 Reading Archives](basic-operations/archives.md)
 * [✒️ Adding Metadata](basic-operations/metadata.md)
 * [🔎 Searching the Archive Index](basic-operations/searching.md)
+* [📂 Categories and Bookmarking](basic-operations/categories.md)
 * [📈 Statistics and Logs](basic-operations/stats.md)
 * [🖌️ Themes](basic-operations/themes.md)
 
 ## Advanced Usage
 
+* [💮 Stamps](advanced-usage/stamps.md)
 * [🦇 Batch Operations](advanced-usage/batch-tagging.md)
-* [📂 Categories](advanced-usage/categories.md)
+* [🗜️ Merging and Splitting Archives](advanced-usage/tankoubons-and-chapters.md)
 * [⬇️ Downloading Archives](advanced-usage/downloading.md)
 * [💾 Backup and Restore](advanced-usage/backup-and-restore.md)
+* [📏 Tag Rules](advanced-usage/tag-rules.md)
+* [👯 Duplicate Detection](advanced-usage/duplicate-detection.md)
 * [📱 Using External Readers](advanced-usage/external-readers.md)
 * [🌐 Network Interface Setup](advanced-usage/network-interfaces.md)
 * [🕵️ Proxy Setup](advanced-usage/proxy-setup.md)
-* [📏 Tag Rules](advanced-usage/tag-rules.md)
 
 ## Developer Guide <a href="#extending-lanraragi" id="extending-lanraragi"></a>
 
@@ -46,6 +49,7 @@
 * [Database API](api-documentation/database-api.md)
 * [Category API](api-documentation/category-api.md)
 * [Tankoubon API](api-documentation/tankoubon-api.md)
+* [Stamps API](api-documentation/stamp-api.md)
 * [Plugin API](api-documentation/plugin-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Minion API](api-documentation/minion-api.md)

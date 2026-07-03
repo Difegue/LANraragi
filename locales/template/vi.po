@@ -774,7 +774,7 @@ msgstr ""
 msgid "Hide completed"
 msgstr ""
 
-msgid "If enabled, archives you've already completed will be hidden from the list."
+msgid "If enabled, Archives you've already completed will be hidden from the list."
 msgstr ""
 
 msgid "Go to Page:"
@@ -843,6 +843,18 @@ msgstr ""
 "<a href=\"/login\">Đăng nhập</a> với mật khẩu \"kamimamita\" và <a href="
 "\"/config\">thay đổi ngay</a> đi nhé.<br/>...Hoặc chỉ cần tắt nó đi!<br/>Tại "
 "sao không kiểm tra các tùy chọn cấu hình sau khi làm vậy? "
+
+msgid "Select Archives"
+msgstr ""
+
+msgid "Run Batch Operations on selection"
+msgstr ""
+
+msgid "Clear selection"
+msgstr ""
+
+msgid "Select All in Page"
+msgstr ""
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1163,9 +1175,6 @@ msgstr "Cuộn vô hạn"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Hiển thị tất cả ảnh theo chiều dọc trên cùng một trang."
 
-msgid "Reader Settings"
-msgstr "Cài đặt Trình đọc"
-
 msgid "Help"
 msgstr "Trợ giúp"
 
@@ -1286,6 +1295,15 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 "Lỗi khi khôi phục sao lưu.<br/> Vui lòng kiểm tra nhật ký máy chủ và đảm bảo "
 "rằng tệp JSON của bạn được định dạng chính xác."
+
+msgid "Backup generation in progress..."
+msgstr ""
+
+msgid "Uploading backup file..."
+msgstr ""
+
+msgid "Backup complete! Download will start automatically."
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Không thể tải danh sách truyện đầy đủ! Vui lòng tải lại trang."
