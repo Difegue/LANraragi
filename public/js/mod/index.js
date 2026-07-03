@@ -273,7 +273,7 @@ export function bookmarkIconOff(arcid) {
     icons.forEach(el => {
         el.classList.remove("fas");
         el.classList.add("far");
-    })
+    });
 }
 
 // Turn bookmark icons to ON for all archives.
@@ -282,7 +282,7 @@ export function bookmarkIconOn(arcid) {
     icons.forEach(el => {
         el.classList.remove("far");
         el.classList.add("fas");
-    })
+    });
 }
 
 export function toggleBookmarkStatusByIcon(e) {

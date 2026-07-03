@@ -14,7 +14,7 @@ export function initializeAll() {
 
     Server.loadBookmarkCategoryId().then(_ => {
         Category.loadCategories();
-    })
+    });
 
     // bind events to DOM
     $(document).on("change.category", "#category", Category.updateCategoryDetails);

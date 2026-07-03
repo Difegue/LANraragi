@@ -261,7 +261,7 @@ export function initialize(catListData) {
                         "icon": "fas fa-search-plus",
                         "items": loadContextMenuCategories(catList, id)
                     }
-                }
+                };
                 Object.assign(items, moreItems);
             }
 
@@ -271,7 +271,7 @@ export function initialize(catListData) {
                         .attr("id"));
                 },
                 items: items,
-            }
+            };
         }
     });
 }
