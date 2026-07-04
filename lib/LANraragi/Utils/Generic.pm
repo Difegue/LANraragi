@@ -31,7 +31,7 @@ BEGIN {
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
+our @EXPORT_OK = qw(is_image is_archive is_chapter render_api_response get_tag_with_namespace shasum_str start_shinobu start_tsubasa
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail get_version get_item_title);
 
@@ -47,6 +47,10 @@ sub is_image {
 # Checks if the provided file is an archive.
 sub is_archive {
     return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
+}
+
+sub is_chapter {
+    return $_[0] =~ /^.+\/chapter[^\/]+$/i;
 }
 
 # Returns a human-readable title for the given ID (archive or tank).
@@ -184,6 +188,32 @@ sub start_shinobu {
         print $fh $proc->GetProcessID();
         close($fh);
         $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->GetProcessID() );
+        return $proc;
+    }
+}
+
+sub start_tsubasa {
+    my $mojo = shift;
+    if (IS_UNIX) {
+        my $proc = Proc::Simple->new();
+        $proc->start( $^X, "./lib/Tsubasa.pm" );
+        $proc->kill_on_destroy(0);
+
+        $mojo->LRR_LOGGER->debug( "Tsubasa Worker new PID is " . $proc->pid );
+
+        # Freeze the process object in the PID file
+        store \$proc, get_temp() . "/tsubasa.pid";
+        open( my $fh, ">", get_temp() . "/tsubasa.pid-s6" );
+        print $fh $proc->pid;
+        close($fh);
+        return $proc;
+    } else {
+        my $proc;
+        Win32::Process::Create( $proc, undef, "perl \"" . abs_path(".") . "/lib/Tsubasa.pm\"", 0, NORMAL_PRIORITY_CLASS, "." );
+        open( my $fh, ">", get_temp() . "/tsubasa.pid-s6" );
+        print $fh $proc->GetProcessID();
+        close($fh);
+        $mojo->LRR_LOGGER->debug( "Tsubasa Worker new PID is " . $proc->GetProcessID() );
         return $proc;
     }
 }

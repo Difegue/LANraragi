@@ -31,7 +31,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(
   invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file update_indexes
   get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis
-  redis_decode redis_encode
+  redis_decode redis_encode add_chapter_to_redis set_pagecount
 );
 
 # Creates a DB entry for a file path with the given ID.
@@ -664,6 +664,48 @@ sub add_arcsize ( $redis, $id ) {
 
 sub get_arcsize ( $redis, $id ) {
     return $redis->hget( $id, "arcsize" );
+}
+
+# Creates a DB entry for a file path with the given ID.
+# This function doesn't actually require the file to exist at its given location.
+sub add_chapter_to_redis ( $id, $chapter, $redis, $redis_search ) {
+
+    my $logger = get_logger( "Manga", "lanraragi" );
+    my ( $name, $path ) = fileparse( $chapter, qr/\.[^.]*/ );
+
+    # Initialize Redis hash for the added file
+    $logger->debug("Pushing to redis on ID $id:");
+    $logger->debug("File Name: $name");
+    $logger->debug("Filesystem Path: $chapter");
+
+    $redis->hset( $id, "name",    LANraragi::Utils::Redis::redis_encode($name) );
+    $redis->hset( $id, "tags",    "" );
+    $redis->hset( $id, "summary", "" );
+
+    $redis->hset( $id, "arcsize", "0" );
+
+    # Don't encode filenames.
+    $redis->hset( $id, "file", $chapter );
+
+    # Set title so that index is updated
+    # Throw a decode in there just in case the filename is already UTF8
+    #set_title( $id, LANraragi::Utils::Redis::redis_decode($name) );
+    $redis->hset( $id, "title", LANraragi::Utils::Redis::redis_encode($name) );
+
+    # New chapters by default live inside a Tank.
+    #$redis_search->sadd( "LRR_TANKGROUPED", $id );
+
+    # New file in collection, so this flag is set.
+    set_isnew( $id, "true" );
+
+    return $name;
+}
+
+sub set_pagecount ( $redis, $id, $pages ) {
+
+    my $logger = get_logger( "Manga", "lanraragi" );
+
+    $redis->hset( $id, "pagecount", $pages );
 }
 
 # DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point

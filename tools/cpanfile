@@ -57,6 +57,9 @@ requires 'MCE::Shared',        1.893;
 requires 'Sys::CpuAffinity',   1.12;
 requires 'File::ChangeNotify', 0.31;
 
+# Background Worker (Tsubasa)
+requires 'UUID::Tiny',  1.04;
+
 # Plugin system
 requires 'Module::Pluggable', 5.2;
 

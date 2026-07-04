@@ -13,7 +13,7 @@ use Config;
 use URI::Escape;
 use Time::HiRes qw(gettimeofday);
 
-use LANraragi::Utils::Generic    qw(start_shinobu start_minion get_version);
+use LANraragi::Utils::Generic    qw(start_tsubasa start_shinobu start_minion get_version);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
 use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
@@ -194,6 +194,12 @@ sub startup {
         shutdown_from_pid( get_temp . "/shinobu.pid" );
     }
     start_shinobu($self);
+
+    # Start File Watcher
+    if ( IS_UNIX ) {
+        shutdown_from_pid( get_temp . "/tsubasa.pid" );
+    }
+    start_tsubasa($self);
 
     # Check if this is a first-time installation.
     first_install_actions();
