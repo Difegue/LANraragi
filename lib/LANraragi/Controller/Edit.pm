@@ -81,9 +81,9 @@ sub edit_tankoubon {
     $self->render(
         template      => "edit",
         id            => $id,
-        arctitle      => xml_escape($name),
-        tags          => xml_escape($tags),
-        summary       => xml_escape($summary),
+        arctitle      => $name,
+        tags          => $tags,
+        summary       => $summary,
         is_tank       => 1,
         archives      => \@archives,
         archive_data  => \@full_data,
