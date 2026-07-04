@@ -42,6 +42,7 @@
         "clsx": "1.1.1",
         "datatables.net": "1.11.5",
         "dompurify": "^3.4.11",
+        "eslint-plugin-import-x": "^4.17.1",
         "fscreen": "1.2.0",
         "geist": "1.0.0",
         "htm": "^3.1.1",
@@ -61,7 +62,7 @@
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@stylistic/eslint-plugin": "^4.0.0",
-        "eslint": "^10.1.0",
+        "eslint": "^10.6.0",
         "globals": "16.5.0"
     }
 }
