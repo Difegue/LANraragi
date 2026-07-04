@@ -5,7 +5,6 @@ use File::Basename;
 use Redis;
 use Encode;
 use Template;
-use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Redis   qw(redis_decode);
