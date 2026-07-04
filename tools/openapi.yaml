@@ -1228,8 +1228,13 @@ paths:
           description: ID of the Archive to process.
           schema:
             type: string
-            minLength: 40
-            maxLength: 40
+            oneOf:
+              - minLength: 40
+                maxLength: 40
+                pattern: "^[0-9a-f]{40}$"
+              - minLength: 15
+                maxLength: 15
+                pattern: "^TANK_[0-9]{10}$"
       responses:
         '200':
           description: Archive categories
@@ -4418,8 +4423,13 @@ components:
           description: Array of archive IDs (if this is a static category, empty otherwise)
           items:
             type: string
-            minLength: 40
-            maxLength: 40
+            oneOf:
+              - minLength: 40
+                maxLength: 40
+                pattern: "^[0-9a-f]{40}$"
+              - minLength: 15
+                maxLength: 15
+                pattern: "^TANK_[0-9]{10}$"
         id:
           type: string
           description: ID of the category

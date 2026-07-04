@@ -245,11 +245,13 @@ export function initialize(catListData) {
                         name: I18N.Delete,
                         icon: "fas fa-trash-alt"
                     },
-                    "rating": {
-                        "name": I18N.AddRating,
-                        "icon": "fas fa-star",
-                        "items": loadContextMenuRatings(id)
-                    },
+                    ...(!isTankoubon ? {
+                        "rating": {
+                            "name": I18N.AddRating,
+                            "icon": "fas fa-star",
+                            "items": loadContextMenuRatings(id)
+                        }
+                    } : {}),
                     "collections": {
                         "name": I18N.AddToCategory,
                         "icon": "fas fa-search-plus",
