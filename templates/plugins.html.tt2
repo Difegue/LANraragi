@@ -170,7 +170,7 @@
 			[% END %]
 			<tr>
 				<td colspan="2">
-					<input class='stdbtn' type='button' onclick="Server.triggerScript('[% plugin.namespace %]');"
+					<input class='stdbtn trigger-script-btn' type='button' data-namespace="[% plugin.namespace %]"
 						value='[% c.lh("Trigger Script") %]' />
 				</td>
 			</tr>
