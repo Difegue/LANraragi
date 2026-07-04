@@ -337,7 +337,10 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                     }
 
                     let tagList = LRR.buildTagList(tags);
-                    Server.updateTagsFromArchive(id, tagList);
+                    if (id.startsWith("TANK_")) 
+                        Server.updateTagsFromTankoubon(id, tagList);
+                    else 
+                        Server.updateTagsFromArchive(id, tagList);
                     $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
                 }
             }).init();

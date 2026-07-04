@@ -368,6 +368,18 @@ export function updateTagsFromArchive(arcId, tags) {
 }
 
 /**
+ * Sends a UPDATE request for the additional tags of the Tankoubon ID
+ * @param {string} tankId Tankoubon ID
+ * @param {string|string[]} tags Comma-separated tag list (or array of tags) to replace the Tankoubon's current tags with
+ */
+export function updateTagsFromTankoubon(tankId, tags) {
+    const tagString = Array.isArray(tags) ? tags.join(",") : tags;
+
+    return callAPIBody(`/api/tankoubons/${tankId}`, "PUT", JSON.stringify({ metadata: { tags: tagString } }),
+        I18N.EditMetadataSaved, I18N.TankoubonEditError, null, "application/json");
+}
+
+/**
  * Updates local storage with the category ID corresponding to the bookmark icon.
  * @returns a promise containing the category ID if exists or an empty string.
  */
