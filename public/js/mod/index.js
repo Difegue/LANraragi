@@ -176,6 +176,7 @@ export function initializeAll() {
                             click() {
                                 localStorage.hidecompleted = $(this).is(":checked");
                                 IndexTable.dataTable.draw();
+                                updateCarousel();
                             },
                         },
                     },
@@ -188,6 +189,7 @@ export function initializeAll() {
                             click() {
                                 localStorage.grouptanks = $(this).is(":checked");
                                 IndexTable.dataTable.draw();
+                                updateCarousel();
                             },
                         },
                     },
@@ -450,34 +452,36 @@ export function updateCarousel(e) {
     const isBuiltinSelector = selectedCategory === "NEW_ONLY" || selectedCategory === "UNTAGGED_ONLY";
     const category = (selectedCategory && !isBuiltinSelector) ? `&category=${selectedCategory}` : "";
 
+    // Mirror index setting toggles and special categories so carousels respect them too (when relevant)
+    const groupTanks = localStorage.grouptanks === "false" ? "&groupby_tanks=false" : "";
+    const hideCompleted = localStorage.hidecompleted === "true" ? "&hidecompleted=true" : "";
+    const newOnly = selectedCategory === "NEW_ONLY" ? "&newonly=true" : "";
+    const untaggedOnly = selectedCategory === "UNTAGGED_ONLY" ? "&untaggedonly=true" : "";
+
     switch (localStorage.carouselType) {
         case "random":
             $("#carousel-icon")[0].classList = "fas fa-random";
             $("#carousel-title").text(I18N.CarouselRandom);
-            endpoint = `/api/search/random?count=15${filter}${category}`;
-
-            // Special categories that imply additional query params
-            if (selectedCategory === "NEW_ONLY") {
-                endpoint += "&newonly=true";
-            } else if (selectedCategory === "UNTAGGED_ONLY") {
-                endpoint += "&untaggedonly=true";
-            }
+            endpoint = `/api/search/random?count=15${filter}${category}${groupTanks}${hideCompleted}${newOnly}${untaggedOnly}`;
 
             break;
         case "inbox":
             $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
             $("#carousel-title").text(I18N.NewArchives);
-            endpoint = `/api/search?newonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
+            // newonly always true here by design
+            endpoint = `/api/search?newonly=true&sortby=date_added&order=desc&start=-1${filter}${category}${groupTanks}${hideCompleted}${untaggedOnly}`;
             break;
         case "untagged":
             $("#carousel-icon")[0].classList = "fas fa-edit";
             $("#carousel-title").text(I18N.UntaggedArchives);
-            endpoint = `/api/search?untaggedonly=true&sortby=date_added&order=desc&start=-1${filter}${category}`;
+            // untaggedonly always true here by design
+            endpoint = `/api/search?untaggedonly=true&sortby=date_added&order=desc&start=-1${filter}${category}${groupTanks}${hideCompleted}${newOnly}`;
             break;
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
-            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}`;
+            // hidecompleted always true here by design
+            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}${groupTanks}${untaggedOnly}${newOnly}`;
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
