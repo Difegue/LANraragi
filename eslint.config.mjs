@@ -79,6 +79,6 @@ const config = {
 
 export default defineConfig([
     importX.flatConfigs.recommended,
-    globalIgnores(["public/js/vendor/*.js", "tests/samples/*"]),
+    globalIgnores(["public/js/vendor/**", "tests/samples/*"]),
     config,
 ]);
