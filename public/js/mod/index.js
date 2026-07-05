@@ -819,7 +819,7 @@ function mergeSelectionIntoTankoubon() {
 function addArchivesToTank(tankId, arcIds) {
     arcIds.reduce((chain, arcId) =>
         chain.then(() =>
-            Server.callAPI(`/api/tankoubons/${tankId}/${arcId}`, "PUT",
+            Server.callAPISilent(`/api/tankoubons/${tankId}/${arcId}`, "PUT",
                 null, I18N.MSMMergeAddError, null)
         ),
     Promise.resolve()
@@ -829,7 +829,8 @@ function addArchivesToTank(tankId, arcIds) {
         clearSelection();
         exitSelectionCarouselMode();
         IndexTable.doSearch();
-    });
+    })
+    .catch((error) => LRR.showErrorToast(I18N.MSMMergeError, error));
 };
 
 // #endregion

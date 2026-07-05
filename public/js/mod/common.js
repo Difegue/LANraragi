@@ -262,8 +262,6 @@ export function buildTagsDiv(tags) {
             const url = `${getTagSearchURL(key, tag)}`;
             const searchTag = buildNamespacedTag(key, tag);
 
-            
-
             const tagText = encodeHTML(/^(date|time)/.test(key) ? convertTimestamp(tag) : tag);
 
             line += `<div class="gt">
