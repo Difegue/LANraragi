@@ -168,7 +168,7 @@ sub get_random_archives {
     my $category      = $req->param('category')      || "";
     my $newfilter     = $req->param('newonly')       // "false";
     my $untaggedf     = $req->param('untaggedonly')  // "false";
-    my $grouptanks    = $req->param('groupby_tanks') // "false";
+    my $grouptanks    = $req->param('groupby_tanks') // "true";
     my $hidecompleted = $req->param('hidecompleted') // "false";
     my $random_count  = $req->param('count')         || 5;
 
