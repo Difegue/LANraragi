@@ -1337,13 +1337,18 @@ function updateMetadata() {
 async function goToPage(page) {
     previousPage = currentPage;
     currentPage = Math.min(maxPage, Math.max(0, +page));
-    showingSinglePage = false;
 
     if (infiniteScroll) {
         $("#display img").get(currentPage).scrollIntoView({ block: "nearest" });
     } else {
         if (doublePageMode && currentPage > 0
             && currentPage < maxPage) {
+
+            // Special case when going backwards and already showing a widespread, 
+            // we need to go back by two pages to show the previous double-page spread
+            if (showingSinglePage && previousPage > currentPage) 
+                currentPage = Math.max(0, currentPage - 1);
+
             // Composite an image and use that as the source
             const img1 = await loadImage(currentPage);
             const img1Filename = getFilename(currentPage);
@@ -1351,7 +1356,7 @@ async function goToPage(page) {
             const img2 = await loadImage(currentPage + 1);
             const img2Filename = getFilename(currentPage + 1);
             const img2Size = await getImageSize(img2);
-            // If w > h on one of the images(widespread), set canvasdata to the first image only
+            // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
             if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
                 // Depending on whether we were going forward or backward, display img1 or img2
                 const wideSrc = previousPage > currentPage ? img2 : img1;
@@ -1362,6 +1367,8 @@ async function goToPage(page) {
                 $("#img_doublepage").attr("src", "");
                 $("#img_doublepage").attr("data-filename", "");
                 showingSinglePage = true;
+                // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
+                currentPage = previousPage > currentPage ? currentPage + 1 : currentPage;
             } else {
                 $("#display").addClass("double-mode");
                 if (mangaMode) {
@@ -1375,6 +1382,7 @@ async function goToPage(page) {
                     $("#img_doublepage").attr("src", img2);
                     $("#img_doublepage").attr("data-filename", img2Filename);
                 }
+                showingSinglePage = false;
             }
         } else {
             const img = await loadImage(currentPage);
@@ -1954,15 +1962,26 @@ function changePage(targetPage, resetAuto = false) {
         destination = mangaMode ? 0 : maxPage;
     } else {
         let offset = targetPage;
+        // Double the offset to move by 2 pages at once, unless we're currently showing a widespread
         if (doublePageMode && !showingSinglePage && currentPage > 0) {
             offset *= 2;
         }
         destination = currentPage + (mangaMode ? -offset : offset);
     }
     if (destination < 0) {
-        return readPreviousArchive();
+        // Clamp if we're not at the first page, to avoid doublepage mode accidentally yeeting us to previous archive
+        if (currentPage > 0) {
+            destination = 0;
+        } else {
+            return readPreviousArchive();
+        }
     } else if (destination > maxPage) {
-        return readNextArchive();
+        // Ditto for last page
+        if (currentPage < maxPage) {
+            destination = maxPage;
+        } else {
+            return readNextArchive();
+        }
     }
     return goToPage(destination);
 }
