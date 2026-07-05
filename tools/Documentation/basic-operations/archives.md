@@ -10,7 +10,7 @@ You can customize display options to show the index in compact mode, as well as 
 
 ![Customized compact mode with three columns and a sort by ratings](<../.gitbook/assets/ratings.png>)
 
-The topmost **carousel** view will show random archives from your current search in both thumbnail and compact modes -- It can also be configured to show New or Untagged archives instead.
+The topmost **carousel** view will show random Archives from your current search in both thumbnail and compact modes -- It can also be configured to show New or Untagged Archives instead.
 
 ![Index page of a regular LRR install in compact mode](../.gitbook/assets/archive_list.png)
 
