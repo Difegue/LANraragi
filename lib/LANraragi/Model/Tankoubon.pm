@@ -20,7 +20,7 @@ use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_ta
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys render_api_response);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
-use LANraragi::Utils::String   qw(trim);
+use LANraragi::Utils::String   qw(trim trim_CRLF);
 use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2, "progress", -3 );
@@ -267,6 +267,25 @@ sub update_metadata ( $tank_id, $data ) {
 
     if ( $redis->exists($tank_id) ) {
         if ( defined $name ) {
+
+            # Keep the LRR_TITLES search index in sync with the rename, the same way
+            # Stats::build_stat_hashes normalizes tank titles when rebuilding the index.
+            # Without this, the tank stays searchable under its old name (until the next
+            # stats rebuild) and isn't searchable under its new one.
+            my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+            my %old_meta = fetch_metadata_fields($tank_id);
+            my $old_name = $old_meta{name} // "";
+            if ( $old_name ne "" ) {
+                my $old_key = redis_encode( trim( lc($old_name) ) );
+                $redis_search->zrem( "LRR_TITLES", "$old_key\0$tank_id" );
+            }
+
+            my $new_key = redis_encode( trim( lc($name) ) );
+            $redis_search->zadd( "LRR_TITLES", 0, "$new_key\0$tank_id" );
+
+            $redis_search->quit;
+
             update_metadata_field( $tank_id, "name", $name );
         }
 
