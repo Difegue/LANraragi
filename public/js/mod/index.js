@@ -606,6 +606,9 @@ export function exitSelectionCarouselMode() {
     // Hide MSM controls
     $("#msm-carousel-controls").hide();
 
+    // Update msm flag
+    isMultiSelectMode = false;
+
     // Reload normal carousel content
     updateCarousel();
 
