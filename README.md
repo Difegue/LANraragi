@@ -6,7 +6,6 @@
 [<img src="https://github.com/Difegue/LANraragi/actions/workflows/push-continuous-integration.yml/badge.svg">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
-
 <img src="public/favicon.ico" width="128">  
   
 LANraragi
@@ -16,7 +15,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 #### 💬 Talk with other fellow LANraragi Users on [Discord](https://discord.gg/aRQxtbg) or [GitHub Discussions](https://github.com/Difegue/LANraragi/discussions)  
 
-####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  | [🉐 Buy Stickers!](https://ko-fi.com/s/9e8cf6a479)
+#### [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  | [🉐 Buy Stickers!](https://ko-fi.com/s/9e8cf6a479)
 
 <a href="https://hosted.weblate.org/engage/lanraragi/">
 <img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="Translation status" />
@@ -25,7 +24,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 <sub>LANraragi uses Weblate for translation hosting.</sub>  
 
 ## Screenshots  
- 
+
 |Main Page, Thumbnail View | Main Page, List View |
 |---|---|
 | [![archive_thumb](./tools/Documentation/.gitbook/assets/archive_thumb.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/Documentation/.gitbook/assets/archive_thumb.png) | [![archive_list](./tools/Documentation/.gitbook/assets/archive_list.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/Documentation/.gitbook/assets/archive_list.png) |
@@ -33,7 +32,6 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 |Archive Reader | Reader with overlay |
 |---|---|
 | [![reader](./tools/Documentation/.gitbook/assets/reader.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/Documentation/.gitbook/assets/reader.jpg) | [![reader_overlay](./tools/Documentation/.gitbook/assets/reader_overlay.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/Documentation/.gitbook/assets/reader_overlay.jpg) |
-
 
 |Configuration | Plugin Configuration |
 |---|---|
@@ -51,18 +49,18 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
-* Localized interface with English, Chinese, and more to come.  
+* Localized interface with 11 languages.  
 
 * Choose from 5 preinstalled responsive library styles, or add your own with CSS.  
 
-* Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
+* Add various types of metadata to archives: Full Tag support with Namespaces, Summaries, Chapters, per-page Overlays.
 
-* Store archives in either arbitrary or dynamic Categories to sort your Library easily
+* Store archives in Categories and/or Tankoubons to sort your Library easily
 
 * Import metadata using Plugins automatically when archives are added to LANraragi.
 
 * Download archives from the Internet directly to the server, while using the aforementioned automatic metadata import
 
-* Scan for duplicates within your saved archives 
+* Scan for duplicates within your saved archives
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
