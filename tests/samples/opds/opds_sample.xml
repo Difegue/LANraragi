@@ -77,8 +77,8 @@
     <entry>
         <title>All about Egypt</title>
         <id>urn:lrr:28697b96f0ac5858be2666ed10ca47742c955555</id>
-        <updated>1970-01-01T00:00:00Z</updated>
-        <published>1970-01-01T00:00:00Z</published>
+        <updated>2020-09-13T12:26:40Z</updated>
+        <published>2020-09-13T12:26:40Z</published>
         <author>
             <name></name>
         </author>
@@ -89,7 +89,7 @@
         
         <category term="New Archive" />
         
-        <summary>medjed, character:doubles guy, character:king of GETs, check this 5</summary>
+        <summary>medjed, character:doubles guy, character:king of GETs, check this 5, date_added:1600000000</summary>
 
         <link rel="alternate" href="/api/opds/28697b96f0ac5858be2666ed10ca47742c955555"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
@@ -301,8 +301,8 @@
     <entry>
         <title>Find the Computer Room</title>
         <id>urn:lrr:28697b96f0ac5777be2614ed10ca47742c9522fa</id>
-        <updated>1970-01-01T00:00:00Z</updated>
-        <published>1970-01-01T00:00:00Z</published>
+        <updated>2022-04-15T05:20:00Z</updated>
+        <published>2022-04-15T05:20:00Z</published>
         <author>
             <name></name>
         </author>
@@ -313,7 +313,7 @@
         
         <category term="Archive" />
         
-        <summary>year of shadow, character:vector the crocodile</summary>
+        <summary>year of shadow, character:vector the crocodile, date_added:1650000000</summary>
 
         <link rel="alternate" href="/api/opds/28697b96f0ac5777be2614ed10ca47742c9522fa"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
@@ -333,8 +333,8 @@
     <entry>
         <title>Ghost in the Shell 1.5 - Human-Error Processor vol01ch01</title>
         <id>urn:lrr:4857fd2e7c00db8b0af0337b94055d8445118630</id>
-        <updated>1970-01-01T00:00:00Z</updated>
-        <published>1970-01-01T00:00:00Z</published>
+        <updated>2021-05-03T00:00:00Z</updated>
+        <published>2021-05-03T00:00:00Z</published>
         <author>
             <name>shirow masamune</name>
         </author>
@@ -345,7 +345,7 @@
         
         <category term="Archive" />
         
-        <summary>artist:shirow masamune</summary>
+        <summary>artist:shirow masamune, date_added:1620000000</summary>
 
         <link rel="alternate" href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
@@ -365,8 +365,8 @@
     <entry>
         <title>Rohan Kishibe goes to Gucci</title>
         <id>urn:lrr:e4c422fd10943dc169e3489a38cdbf57101a5f7e</id>
-        <updated>1970-01-01T00:00:00Z</updated>
-        <published>1970-01-01T00:00:00Z</published>
+        <updated>2023-11-14T22:13:20Z</updated>
+        <published>2023-11-14T22:13:20Z</published>
         <author>
             <name></name>
         </author>
@@ -377,7 +377,7 @@
         
         <category term="New Archive" />
         
-        <summary>parody: jojo&#39;s bizarre adventure</summary>
+        <summary>parody: jojo&#39;s bizarre adventure, date_added:1700000000</summary>
 
         <link rel="alternate" href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e"
             type="application/atom+xml;type=entry;profile=opds-catalog" />

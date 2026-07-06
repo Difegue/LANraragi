@@ -78,7 +78,7 @@ sub startup {
     $self->helper( LRR_DESC    => sub { return $descstr; } );
 
     #Helper to JSON-encode a value for safe embedding in templates
-    $self->helper( json_esc => sub { shift; return Mojo::JSON::encode_json(shift); } );
+    $self->helper( json_esc => sub { shift; return Mojo::JSON::to_json(shift); } );
 
     #Helper to build logger objects quickly
     $self->helper(

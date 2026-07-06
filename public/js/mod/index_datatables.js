@@ -8,7 +8,7 @@ import I18N from "i18n";
 export let dataTable = {};
 let originalTitle = document.title;
 let isComingFromPopstate = false;
-let currentSearch = "";
+export let currentSearch = "";
 
 /**
  * Initialize DataTables.
@@ -29,9 +29,12 @@ export function initializeAll() {
 
     // Catch tag div clicks and do a search instead of reloading the page
     $(document).on("click.gt", ".gt", (e) => {
-        e.preventDefault();
-        currentSearch = $(e.target).attr("search");
-        doSearch();
+
+        if (e.target.hasAttribute("search")) {
+            e.preventDefault();
+            currentSearch = $(e.target).attr("search");
+            doSearch();
+        }
     });
 
     // Mark datatables-originated reader links so Reader can decide whether to enable cross-archive navigation.

@@ -12,6 +12,14 @@ description: Query and modify the database.
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
 
+{% openapi-operation spec="lanraragi-api" path="/database/backup" method="post" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}
+
+{% openapi-operation spec="lanraragi-api" path="/database/backup/{jobid}" method="get" %}
+[OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
+{% endopenapi-operation %}
+
 {% openapi-operation spec="lanraragi-api" path="/database/isnew" method="delete" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}

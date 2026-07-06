@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.80",
-    "version_name": "Where Are We Now?",
+    "version": "0.9.81",
+    "version_name": "Atomica",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "devEngines": {
         "runtime": {
@@ -34,6 +34,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "6.2.1",
         "@jcubic/tagger": "0.4.2",
+        "@preact/signals": "^2.9.2",
         "allcollapsible": "1.1.0",
         "awesomplete": "1.1.5",
         "blueimp-file-upload": "10.32.0",
@@ -41,6 +42,7 @@
         "clsx": "1.1.1",
         "datatables.net": "1.11.5",
         "dompurify": "^3.4.11",
+        "eslint-plugin-import-x": "^4.17.1",
         "fscreen": "1.2.0",
         "geist": "1.0.0",
         "htm": "^3.1.1",
@@ -49,7 +51,7 @@
         "jquery": "3.6.0",
         "jquery-contextmenu": "2.9.2",
         "marked": "^18.0.4",
-        "preact": "10.7.1",
+        "preact": "^10.29.2",
         "raty-js": "^4.3.0",
         "react-toastify": "9.0.0-rc-2",
         "sortablejs": "1.15.6",
@@ -60,7 +62,7 @@
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@stylistic/eslint-plugin": "^4.0.0",
-        "eslint": "^10.1.0",
+        "eslint": "^10.6.0",
         "globals": "16.5.0"
     }
 }

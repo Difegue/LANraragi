@@ -14,6 +14,7 @@ use Data::Dumper;
 use LANraragi::Model::Tankoubon;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
+use LANraragi::Model::Search;
 use LANraragi::Utils::Database qw(set_tags);
 
 # Mock Redis
@@ -132,6 +133,14 @@ my %tank_meta = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_meta{name}, "Updated Tank Name", 'Name updated correctly');
 is($tank_meta{summary}, "A test summary", 'Summary updated correctly');
 is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
+
+my ($new_total, $new_filtered, @new_name_ids) =
+    LANraragi::Model::Search::do_search("updated tank name", "", 0, 0, 0, 0, 0, 1, 0);
+ok((grep { $_ eq $new_tank_id } @new_name_ids), 'Tank is searchable by its new name');
+
+my ($old_total, $old_filtered, @old_name_ids) =
+    LANraragi::Model::Search::do_search("test tank", "", 0, 0, 0, 0, 0, 1, 0);
+ok(!(grep { $_ eq $new_tank_id } @old_name_ids), 'Tank is no longer searchable by its old name');
 
 # Test: Get tankoubons containing archive
 my @containing_tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($archive_ids[0]);

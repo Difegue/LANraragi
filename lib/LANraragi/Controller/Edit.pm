@@ -5,7 +5,6 @@ use File::Basename;
 use Redis;
 use Encode;
 use Template;
-use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Redis   qw(redis_decode);
@@ -41,9 +40,9 @@ sub index {
             template  => "edit",
             id        => $id,
             name      => $name,
-            arctitle  => xml_escape($title),
-            tags      => xml_escape($tags),
-            summary   => xml_escape($summary),
+            arctitle  => $title,
+            tags      => $tags,
+            summary   => $summary,
             file      => decode_utf8($file),
             thumbhash => $thumbhash,
             plugins   => \@pluginlist,
@@ -81,9 +80,9 @@ sub edit_tankoubon {
     $self->render(
         template      => "edit",
         id            => $id,
-        arctitle      => xml_escape($name),
-        tags          => xml_escape($tags),
-        summary       => xml_escape($summary),
+        arctitle      => $name,
+        tags          => $tags,
+        summary       => $summary,
         is_tank       => 1,
         archives      => \@archives,
         archive_data  => \@full_data,

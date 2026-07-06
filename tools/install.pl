@@ -40,6 +40,9 @@ my @vendor_js = (
     [ "/dompurify/dist/purify.es.mjs", "purify.js" ],
     "/sortablejs/Sortable.min.js",
     [ "/htm/dist/htm.mjs", "htm.js" ],
+    '/@preact/signals/dist/signals.module.js',
+    '/@preact/signals/utils/dist/utils.module.js',
+    '/@preact/signals-core/dist/signals-core.module.js',
 );
 
 my @vendor_woff = (
@@ -115,27 +118,14 @@ if (IS_UNIX) {
     say("OK!");
 }
 
-if (IS_UNIX) {
-    say("Checking for pkg-config...");
-    can_run('pkg-config')
-        ? say("OK!")
-        : say("NOT FOUND! This will make libvips not work/be detectable.")
-    ;
-}
-
 #Check for libvips
 #Note, this check is probably not perfect so it will only complain rather than stop the install
 say("Checking for libvips...");
 my $vips_found;
-if (IS_UNIX) {
-    $vips_found = 
-        ( can_run('pkg-config') && system("pkg-config --exists vips") == 0 )
-        || ( can_run('pkg-config') && system("pkg-config --exists vips-42") == 0 )
-;
-
+if (can_check_lib()) {
+    $vips_found = has_lib("vips") || has_lib("vips-42");
 } else {
-    #TODO: Some windows-pilled MS-maxxer can implement this check 
-    say("UNKNOWN - This check is not yet implemented, but let's pretend libvips is installed!");
+    say("UNKNOWN - ExtUtils::Liblist is not available, so we can't check if libvips is installed. Will assume it is!");
     $vips_found = 1;
 }
 $vips_found
@@ -290,4 +280,17 @@ sub is_package_installed( $package ) {
     ## use critic
 
     return !$@;
+}
+
+sub has_lib( $lib ) {
+    local $SIG{__WARN__} = sub{};
+    my @libs = ExtUtils::Liblist->ext("-l${lib}");
+    return $libs[2];
+}
+
+sub can_check_lib {
+    eval {
+        require ExtUtils::Liblist;
+    };
+    return (!$@);
 }
