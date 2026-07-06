@@ -14,6 +14,22 @@ let toastsInitialized = false;
 export let isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
 export let isProgressAuthenticated = true;  // Whether progress requires authentication
 
+// Cache of archive/tankoubon data keyed by ID, populated whenever buildThumbnailDiv() renders a
+// thumbnail (main table thumbnail view, homepage carousel widgets, MSM selection carousel...).
+// Lets callers recover full data for an ID that isn't part of the current DataTables page,
+// e.g. archives only shown in the "On Deck"/"Random" homepage carousel widgets.
+const archiveDataCache = new Map();
+
+/**
+ * Retrieve cached archive/tankoubon data for a given ID, if any thumbnail was ever
+ * rendered for it during this session.
+ * @param {string} id Archive or Tankoubon ID
+ * @returns {object|undefined} The cached archive data, or undefined if not cached
+ */
+export function getArchiveData(id) {
+    return archiveDataCache.get(id);
+}
+
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
     let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
@@ -327,6 +343,7 @@ export function buildThumbnailDiv(data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
+    archiveDataCache.set(id, data);
     let reader_url = new ApiURL(`/reader?id=${id}`);
     const bookmarkIcon = buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 

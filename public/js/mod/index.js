@@ -624,9 +624,11 @@ export function toggleArchiveSelection(id) {
         removeArchiveFromSelection(id);
     } else {
         selectedArchives.add(id);
-        // Find archive data from DataTables to build the carousel slide
+        // Find archive data from DataTables to build the carousel slide.
+        // If there's nothing in DT (because we're adding something from the current carousel instead),
+        // fallback to the shared data cache. 
         const row = IndexTable.dataTable.row(`#${id}`);
-        const data = row.data();
+        const data = row.data() || LRR.getArchiveData(id);
         if (data) {
             addArchiveToSelection(data);
         }
