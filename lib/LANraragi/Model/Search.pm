@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
-use LANraragi::Model::Tankoubon qw(tank_has_archive_in_set);
+use LANraragi::Model::Tankoubon qw(tank_has_archive_in_set get_tank_unified_tags);
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, hidecompleted)
 # Performs a search on the database.
@@ -597,6 +597,12 @@ LUA
             }
         }
 
+        # If this is a date_added/timestamp sort, we need to have the same behavior here
+        # as in Tankoubon::get_tank_unified_tags, where timestamps are inferred by the containing archives. 
+        if ( $sortkey eq "date_added" || $sortkey eq "timestamp" ) {
+            _impute_tank_date_tags( \%tmpfilter, $sortkey, @filtered );
+        }
+
         # Partition: IDs that have the sort namespace vs those that don't
         my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
         my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
@@ -617,6 +623,24 @@ LUA
         my $total_time = time() - $start_time;
         $logger->debug("[PERF] sort_results completed in ${total_time}s");
         return ( scalar @keyed_ids, @sorted );
+    }
+}
+
+# For tanks currently unkeyed in search results (filter is at "zzzz"),
+# get the unified tags from the model and check if any of them match the sortkey namespace.  
+# This is mostly meant for date_added/timestamp, which are inferred from the member archives if not present on the tank itself.
+sub _impute_tank_date_tags ( $tmpfilter, $sortkey, @filtered ) {
+    foreach my $id (@filtered) {
+        next unless $id =~ /^TANK/;
+        next unless ( $tmpfilter->{$id} // "zzzz" ) eq "zzzz";
+
+        my $unified = get_tank_unified_tags($id);
+        foreach my $tag ( @{ $unified->{imputed_tags} } ) {
+            if ( $tag =~ /^\Q$sortkey\E:(\d+)$/i ) {
+                $tmpfilter->{$id} = $1;
+                last;
+            }
+        }
     }
 }
 

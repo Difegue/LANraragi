@@ -299,6 +299,80 @@ note('testing tag sort with tanks (grouptanks=1) -- exercises _fallback_tags sin
         'tank tag sort: series desc puts TANK_1589141306 second' );
 }
 
+note('testing date_added sort with tanks (grouptanks=1) -- reproduces the "tanks always pushed last" bug...');
+
+# date_added tags in the mock data (grouptanks=1 -- Egypt/Computer Room are grouped into their tanks):
+#   TANK_1589138380: own tag "date_added:1000000000" (wins over any imputed member value)
+#   4857fd2e...630 (Ghost in the Shell):   date_added:1620000000
+#   TANK_1589141306: no own date_added tag -> imputed as MAX(Egypt=1600000000, Computer Room=1650000000) = 1650000000
+#   e4c422fd...7e (Rohan Kishibe):         date_added:1700000000
+# All other archives have no date_added tag -> unkeyed, pushed to the back.
+my %expected_date_keyed = map { $_ => 1 } (
+    "TANK_1589138380",
+    "4857fd2e7c00db8b0af0337b94055d8445118630",
+    "TANK_1589141306",
+    "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+);
+
+{
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "date_added", 0, 0, 0, 1, 0 );
+    is( $filtered, 13, 'date_added sort should return all 13 items' );
+
+    is_deeply( { map { $_ => 1 } @ids[ 0 .. 3 ] }, \%expected_date_keyed,
+        'date_added asc keyed partition should contain both tanks plus Ghost in the Shell and Rohan Kishibe' );
+
+    is( $ids[0], "TANK_1589138380",
+        'date_added asc: TANK_1589138380 (own tag 1000000000) sorts first, not pushed to the back' );
+    is( $ids[1], "4857fd2e7c00db8b0af0337b94055d8445118630",
+        'date_added asc: Ghost in the Shell (1620000000) is second' );
+    is( $ids[2], "TANK_1589141306",
+        'date_added asc: TANK_1589141306 (imputed max 1650000000) is third, not pushed to the back' );
+    is( $ids[3], "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+        'date_added asc: Rohan Kishibe (1700000000) is fourth' );
+}
+
+{
+    # Descending: keyed partition reverses, unkeyed items stay at the back either way
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "date_added", 1, 0, 0, 1, 0 );
+
+    is_deeply( { map { $_ => 1 } @ids[ 0 .. 3 ] }, \%expected_date_keyed,
+        'date_added desc keyed partition should contain both tanks plus Ghost in the Shell and Rohan Kishibe' );
+
+    is( $ids[0], "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+        'date_added desc: Rohan Kishibe (1700000000) sorts first' );
+    is( $ids[1], "TANK_1589141306",
+        'date_added desc: TANK_1589141306 (imputed max 1650000000) is second, not pushed to the back' );
+    is( $ids[2], "4857fd2e7c00db8b0af0337b94055d8445118630",
+        'date_added desc: Ghost in the Shell (1620000000) is third' );
+    is( $ids[3], "TANK_1589138380",
+        'date_added desc: TANK_1589138380 (own tag 1000000000) is fourth, not pushed to the back' );
+}
+
+note('testing timestamp sort with tanks -- same date-type imputation logic applies to the "timestamp" namespace...');
+
+{
+    # Temporarily swap Rohan Kishibe's and Computer Room's date_added tag for a timestamp tag,
+    # to prove the imputation isn't hardcoded to only the date_added namespace.
+    my $orig_rohan_tags        = $redis->hget( "e4c422fd10943dc169e3489a38cdbf57101a5f7e",   "tags" );
+    my $orig_computerroom_tags = $redis->hget( "28697b96f0ac5777be2614ed10ca47742c9522fa", "tags" );
+
+    $redis->hset( "e4c422fd10943dc169e3489a38cdbf57101a5f7e", "tags",
+        "parody: jojo's bizarre adventure, timestamp:1700000000" );
+    $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "tags",
+        "year of shadow, character:vector the crocodile, timestamp:1650000000" );
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "timestamp", 0, 0, 0, 1, 0 );
+
+    my %pos = map { $ids[$_] => $_ } 0 .. $#ids;
+    ok( $pos{"TANK_1589141306"} <= 3,
+        'timestamp sort: TANK_1589141306 (imputed from Computer Room) is in the keyed partition, not pushed to the back' );
+    ok( $pos{"TANK_1589141306"} < $pos{"e4c422fd10943dc169e3489a38cdbf57101a5f7e"},
+        'timestamp sort: TANK_1589141306 (1650000000) sorts before Rohan Kishibe (1700000000)' );
+
+    $redis->hset( "e4c422fd10943dc169e3489a38cdbf57101a5f7e",   "tags", $orig_rohan_tags );
+    $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "tags", $orig_computerroom_tags );
+}
+
 note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_lastread since evalsha is not mocked...');
 
 {
