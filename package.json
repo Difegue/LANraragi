@@ -19,7 +19,8 @@
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
         "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
         "backup-db": "perl ./script/backup",
-        "get-version": "perl ./script/get_version"
+        "get-version": "perl ./script/get_version",
+        "tidy": "find . -name '*.pl' -o -name '*.pm' | xargs perltidy -b -bext='/'"
     },
     "repository": {
         "type": "git",
