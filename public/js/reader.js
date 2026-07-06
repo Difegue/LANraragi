@@ -2044,7 +2044,7 @@ function getImageSize(url) {
 async function setupArchiveNavigation() {
     const navigationState = sessionStorage.getItem("navigationState");
     const currArchiveIdsJson = localStorage.getItem("currArchiveIds");
-    const referrer = document.referrer;
+    const {referrer} = document;
     const isDirectNavigation = !referrer || !referrer.includes(window.location.host);
     if (isDirectNavigation) {
         archiveIds = [];

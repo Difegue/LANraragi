@@ -835,7 +835,7 @@ function addArchivesToTank(tankId, arcIds) {
         exitSelectionCarouselMode();
         IndexTable.doSearch();
     })
-    .catch((error) => LRR.showErrorToast(I18N.MSMMergeAddError, error));
+        .catch((error) => LRR.showErrorToast(I18N.MSMMergeAddError, error));
 };
 
 // #endregion
