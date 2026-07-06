@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2026-06-01 09:52+0000\n"
+"PO-Revision-Date: 2026-07-07 03:01+0000\n"
 "Last-Translator: 四迷二葉亭 <sumu32000@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -2129,3 +2129,23 @@ msgstr ""
 
 msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
 msgstr "${n} 件のアーカイブを単行本「${name}」に追加します。続行しますか？"
+
+msgid "This is the first archive"
+msgstr "最初のアーカイブです"
+
+msgid "This is the last archive"
+msgstr "最後のアーカイブです"
+
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr ""
+"検索結果からアーカイブを閲覧している場合は、以下の方法でアーカイブ間を移動す"
+"ることもできます :"
+
+msgid "The , and . keys"
+msgstr ", キー、. キー、および / キー"
+
+msgid "Reading past the first/last page"
+msgstr "最初／最後のページを越えて読み進める"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "Shift + ←/→：最初のページ／最後のページへ移動"
