@@ -275,7 +275,7 @@ sub build_json ( $id, %hash ) {
         arcid        => $id,
         title        => $title,
         filename     => $name,
-        tags         => $tags,
+        tags         => $tags // "",
         summary      => $summary,
         isnew        => $isnew ? $isnew : "false",
         extension    => lc( ( split( /\./, $file ) )[-1] ),
