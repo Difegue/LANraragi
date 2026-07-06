@@ -283,7 +283,7 @@ export function buildTagsDiv(tags) {
             line += `<div class="gt">
                         <a href="${encodeHTML(url)}"`;
             if (key !== "source") // Don't add the search attribute for source tags, since they are external links
-                line += ` search="${encodeHTML(searchTag)}"`
+                line += ` search="${encodeHTML(searchTag)}"`;
             line += `   >
                             ${tagText}
                         </a>

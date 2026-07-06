@@ -380,7 +380,7 @@ export function loadContentData() {
         } else {
             progress = data.progress - 1;
         }
-    }
+    };
 
     // If the ID is a Tank ID (TANK_xxxx), use the Tankoubon API for metadata
     if (id.startsWith("TANK_")) {
@@ -1127,8 +1127,8 @@ function loadStamps(currentPage) {
                 let y = data.result[i].position.split(",")[1];
                 markerData.x = x;
                 markerData.y = y;
-                markerData.name = data.result[i].content
-                markerData.id = data.result[i].id
+                markerData.name = data.result[i].content;
+                markerData.id = data.result[i].id;
                 markerData.left = true;
                 markers.push(markerData);
             }
@@ -1146,8 +1146,8 @@ function loadStamps(currentPage) {
                             let y = data.result[i].position.split(",")[1];
                             markerData.x = x;
                             markerData.y = y;
-                            markerData.name = data.result[i].content
-                            markerData.id = data.result[i].id
+                            markerData.name = data.result[i].content;
+                            markerData.id = data.result[i].id;
                             markerData.left = false;
                             markers.push(markerData);
                         }
@@ -1272,10 +1272,10 @@ function loadBookmarkStatus() {
                             bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
                         }
                         leftOption.appendChild(bookmark);
-                    })
-                })
+                    });
+                });
         }
-    )
+    );
 }
 
 function updateMetadata() {
@@ -2285,7 +2285,7 @@ jQuery(() => {
                     "editmarker": {"name": "Edit Marker", "icon":"fas fa-pen-to-square"},
                     "deletemarker": {"name": "Delete Marker", "icon":"fas fa-minus"},
                 }
-            }
+            };
         }
     });
 });
