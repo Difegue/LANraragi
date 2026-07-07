@@ -62,6 +62,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@redocly/cli": "^2.37.0",
         "@stylistic/eslint-plugin": "^4.0.0",
         "eslint": "^10.6.0",
         "globals": "16.5.0"
