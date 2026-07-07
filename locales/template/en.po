@@ -1712,6 +1712,12 @@ msgstr "EPUB support in LANraragi is minimal"
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>"
 
+msgid "This comic streams its pages from the web"
+msgstr "This comic streams its pages from the web"
+
+msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
+msgstr "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
+
 msgid "Navigation Help"
 msgstr "Navigation Help"
 

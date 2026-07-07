@@ -81,7 +81,8 @@ The following formats are supported by LRR for Archives:
 * 7z/cb7
 * xz
 * pdf
-* epub (images only if viewed in the Web Client or through the Client API, potentially out of order)\\
+* epub (images only if viewed in the Web Client or through the Client API, potentially out of order)
+* cbw (ComicBookWeb: an XML file referencing remote page images by URL; LRR proxies and caches those images on demand)\\
 {% endhint %}
 
 {% hint style="info" %}

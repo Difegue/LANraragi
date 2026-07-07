@@ -120,6 +120,8 @@ sub get_opds_data {
         $arcdata->{mimetype} = "application/x-cbr";
     } elsif ( $file =~ /^(.*\/)*.+\.(epub)$/ ) {
         $arcdata->{mimetype} = "application/epub+zip";
+    } elsif ( $file =~ /^(.*\/)*.+\.(cbw)$/ ) {
+        $arcdata->{mimetype} = "application/xml";
     } else {
         $arcdata->{mimetype} = "application/x-cbz";
     }

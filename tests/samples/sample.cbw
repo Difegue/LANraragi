@@ -1,0 +1,11 @@
+<WebComic>
+  <Info/>
+  <Variables>
+    <Variable Key="Base" Value="http://www.example.com/comic/" />
+  </Variables>
+  <Images>
+    <Image Url="{Base}cover.jpg" />
+    <Image Url="{Base}[00:1-3].png" />
+    <Image PageLinkType="Url" Url="{Base}extra.webp" />
+  </Images>
+</WebComic>

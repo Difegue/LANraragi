@@ -1612,6 +1612,12 @@ msgstr ""
 "LANraragi a un <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/"
 "external-readers#generic-opds-readers'>lettore OPDS.</a>"
 
+msgid "This comic streams its pages from the web"
+msgstr ""
+
+msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
+msgstr ""
+
 msgid "Navigation Help"
 msgstr "Assistenza alla Navigazione"
 
