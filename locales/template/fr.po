@@ -91,8 +91,8 @@ msgstr "Utiliser le plugin :"
 msgid "Timeout (max 20s):"
 msgstr "Intervalle d'exécution (max 20s) :"
 
-msgid "This plugin recommends a cooldown of %1 seconds."
-msgstr "Ce plugin recommande un intervalle de %1 secondes."
+msgid "This plugin recommends a cooldown of \${n} seconds."
+msgstr "Ce plugin recommande un intervalle de ${n} secondes."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -143,8 +143,8 @@ msgstr "Annuler"
 msgid "Start another job"
 msgstr "Démarrer une autre tâche"
 
-msgid "Processed %1 out of %2"
-msgstr "Traité %1 archives sur un total de %2"
+msgid "Processed \${x} out of \${y}"
+msgstr "Traité ${x} archives sur un total de ${y}"
 
 msgid "Preparing your data."
 msgstr "Préparation de vos données."

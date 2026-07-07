@@ -295,7 +295,7 @@ I18N.DeleteArchive = "[% c.lh("Delete Archive") %]";
 I18N.Tasks = "[% c.lh("Task :") %]";
 I18N.Timeout = "[% c.lh("Timeout (max 20s):") %]";
 
-I18N.PluginRecommendsCooldown = "[%  c.lh("This plugin recommends a cooldown of %1 seconds.") %]";
+I18N.PluginRecommendsCooldown = (n) => `[%  c.lh("This plugin recommends a cooldown of \${n} seconds.") %]`;
 I18N.SomeServicesMayBanYou = "[% c.lh("Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!") %]";
 I18N.SetASuitableTimeout = "[% c.lh("Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned.") %]";
 I18N.OverridePluginGlobalArguments = "[% c.lh("Override Plugin Global Arguments") %]";
@@ -310,7 +310,7 @@ I18N.CheckUncheckAll = `[% c.lh("Check/Uncheck all") %]`;
 I18N.StartTask = `[% c.lh("Start Task") %]`;
 I18N.Cancel = `[% c.lh("Cancel") %]`;
 I18N.StartAnotherJob = `[% c.lh("Start another job") %]`;
-I18N.ProcessedXofY = `[% c.lh("Processed %1 out of %2") %]`;
+I18N.ProcessedXofY = (x, y) => `[% c.lh("Processed \${x} out of \${y}") %]`;
 I18N.PreparingYourData = `[% c.lh("Preparing your data.") %]`;
 I18N.NoArchivesInYourLibraryYet = `[%  c.lh("No Archives in your library yet.") %]`;
 

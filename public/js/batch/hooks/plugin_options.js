@@ -55,7 +55,7 @@ export function PluginOptions() {
                 </tr>
                 <tr class="operation plugin-operation">
                     <td colspan="2">
-                        <h3>${I18N.PluginRecommendsCooldown.replace("%1", plugins.selectedPluginCooldown)}</h3>
+                        <h3>${I18N.PluginRecommendsCooldown(plugins.selectedPluginCooldown)}</h3>
                         <p>
                             <i class="fas fa-exclamation-triangle"></i> ${I18N.SomeServicesMayBanYou}
                         </p>

@@ -89,8 +89,8 @@ msgstr "Dùng plugin :"
 msgid "Timeout (max 20s):"
 msgstr "Thời gian chờ (tối đa 20 giây):"
 
-msgid "This plugin recommends a cooldown of %1 seconds."
-msgstr "Plugin này đề xuất thời gian chờ là %1 giây."
+msgid "This plugin recommends a cooldown of \${n} seconds."
+msgstr "Plugin này đề xuất thời gian chờ là ${n} giây."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -137,8 +137,8 @@ msgstr "Huỷ"
 msgid "Start another job"
 msgstr "Bắt đầu tiến trình khác"
 
-msgid "Processed %1 out of %2"
-msgstr "Đã hoàn tất %1 trên tổng số %2"
+msgid "Processed \${x} out of \${y}"
+msgstr "Đã hoàn tất ${x} trên tổng số ${y}"
 
 msgid "Preparing your data."
 msgstr "Đang chuẩn bị dữ liệu của bạn."

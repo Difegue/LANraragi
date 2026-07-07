@@ -81,7 +81,7 @@ msgstr ""
 msgid "Timeout (max 20s):"
 msgstr ""
 
-msgid "This plugin recommends a cooldown of %1 seconds."
+msgid "This plugin recommends a cooldown of \${n} seconds."
 msgstr ""
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
@@ -123,7 +123,7 @@ msgstr ""
 msgid "Start another job"
 msgstr ""
 
-msgid "Processed %1 out of %2"
+msgid "Processed \${x} out of \${y}"
 msgstr ""
 
 msgid "Preparing your data."

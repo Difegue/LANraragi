@@ -87,8 +87,8 @@ msgstr "使用するプラグイン:"
 msgid "Timeout (max 20s):"
 msgstr "タイムアウト (最大20秒):"
 
-msgid "This plugin recommends a cooldown of %1 seconds."
-msgstr "このプラグインは %1 秒の待機時間を推奨しています。"
+msgid "This plugin recommends a cooldown of \${n} seconds."
+msgstr "このプラグインは ${n} 秒の待機時間を推奨しています。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
@@ -135,8 +135,8 @@ msgstr "キャンセル"
 msgid "Start another job"
 msgstr "別の処理を開始"
 
-msgid "Processed %1 out of %2"
-msgstr "%1 /%2 を処理済"
+msgid "Processed \${x} out of \${y}"
+msgstr "${x} /${y} を処理済"
 
 msgid "Preparing your data."
 msgstr "データを準備しています。"

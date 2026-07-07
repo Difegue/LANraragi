@@ -36,7 +36,7 @@ export function JobStatus() {
             </${Show}>
             <div id="progress" style="padding-top:6px; padding-bottom:6px">
                 <div class="bar" style=${`width:${batchProgress.value * 100}%`}></div>
-                ${I18N.ProcessedXofY.replace("%1", treatedArchives.value).replace("%2", totalArchives.value)}
+                ${I18N.ProcessedXofY(treatedArchives.value, totalArchives.value)}
             </div>
             <div class="id1" style="padding:4px; height:auto; width:97%;">
                 <pre ref=${logRef} class="log-panel">
