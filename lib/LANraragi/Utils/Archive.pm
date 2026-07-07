@@ -26,6 +26,7 @@ use File::Temp qw(tempdir);
 use POSIX qw(strerror);
 use Mojo::DOM;
 use Mojo::UserAgent;
+use Mojo::IOLoop;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
@@ -33,12 +34,13 @@ use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
 use LANraragi::Utils::Path       qw(get_archive_path);
 use LANraragi::Utils::Resizer    qw(get_resizer);
+use LANraragi::Utils::PageCache  qw(fetch put);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive (for zip, cbz), VIPS (for PDFs) and Mojo::UserAgent (for CBW web comics).
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist is_cbw parse_cbw_urls);
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist is_cbw parse_cbw_urls cbw_prefetch);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -178,6 +180,61 @@ sub fetch_cbw_image ($url) {
       unless $res->is_success;
 
     return $res->body;
+}
+
+# cbw_prefetch($archive, $id, $current_path, $count)
+# Non-blocking prefetch of the next $count CBW pages into PageCache.
+# Called after a CBW page is served so that upcoming pages are instant cache hits.
+# Uses Mojo::UserAgent non-blocking mode: the callback stores the result without
+# blocking the current request. Skips pages already in the cache.
+sub cbw_prefetch ( $archive, $id, $current_path, $count = 3 ) {
+
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Get the full page list (cached by state %url_cache since get_filelist calls parse_cbw_urls)
+    my @pages = get_filelist( $archive, $id );
+    my @urls  = parse_cbw_urls($archive);
+
+    # Find the index of the currently requested page
+    my $current_idx;
+    for my $i ( 0 .. $#pages ) {
+        if ( $pages[$i] eq $current_path ) { $current_idx = $i; last; }
+    }
+    return unless defined $current_idx;
+
+    state $pf_ua = Mojo::UserAgent->new;
+    $pf_ua->connect_timeout(10);
+    $pf_ua->request_timeout(30);
+
+    for my $offset ( 1 .. $count ) {
+        my $idx = $current_idx + $offset;
+        last if $idx > $#pages;
+
+        my $path      = $pages[$idx];
+        my $url       = $urls[$idx];
+        my $cache_key = "page/$id/$path";
+
+        # Skip if already in cache — avoids duplicate downloads
+        next if fetch($cache_key);
+
+        $logger->debug("CBW prefetch: page $idx ($path) from $url");
+
+        # Non-blocking GET: the callback fires when the download completes.
+        $pf_ua->get(
+            $url => {
+                'User-Agent' => 'Mozilla/5.0 (compatible; LANraragi CBW prefetch)'
+            } => sub {
+                my ( $ua, $tx ) = @_;
+                my $res = $tx->result;
+                if ( $res->is_success ) {
+                    put( $cache_key, $res->body );
+                    $logger->debug("CBW prefetch OK: $cache_key");
+                } else {
+                    $logger->debug( "CBW prefetch failed for $url: " . $res->code );
+                }
+            }
+        );
+    }
 }
 
 # use a resizer to make a thumbnail, height = 500px (view in index is 280px tall)
