@@ -3,6 +3,9 @@ openapi: 3.1.0
 info:
   version: 0.9.6
   title: LANraragi API
+  license:
+    name: MIT
+    identifier: MIT
 tags:
   - name: search
     description: Perform searches.
@@ -2158,6 +2161,7 @@ paths:
                       title: Fate GO MEMO
                       filename: Fate GO MEMO
                       summary: null
+                      size: 0
                     - arcid: 28697b96f0ac5858be2614ed10ca47742c9522fd
                       isnew: false
                       extension: rar
@@ -2168,6 +2172,7 @@ paths:
                       title: Rohan Kishibe goes to Gucci
                       filename: Gucc
                       summary: cool summary
+                      size: 0
                   recordsFiltered: 2
                   recordsTotal: 2
         '204':
@@ -2381,6 +2386,7 @@ paths:
                     title: Rohan Kishibe goes to Gucci
                     filename: Gucc
                     summary: cool summary
+                    size: 0
                 recordsTotal: 2
   /search/cache:
     delete:
@@ -2515,7 +2521,7 @@ paths:
                       filename: FateGOMEMO
                     - arcid: d1858d5dc36925aa66be072a97817650d39de166
                       title: test title
-                      tags: null
+                      tags: ""
                       summary: null
                       thumbhash: 9846bb6d62949b56545c42e88d8010446b65702e
                       filename: (Memes)9B789D38B0784C5FBC9D59A9F24D20F2
@@ -4290,7 +4296,7 @@ components:
         namespace: trabant
         oneshot_arg: Chaika Gallery or Archive URL (Will attach matching tags to your archive)
         type: metadata
-        version: 2.1
+        version: '2.1'
         parameters: 
           - desc: ipb_pass_hash cookie
             type: string
@@ -4316,7 +4322,7 @@ components:
             - int
             - string
         default_value:
-          type: [string, "null"]
+          type: [boolean, integer, string, "null"]
           description: Default value of the parameter
       example:
         default_value: 0
