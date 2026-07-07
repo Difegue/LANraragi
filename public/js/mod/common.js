@@ -352,7 +352,7 @@ export function buildThumbnailDiv(data, tagTooltip = true) {
         : new ApiURL(`/api/archives/${id}/thumbnail?no_fallback=true`);
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
-    return `<div class="id1 context-menu swiper-slide" id="${id}">
+    return `<div class="id1 context-menu swiper-slide" id="${id}" data-extension="${data.extension || ''}">
                 <div class="id2">
                     ${buildStatusDiv(data)}
                     <a href="${reader_url}" title="${encodeHTML(data.title)}">${encodeHTML(data.title)}</a>

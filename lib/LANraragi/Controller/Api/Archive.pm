@@ -16,6 +16,7 @@ use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Path     qw(compat_path get_archive_path move_path);
+use LANraragi::Utils::Archive  qw(is_cbw);
 
 use LANraragi::Utils::Login qw(is_logged_in_api);
 
@@ -104,6 +105,18 @@ sub serve_file {
 
     my $file = get_archive_path( $redis, $id );
     $redis->quit();
+
+    if ( is_cbw($file) ) {
+        return $self->render(
+            openapi => {
+                operation => "serve_file",
+                success   => 0,
+                error     => "CBW archives cannot be downloaded. They are XML metadata files that reference remote page images by URL; the actual comic pages are fetched on demand while reading."
+            },
+            status => 415
+        );
+    }
+
     $self->render_file( filepath => compat_path($file), filename => basename($file) );
 }
 

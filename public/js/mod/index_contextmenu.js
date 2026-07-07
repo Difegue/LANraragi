@@ -38,7 +38,7 @@ function handleDelete(id) {
  * @param {*} id The Archive ID
  * @returns
  */
-function handleContextMenu(option, id) {
+function handleContextMenu(option, id, extension = "") {
     switch (option) {
         case "edit":
             LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${id}`));
@@ -51,7 +51,16 @@ function handleContextMenu(option, id) {
             LRR.openInNewTab(new LRR.ApiURL(`/reader?id=${id}`));
             break;
         case "download":
-            LRR.openInNewTab(new LRR.ApiURL(`/api/archives/${id}/download`));
+            if (extension === "cbw") {
+                LRR.toast({
+                    heading: I18N.CbwDownloadUnavailable,
+                    text: I18N.CbwDownloadUnavailableDesc,
+                    icon: "warning",
+                    hideAfter: 12000,
+                });
+            } else {
+                LRR.openInNewTab(new LRR.ApiURL(`/api/archives/${id}/download`));
+            }
             break;
         case "copy link":
             pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.ApiURL(`/reader?id=${id}`).toString()}`);
@@ -267,8 +276,7 @@ export function initialize(catListData) {
 
             return {
                 callback: function (key, _options) {
-                    handleContextMenu(key, $(this)
-                        .attr("id"));
+                    handleContextMenu(key, $(this).attr("id"), $(this).data("extension") || "");
                 },
                 items: items,
             };

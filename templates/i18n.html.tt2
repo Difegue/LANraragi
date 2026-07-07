@@ -176,6 +176,8 @@ I18N.ReaderEpubWarning = "[% c.lh("EPUB support in LANraragi is minimal") %]";
 I18N.ReaderEpubWarningDesc = "[% c.lh("EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader.") %]";
 I18N.ReaderCbwWarning = "[% c.lh("This comic streams its pages from the web") %]";
 I18N.ReaderCbwWarningDesc = "[% c.lh("CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online.") %]";
+I18N.CbwDownloadUnavailable = "[% c.lh("CBW archives cannot be downloaded") %]";
+I18N.CbwDownloadUnavailableDesc = "[% c.lh("CBW files are XML metadata that reference remote page images by URL. The actual comic content can only be viewed in the Web Reader.") %]";
 I18N.ReaderNavHelp = "[% c.lh("Navigation Help") %]";
 I18N.ReaderErrorProgress = "[% c.lh("Error updating reading progression") %]";
 I18N.ReaderPage = (page) => `[% c.lh("Page \${page}") %]`;

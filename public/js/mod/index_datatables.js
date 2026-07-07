@@ -286,6 +286,7 @@ export function initializeThumbView() {
 export function createdRow(row, data, dataIndex, cells) {
     // Update row with id and context-menu class
     row.id = data.arcid || data.id;
+    row.dataset.extension = data.extension;
     row.classList.add("context-menu");
     // Builds a id1 class div to jam in the thumb container for the given archive data
     if (localStorage.indexViewMode === "1") {
