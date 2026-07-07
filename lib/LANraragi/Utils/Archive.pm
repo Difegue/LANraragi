@@ -284,6 +284,12 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     # Extract requested image to temp dir if it doesn't already exist
     my $arcimg = extract_single_file( $file, $requested_image );
 
+    # For CBW archives, stash the downloaded bytes in PageCache so the
+    # reader (get_page_data) hits cache instead of re-fetching from remote.
+    if ( is_cbw($file) ) {
+        put( "page/$id/$requested_image", $arcimg );
+    }
+
     my $thumbname;
     unless ($set_cover) {
 
