@@ -30,6 +30,7 @@ tags:
 paths:
   /opds:
     get:
+      security: []
       operationId: getOpdsCatalog
       x-mojo-to: api-other#serve_opds_catalog
       summary: Get the OPDS Catalog
@@ -279,6 +280,7 @@ paths:
                     </feed>
   /opds/{id}:
     get:
+      security: []
       operationId: getOpdsItem
       x-mojo-to: api-other#serve_opds_item
       summary: Get a specific archive through OPDS
@@ -343,6 +345,7 @@ paths:
                     </entry>
   /opds/{id}/pse:
     get:
+      security: []
       operationId: getOpdsPage
       x-mojo-to: api-other#serve_opds_page
       summary: OPDS-PSE 
@@ -371,6 +374,7 @@ paths:
   
   /info:
     get:
+      security: []
       operationId: getServerInfo
       x-mojo-to: api-other#serve_serverinfo
       summary: Get server info
@@ -714,6 +718,7 @@ paths:
   
   /archives:
     get:
+      security: []
       operationId: getAllArchives
       x-mojo-to: api-archive#serve_archivelist
       summary: Get all Archives
@@ -733,6 +738,7 @@ paths:
                   $ref: '#/components/schemas/ArchiveMetadataJson'
   /archives/untagged:
     get:
+      security: []
       operationId: getUntaggedArchives
       x-mojo-to: api-archive#serve_untagged_archivelist
       summary: Get all untagged archives
@@ -903,6 +909,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}:
     get:
+      security: []
       operationId: getArchive
       x-mojo-to: api-archive#serve_metadata
       deprecated: true
@@ -998,6 +1005,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/metadata:
     get:
+      security: []
       operationId: getArchiveMetadata
       x-mojo-to: api-archive#serve_metadata
       summary: Get archive metadata
@@ -1089,6 +1097,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/thumbnail:
     get:
+      security: []
       operationId: getArchiveThumbnail
       x-mojo-to: api-archive#serve_thumbnail
       summary: Get archive thumbnail
@@ -1215,6 +1224,7 @@ paths:
                 success: 0
   /archives/{id}/categories:
     get:
+      security: []
       operationId: getArchiveCategories
       x-mojo-to: api-archive#get_categories
       summary: Get archive categories
@@ -1285,6 +1295,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/tankoubons:
     get:
+      security: []
       operationId: getArchiveTankoubons
       x-mojo-to: api-tankoubon#get_tankoubons_file
       summary: Get archive tankoubons
@@ -1444,6 +1455,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/download:
     get:
+      security: []
       operationId: downloadArchive
       x-mojo-to: api-archive#serve_file
       summary: Download archive
@@ -1479,6 +1491,7 @@ paths:
                 success: 0
   /archives/{id}/files:
     get:
+      security: []
       operationId: getFiles
       x-mojo-to: api-archive#get_file_list
       summary: Extract an Archive
@@ -1540,6 +1553,7 @@ paths:
                 success: 0
   /archives/{id}/files/thumbnails:
     post:
+      security: []
       operationId: queueArchivePageThumbnailExtraction
       x-mojo-to: api-archive#generate_page_thumbnails
       summary: Extract page thumbnails
@@ -1586,7 +1600,7 @@ paths:
                     enum:
                       - generate_page_thumbnails
                   success:
-                    type: string
+                    type: integer
                     description: Returns 1 if operation was successful, else 0
                     enum: 
                       - 0
@@ -1612,6 +1626,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/page:
     get:
+      security: []
       operationId: getPage
       x-mojo-to: api-archive#serve_page
       summary: Get an archive page
@@ -1649,6 +1664,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/progress/{page}:
     put:
+      security: []
       operationId: updateArchiveProgress
       x-mojo-to: api-archive#update_progress
       summary: Update reading progression
@@ -1802,6 +1818,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
     delete:
+      security: []
       operationId: clearNewArchiveFlag
       x-mojo-to: api-archive#clear_new
       summary: Clear Archive New flag
@@ -1859,6 +1876,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/stamps:
     get:
+      security: []
       operationId: stampedPages
       x-mojo-to: api-stamp#get_stamped_pages
       summary: Get pages that contain at least one stamp in the archive
@@ -1887,6 +1905,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /archives/{id}/stamps/{index}:
     get:
+      security: []
       operationId: stampsByPage
       x-mojo-to: api-stamp#get_stamps_by_page
       summary: Get the stamps linked to the page
@@ -1987,6 +2006,7 @@ paths:
 
   /search:
     get:
+      security: []
       operationId: searchArchives
       x-mojo-to: api-search#handle_api
       summary: Search Archives
@@ -2154,6 +2174,7 @@ paths:
           description: Search engine is not initialized yet. Please wait a few seconds.
   /search/ids:
     get:
+      security: []
       operationId: searchArchiveIds
       x-mojo-to: api-search#handle_api_ids
       summary: Search Archive IDs
@@ -2270,6 +2291,7 @@ paths:
           description: Search engine is not initialized yet. Please wait a few seconds.
   /search/random:
     get:
+      security: []
       operationId: searchRandomArchives
       x-mojo-to: api-search#get_random_archives
       summary: Search random Archives
@@ -2324,7 +2346,6 @@ paths:
         - name: groupby_tanks
           in: query
           required: false
-          default: true
           description: >-
             Enable or disable Tankoubon grouping. Defaults to true.
 
@@ -2332,6 +2353,7 @@ paths:
             the archive IDs they contain.
           schema:
             type: boolean
+            default: true
       responses:
         '200':
           description: Search results
@@ -2386,6 +2408,7 @@ paths:
   
   /database/stats:
     get:
+      security: []
       operationId: getStatistics
       x-mojo-to: api-database#serve_tag_stats
       summary: Get Statistics
@@ -2841,6 +2864,7 @@ paths:
   
   /minion/{jobid}:
     get:
+      security: []
       operationId: minionJobStatus
       x-mojo-to: api-minion#minion_job_status
       summary: Get the basic status of a Minion Job
@@ -2995,6 +3019,7 @@ paths:
   
   /categories:
     get:
+      security: []
       operationId: getCategoryList
       x-mojo-to: api-category#get_category_list
       summary: Get all Categories
@@ -3082,6 +3107,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /categories/bookmark_link:
     get:
+      security: []
       operationId: getBookmarkLink
       x-mojo-to: api-category#get_bookmark_link
       summary: Get bookmark-linked Category
@@ -3215,6 +3241,7 @@ paths:
           minLength: 14
           maxLength: 14
     get:
+      security: []
       operationId: getCategory
       x-mojo-to: api-category#get_category
       summary: Get a single Category
@@ -3397,6 +3424,7 @@ paths:
 
   /tankoubons:
     get:
+      security: []
       operationId: getTankoubonList
       x-mojo-to: api-tankoubon#get_tankoubon_list
       summary: Get all Tankoubons
@@ -3502,6 +3530,7 @@ paths:
         schema:
           type: string
     get:
+      security: []
       operationId: getTankoubon
       x-mojo-to: api-tankoubon#get_tankoubon
       summary: Get a single Tankoubon
@@ -3658,6 +3687,7 @@ paths:
         schema:
           type: string
     get:
+      security: []
       operationId: getTankoubonFull
       x-mojo-to: api-tankoubon#get_tankoubon_full
       summary: Get a single Tankoubon with full detail
@@ -3737,6 +3767,7 @@ paths:
         schema:
           type: string
     get:
+      security: []
       operationId: getTankoubonThumbnail
       x-mojo-to: api-tankoubon#serve_tankoubon_thumbnail
       summary: Get Tankoubon thumbnail
@@ -3832,6 +3863,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}/progress/{page}:
     put:
+      security: []
       operationId: updateTankoubonProgress
       x-mojo-to: api-tankoubon#update_tank_progress
       summary: Update Tankoubon reading progression
@@ -4011,6 +4043,7 @@ paths:
                 $ref: '#/components/schemas/OperationResponse'
   /stamps/{id}:
     get:
+      security: []
       operationId: getStamp
       x-mojo-to: api-stamp#get_stamp
       summary: Get Stamp
