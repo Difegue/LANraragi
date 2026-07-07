@@ -12,7 +12,7 @@
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
         "lint": "eslint public/",
-        "lint-openapi": "redocly lint tools/openapi.yaml",
+        "lint-openapi": "redocly lint tools/openapi.yaml --config=redocly.yml",
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
         "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
         "dev-server-verbose": "export LRR_DEVSERVER=1 && perl ./script/launcher.pl -m -v ./script/lanraragi",
