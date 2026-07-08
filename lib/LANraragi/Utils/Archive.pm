@@ -26,13 +26,12 @@ use File::Temp qw(tempdir);
 use POSIX qw(strerror);
 use Mojo::DOM;
 use Mojo::UserAgent;
-use Mojo::IOLoop;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
-use LANraragi::Utils::Path       qw(get_archive_path);
+use LANraragi::Utils::Path       qw(get_archive_path open_path_or_die);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 use LANraragi::Utils::PageCache  qw(fetch put);
 
@@ -132,7 +131,7 @@ sub parse_cbw_urls ($file) {
     state %url_cache;
 
     return @{ $url_cache{$file} //= do {
-        open( my $fh, '<:raw', $file ) or die "Could not open CBW file '$file': $!\n";
+        open_path_or_die( my $fh, '<:raw', $file );
         my $xml = do { local $/; <$fh> };
         close($fh);
         [ parse_cbw_xml($xml) ];
@@ -183,10 +182,8 @@ sub fetch_cbw_image ($url) {
 }
 
 # cbw_prefetch($archive, $id, $current_path, $count)
-# Non-blocking prefetch of the next $count CBW pages into PageCache.
-# Called after a CBW page is served so that upcoming pages are instant cache hits.
-# Uses Mojo::UserAgent non-blocking mode: the callback stores the result without
-# blocking the current request. Skips pages already in the cache.
+# After a CBW page is served, prefetch the next $count pages into PageCache
+# so they are instant cache hits on forward navigation.
 sub cbw_prefetch ( $archive, $id, $current_path, $count = 3 ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
@@ -202,10 +199,6 @@ sub cbw_prefetch ( $archive, $id, $current_path, $count = 3 ) {
     }
     return unless defined $current_idx;
 
-    state $pf_ua = Mojo::UserAgent->new;
-    $pf_ua->connect_timeout(10);
-    $pf_ua->request_timeout(30);
-
     for my $offset ( 1 .. $count ) {
         my $idx = $current_idx + $offset;
         last if $idx > $#pages;
@@ -214,26 +207,18 @@ sub cbw_prefetch ( $archive, $id, $current_path, $count = 3 ) {
         my $url       = $urls[$idx];
         my $cache_key = "page/$id/$path";
 
-        # Skip if already in cache — avoids duplicate downloads
+        # Skip if already in cache
         next if fetch($cache_key);
 
         $logger->debug("CBW prefetch: page $idx ($path) from $url");
 
-        # Non-blocking GET: the callback fires when the download completes.
-        $pf_ua->get(
-            $url => {
-                'User-Agent' => 'Mozilla/5.0 (compatible; LANraragi CBW prefetch)'
-            } => sub {
-                my ( $ua, $tx ) = @_;
-                my $res = $tx->result;
-                if ( $res->is_success ) {
-                    put( $cache_key, $res->body );
-                    $logger->debug("CBW prefetch OK: $cache_key");
-                } else {
-                    $logger->debug( "CBW prefetch failed for $url: " . $res->code );
-                }
-            }
-        );
+        my $content = eval { fetch_cbw_image($url) };
+        if ($content) {
+            put( $cache_key, $content );
+            $logger->debug("CBW prefetch OK: $cache_key");
+        } else {
+            $logger->debug("CBW prefetch failed for $url");
+        }
     }
 }
 
