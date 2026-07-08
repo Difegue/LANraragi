@@ -495,7 +495,8 @@ export function updateCarousel(e) {
     }
 
     if (carouselInitialized) {
-        loadCarousel(endpoint, ++carouselGeneration);
+        carouselGeneration += 1;
+        loadCarousel(endpoint, carouselGeneration);
     }
 }
 
