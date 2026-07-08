@@ -9,17 +9,13 @@ import I18N from "i18n";
 
 let pseudoCopyBtn = undefined;
 
+/**
+ * Delete an archive by its ID
+ * @param {*} id The Archive ID
+ */
 function handleDelete(id) {
     const isTank = id.startsWith("TANK_");
-    LRR.showPopUp({
-        text: isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion,
-        icon: "warning",
-        showCancelButton: true,
-        focusConfirm: false,
-        confirmButtonText: I18N.ConfirmYes,
-        reverseButtons: true,
-        confirmButtonColor: "#d33",
-    })
+    LRR.showDeleteConfirmPopUp(isTank ? I18N.ConfirmTankoubonDeletion : I18N.ConfirmArchiveDeletion)
         .then((result) => {
             if (result.isConfirmed) {
                 if (isTank) Server.deleteTankoubon(id, () => {
@@ -60,6 +56,66 @@ function handleContextMenu(option, id) {
         case "msm-toggle-archive":
             if (!Index.isMultiSelectMode) Index.toggleMultiSelectMode();
             Index.toggleArchiveSelection(id);
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * Handle context menu clicks within the category row.
+ * @param {*} option The clicked option
+ * @param {*} cat The category object from Index.catList ({ name, id, pinned, search })
+ */
+function handleCategoryContextMenu(option, cat) {
+    switch (option) {
+        case "pin": {
+            const newPinned = cat.pinned === "1" ? "0" : "1";
+            const pinMsg = newPinned === "1" ? I18N.CategoryPinned : I18N.CategoryUnpinned;
+            Server.callAPI(`/api/categories/${cat.id}?pinned=${newPinned}`, "PUT", pinMsg, I18N.CategoryPinError,
+                () => {
+                    Index.loadCategories();
+                },
+            );
+            break;
+        }
+        case "bookmark": {
+            const isBookmark = localStorage.getItem("bookmarkCategoryId") === cat.id;
+            if (isBookmark) {
+                Server.callAPI("/api/categories/bookmark_link", "DELETE", I18N.BookmarkUnlinked, I18N.BookmarkUnlinkError,
+                    () => {
+                        localStorage.removeItem("bookmarkCategoryId");
+                        localStorage.removeItem("bookmarkedArchives");
+                        Index.loadCategories().then(() => IndexTable.doSearch());
+                    },
+                );
+            } else {
+                Server.callAPI(`/api/categories/bookmark_link/${cat.id}`, "PUT", I18N.BookmarkLinked, I18N.BookmarkLinkError,
+                    () => {
+                        localStorage.setItem("bookmarkCategoryId", cat.id);
+                        Index.loadCategories().then(() => IndexTable.doSearch());
+                    },
+                );
+            }
+            break;
+        }
+        case "delete":
+            LRR.showDeleteConfirmPopUp(I18N.CategoryDeleteConfirm).then((result) => {
+                if (result.isConfirmed) {
+                    Server.callAPI(`/api/categories/${cat.id}`, "DELETE", I18N.CategoryDeleted, I18N.CategoryDeleteError,
+                        () => {
+                            if (Index.selectedCategory === cat.id) {
+                                Index.clearCategoryFilter();
+                            }
+                            if (localStorage.getItem("bookmarkCategoryId") === cat.id) {
+                                localStorage.removeItem("bookmarkCategoryId");
+                                localStorage.removeItem("bookmarkedArchives");
+                            }
+                            Index.loadCategories();
+                        },
+                    );
+                }
+            });
             break;
         default:
             break;
@@ -274,4 +330,38 @@ export function initialize(catListData) {
             };
         }
     });
+
+    // Initialize category context menu
+    if (LRR.isUserLogged()) {
+        $.contextMenu({
+            selector: ".category-context-menu",
+            build: ($trigger, _e) => {
+                const catId = $trigger.is("select")
+                    ? $trigger.find(":selected").attr("id")
+                    : $trigger.attr("id");
+
+                const cat = Index.catList.find((c) => c.id === catId);
+                if (!cat) { return false; }
+
+                const isPinned = cat.pinned === "1";
+
+                const items = {
+                    "pin": { name: isPinned ? I18N.CategoryUnpin : I18N.CategoryPin, icon: "fas fa-thumbtack" },
+                };
+                if (!cat.search) {
+                    const isBookmark = localStorage.getItem("bookmarkCategoryId") === catId;
+                    items["bookmark"] = { name: isBookmark ? I18N.CategoryRemoveBookmark : I18N.CategorySetBookmark, icon: "fas fa-bookmark" };
+                }
+                items["sep1"] = "---------";
+                items["delete"] = { name: I18N.Delete, icon: "fas fa-trash-alt" };
+
+                return {
+                    callback: function (key, _options) {
+                        handleCategoryContextMenu(key, cat);
+                    },
+                    items: items,
+                };
+            }
+        });
+    }
 }

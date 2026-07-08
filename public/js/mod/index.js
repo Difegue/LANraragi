@@ -17,6 +17,7 @@ let debugMode = false;
 export let pageSize = 100;
 export let isMultiSelectMode = false;
 export let selectedArchives = new Set();
+export const catList = [];
 
 /**
  * Initialize the Archive Index.
@@ -1030,14 +1031,12 @@ export function toggleCategory(button) {
     const categoryId = button.id;
     if (selectedCategory === categoryId) {
         button.classList.remove("toggled");
-        selectedCategory = "";
+        clearCategoryFilter();
     } else {
         selectedCategory = categoryId;
         button.classList.add("toggled");
+        IndexTable.doSearch();
     }
-
-    // Trigger search
-    IndexTable.doSearch();
 }
 
 /**
@@ -1071,22 +1070,17 @@ export function loadCategories() {
                 catName = LRR.encodeHTML(catName);
 
                 const div = `<div style='display:inline-block'>
-                    <input class='favtag-btn ${((category.id === selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='${category.id}' value='${catName}' 
+                    <input class='favtag-btn category-context-menu ${((category.id === selectedCategory) ? "toggled" : "")}'
+                            type='button' id='${category.id}' value='${catName}'
                             onclick='window.Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
-
-                // Take this opportunity to update the bookmark
-                if (category.id === localStorage.getItem("bookmarkCategoryId")) {
-                    localStorage.setItem("bookmarkedArchives", JSON.stringify(category.archives));
-                }
 
                 html += div;
             }
 
             // If more than 10 categories, the rest goes into a dropdown
             if (data.length > 10) {
-                html += `<select id="catdropdown" class="favtag-btn">
+                html += `<select id="catdropdown" class="favtag-btn category-context-menu">
                             <option selected disabled>...</option>`;
 
                 for (let i = 10; i < data.length; i++) {
@@ -1101,10 +1095,36 @@ export function loadCategories() {
 
             $("#category-container").html(html);
 
+            catList.length = 0;
+            for (let i = 0; i < data.length; i++) {
+                const category = data[i];
+                catList.push({ name: category.name, id: category.id, pinned: category.pinned, search: category.search });
+            }
+
+            refreshBookmarkedArchives(data);
+
             // Add a listener on dropdown selection
             $("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
         },
     );
+}
+
+function refreshBookmarkedArchives(categories) {
+    const bookmarkCategoryId = localStorage.getItem("bookmarkCategoryId");
+    if (!bookmarkCategoryId) { return; }
+
+    const bookmarked = categories.find((category) => category.id === bookmarkCategoryId);
+    if (bookmarked) {
+        localStorage.setItem("bookmarkedArchives", JSON.stringify(bookmarked.archives));
+    }
+}
+
+/**
+ * Clear active category filter and redo the search
+ */
+export function clearCategoryFilter() {
+    selectedCategory = "";
+    IndexTable.doSearch();
 }
 
 // #endregion
