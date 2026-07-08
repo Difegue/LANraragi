@@ -48,7 +48,7 @@ sub is_pdf {
 }
 
 # CBW (ComicBookWeb) files are XML metadata files that reference remote page images by URL.
-# They contain no image data themselves; LR proxies and caches those images on demand.
+# They contain no image data themselves; LRR proxies and caches those images on demand.
 # See https://wiki.mobileread.com/wiki/CBW
 sub is_cbw {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -127,7 +127,7 @@ sub expand_cbw_range ($url) {
 # Reads a CBW file from disk and returns its ordered list of page image URLs.
 sub parse_cbw_urls ($file) {
 
-    # Memoize parsed URL lists by file path so that extract_single_file
+    # Memorize parsed URL lists by file path so that extract_single_file
     # (called once per page) doesn't re-read/re-parse the XML every time.
     state %url_cache;
 

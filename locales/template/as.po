@@ -1505,12 +1505,6 @@ msgstr ""
 msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
 msgstr ""
 
-msgid "CBW archives cannot be downloaded"
-msgstr ""
-
-msgid "CBW files are XML metadata that reference remote page images by URL. The actual comic content can only be viewed in the Web Reader."
-msgstr ""
-
 msgid "Navigation Help"
 msgstr ""
 
