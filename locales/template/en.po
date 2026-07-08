@@ -1471,6 +1471,33 @@ msgstr "Category deleted!"
 msgid "Error deleting category"
 msgstr "Error deleting category"
 
+msgid "Pin"
+msgstr "Pin"
+
+msgid "Unpin"
+msgstr "Unpin"
+
+msgid "Error updating category pin:"
+msgstr "Error updating category pin:"
+
+msgid "Set as Bookmark"
+msgstr "Set as Bookmark"
+
+msgid "Remove Bookmark"
+msgstr "Remove Bookmark"
+
+msgid "Category pinned!"
+msgstr "Category pinned!"
+
+msgid "Category unpinned!"
+msgstr "Category unpinned!"
+
+msgid "Bookmark category set!"
+msgstr "Bookmark category set!"
+
+msgid "Bookmark category removed!"
+msgstr "Bookmark category removed!"
+
 msgid "Writing a Predicate"
 msgstr "Writing a Predicate"
 
