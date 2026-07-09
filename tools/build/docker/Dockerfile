@@ -62,9 +62,6 @@ RUN apk add --no-cache \
 # Ensure workdir folder is owned by the user
 RUN chown koyomi:koyomi .
 
-# Copy package.json
-COPY --chown=koyomi:koyomi /package.json package.json
-
 # Stage for building perl dependencies
 FROM base AS build
 
@@ -85,16 +82,19 @@ RUN apk add --no-cache \
     patch \
     perl-config-autoconf
 
-# Copy build time files
+# Copy perl build time files
 COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh tools/
 COPY --chown=koyomi:koyomi /tools/build/all/* tools/build/all/
-COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
 
 # Switch to rootless
 USER koyomi
 
 # Install perl dependencies
 RUN ./tools/install-perl-deps.sh
+
+# Copy package.json
+COPY --chown=koyomi:koyomi /package.json package.json
+COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
 
 # Install npm dependencies
 RUN perl ./tools/install.pl install-front && rm -rf public/js/vendor/*.map public/css/vendor/*.map
@@ -106,7 +106,6 @@ FROM base AS runtime
 COPY /tools/build/docker/s6/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
 # Copy setup script as-is since no changes are needed between 2.x and 3.x
 COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/init/
-#COPY /tools/build/docker/s6/fix-attrs.d/ /etc/fix-attrs.d/
 
 # Copy build stage files
 COPY --from=build --chown=koyomi:koyomi /home/koyomi/perl5/lib                     /home/koyomi/perl5/lib
@@ -119,6 +118,7 @@ COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /tools/openapi.yaml tools/openapi.yaml
+COPY --chown=koyomi:koyomi /package.json package.json
 COPY --chown=koyomi:koyomi /locales locales
 COPY --chown=koyomi:koyomi /templates templates
 COPY --chown=koyomi:koyomi /public public
