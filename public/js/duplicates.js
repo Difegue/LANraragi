@@ -47,14 +47,10 @@ Duplicates.initializeAll = function () {
  */
 Duplicates.findDuplicates = function () {
 
-    let formData = new FormData();
-    formData.append("args", "[5]"); // threshold
-    formData.append("priority", 0);
-
     $(".find-duplicates").hide();
     $("#processing").show();
 
-    Server.callAPIBody("/api/minion/find_duplicates/queue", "POST", formData,
+    Server.callAPI("/api/minion/find_duplicates/queue?args=[5]&priority=0", "POST",
         "Queued up a job to find duplicates! Stay tuned for updates or check the Minion console.",
         I18N.MinionSendError,
         (data) => {
