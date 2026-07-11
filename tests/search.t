@@ -40,6 +40,20 @@ is( $filtered, 13, qq(Empty search(full index)) );
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0, 0 );
 is( $filtered, 13, qq(Empty search(tank grouping off)) );
 
+note('testing initialized empty index with tank grouping enabled...');
+{
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    $redis_search->del("LRR_TANKGROUPED");
+
+    my ( $empty_total, $empty_filtered, @empty_ids ) =
+      LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 0, 1, 0 );
+    is( $empty_total,    0, 'empty initialized grouped search total is zero' );
+    is( $empty_filtered, 0, 'empty initialized grouped search filtered count is zero' );
+    is_deeply( \@empty_ids, [], 'empty initialized grouped search returns no ids' );
+
+    LANraragi::Model::Stats::build_stat_hashes();
+}
+
 $search = qq(Ghost in the Shell);
 do_test_search();
 is( $ids[0], "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Basic search ($search)) );

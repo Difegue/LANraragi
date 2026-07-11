@@ -30,7 +30,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
-    unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
+    unless ( $redis->exists("LAST_JOB_TIME") ) {
         $logger->warn("Search engine is not initialized yet. Please wait a few seconds.");
 
         # TODO - This is the only case where the API returns -1, but it's not really handled well clientside at the moment.
