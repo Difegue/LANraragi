@@ -1,7 +1,7 @@
 ---
 openapi: 3.1.0
 info:
-  version: 0.9.6
+  version: 0.9.8
   title: LANraragi API
   license:
     name: MIT
