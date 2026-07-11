@@ -267,8 +267,7 @@ export function initialize(catListData) {
 
             return {
                 callback: function (key, _options) {
-                    handleContextMenu(key, $(this)
-                        .attr("id"));
+                    handleContextMenu(key, $(this).attr("id"));
                 },
                 items: items,
             };

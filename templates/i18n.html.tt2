@@ -174,6 +174,8 @@ I18N.ReaderRarWarning = "[% c.lh("This archive seems to be in RAR format!") %]";
 I18N.ReaderRarWarningDesc = "[% c.lh("RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.") %]";
 I18N.ReaderEpubWarning = "[% c.lh("EPUB support in LANraragi is minimal") %]";
 I18N.ReaderEpubWarningDesc = "[% c.lh("EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader.") %]";
+I18N.ReaderCbwWarning = "[% c.lh("This comic streams its pages from the web") %]";
+I18N.ReaderCbwWarningDesc = "[% c.lh("CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online.") %]";
 I18N.ReaderNavHelp = "[% c.lh("Navigation Help") %]";
 I18N.ReaderErrorProgress = "[% c.lh("Error updating reading progression") %]";
 I18N.ReaderPage = (page) => `[% c.lh("Page \${page}") %]`;

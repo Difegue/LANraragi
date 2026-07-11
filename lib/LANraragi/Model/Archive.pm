@@ -15,12 +15,13 @@ use File::Path  qw(remove_tree);
 use File::Basename;
 use File::Copy "cp";
 use File::Path qw(make_path);
+use Mojo::IOLoop;
 
 use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file extract_thumbnail);
+use LANraragi::Utils::Archive    qw(extract_single_file extract_thumbnail is_cbw cbw_prefetch);
 use LANraragi::Utils::Database   qw(invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 use LANraragi::Utils::PageCache  qw(fetch put);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
@@ -246,6 +247,12 @@ sub get_page_data ( $id, $path ) {
         $redis->quit();
         $content = extract_single_file( $archive, $path );
         put( $cachekey, $content );
+
+        # For CBW archives, prefetch upcoming pages asynchronously so they're
+        # cache hits when the user navigates forward.
+        if ( is_cbw($archive) ) {
+            Mojo::IOLoop->next_tick( sub { cbw_prefetch( $archive, $id, $path, 3 ) } );
+        }
     }
     return $content;
 }

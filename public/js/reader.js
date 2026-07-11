@@ -960,6 +960,14 @@ function checkFiletypeSupport(extension) {
             closeOnClick: false,
             draggable: false,
         });
+    } else if (extension === "cbw" && !localStorage.cbwWarningShown) {
+        localStorage.cbwWarningShown = true;
+        LRR.toast({
+            heading: I18N.ReaderCbwWarning,
+            text: I18N.ReaderCbwWarningDesc,
+            icon: "info",
+            hideAfter: 20000,
+        });
     }
 }
 
