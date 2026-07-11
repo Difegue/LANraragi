@@ -58,13 +58,14 @@
         "react-toastify": "9.0.0-rc-2",
         "sortablejs": "1.15.6",
         "sweetalert2": "11.22.4",
-        "swiper": "12.1.2",
+        "swiper": "^14.0.2",
         "tippy.js": "6.3.7"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@redocly/cli": "^2.37.0",
         "@stylistic/eslint-plugin": "^4.0.0",
+        "esbuild": "^0.28.1",
         "eslint": "^10.6.0",
         "globals": "16.5.0"
     }

@@ -32,7 +32,7 @@ my @vendor_js = (
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
     "/\@jcubic/tagger/tagger.js",                         "/marked/lib/marked.esm.js",
-    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.module.js",
+    "/preact/dist/preact.module.js",
     "/clsx/dist/clsx.m.js",                               "/preact/compat/dist/compat.module.js",
     "/preact/hooks/dist/hooks.module.js",                 "/sweetalert2/dist/sweetalert2.esm.min.js",
     "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js",
@@ -43,6 +43,10 @@ my @vendor_js = (
     '/@preact/signals/dist/signals.module.js',
     '/@preact/signals/utils/dist/utils.module.js',
     '/@preact/signals-core/dist/signals-core.module.js',
+);
+
+my @vendor_bundle = (
+    "/swiper/swiper-bundle.mjs",
 );
 
 my @vendor_woff = (
@@ -196,10 +200,25 @@ if ( $back || $full ) {
 #Clientside Dependencies with Provisioning
 if ( $front || $full ) {
 
+    my $vendor_path = getcwd . "/public/js/vendor";
     say("\r\nObtaining remote Web dependencies...\r\n");
 
     if ( system( "npm ci" ) != 0 ) {
         die "Something went wrong while obtaining node modules - Bailing out.";
+    }
+
+    say("\r\nBundling web dependencies...\r\n");
+    my @bundle_args = ("npm", "exec", "esbuild",
+        "--",
+        "--bundle",
+        "--format=esm",
+        "--minify",
+        "--external:react",
+        "--outdir=$vendor_path"
+    );
+
+    if ( system((@bundle_args, map { "./node_modules/".$_ } @vendor_bundle)) != 0) {
+        die("Something went wrong while bundling - Bailing out.");
     }
 
     say("\r\nProvisioning...\r\n");
