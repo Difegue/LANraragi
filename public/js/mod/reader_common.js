@@ -230,6 +230,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     });
 
     effect(() => localStorage.showOverlayByDefault = state.showOverlayByDefault.value);
+    effect(() => localStorage.ignoreProgress = state.ignoreProgress.value);
     effect(() => {
         if (state.containerWidth.value === null) {
             localStorage.removeItem("containerWidth");
