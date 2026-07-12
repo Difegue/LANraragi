@@ -63,8 +63,12 @@ sub get_stamps_by_page {
 
     if ( $redis->hexists( $archive_id => "stamps" ) ) {
         my @stamp_ids       = decode_json( $redis->hget( $archive_id, "stamps" ) );
-        my @filtered_stamps = filter_stamps_by_page( @stamp_ids, $index );
-        @stamps = convert_stamps_to_object( $redis, @filtered_stamps );
+        if ( $index == 0 ) {
+            @stamps = convert_stamps_to_object( $redis, @{ $stamp_ids[0] } );
+        } else {
+            my @filtered_stamps = filter_stamps_by_page( @stamp_ids, $index );
+            @stamps = convert_stamps_to_object( $redis, @filtered_stamps );
+        }
     }
 
     $redis->quit();
