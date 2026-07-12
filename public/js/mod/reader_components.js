@@ -56,5 +56,5 @@ export function RightToolbar() {
             <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title=${I18N.ArchiveOverview} onClick=${(e) => { e.preventDefault(); toggleArchiveOverlay(); }}></a>
             <a class="fa fa-compress fa-2x" id="toggle-full-screen" href="#" title=${I18N.FullScreen} onClick=${(e) => { e.preventDefault(); toggleFullScreen(); }} style=${!fscreen.fullscreenEnabled ? { display: "none" } : {}}></a>
         </div>
-    `
+    `;
 }
