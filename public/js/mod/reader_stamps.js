@@ -4,10 +4,8 @@
 import * as Server from "./server.js";
 import * as LRR from "./common.js";
 import I18N from "i18n";
-import fscreen from "fscreen";
 
-
-import { state, getArchiveForPage } from "./reader_common.js";
+import { state, getArchiveForPage, inFullscreen } from "./reader_common.js";
 import { checkStampedPages } from "./reader_archive_overlay.js";
 import { effect } from "@preact/signals";
 
@@ -49,10 +47,10 @@ export function initializeStamps() {
             left: true,
         };
 
-        let page = state.currentPage + 1;
+        let page = state.currentPage.value + 1;
 
-        if (state.doublePageMode.value && state.currentPage > 0
-            && state.currentPage < state.maxPage) {
+        if (state.doublePageMode.value && state.currentPage.value > 0
+            && state.currentPage.value < state.maxPage.value) {
             if (img.id == "img_doublepage") {
                 page += 1;
                 markerData.left = false;
@@ -242,7 +240,7 @@ function createMarkerElement(markerData, index) {
 }
 
 export function renderMarkers() {
-    if (state.infiniteScroll.value || fscreen.inFullscreen()) return;
+    if (state.infiniteScroll.value || inFullscreen()) return;
     // Clean markers
     const existing = document.querySelectorAll(".marker");
     existing.forEach(el => el.remove());
@@ -280,7 +278,7 @@ function loadStamps(currentPage) {
             }
 
             if (state.doublePageMode.value && currentPage > 0
-                && currentPage < state.maxPage) {
+                && currentPage < state.maxPage.value) {
 
                 const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
                 // Call for the second page (may be in a different archive for tanks)

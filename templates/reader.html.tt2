@@ -39,11 +39,7 @@
 <body data-user-logged="[% userlogged %]">
 
     <div id="i1" class="sni">
-        <div id="i2">
-            <h1 id="archive-title">...</h1>
-
-            [% INCLUDE pagesel %] [% INCLUDE arrows %] [% INCLUDE fileinfo %]
-        </div>
+        <div id="header"></div>
 
         <div id="i3" class="loading">
             <div class="loading-overlay">
@@ -60,9 +56,7 @@
 
         </div>
 
-        <div id="i4">
-            [% INCLUDE fileinfo %] [% INCLUDE pagesel %] [% INCLUDE arrows %]
-        </div>
+        <div id="reader-footer"></div>
 
         <div id="i5">
             <div class="sb">
@@ -196,45 +190,3 @@
 </body>
 
 </html>
-
-
-
-[% #compute those blocks before getting to the main html %]
-
-<!-- -->
-[% BLOCK arrows %]
-<div class="sn paginator">
-    <a class="fa fa-backward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-left"></a>
-    <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
-    <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
-
-    <div class="pagecount">
-        <span class="current-page">...</span> /
-        <span class="max-page">...</span>
-    </div>
-
-    <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
-    <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
-    <a class="fa fa-forward-step page-link archive-nav-link" style="font-size: 1.5em; display: none;" value="outermost-right"></a>
-</div>
-[% END %]
-<!-- -->
-[% BLOCK pagesel %]
-<div class="absolute-options absolute-left">
-    <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="[% c.lh('Reader Options') %]"></a>
-    <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title="[% c.lh('Help') %]"></a>
-</div>
-
-<div class="absolute-options absolute-right">
-    <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="[% c.lh('Reading Direction') %]"></a>
-    <a class="fa fa-stopwatch fa-2x toggle-auto-next-page" href="#" title="[% c.lh('Auto Next Page') %]"></a>
-    <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="[% c.lh('Archive Overview') %]"></a>
-    <a class="fa fa-compress fa-2x" id="toggle-full-screen" href="#" title="[% c.lh('FullScreen') %]"></a>
-</div>
-[% END %]
-<!-- -->
-[% BLOCK fileinfo %]
-<div class="file-info">
-
-</div>
-[% END %]
