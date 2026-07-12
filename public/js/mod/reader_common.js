@@ -914,36 +914,45 @@ export async function refreshCurrentPage() {
         return;
     }
 
-    if (state.doublePageMode.value && state.currentPage.value > 0
-        && state.currentPage.value < state.maxPage.value) {
+    let currentPage = state.currentPage.value;
+
+    if (state.doublePageMode.value && currentPage > 0
+        && currentPage < state.maxPage.value) {
 
         // Special case when going backwards and already showing a widespread, 
         // we need to go back by two pages to show the previous double-page spread
-        if (state.showingSinglePage.value && state.previousPage > state.currentPage.value)
-            state.currentPage.value = Math.max(0, state.currentPage.value - 1);
+        if (state.showingSinglePage.value && state.previousPage > currentPage) {
+            currentPage = Math.max(0, state.currentPage - 1);
+        }
+        //    state.currentPage.value = Math.max(0, state.currentPage.value - 1);
         // Composite an image and use that as the source
-        const img1 = await loadImage(state.currentPage.value);
-        const img1Filename = getFilename(state.currentPage.value);
-        const img2 = await loadImage(state.currentPage.value + 1);
-        const img2Filename = getFilename(state.currentPage.value + 1);
+        const img1 = await loadImage(currentPage);
+        const img1Filename = getFilename(currentPage);
+        const img2 = await loadImage(currentPage + 1);
+        const img2Filename = getFilename(currentPage + 1);
         const img1Size = await getImageSize(img1);
         const img2Size = await getImageSize(img2);
         // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
         if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
             // Depending on whether we were going forward or backward, display img1 or img2
-            const wideSrc = state.previousPage > state.currentPage.value ? img2 : img1;
-            const wideFilename = state.previousPage > state.currentPage.value ? img2Filename : img1Filename;
+            const wideSrc = state.previousPage > currentPage ? img2 : img1;
+            const wideFilename = state.previousPage > currentPage ? img2Filename : img1Filename;
             $("#img")
                 .attr("src", wideSrc);
             $("#img_doublepage")
                 .attr("src", "");
+            // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
+            currentPage = state.previousPage > currentPage ? currentPage + 1 : currentPage;
+
             batch(() => {
                 state.filename.value = wideFilename;
                 state.filenameDoublePage.value = "";
                 state.showingSinglePage.value = true;
+
+                if (currentPage !== state.currentPage.peek()) {
+                    state.currentPage.value = currentPage;
+                }
             });
-            // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
-            state.currentPage.value = state.previousPage > state.currentPage.value ? state.currentPage.value + 1 : state.currentPage.value;
         } else {
             if (state.mangaMode.value) {
                 $("#img")
@@ -954,6 +963,9 @@ export async function refreshCurrentPage() {
                     state.filename.value = img2Filename;
                     state.filenameDoublePage.value = img1Filename;
                     state.showingSinglePage.value = false;
+                    if (currentPage !== state.currentPage.peek()) {
+                        state.currentPage.value = currentPage;
+                    }
                 });
             } else {
                 $("#img")
@@ -964,6 +976,9 @@ export async function refreshCurrentPage() {
                     state.filename.value = img1Filename;
                     state.filenameDoublePage.value = img2Filename;
                     state.showingSinglePage.value = false;
+                    if (currentPage !== state.currentPage.peek()) {
+                        state.currentPage.value = currentPage;
+                    }
                 });
             }
         }
@@ -978,6 +993,9 @@ export async function refreshCurrentPage() {
             state.filename.value = imgFilename;
             state.filenameDoublePage.value = "";
             state.showingSinglePage.value = true;
+            if (currentPage !== state.currentPage.peek()) {
+                state.currentPage.value = currentPage;
+            }
         });
     }
 }
@@ -1342,7 +1360,11 @@ export function changePage(targetPage, resetAuto = false) {
         let offset = targetPage;
         // Double the offset to move by 2 pages at once, unless we're currently showing a widespread
         if (state.doublePageMode.value && !state.showingSinglePage.value && state.currentPage.value > 0) {
-            offset *= 2;
+            // Avoid skipping page 2. First page is always displayed solo, so double-jumping back to
+            // the first page would skip page 2.
+            if (offset !== -1 || state.currentPage.value > 2) {
+                offset *= 2;
+            }
         }
         destination = state.currentPage.peek() + (state.mangaMode.value ? -offset : offset);
     }
