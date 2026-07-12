@@ -21,8 +21,8 @@ sub list_registries {
     );
 }
 
-# create a registry, which can be of provider github, gitlab, gitea, cdn, or local.
-# git providers (github/gitlab/gitea): require url (https) and ref.
+# create a registry, which can be of provider github, gitea, cdn, or local.
+# git providers (github/gitea): require url (https) and ref.
 # cdn provider: requires url (http or https base URL).
 # local provider: requires path (to local registry directory)
 sub create_registry {
@@ -41,7 +41,7 @@ sub create_registry {
             my $redis = $self->LRR_CONF->get_redis_config;
             my %config = ( name => $body->{name}, provider => $provider );
 
-            if ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) {
+            if ( $provider eq "github" || $provider eq "gitea" ) {
                 $config{url} = $body->{url};
                 $config{ref} = $body->{ref};
             } elsif ( $provider eq "cdn" ) {

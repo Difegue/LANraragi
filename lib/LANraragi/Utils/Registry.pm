@@ -39,14 +39,13 @@ my @ALLOWED_PLUGIN_FIELDS   = qw(namespace type versions);
 my @ALLOWED_VERSION_FIELDS  = qw(version name author description artifact sha256 published_at);
 my @REQUIRED_VERSION_FIELDS = qw(name author description artifact sha256 published_at);
 
-# Resolve a git URL to a raw file URL for a given provider
-# (Should) support github, gitlab, and gitea/codeberg providers but who knows
+# Resolve a git URL to a raw file URL for a given provider.
+# Supports github and gitea/codeberg providers.
 sub resolve_git_raw_url {
     my ( $provider, $url, $ref, $path ) = @_;
 
     my $logger = get_logger( "Registry", "lanraragi" );
 
-    # TODO: this just needs to be tested more (maybe with a Gitlab + Gitea repo)
     my ( $host, $owner, $repo );
     # TODO(REVIEW): audit
     if ( $url =~ m{^https?://([^/]+)/(.+)/([^/]+?)(?:\.git)?$} ) {
@@ -59,7 +58,6 @@ sub resolve_git_raw_url {
     my $escaped_path    = join( "/", map { url_escape($_) } split( m{/}, $path ) ); # TODO(REVIEW): audit
     my $escaped_ref     = url_escape($ref);
     return "https://raw.githubusercontent.com/$owner/$repo/$escaped_ref/$escaped_path"      if ( $provider eq "github" );
-    return "https://$host/$owner/$repo/-/raw/$escaped_ref/$escaped_path"                    if ( $provider eq "gitlab" );
     return "https://$host/api/v1/repos/$owner/$repo/raw/$escaped_path?ref=$escaped_ref"     if ( $provider eq "gitea" );
 
     $logger->error("Unknown registry provider '$provider' for URL: $url");
@@ -110,7 +108,7 @@ sub fetch_registry_resource {
         return ( 200, $content, undef );
     }
 
-    if ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) {
+    if ( $provider eq "github" || $provider eq "gitea" ) {
         my $url = resolve_git_raw_url(
             $provider, $registry_config->{url},
             $registry_config->{ref}, $relpath

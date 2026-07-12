@@ -18,7 +18,6 @@ use constant MAX_REGISTRY_INDEX_SIZE => 100 * 1024 * 1024;      # 100 MB
 # Fields valid per registry provider.
 my %PROVIDER_FIELDS = (
     github  => [qw(name provider url ref)],
-    gitlab  => [qw(name provider url ref)],
     gitea   => [qw(name provider url ref)],
     cdn     => [qw(name provider url)],
     local   => [qw(name provider path)],
@@ -145,7 +144,7 @@ sub update_registry {
 
     # Partial updates may omit fields already stored; merge before validating.
     my %merged = ( %current_registry, %updated_registry );
-    if ( $target_registry_provider eq "github" || $target_registry_provider eq "gitlab" || $target_registry_provider eq "gitea" ) {
+    if ( $target_registry_provider eq "github" || $target_registry_provider eq "gitea" ) {
         return ( 400, "Git registry needs a URL." )      unless $merged{url};
         return ( 400, "Git registry needs a ref." )      unless $merged{ref};
     } elsif ( $target_registry_provider eq "cdn" ) {

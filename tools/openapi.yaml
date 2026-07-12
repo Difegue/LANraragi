@@ -620,7 +620,6 @@ paths:
                   type: string
                   enum:
                     - github
-                    - gitlab
                     - gitea
                     - cdn
                     - local
@@ -629,7 +628,7 @@ paths:
                   type: string
                   format: uri
                   description: |
-                    Registry URL. For git providers (github, gitlab, gitea), must be an HTTPS git
+                    Registry URL. For git providers (github, gitea), must be an HTTPS git
                     repository URL. For 'cdn', must be an http:// or https:// base URL of a
                     folder serving registry.json and artifacts.
                 ref:
@@ -651,7 +650,6 @@ paths:
                       provider:
                         enum:
                           - github
-                          - gitlab
                           - gitea
                   then:
                     required:
@@ -936,7 +934,6 @@ paths:
                   type: string
                   enum:
                     - github
-                    - gitlab
                     - gitea
                     - cdn
                     - local
@@ -959,7 +956,6 @@ paths:
                       provider:
                         enum:
                           - github
-                          - gitlab
                           - gitea
                   then:
                     properties:
@@ -5453,7 +5449,6 @@ components:
           type: string
           enum:
             - github
-            - gitlab
             - gitea
             - cdn
             - local
@@ -5469,7 +5464,7 @@ components:
           format: uri
           pattern: "^https?://"
           description: |
-            Registry URL. HTTPS git repository URL for git providers (github, gitlab, gitea),
+            Registry URL. HTTPS git repository URL for git providers (github, gitea),
             or http://-or-https:// CDN base URL for 'cdn'.
         ref:
           type: string
@@ -5488,7 +5483,6 @@ components:
               provider:
                 enum:
                   - github
-                  - gitlab
                   - gitea
           then:
             properties:
