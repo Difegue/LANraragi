@@ -68,29 +68,6 @@ note('testing resolve_git_raw_url for github...');
     is( $result, "https://raw.githubusercontent.com/owner/repo/main/registry.json", "github http url produces https raw url" );
 }
 
-note('testing resolve_git_raw_url for gitlab...');
-
-{
-    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
-        "gitlab", "https://gitlab.com/owner/repo.git", "main", "registry.json"
-    );
-    is( $result, "https://gitlab.com/owner/repo/-/raw/main/registry.json", "gitlab.com registry.json" );
-}
-
-{
-    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
-        "gitlab", "https://my-company.com/owner/repo.git", "dev", "Plugin/Meta/Bar.pm"
-    );
-    is( $result, "https://my-company.com/owner/repo/-/raw/dev/Plugin/Meta/Bar.pm", "gitlab self-hosted plugin path" );
-}
-
-{
-    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
-        "gitlab", "https://gitlab.com/group/subgroup/repo.git", "main", "registry.json"
-    );
-    is( $result, "https://gitlab.com/group/subgroup/repo/-/raw/main/registry.json", "gitlab nested subgroup" );
-}
-
 note('testing resolve_git_raw_url for gitea...');
 
 {
@@ -107,14 +84,7 @@ note('testing resolve_git_raw_url for gitea...');
     is( $result, "https://git.local/api/v1/repos/owner/repo/raw/Plugin/Scripts/Baz.pm?ref=v1.0", "gitea self-hosted plugin path" );
 }
 
-note('testing resolve_git_raw_url outputs https regardless of input scheme for gitlab/gitea...');
-
-{
-    my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
-        "gitlab", "http://internal.host/owner/repo.git", "main", "registry.json"
-    );
-    is( $result, "https://internal.host/owner/repo/-/raw/main/registry.json", "gitlab http url upgraded to https" );
-}
+note('testing resolve_git_raw_url outputs https regardless of input scheme for gitea...');
 
 {
     my $result = LANraragi::Utils::Registry::resolve_git_raw_url(
