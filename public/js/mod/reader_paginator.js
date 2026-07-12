@@ -19,11 +19,11 @@ export function ReaderPaginator()  {
             return "...";
         }
         return state.maxPage.value + 1;
-    })
+    });
 
     function multiNavStyle() {
         if (!state.multiArchiveNavigation.value) {
-            return "display:none;"
+            return "display:none;";
         }
         return "";
     }
