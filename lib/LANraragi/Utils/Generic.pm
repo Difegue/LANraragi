@@ -148,7 +148,7 @@ sub start_minion {
         return $proc;
     } else {
         my $proc;
-        Win32::Process::Create( $proc, undef, "perl \"" . abs_path(".") . "/lib/Worker.pm\"", 0, NORMAL_PRIORITY_CLASS, "." );
+        Win32::Process::Create( $proc, undef, "perl \"" . abs_path(".") . "/lib/Tsubasa.pm\"", 0, NORMAL_PRIORITY_CLASS, "." );
         $logger->info( "Starting new Minion worker with PID " . $proc->GetProcessID() . "." );
         return $proc;
     }

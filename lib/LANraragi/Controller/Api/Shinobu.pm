@@ -3,8 +3,9 @@ use Mojo::Base 'Mojolicious::Controller';
 use Storable;
 use Config;
 
-use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
+use LANraragi::Utils::Generic    qw(start_shinobu render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Hitagi;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -18,7 +19,18 @@ BEGIN {
 sub shinobu_status {
     my $self    = shift->openapi->valid_input or return;
 
-    if ( IS_UNIX ) {
+    if ( LANraragi::Utils::Hitagi::available() ) {
+        my $pid = LANraragi::Utils::Hitagi::pid( "shinobu" );
+
+        $self->render(
+            openapi => {
+                operation => "shinobu_status",
+                success   => 1,
+                is_alive  => $pid != 0 ? 1 : 0,
+                pid       => $pid
+            }
+        );
+    } elsif ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         $self->render(
@@ -60,46 +72,62 @@ sub reset_filemap {
     $redis->del("LRR_FILEMAP");
     $redis->quit();
 
-    if ( IS_UNIX ) {
-        my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
+    if ( LANraragi::Utils::Hitagi::available() ) {
+        my $pid = LANraragi::Utils::Hitagi::restart( "shinobu" );
 
-        #commit sudoku
-        $shinobu->kill();
-    } else {
-        open( my $fh, "<", get_temp() . "/shinobu.pid-s6" );
-        chomp(my $pid = <$fh>);
-        close($fh);
-        kill HUP => $pid;
-    }
-
-    # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
-    my $proc = start_shinobu($self);
-
-    if ( IS_UNIX ) {
         $self->render(
             openapi => {
                 operation => "shinobu_rescan",
-                success   => $proc->poll(),
-                new_pid   => $proc->pid
+                success   => 1,
+                new_pid   => $pid
             }
         );
     } else {
-        eval {
+        if ( IS_UNIX ) {
+            my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
+
+            #commit sudoku
+            $shinobu->kill();
+        } else {
+            open( my $fh, "<", get_temp() . "/shinobu.pid-s6" );
+            chomp(my $pid = <$fh>);
+            close($fh);
+            kill HUP => $pid;
+        }
+
+        # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
+        my $proc = start_shinobu($self);
+
+        if ( IS_UNIX ) {
             $self->render(
                 openapi => {
                     operation => "shinobu_rescan",
-                    success   => ($proc->GetProcessID() != 0) ? 1 : 0,
-                    new_pid   => int($proc->GetProcessID())
+                    success   => $proc->poll(),
+                    new_pid   => $proc->pid
                 }
             );
-        };
+        } else {
+            eval {
+                $self->render(
+                    openapi => {
+                        operation => "shinobu_rescan",
+                        success   => ($proc->GetProcessID() != 0) ? 1 : 0,
+                        new_pid   => int($proc->GetProcessID())
+                    }
+                );
+            };
+        }
     }
 }
 
 sub stop_shinobu {
     my $self    = shift->openapi->valid_input or return;
 
-    if ( IS_UNIX ) {
+    if ( LANraragi::Utils::Hitagi::available() ) {
+
+        LANraragi::Utils::Hitagi::stop( "shinobu" );
+
+    } elsif ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -117,39 +145,51 @@ sub stop_shinobu {
 sub restart_shinobu {
     my $self    = shift->openapi->valid_input or return;
 
-    if ( IS_UNIX ) {
-        my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
+    if ( LANraragi::Utils::Hitagi::available() ) {
+        my $pid = LANraragi::Utils::Hitagi::restart( "shinobu" );
 
-        #commit sudoku
-        $shinobu->kill();
-    } else {
-        open( my $fh, "<", get_temp() . "/shinobu.pid-s6" );
-        chomp(my $pid = <$fh>);
-        close($fh);
-        kill HUP => $pid;
-    }
-
-    # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
-    my $proc = start_shinobu($self);
-
-    if ( IS_UNIX ) {
         $self->render(
             openapi => {
                 operation => "shinobu_restart",
-                success   => $proc->poll(),
-                new_pid   => $proc->pid
+                success   => 1,
+                new_pid   => $pid
             }
         );
     } else {
-        eval {
+        if ( IS_UNIX ) {
+            my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
+
+            #commit sudoku
+            $shinobu->kill();
+        } else {
+            open( my $fh, "<", get_temp() . "/shinobu.pid-s6" );
+            chomp(my $pid = <$fh>);
+            close($fh);
+            kill HUP => $pid;
+        }
+
+        # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
+        my $proc = start_shinobu($self);
+
+        if ( IS_UNIX ) {
             $self->render(
                 openapi => {
                     operation => "shinobu_restart",
-                    success   => ($proc->GetProcessID() != 0) ? 1 : 0,
-                    new_pid   => int($proc->GetProcessID())
+                    success   => $proc->poll(),
+                    new_pid   => $proc->pid
                 }
             );
-        };
+        } else {
+            eval {
+                $self->render(
+                    openapi => {
+                        operation => "shinobu_restart",
+                        success   => ($proc->GetProcessID() != 0) ? 1 : 0,
+                        new_pid   => int($proc->GetProcessID())
+                    }
+                );
+            };
+        }
     }
 }
 

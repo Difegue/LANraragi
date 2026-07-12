@@ -21,6 +21,7 @@ use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
 use LANraragi::Utils::I18N;
 use LANraragi::Utils::I18NInitializer;
+use LANraragi::Utils::Hitagi;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -157,9 +158,11 @@ sub startup {
         $self->LRR_LOGGER->info( "Downloader Detected: " . $name );
     }
 
-    # Enable Minion capabilities in the app
-    if ( IS_UNIX ) {
-        shutdown_from_pid( get_temp . "/minion.pid" );
+    if ( !LANraragi::Utils::Hitagi::available() ) {
+        # Enable Minion capabilities in the app
+        if ( IS_UNIX ) {
+            shutdown_from_pid( get_temp . "/minion.pid" );
+        }
     }
 
     my $redisad = $self->LRR_CONF->get_redisad;
@@ -186,26 +189,31 @@ sub startup {
     # Anything else can cause weird database lockups.
     $self->minion->enqueue('build_stat_hashes');
 
-    # Start a Minion worker in a subprocess
-    start_minion($self);
+    if ( !LANraragi::Utils::Hitagi::available() ) {
+        # Start a Minion worker in a subprocess
+        start_minion($self);
 
-    # Start File Watcher
-    if ( IS_UNIX ) {
-        shutdown_from_pid( get_temp . "/shinobu.pid" );
+        # Start File Watcher
+        if ( IS_UNIX ) {
+            shutdown_from_pid( get_temp . "/shinobu.pid" );
+        }
+        start_shinobu($self);
     }
-    start_shinobu($self);
 
     # Check if this is a first-time installation.
     first_install_actions();
 
-    # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
-    # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
-    # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
     $self->hook(
         before_dispatch => sub {
             my $c = shift;
-            if ( IS_UNIX ) {
-                state $unused = add_sigint_handler();
+
+            if ( !LANraragi::Utils::Hitagi::available() ) {
+                # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
+                # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
+                # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
+                if ( IS_UNIX ) {
+                    state $unused = add_sigint_handler();
+                }
             }
 
             my $prefix = $self->LRR_BASEURL;
