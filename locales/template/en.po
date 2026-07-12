@@ -66,8 +66,8 @@ msgstr "Use plugin :"
 msgid "Timeout (max 20s):"
 msgstr "Timeout (max 20s):"
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
+msgid "This plugin recommends a cooldown of \${n} seconds."
+msgstr "This plugin recommends a cooldown of ${n} seconds."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
@@ -108,8 +108,8 @@ msgstr "Cancel"
 msgid "Start another job"
 msgstr "Start another job"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
+msgid "Processed \${x} out of \${y}"
+msgstr "Processed ${x} out of ${y}"
 
 msgid "Preparing your data."
 msgstr "Preparing your data."
