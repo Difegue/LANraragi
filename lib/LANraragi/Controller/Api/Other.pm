@@ -16,6 +16,7 @@ sub serve_serverinfo {
 
     my $redis      = $self->LRR_CONF->get_redis_config;
     my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
+    my $restart    = is_restart_pending($redis);
     my $arc_stat   = LANraragi::Model::Stats::get_archive_count;
     my $page_stat  = LANraragi::Model::Stats::get_page_stat;
     $redis->quit();
@@ -41,23 +42,10 @@ sub serve_serverinfo {
             total_pages_read       => $page_stat,
             total_archives         => $arc_stat,
             cache_last_cleared     => $last_clear,
+            restart_required       => $restart ? \1 : \0,
             excluded_namespaces    => [
                 split( /\s*,\s*/, $self->LRR_CONF->get_excludednamespaces )
             ]
-        }
-    );
-}
-
-sub get_server_status {
-    my $self = shift->openapi->valid_input or return;
-
-    my $redis   = $self->LRR_CONF->get_redis_config;
-    my $pending = is_restart_pending($redis);
-    $redis->quit();
-
-    $self->render(
-        openapi => {
-            restart_required => $pending ? \1 : \0,
         }
     );
 }

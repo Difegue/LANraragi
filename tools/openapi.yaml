@@ -395,29 +395,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerInfo'
 
-  /server/status:
-    get:
-      security:
-        - api_key: []
-      operationId: getServerStatus
-      x-mojo-to: api-other#get_server_status
-      summary: 🔑 Get server status
-      description: >-
-        Returns runtime server status.
-      tags:
-        - misc
-      responses:
-        '200':
-          description: Server status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  restart_required:
-                    type: boolean
-                    description: Whether LRR needs a restart.
-
   /plugins/{type}:
     get:
       security:
@@ -5017,6 +4994,9 @@ components:
         cache_last_cleared:
           type: integer
           description: Timestamp for last time the search cache was wiped
+        restart_required:
+          type: boolean
+          description: Whether LRR needs a restart
         excluded_namespaces:
           type: array
           items:
@@ -5033,6 +5013,7 @@ components:
         server_resizes_images: false
         server_tracks_progress: true
         authenticated_progress: false
+        restart_required: false
         total_archives: 104
         total_pages_read: 252
         version: 0.9.30
