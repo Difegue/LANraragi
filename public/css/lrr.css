@@ -250,6 +250,7 @@ p#nb {
   font-size: 15em;
   margin: -3.9375rem auto 0;
   text-align: center;
+  z-index: 999
 }
 
 #overlay-shade {
