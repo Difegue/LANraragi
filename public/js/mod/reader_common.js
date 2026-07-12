@@ -36,7 +36,7 @@ export let state = {
     autoNextPageCountdown: 0,
     trackProgressLocally: null,
     authenticateProgress: null,
-    containerWidth: signal(null),
+    containerWidth: signal(localStorage.containerWidth || null),
     content: undefined,
     pages: [],
     maxPage: -1,
@@ -230,6 +230,13 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     });
 
     effect(() => localStorage.showOverlayByDefault = state.showOverlayByDefault.value);
+    effect(() => {
+        if (state.containerWidth.value === null) {
+            localStorage.removeItem("containerWidth");
+        } else {
+            localStorage.containerWidth = state.containerWidth.value;
+        }
+    });
 
     effect(() => {
         if (state.infiniteScroll.value) { return; }
