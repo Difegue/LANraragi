@@ -67,7 +67,8 @@ export let state = {
     infiniteScroll: signal(localStorage.infiniteScroll === "true" || false),
     fitMode: signal(localStorage.fitMode || "fit-container"),
     hideHeader: signal(localStorage.hideHeader === "true" || false),
-    currentPageLoaded: false,
+    currentPageLoaded: signal(false),
+    showLoader: signal(true),
     progress: undefined,
     showOverlayByDefault: signal(localStorage.showOverlayByDefault === "true" || false),
     preloadCount: signal((localStorage.preloadCount === "" ? null : localStorage.preloadCount) ?? 2),
@@ -105,6 +106,8 @@ export let state = {
 };
 
 let infiniteScrollObserver = null;
+let loadingDebounceTimer = null;
+let refreshGeneration = 0;
 
 export async function initializeAll(trackProgressLocally, authenticateProgress) {
     state.trackProgressLocally = trackProgressLocally;
@@ -278,6 +281,22 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
 
     effect(() => {
         document.tile = state.content.value.title;
+    });
+
+    effect(() => {
+        if (state.currentPageLoaded.value) {
+            state.showLoader.value = false;
+            clearTimeout(loadingDebounceTimer);
+            loadingDebounceTimer = null;
+        }
+    });
+
+    effect(() => {
+        if (state.showLoader.value) {
+            $("#i3").addClass("loading");
+        } else {
+            $("#i3").removeClass("loading");
+        }
     });
 }
 
@@ -517,7 +536,7 @@ function enterInfiniteScrollView() {
         infiniteScrollObserver.observe(img);
     });
 
-    $("#i3").removeClass("loading");
+    state.showLoader.value = false;
     $(document).on("click.infinite-scroll-map", "#display .reader-image", (event) => {
         // is click X position is left on screen or right
         if (event.pageX < $(window).width() / 2) {
@@ -548,7 +567,7 @@ function enterStandardView() {
     const images = $("#display .reader-image");
     images.off("load.infinite-scroll");
 
-    $("#i3").removeClass("loading");
+    state.showLoader.value = false;
     applyContainerWidth();
 
     // when click left or right img area change page
@@ -864,11 +883,10 @@ function updateMetadata() {
     const img = $("#img")[0];
     const imgDoublePage = $("#img_doublepage")[0];
 
-    if (!state.filename.peek() && state.showingSinglePage.value) {
-        state.currentPageLoaded = true;
-        $("#i3").removeClass("loading");
+    /*if (!state.filename.peek() && state.showingSinglePage.value) {
+        state.currentPageLoaded.value = true;
         return;
-    }
+    }*/
 
     const width = img.naturalWidth;
     const height = img.naturalHeight;
@@ -901,11 +919,15 @@ function updateMetadata() {
         });
     }
 
-    state.currentPageLoaded = true;
-    $("#i3").removeClass("loading");
+    state.currentPageLoaded.value = true;
 }
 
 export async function refreshCurrentPage() {
+    // Since we may be letting multiple page-loads be active (due to quick navigation),
+    // we need to ensure we don't end up with stale data.
+    refreshGeneration = refreshGeneration + 1;
+    const ourGeneration = refreshGeneration;
+
     if (state.infiniteScroll.value) {
         return;
     }
@@ -924,14 +946,22 @@ export async function refreshCurrentPage() {
         if (state.showingSinglePage.value && state.previousPage > currentPage) {
             currentPage = Math.max(0, state.currentPage - 1);
         }
-        //    state.currentPage.value = Math.max(0, state.currentPage.value - 1);
+
         // Composite an image and use that as the source
-        const img1 = await loadImage(currentPage);
+        const [img1, img2] = await Promise.all([
+            loadImage(currentPage),
+            loadImage(currentPage + 1),
+        ]);
+
+        if (ourGeneration !== refreshGeneration) {
+            return;
+        }
+        const [img1Size, img2Size] = await Promise.all([
+            getImageSize(img1),
+            getImageSize(img2),
+        ]);
         const img1Filename = getFilename(currentPage);
-        const img2 = await loadImage(currentPage + 1);
         const img2Filename = getFilename(currentPage + 1);
-        const img1Size = await getImageSize(img1);
-        const img2Size = await getImageSize(img2);
         // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
         if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
             // Depending on whether we were going forward or backward, display img1 or img2
@@ -984,6 +1014,9 @@ export async function refreshCurrentPage() {
         }
     } else {
         const img = await loadImage(state.currentPage.value);
+        if (ourGeneration !== refreshGeneration) {
+            return;
+        }
         const imgFilename = getFilename(state.currentPage.value);
         $("#img")
             .attr("src", img);
@@ -1022,12 +1055,17 @@ export async function goToPage(page) {
         preloadImages();
         applyContainerWidth();
 
-        state.currentPageLoaded = false;
+        state.currentPageLoaded.value = false;
         // display overlay if it takes too long to load a page
-        setTimeout(() => {
-            if (!state.currentPageLoaded) { $("#i3").addClass("loading"); }
-        }, 500);
-
+        if (loadingDebounceTimer === null) {
+            loadingDebounceTimer = setTimeout(() => {
+                if (!state.currentPageLoaded.peek()) {
+                    state.showLoader.value = true;
+                }
+                loadingDebounceTimer = null;
+            }, 500);
+        }
+            
         // update full image link
         $("#imgLink").attr("href", state.pages.value[state.currentPage.value]);
 
