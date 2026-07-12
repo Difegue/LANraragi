@@ -113,6 +113,10 @@ export function initializeStamps() {
  * @param {JQuery.KeyDownEvent<Document, undefined, Document, Document> | JQuery.KeyUpEvent<Document, undefined, Document, Document>} e
 */
 function handleShortcuts(e) {
+    if (e.target.tagName === "INPUT") {
+        return;
+    }
+
     switch (e.which) {
         case 83: // s
             if (!state.infiniteScroll.value) {
