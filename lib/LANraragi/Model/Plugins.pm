@@ -39,7 +39,7 @@ use LANraragi::Model::Registry;
 use LANraragi::Model::Server   qw(set_restart_pending);
 
 # Max plugin file size for slurp (files will/should never reach this size anyways but stops OOM)
-use constant MAX_PLUGIN_FILE_SIZE => 100 * 1024 * 1024;      # 100 MB
+use constant MAX_PLUGIN_FILE_SIZE => 1 * 1024 * 1024;       # 1 MB
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file ($id) {
