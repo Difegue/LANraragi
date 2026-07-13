@@ -3447,7 +3447,7 @@ paths:
         required: true
         description: ID of the Tankoubon desired
         schema:
-          type: string
+          $ref: '#/components/schemas/TankoubonId'
     get:
       security: []
       operationId: getTankoubon
@@ -3514,7 +3514,7 @@ paths:
           required: true
           description: ID of the Tankoubon to update.
           schema:
-            type: string
+            $ref: '#/components/schemas/TankoubonId'
       requestBody:
         required: true
         description: Json with 2 optional keys "archives" and "metadata"
@@ -3598,7 +3598,7 @@ paths:
         required: true
         description: ID of the Tankoubon desired
         schema:
-          type: string
+          $ref: '#/components/schemas/TankoubonId'
     get:
       security: []
       operationId: getTankoubonFull
@@ -3674,7 +3674,7 @@ paths:
         required: true
         description: ID of the Tankoubon desired
         schema:
-          type: string
+          $ref: '#/components/schemas/TankoubonId'
     get:
       security: []
       operationId: getTankoubonThumbnail
@@ -3796,9 +3796,7 @@ paths:
           required: true
           description: ID of the Tankoubon to update.
           schema:
-            type: string
-            minLength: 15
-            maxLength: 15
+            $ref: '#/components/schemas/TankoubonId'
         - name: page
           in: path
           required: true
@@ -3817,9 +3815,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: string
-                    minLength: 15
-                    maxLength: 15
+                    $ref: '#/components/schemas/TankoubonId'
                     description: ID of the tankoubon updated
                   operation:
                     type: string
@@ -3880,7 +3876,7 @@ paths:
           required: true
           description: ID of the Tankoubon to update.
           schema:
-            type: string
+            $ref: '#/components/schemas/TankoubonId'
         - name: archive
           in: path
           required: true
@@ -3920,7 +3916,7 @@ paths:
           required: true
           description: ID of the Tankoubon to update.
           schema:
-            type: string
+            $ref: '#/components/schemas/TankoubonId'
         - name: archive
           in: path
           required: true
@@ -4390,7 +4386,7 @@ components:
         - id
       properties:
         id:
-          type: string
+          $ref: '#/components/schemas/TankoubonId'
           description: ID of the tankoubon
         name:
           type: string
@@ -4425,7 +4421,7 @@ components:
         - tankid
       properties:
         tankid:
-          type: string
+          $ref: '#/components/schemas/TankoubonId'
           description: ID of the tankoubon
         name:
           type: string
