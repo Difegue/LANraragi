@@ -566,7 +566,7 @@ sub add_tasks {
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Installing managed plugin '$namespace' from registry '$registry_id'...");
 
-            my $redis = $job->app->LRR_CONF->get_redis_config;
+            my $redis = LANraragi::Model::Config->get_redis_config;
             my ( $acquired, $result ) = eval {
                 exec_with_lock_pure(
                     [ "plugin-write:" . uc($namespace) ],
