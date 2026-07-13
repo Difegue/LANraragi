@@ -34,6 +34,7 @@
 * [📱 Using External Readers](advanced-usage/external-readers.md)
 * [🌐 Network Interface Setup](advanced-usage/network-interfaces.md)
 * [🕵️ Proxy Setup](advanced-usage/proxy-setup.md)
+* [📦 Plugin Registries](advanced-usage/plugin-registries.md)
 
 ## Developer Guide <a href="#extending-lanraragi" id="extending-lanraragi"></a>
 
