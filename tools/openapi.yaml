@@ -1197,7 +1197,7 @@ paths:
                   description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten.
       responses:
         '200':
-          description: Plugin installed
+          description: Install job enqueued
           content:
             application/json:
               schema:
@@ -1207,60 +1207,17 @@ paths:
                     type: string
                     enum:
                       - install_plugin
+                  namespace:
+                    type: string
                   success:
                     type: integer
                     enum:
                       - 1
-                  name:
-                    type: string
-                  namespace:
-                    type: string
-                  version:
-                    type: string
-                  registry:
-                    type: string
-                    description: Registry ID the plugin was installed from.
-                  sha256:
-                    type: string
-                    description: SHA-256 of the installed artifact.
+                  job:
+                    type: integer
+                    description: ID of the enqueued Minion job.
         '400':
-          description: Install failed (validation, bad path, unknown type)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '404':
-          description: Registry or plugin not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '409':
-          description: No cached index (refresh first) or registry deleted during install
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '422':
-          description: Plugin validation failed (checksum, package, conflict)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '423':
-          description: Locked resource response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '500':
-          description: Server error (file write or Redis failure)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
-        '502':
-          description: Failed to download plugin from git registry
+          description: Bad request
           content:
             application/json:
               schema:

@@ -336,9 +336,32 @@ sub has_old_style_params (%params) {
 # LRR assumes managed plugins are hash-style, and doesn't handle signature 
 # changes from one plugin version to another.
 sub install_plugin {
-    my ( $namespace, $redis, $registry_id, $version ) = @_;
+    my ( $namespace, $redis, $registry_id, $version, $force ) = @_;
     my $logger  = get_logger( "Registry", "lanraragi" );
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+    # Since a plugin namespace can be built-in or managed, we'll need to check redis first.
+    # If a plugin exists and is not managed, installation may not continue.
+    # The user will have to remove/uninstall the existing plugin before installing a managed plugin
+    # by the same namespace.
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        my $source     = infer_plugin_origin( $namerds, $redis );
+        my $currentreg = $redis->hget( $namerds, "installed_registry" );
+        my $currentver = $redis->hget( $namerds, "installed_version" );
+
+        # only managed plugins can be upgraded.
+        if ( $source ne "managed" ) {
+            return ( 400, undef,
+                "Plugin '$namespace' already exists as a $source plugin. Remove it first before installing from a registry." );
+        }
+
+        # cross-registry overwrites require force installation.
+        my $is_cross_registry = $currentreg && $currentreg ne $registry_id;
+        if ( $is_cross_registry && !$force ) {
+            return ( 400, undef,
+                "Plugin '$namespace' already installed from '$currentreg' (v$currentver). Use force to overwrite." );
+        }
+    }
 
     # registry validation
     # check that registry exists, and that registry index exists.
