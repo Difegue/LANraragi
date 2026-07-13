@@ -618,9 +618,7 @@ paths:
           required: false
           description: Category ID to add the downloaded URL to.
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
       requestBody:
         required: false
         content:
@@ -635,10 +633,8 @@ paths:
                   type: string
                   format: uri
                 catid:
-                  type: string
+                  $ref: '#/components/schemas/CategoryId'
                   description: Category ID to add the downloaded URL to.
-                  minLength: 14
-                  maxLength: 14
       responses:
         '200':
           description: Enqueued job
@@ -792,10 +788,8 @@ paths:
                   description: SHA1 checksum of the archive for in-transit validation.
                   pattern: ^[a-fA-F0-9]{40}$
                 category_id:
-                  type: string
                   description: Category ID you'd want the archive to be added to.
-                  minLength: 14
-                  maxLength: 14
+                  $ref: '#/components/schemas/CategoryId'
                 tags:
                   type: string
                   description: >-
@@ -1970,9 +1964,7 @@ paths:
           required: false
           description: ID of the category you want to restrict this search to.
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
         - name: filter
           in: query
           required: false
@@ -2140,9 +2132,7 @@ paths:
           required: false
           description: ID of the category you want to restrict this search to.
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
         - name: filter
           in: query
           required: false
@@ -2255,9 +2245,7 @@ paths:
           required: false
           description: ID of the category you want to restrict this search to.
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
         - name: filter
           in: query
           required: false
@@ -3042,10 +3030,8 @@ paths:
                     enum:
                       - create_category
                   category_id:
-                    type: string
                     description: ID of the created Category
-                    minLength: 14
-                    maxLength: 14
+                    $ref: '#/components/schemas/CategoryId'
                   success:
                     type: integer
                     enum:
@@ -3088,9 +3074,7 @@ paths:
                       - 1
                   category_id:
                     anyOf:
-                      - type: string
-                        minLength: 14
-                        maxLength: 14
+                      - $ref: '#/components/schemas/CategoryId'
                       - type: string
                         enum:
                           - ''
@@ -3119,9 +3103,7 @@ paths:
                   category_id:
                     description: ID of the previously linked category.
                     anyOf:
-                      - type: string
-                        minLength: 14
-                        maxLength: 14
+                      - $ref: '#/components/schemas/CategoryId'
                       - type: string
                         enum:
                           - ''
@@ -3148,9 +3130,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
       responses:
         '200':
           description: Success response
@@ -3162,10 +3142,8 @@ paths:
                   operation:
                     type: string
                   category_id:
-                    type: string
                     description: ID of the category that was linked
-                    minLength: 14
-                    maxLength: 14
+                    $ref: '#/components/schemas/CategoryId'
                   success:
                     type: integer
                     enum:
@@ -3189,9 +3167,7 @@ paths:
         in: path
         required: true
         schema:
-          type: string
-          minLength: 14
-          maxLength: 14
+          $ref: '#/components/schemas/CategoryId'
     get:
       security: []
       operationId: getCategory
@@ -3255,9 +3231,7 @@ paths:
                     enum:
                       - update_category
                   category_id:
-                    type: string
-                    minLength: 14
-                    maxLength: 14
+                    $ref: '#/components/schemas/CategoryId'
                   success:
                     type: integer
                     enum:
@@ -3312,9 +3286,7 @@ paths:
           description: Category ID to add to.
           required: true
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
         - name: archive
           in: path
           required: true
@@ -3345,13 +3317,12 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Archive ID to remove.
+          description: Category ID to remove from.
           required: true
           schema:
-            type: string
-            minLength: 14
-            maxLength: 14
+            $ref: '#/components/schemas/CategoryId'
         - name: archive
+          description: Archive ID to remove.
           in: path
           required: true
           schema:
@@ -4390,10 +4361,8 @@ components:
               - $ref: '#/components/schemas/ArchiveId'
               - $ref: '#/components/schemas/TankoubonId'
         id:
-          type: string
           description: ID of the category
-          minLength: 14
-          maxLength: 14
+          $ref: '#/components/schemas/CategoryId'
         name:
           type: string
           description: Name of the category
@@ -4521,10 +4490,8 @@ components:
           items:
             $ref: '#/components/schemas/ArchiveId'
         catid:
-          type: string
           description: ID of the category
-          minLength: 14
-          maxLength: 14
+          $ref: '#/components/schemas/CategoryId'
         name:
           type: string
           description: Name of the category
@@ -4562,14 +4529,21 @@ components:
       minLength: 40
       maxLength: 40
       pattern: "^[0-9a-f]{40}$"
-      description: Unique identifier for the archive (40-char SHA1)
+      description: Unique identifier for an archive (40-char SHA1)
       example: "d07ff399dddb25a0408385bc75b9ba52709fe2c1"
     TankoubonId:
       type: string
       minLength: 15
       maxLength: 15
       pattern: "^TANK_[0-9]{10}$"
-      description: Unique identifier for the tankoubon (15-char TANK_* ID)
+      description: Unique identifier for a tankoubon (15-char TANK_* ID)
       example: "TANK_1749925516"
+    CategoryId:
+      type: string
+      minLength: 14
+      maxLength: 14
+      pattern: "^SET_[0-9]{10}$"
+      description: Unique identifier for a category (14-char SET_* ID)
+      example: "SET_1613080290"
 servers:
   - url: https://lrr.tvc-16.science/api
