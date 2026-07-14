@@ -28,14 +28,14 @@ description: APIs to manage Plugin Registries.
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
 
-{% openapi-operation spec="lanraragi-api" path="/registries/default" method="get" %}
+{% openapi-operation spec="lanraragi-api" path="/registries/ougi" method="get" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
 
-{% openapi-operation spec="lanraragi-api" path="/registries/default/{id}" method="put" %}
+{% openapi-operation spec="lanraragi-api" path="/registries/ougi/{id}" method="put" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}
 
-{% openapi-operation spec="lanraragi-api" path="/registries/default" method="delete" %}
+{% openapi-operation spec="lanraragi-api" path="/registries/ougi" method="delete" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}

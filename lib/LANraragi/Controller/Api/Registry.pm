@@ -187,23 +187,23 @@ sub delete_registry {
     );
 }
 
-sub get_default_registry {
+sub get_ougi {
     my $self  = shift->openapi->valid_input or return;
     my $redis = $self->LRR_CONF->get_redis_config;
 
-    my $registry_id = LANraragi::Model::Registry::get_default_registry($redis);
+    my $registry_id = LANraragi::Model::Registry::get_ougi($redis);
     $redis->quit();
 
     $self->render(
         openapi => {
-            operation   => "get_default_registry",
+            operation   => "get_ougi",
             success     => 1,
             id          => $registry_id,
         }
     );
 }
 
-sub update_default_registry {
+sub update_ougi {
     my $self        = shift->openapi->valid_input or return;
     my $registry_id = $self->stash('id');
     my $logger      = get_logger( "Registry", "lanraragi" );
@@ -211,13 +211,13 @@ sub update_default_registry {
 
     my $redis = $self->LRR_CONF->get_redis_config;
     my ( $status, $reg_id, $message ) =
-        LANraragi::Model::Registry::update_default_registry( $registry_id, $redis );
+        LANraragi::Model::Registry::update_ougi( $registry_id, $redis );
     $redis->quit();
 
     unless ( $status == 200 ) {
         return $self->render(
             openapi => {
-                operation   => "update_default_registry",
+                operation   => "update_ougi",
                 success     => 0,
                 error       => $message,
             },
@@ -227,7 +227,7 @@ sub update_default_registry {
 
     return $self->render(
         openapi => {
-            operation   => "update_default_registry",
+            operation   => "update_ougi",
             success     => 1,
             id          => $reg_id,
         },
@@ -235,18 +235,18 @@ sub update_default_registry {
     );
 }
 
-sub remove_default_registry {
+sub remove_ougi {
     my $self   = shift->openapi->valid_input or return;
     my $logger = get_logger( "Registry", "lanraragi" );
     $logger->info("Remove default registry requested.");
 
     my $redis       = $self->LRR_CONF->get_redis_config;
-    my $registry_id = LANraragi::Model::Registry::remove_default_registry($redis);
+    my $registry_id = LANraragi::Model::Registry::remove_ougi($redis);
     $redis->quit();
 
     return $self->render(
         openapi => {
-            operation   => "remove_default_registry",
+            operation   => "remove_ougi",
             success     => 1,
             id          => $registry_id,
         }

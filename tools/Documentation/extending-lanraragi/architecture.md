@@ -254,7 +254,7 @@ The base architecture is as follows:
 |  |- nofunmode <- Whether No-Fun Mode is enabled
 |  |- pagesize <- Amount of archives per Index page 
 |  |- apikey <- Key for API requests
-|  +- default_registry <- Registry pre-selected in plugin-install dialogs
+|  +- ougi <- Ougi, the default registry pre-selected in plugin-install dialogs
 |
 |- LRR_DUPLICATE_GROUPS <- Duplicate groups found by duplicate detection
 |  +- dupgp_xxxxxx <- A group of dupe IDs, as a JSON list

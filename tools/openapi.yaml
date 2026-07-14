@@ -726,22 +726,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
 
-  /registries/default:
+  /registries/ougi:
     get:
       security:
         - api_key: []
-      operationId: getDefaultRegistry
-      x-mojo-to: api-registry#get_default_registry
-      summary: Get default Registry
+      operationId: getOugi
+      x-mojo-to: api-registry#get_ougi
+      summary: Get Ougi
       description: >-
-        Retrieves the registry id currently designated as the default.
+        Retrieves the id of the default registry currently designated as Ougi.
 
         Returns an empty string if no registry is designated.
       tags:
         - registries
       responses:
         '200':
-          description: Default registry id
+          description: Ougi id
           content:
             application/json:
               schema:
@@ -750,13 +750,13 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - get_default_registry
+                      - get_ougi
                   success:
                     type: integer
                     enum:
                       - 1
                   id:
-                    description: Designated default registry id, or empty string if unset.
+                    description: Ougi registry ID, or empty string if unset.
                     anyOf:
                       - type: string
                         minLength: 14
@@ -767,18 +767,18 @@ paths:
     delete:
       security:
         - api_key: []
-      operationId: removeDefaultRegistry
-      x-mojo-to: api-registry#remove_default_registry
-      summary: 🔑 Clear default Registry
+      operationId: removeOugi
+      x-mojo-to: api-registry#remove_ougi
+      summary: 🔑 Clear Ougi
       description: >-
-        Clears the default-registry designation.
+        Clears the Ougi designation.
 
         Returns the id of the previously-designated registry, or an empty string if none was set.
       tags:
         - registries
       responses:
         '200':
-          description: Default registry cleared
+          description: Ougi cleared
           content:
             application/json:
               schema:
@@ -787,7 +787,7 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - remove_default_registry
+                      - remove_ougi
                   success:
                     type: integer
                     enum:
@@ -801,15 +801,15 @@ paths:
                       - type: string
                         enum:
                           - ''
-  /registries/default/{id}:
+  /registries/ougi/{id}:
     put:
       security:
         - api_key: []
-      operationId: updateDefaultRegistry
-      x-mojo-to: api-registry#update_default_registry
-      summary: 🔑 Set default Registry
+      operationId: updateOugi
+      x-mojo-to: api-registry#update_ougi
+      summary: 🔑 Set Ougi
       description: >-
-        Designates the registry with the given id as the default.
+        Designates the registry with the given id as Ougi, the default.
 
         The frontend uses this designation to pre-select a registry in install/refresh dialogs.
       tags:
@@ -822,10 +822,10 @@ paths:
             type: string
             minLength: 14
             maxLength: 14
-          description: Registry id to designate as default.
+          description: Registry id to designate as Ougi, the default.
       responses:
         '200':
-          description: Default registry set
+          description: Ougi set
           content:
             application/json:
               schema:
@@ -834,7 +834,7 @@ paths:
                   operation:
                     type: string
                     enum:
-                      - update_default_registry
+                      - update_ougi
                   success:
                     type: integer
                     enum:
