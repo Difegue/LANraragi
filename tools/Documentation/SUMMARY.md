@@ -34,6 +34,7 @@
 * [📱 Using External Readers](advanced-usage/external-readers.md)
 * [🌐 Network Interface Setup](advanced-usage/network-interfaces.md)
 * [🕵️ Proxy Setup](advanced-usage/proxy-setup.md)
+* [📦 Plugin Registries](advanced-usage/plugin-registries.md)
 
 ## Developer Guide <a href="#extending-lanraragi" id="extending-lanraragi"></a>
 
@@ -51,6 +52,7 @@
 * [Tankoubon API](api-documentation/tankoubon-api.md)
 * [Stamps API](api-documentation/stamp-api.md)
 * [Plugin API](api-documentation/plugin-api.md)
+* [Registry API](api-documentation/registry-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Minion API](api-documentation/minion-api.md)
 * [OPDS Catalog](api-documentation/opds-catalog.md)

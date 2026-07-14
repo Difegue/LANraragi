@@ -17,6 +17,8 @@ tags:
     description: Endpoints related to Categories.
   - name: tankoubons
     description: Endpoints related to Tankoubons.
+  - name: registries
+    description: Plugin registry management APIs.
   - name: plugins
     description: APIs to list and execute Plugins.
   - name: shinobu
@@ -392,7 +394,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerInfo'
-  
+
   /plugins/{type}:
     get:
       security:
@@ -561,6 +563,730 @@ paths:
                   operation: queue_plugin_exec
                   success: 1
   
+  /registries:
+    get:
+      security:
+        - api_key: []
+      operationId: listRegistries
+      x-mojo-to: api-registry#list_registries
+      summary: 🔑 List Registries
+      description: Get all configured registries.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: List of registries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - list_registries
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  registries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RegistryMetadata'
+    post:
+      security:
+        - api_key: []
+      operationId: createRegistry
+      x-mojo-to: api-registry#create_registry
+      summary: 🔑 Create a Registry
+      description: Add a new registry.
+      tags:
+        - registries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - provider
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: User-friendly alias for this registry.
+                provider:
+                  type: string
+                  enum:
+                    - github
+                    - gitea
+                    - cdn
+                    - local
+                  description: Registry source provider.
+                url:
+                  type: string
+                  format: uri
+                  description: |
+                    Registry URL. For git providers (github, gitea), must be an HTTPS git
+                    repository URL. For 'cdn', must be an http:// or https:// base URL of a
+                    folder serving registry.json and artifacts.
+                ref:
+                  type: string
+                  minLength: 1
+                  description: Git ref (branch, tag, or commit). Required for git providers.
+                path:
+                  type: string
+                  minLength: 1
+                  pattern: '^(/|[A-Za-z]:[\\/]|\\\\)'
+                  description: |
+                    Local filesystem path. Required when provider is 'local'.
+                    Must be an absolute path.
+              allOf:
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        enum:
+                          - github
+                          - gitea
+                  then:
+                    required:
+                      - url
+                      - ref
+                    properties:
+                      url:
+                        pattern: "^https://"
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        const: github
+                  then:
+                    properties:
+                      url:
+                        pattern: '^https://github\.com/[^/]+/[^/]+'
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        const: cdn
+                  then:
+                    required:
+                      - url
+                    properties:
+                      url:
+                        pattern: "^https?://"
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        const: local
+                  then:
+                    required:
+                      - path
+      responses:
+        '200':
+          description: Registry created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - create_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  id:
+                    type: string
+                    description: Generated registry ID.
+                    minLength: 14
+                    maxLength: 14
+        '400':
+          description: Registry creation failed (invalid path or required field)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /registries/ougi:
+    get:
+      security:
+        - api_key: []
+      operationId: getOugi
+      x-mojo-to: api-registry#get_ougi
+      summary: Get Ougi
+      description: >-
+        Retrieves the id of the default registry currently designated as Ougi.
+
+        Returns an empty string if no registry is designated.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: Ougi id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - get_ougi
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  id:
+                    description: Ougi registry ID, or empty string if unset.
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+    delete:
+      security:
+        - api_key: []
+      operationId: removeOugi
+      x-mojo-to: api-registry#remove_ougi
+      summary: 🔑 Clear Ougi
+      description: >-
+        Clears the Ougi designation.
+
+        Returns the id of the previously-designated registry, or an empty string if none was set.
+      tags:
+        - registries
+      responses:
+        '200':
+          description: Ougi cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - remove_ougi
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  id:
+                    description: Id of the previously-designated registry.
+                    anyOf:
+                      - type: string
+                        minLength: 14
+                        maxLength: 14
+                      - type: string
+                        enum:
+                          - ''
+  /registries/ougi/{id}:
+    put:
+      security:
+        - api_key: []
+      operationId: updateOugi
+      x-mojo-to: api-registry#update_ougi
+      summary: 🔑 Set Ougi
+      description: >-
+        Designates the registry with the given id as Ougi, the default.
+
+        The frontend uses this designation to pre-select a registry in install/refresh dialogs.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry id to designate as Ougi, the default.
+      responses:
+        '200':
+          description: Ougi set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_ougi
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
+        '400':
+          description: Invalid registry id format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Registry with the specified id does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /registries/{id}:
+    get:
+      security:
+        - api_key: []
+      operationId: getRegistry
+      x-mojo-to: api-registry#get_registry
+      summary: 🔑 Get a Registry
+      description: Get configuration data for a specific registry.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
+      responses:
+        '200':
+          description: Registry configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - get_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  registry:
+                    $ref: '#/components/schemas/RegistryMetadata'
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    put:
+      security:
+        - api_key: []
+      operationId: updateRegistry
+      x-mojo-to: api-registry#update_registry
+      summary: 🔑 Update a Registry
+      description: Update registry configuration. Only provided fields are changed. Clears cached index.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                provider:
+                  type: string
+                  enum:
+                    - github
+                    - gitea
+                    - cdn
+                    - local
+                url:
+                  type: string
+                  format: uri
+                  pattern: "^https?://"
+                ref:
+                  type: string
+                  minLength: 1
+                path:
+                  type: string
+                  minLength: 1
+                  pattern: '^(/|[A-Za-z]:[\\/]|\\\\)'
+              allOf:
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        enum:
+                          - github
+                          - gitea
+                  then:
+                    properties:
+                      url:
+                        pattern: "^https://"
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        const: github
+                  then:
+                    properties:
+                      url:
+                        pattern: '^https://github\.com/[^/]+/[^/]+'
+                - if:
+                    required:
+                      - provider
+                    properties:
+                      provider:
+                        const: cdn
+                  then:
+                    properties:
+                      url:
+                        pattern: "^https?://"
+      responses:
+        '200':
+          description: Registry updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - update_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  id:
+                    type: string
+                    minLength: 14
+                    maxLength: 14
+        '400':
+          description: Update failed (missing required fields, invalid path)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: deleteRegistry
+      x-mojo-to: api-registry#delete_registry
+      summary: 🔑 Delete a Registry
+      description: Remove a registry and its cached index. Does not remove installed plugins.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
+      responses:
+        '200':
+          description: Registry removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - delete_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error during delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /registries/{id}/refresh:
+    post:
+      security:
+        - api_key: []
+      operationId: refreshRegistry
+      x-mojo-to: api-registry#refresh_registry
+      summary: 🔑 Refresh Registry Index
+      description: Fetch registry.json from the configured source and cache it.
+      tags:
+        - registries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 14
+            maxLength: 14
+          description: Registry ID.
+      responses:
+        '200':
+          description: Registry index refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - refresh_registry
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  index:
+                    type: object
+                    nullable: true
+                    description: Parsed registry.json content
+        '400':
+          description: Refresh failed (invalid registry.json, missing file, validation failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Registry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Redis error or read-failure during refresh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '502':
+          description: Failed to fetch registry index from upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /plugins/install:
+    post:
+      security:
+        - api_key: []
+      operationId: installPlugin
+      x-mojo-to: api-plugins#install_plugin
+      summary: 🔑 Install a Plugin
+      description: Install or upgrade a plugin from a registry by namespace.
+      tags:
+        - plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - namespace
+                - registry
+              properties:
+                namespace:
+                  type: string
+                  pattern: "^[a-z0-9_-]+$"
+                  description: Namespace of the plugin to install. Registry namespaces are lowercase.
+                registry:
+                  type: string
+                  description: Registry ID to install from.
+                  minLength: 14
+                  maxLength: 14
+                version:
+                  type: string
+                  minLength: 1
+                  description: Explicit version key to install. If omitted, LRR installs the max version from the registry index.
+                force:
+                  type: boolean
+                  description: Force install even if the plugin is already installed from a different managed registry. Built-in plugins cannot be overwritten.
+      responses:
+        '200':
+          description: Install job enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - install_plugin
+                  namespace:
+                    type: string
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  job:
+                    type: integer
+                    description: ID of the enqueued Minion job.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
+  /plugins/installed/{plugin_namespace}:
+    delete:
+      security:
+        - api_key: []
+      operationId: uninstallPlugin
+      x-mojo-to: api-plugins#uninstall_plugin
+      summary: 🔑 Uninstall a Plugin
+      description: Remove an installed plugin from disk and clean up its configuration.
+      tags:
+        - plugins
+      parameters:
+        - name: plugin_namespace
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-zA-Z0-9_-]+$"
+          description: Namespace of the plugin to uninstall.
+      responses:
+        '200':
+          description: Plugin uninstalled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - uninstall_plugin
+                  success:
+                    type: integer
+                    enum:
+                      - 1
+                  error:
+                    type: string
+                    nullable: true
+                  successMessage:
+                    type: string
+        '403':
+          description: Plugin cannot be uninstalled (built-in plugin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '404':
+          description: Plugin has no install path recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '423':
+          description: Locked resource response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '500':
+          description: Server error (file deletion failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
   /tempfolder:
     delete:
       security:
@@ -4221,6 +4947,9 @@ components:
         cache_last_cleared:
           type: integer
           description: Timestamp for last time the search cache was wiped
+        restart_required:
+          type: boolean
+          description: Whether LRR needs a restart
         excluded_namespaces:
           type: array
           items:
@@ -4237,6 +4966,7 @@ components:
         server_resizes_images: false
         server_tracks_progress: true
         authenticated_progress: false
+        restart_required: false
         total_archives: 104
         total_pages_read: 252
         version: 0.9.30
@@ -4288,6 +5018,14 @@ components:
         login_from:
           type: [string, "null"]
           description: Namespace of the login plugin this plugin depends on
+        registry:
+          type: string
+          nullable: true
+          description: Registry ID the plugin was installed from, or null if not registry-managed
+        sha256:
+          type: string
+          nullable: true
+          description: SHA-256 recorded for the installed artifact, or null if not registry-managed
       example:
         author: Difegue
         description: Searches chaika.moe for tags matching your archive.
@@ -4645,5 +5383,77 @@ components:
           type: array
           items:
             type: string
+    RegistryMetadata:
+      type: object
+      description: Registry configuration with ID.
+      required:
+        - id
+        - name
+        - provider
+        - created
+        - updated
+      properties:
+        id:
+          type: string
+          description: Registry ID.
+          minLength: 14
+          maxLength: 14
+        name:
+          type: string
+          minLength: 1
+          description: User-friendly alias for this registry.
+        provider:
+          type: string
+          enum:
+            - github
+            - gitea
+            - cdn
+            - local
+          description: Registry source provider.
+        created:
+          type: integer
+          description: Unix timestamp of registry creation.
+        updated:
+          type: integer
+          description: Unix timestamp of last update.
+        url:
+          type: string
+          format: uri
+          pattern: "^https?://"
+          description: |
+            Registry URL. HTTPS git repository URL for git providers (github, gitea),
+            or http://-or-https:// CDN base URL for 'cdn'.
+        ref:
+          type: string
+          minLength: 1
+          description: Git ref (branch, tag, or commit). Present for git providers.
+        path:
+          type: string
+          minLength: 1
+          pattern: '^(/|[A-Za-z]:[\\/]|\\\\)'
+          description: Local filesystem path to the registry. Present when provider is 'local'. Always absolute.
+      allOf:
+        - if:
+            required:
+              - provider
+            properties:
+              provider:
+                enum:
+                  - github
+                  - gitea
+          then:
+            properties:
+              url:
+                pattern: "^https://"
+        - if:
+            required:
+              - provider
+            properties:
+              provider:
+                const: github
+          then:
+            properties:
+              url:
+                pattern: '^https://github\.com/[^/]+/[^/]+'
 servers:
   - url: https://lrr.tvc-16.science/api
