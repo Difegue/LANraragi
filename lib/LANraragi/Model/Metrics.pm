@@ -281,6 +281,7 @@ sub collect_request_metrics {
     my $controller      = shift;
     my $start_time      = $controller->stash('metrics.start_time');
     return unless $start_time;
+    return unless $controller->match->endpoint;
 
     my $duration        = tv_interval($start_time);
     my $method          = $controller->req->method;
