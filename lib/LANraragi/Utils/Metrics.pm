@@ -20,6 +20,7 @@ sub extract_endpoint {
     # Archive endpoints
     $path =~ s{/api/archives/[a-f0-9]{40}(/|$)}{/api/archives/:id$1}g;
     $path =~ s{/api/archives/:id/progress/\d+}{/api/archives/:id/progress/:page};
+    $path =~ s{/api/archives/:id/stamps/\d+$}{/api/archives/:id/stamps/:index};
 
     # Category endpoints
     $path =~ s{/api/categories/bookmark_link/[^/]+(/|$)}{/api/categories/bookmark_link/:id$1}g;
@@ -33,9 +34,16 @@ sub extract_endpoint {
         }
     }ge;
 
-    # Tankoubon endpoints  
+    # Tankoubon endpoints
     $path =~ s{/api/tankoubons/[^/]+/[a-f0-9]{40}(/|$)}{/api/tankoubons/:id/:archive$1}g;
     $path =~ s{/api/tankoubons/[^/]+(/|$)}{/api/tankoubons/:id$1}g;
+    $path =~ s{/api/tankoubons/:id/progress/\d+$}{/api/tankoubons/:id/progress/:page};
+
+    # Stamp endpoints
+    $path =~ s{/api/stamps/[^/]+(/|$)}{/api/stamps/:id$1}g;
+
+    # Database endpoints
+    $path =~ s{/api/database/backup/\d+$}{/api/database/backup/:jobid};
 
     # Minion endpoints
     $path =~ s{/api/minion/([^/]+)/queue(/|$)}{/api/minion/:jobname/queue$2}g;
