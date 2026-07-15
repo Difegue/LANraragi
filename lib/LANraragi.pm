@@ -257,18 +257,22 @@ sub startup {
             LANraragi::Model::Metrics::flush_request_metrics_to_redis();
         });
 
-        # Worker exit-related cleanups
+        # Manage Mojo worker lifecycles
         $self->hook(
             before_server_start => sub {
                 my ( $server, $app ) = @_;
-                return unless $server->isa('Mojo::Server::Prefork');
 
-                # https://docs.mojolicious.org/Mojo/Server/Prefork#reap
-                # if a worker process exists, clean up its metrics.
+                # track all active workers.
+                $server->on(
+                    spawn => sub {
+                        my ( $prefork, $pid ) = @_;
+                        LANraragi::Model::Metrics::register_worker($pid);
+                    }
+                );
                 $server->on(
                     reap => sub {
                         my ( $prefork, $pid ) = @_;
-                        LANraragi::Model::Metrics::cleanup_worker_gauges_on_exit($pid);
+                        LANraragi::Model::Metrics::unregister_worker($pid);
                     }
                 );
             }
