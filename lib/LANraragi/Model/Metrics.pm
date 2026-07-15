@@ -374,6 +374,29 @@ sub collect_process_metrics {
     }
 }
 
+sub cleanup_worker_gauges_on_exit {
+    my $pid = shift;
+
+    my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
+    my $logger        = get_logger( "Metrics", "lanraragi" );
+    my $error;
+    eval {
+        foreach my $process_type (qw(http minion shinobu)) {
+            $metrics_redis->hdel(
+                "metrics:$process_type:$pid",
+                qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
+            );
+        }
+        $logger->debug("Cleaned up gauges of exited process $pid.");
+    };
+    $error = $@;
+    $metrics_redis->quit();
+
+    if ($error) {
+        $logger->error("Failed to clean up gauges of exited process $pid: $error");
+    }
+}
+
 # Clean up all existing metrics data on startup
 sub cleanup_metrics {
 
