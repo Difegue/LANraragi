@@ -43,6 +43,7 @@ my @vendor_js = (
     '/@preact/signals/dist/signals.module.js',
     '/@preact/signals/utils/dist/utils.module.js',
     '/@preact/signals-core/dist/signals-core.module.js',
+    '/es-module-shims/dist/es-module-shims.js',
 );
 
 my @vendor_bundle = (

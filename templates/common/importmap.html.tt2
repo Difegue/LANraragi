@@ -1,3 +1,4 @@
+<script async src="[% c.url_for("/js/vendor/es-module-shims.js") %]" type="text/JAVASCRIPT"></script>
 <script type="importmap">
     {
         "imports": {
