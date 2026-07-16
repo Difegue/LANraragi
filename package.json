@@ -44,6 +44,7 @@
         "clsx": "1.1.1",
         "datatables.net": "1.11.5",
         "dompurify": "^3.4.11",
+        "es-module-shims": "^2.8.2",
         "eslint-plugin-import-x": "^4.17.1",
         "fscreen": "1.2.0",
         "geist": "1.0.0",
