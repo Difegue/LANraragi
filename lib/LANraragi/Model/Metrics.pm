@@ -41,14 +41,13 @@ sub get_prometheus_api_metrics {
     my @output;
     my @metric_keys = $metrics_redis->keys("metrics:worker:*");
     my %aggregated_api_metrics;
-    my %active_workers;
+    my $worker_count = $metrics_redis->hlen("metrics:active_workers");
 
     foreach my $key ( @metric_keys ) {
 
         # Parse key: metrics:worker:{PID}:{endpoint_encoded}_{method}
         if ( $key =~ /^metrics:worker:(\d+):(.+)_([A-Z]+)$/ ) {
             my ($worker_pid, $endpoint_encoded, $method) = ($1, $2, $3);
-            $active_workers{$worker_pid} = 1;
 
             next unless $endpoint_encoded && $method;
 
@@ -103,7 +102,6 @@ sub get_prometheus_api_metrics {
     }
 
     # API worker count metric
-    my $worker_count = scalar keys %active_workers;
     push @output, "# TYPE lanraragi_active_workers gauge";
     push @output, "# HELP lanraragi_active_workers Number of active LANraragi workers";
     push @output, "lanraragi_active_workers $worker_count";
@@ -283,6 +281,7 @@ sub collect_request_metrics {
     my $controller      = shift;
     my $start_time      = $controller->stash('metrics.start_time');
     return unless $start_time;
+    return unless $controller->match->endpoint;
 
     my $duration        = tv_interval($start_time);
     my $method          = $controller->req->method;
@@ -392,6 +391,7 @@ sub cleanup_metrics {
             my $count = scalar(@all_keys);
             $logger->info("Cleaned up $count metrics keys.");
         }
+        $metrics_redis->del("metrics:active_workers");
     };
     my $error = $@;
     $metrics_redis->quit();
@@ -432,6 +432,70 @@ sub flush_request_metrics_to_redis {
     %REQUEST_METRICS_CACHE        = ();
     $REQUEST_METRICS_UPDATE_COUNT = 0;
     $REQUEST_METRICS_LAST_FLUSH   = $now;
+}
+
+# Register worker in the active workers registry
+sub register_worker {
+    my $pid = shift;
+
+    my $redis   = LANraragi::Model::Config->get_redis_metrics;
+    my $logger  = get_logger( "Metrics", "lanraragi" );
+    my $error;
+    eval {
+        $redis->hset("metrics:active_workers", $pid, 1);
+    };
+    $error = $@;
+    $redis->quit();
+
+    if ($error) {
+        $logger->error("Failed to register worker process $pid: $error");
+    }
+}
+
+# Unregister worker from the active workers registry and clean up its gauge metrics.
+sub unregister_worker {
+    my $pid = shift;
+
+    my $redis   = LANraragi::Model::Config->get_redis_metrics;
+    my $logger  = get_logger( "Metrics", "lanraragi" );
+    my $error;
+    eval {
+        $redis->hdel("metrics:active_workers", $pid);
+        $redis->hdel(
+            "metrics:http:$pid",
+            qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
+        );
+        $logger->debug("Cleaned up gauges of exited worker $pid.");
+    };
+    $error = $@;
+    $redis->quit();
+
+    if ($error) {
+        $logger->error("Failed to clean up gauges of exited process $pid: $error");
+    }
+}
+
+# Unregister shinobu and clean up gauge metrics.
+sub unregister_shinobu {
+
+    my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
+    my $logger        = get_logger( "Metrics", "lanraragi" );
+    my $error;
+    eval {
+        foreach my $key ( $metrics_redis->keys("metrics:shinobu:*") ) {
+            $metrics_redis->hdel(
+                $key,
+                qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
+            );
+        }
+        $logger->debug("Cleaned up shinobu gauges.");
+    };
+    $error = $@;
+    $metrics_redis->quit();
+
+    if ($error) {
+        $logger->error("Failed to clean up shinobu gauges: $error");
+    }
 }
 
 1;

@@ -5,6 +5,7 @@ use Config;
 
 use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Model::Metrics;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -109,6 +110,10 @@ sub stop_shinobu {
         chomp(my $pid = <$fh>);
         close($fh);
         kill HUP => $pid;
+    }
+
+    if ( $self->LRR_CONF->enable_metrics ) {
+        LANraragi::Model::Metrics::unregister_shinobu();
     }
 
     render_api_response( $self, "shinobu_stop" );

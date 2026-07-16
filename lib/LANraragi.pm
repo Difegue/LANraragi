@@ -257,6 +257,27 @@ sub startup {
             LANraragi::Model::Metrics::flush_request_metrics_to_redis();
         });
 
+        # Manage Mojo worker lifecycles
+        $self->hook(
+            before_server_start => sub {
+                my ( $server, $app ) = @_;
+
+                # track all active workers.
+                $server->on(
+                    spawn => sub {
+                        my ( $prefork, $pid ) = @_;
+                        LANraragi::Model::Metrics::register_worker($pid);
+                    }
+                );
+                $server->on(
+                    reap => sub {
+                        my ( $prefork, $pid ) = @_;
+                        LANraragi::Model::Metrics::unregister_worker($pid);
+                    }
+                );
+            }
+        );
+
         $self->LRR_LOGGER->info("Metrics collection is enabled.");
 
     }
