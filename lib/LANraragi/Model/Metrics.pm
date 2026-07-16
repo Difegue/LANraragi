@@ -461,19 +461,40 @@ sub unregister_worker {
     my $error;
     eval {
         $redis->hdel("metrics:active_workers", $pid);
-        foreach my $process_type (qw(http minion shinobu)) {
-            $redis->hdel(
-                "metrics:$process_type:$pid",
-                qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
-            );
-        }
-        $logger->debug("Cleaned up gauges of exited process $pid.");
+        $redis->hdel(
+            "metrics:http:$pid",
+            qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
+        );
+        $logger->debug("Cleaned up gauges of exited worker $pid.");
     };
     $error = $@;
     $redis->quit();
 
     if ($error) {
         $logger->error("Failed to clean up gauges of exited process $pid: $error");
+    }
+}
+
+# Unregister shinobu and clean up gauge metrics.
+sub unregister_shinobu {
+
+    my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
+    my $logger        = get_logger( "Metrics", "lanraragi" );
+    my $error;
+    eval {
+        foreach my $key ( $metrics_redis->keys("metrics:shinobu:*") ) {
+            $metrics_redis->hdel(
+                $key,
+                qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)
+            );
+        }
+        $logger->debug("Cleaned up shinobu gauges.");
+    };
+    $error = $@;
+    $metrics_redis->quit();
+
+    if ($error) {
+        $logger->error("Failed to clean up shinobu gauges: $error");
     }
 }
 
