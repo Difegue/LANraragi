@@ -36,6 +36,8 @@ use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive exec_with_lock_pure);
 use LANraragi::Utils::Redis      qw(redis_encode);
 use LANraragi::Utils::Path       qw(create_path open_path find_path get_archive_path);
+use LANraragi::Utils::Ignore     qw(is_ignored load_ignore_rules);
+use LANraragi::Model::Archive;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -133,11 +135,18 @@ sub update_filemap {
     my $dirname = LANraragi::Model::Config->get_userdir;
     my @files;
 
+    my $ignore_rules = load_ignore_rules();
+
     # Get all files in content directory and subdirectories.
     find_path(
         sub {
             $_ = create_path($_);
             return if -d $_;    #Directories are excluded on the spot
+
+            if ( is_ignored( $_, $ignore_rules ) ) {
+                return;
+            }
+
             return unless is_archive($_);
             push @files, $_;    #Push files to array
         },
@@ -151,17 +160,32 @@ sub update_filemap {
     my %fshash      = map { $_ => 1 } @files;
 
     my @newfiles     = grep { !$filemaphash{$_} } @files;
-    my @deletedfiles = grep { !$fshash{$_} } @filemapfiles;
+    my @deletedfiles = grep { !$fshash{$_} } @filemapfiles;  # contains both deleted and ignored files.
 
     $logger->info( "Found " . scalar @newfiles . " new files." );
-    $logger->info( scalar @deletedfiles . " files were found on the filemap but not on the filesystem." );
+    $logger->info( scalar @deletedfiles . " stale entries to remove from filemap." );
 
-    # Delete old files from filemap
+    # Delete old files from filemap and cleanup ignored archives
+    my $redis_arc = LANraragi::Model::Config->get_redis;
     foreach my $deletedfile (@deletedfiles) {
         $logger->debug("Removing $deletedfile from filemap.");
+        if ( -e $deletedfile ) {
+            my $id = $redis->hget( "LRR_FILEMAP", $deletedfile );
+            if ($id) {
+                my ($acquired) = exec_with_lock_pure(
+                    [ "archive-write:$id" ],
+                    sub { $redis_arc->hset( $id, "file", "" ); },
+                    undef, 60
+                );
+                unless ($acquired) {
+                    $logger->warn("Could not acquire lock for $id, skipping file field clear.");
+                }
+            }
+        }
         $redis->hdel( "LRR_FILEMAP", $deletedfile ) || $logger->warn("Couldn't delete previous filemap data.");
     }
 
+    $redis_arc->quit();
     $redis->quit();
 
     eval {
@@ -328,6 +352,12 @@ sub new_file_callback ($name) {
 
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
+
+        my $ignore_rules = load_ignore_rules();
+        if ( is_ignored( $name, $ignore_rules ) ) {
+            $logger->debug("$name matches .lrrignore rules, skipping.");
+            return;
+        }
 
         my $redis = LANraragi::Model::Config->get_redis_config;
         eval { add_to_filemap( $redis, $name ); };

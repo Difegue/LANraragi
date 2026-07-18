@@ -15,6 +15,7 @@ use Time::HiRes qw(gettimeofday);
 
 use LANraragi::Utils::Generic    qw(start_shinobu start_minion get_version);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
+use LANraragi::Utils::Ignore;
 use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
@@ -185,6 +186,9 @@ sub startup {
     # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started!
     # Anything else can cause weird database lockups.
     $self->minion->enqueue('build_stat_hashes');
+
+    # Load ignore rules into Redis before starting any workers
+    LANraragi::Utils::Ignore::initialize();
 
     # Start a Minion worker in a subprocess
     start_minion($self);

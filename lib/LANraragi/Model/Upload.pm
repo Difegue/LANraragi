@@ -16,6 +16,7 @@ use File::Find qw(find);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary add_archive_to_redis add_timestamp_tag add_pagecount add_arcsize);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Ignore   qw(load_ignore_rules is_ignored);
 use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
@@ -57,6 +58,14 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
     # Future home of the file
     my $userdir     = LANraragi::Model::Config->get_userdir;
     my $output_file = create_path( $userdir . '/' . $filename );
+
+    # Check ignore rules: reject if the file would be ignored by .lrrignore rules
+    my $ignore_rules = load_ignore_rules();
+    if ( is_ignored( $output_file, $ignore_rules ) ) {
+        $logger->info("$filename matches .lrrignore rules, rejecting upload.");
+        unlink_path $tempfile;
+        return ( 415, "deadbeef", $filename, "This file matches configured ignore rules." );
+    }
 
     #Check if the ID is already in the database, and
     #that the file it references still exists on the filesystem
