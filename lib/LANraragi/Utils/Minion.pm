@@ -572,7 +572,7 @@ sub add_tasks {
                 my $filename = "backup_" . $job->id . ".json";
                 my $filepath = "$tempdir/$filename";
 
-                open my $fh, '>:encoding(UTF-8)', $filepath
+                open my $fh, '>', $filepath
                   or die "Cannot write to $filepath: $!";
                 print $fh $json;
                 close $fh;

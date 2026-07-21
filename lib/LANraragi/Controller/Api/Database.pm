@@ -86,7 +86,7 @@ sub download_backup {
 
     # Depending on the requested format, either serve the file directly or read its contents and return as JSON
     if ( $self->req->param('format') && $self->req->param('format') eq 'json' ) {
-        open my $fh, '<:encoding(UTF-8)', $filepath or die "Cannot read $filepath: $!";
+        open my $fh, '<', $filepath or die "Cannot read $filepath: $!";
         local $/;
         my $json = <$fh>;
         close $fh;
