@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: '64b12b317ed85e6f1185328f6a0e3ca4b34cab87'
+        default: '82d8e4ab588ca0dc95d05de4bff8ebe5e4aae206'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '64b12b317ed85e6f1185328f6a0e3ca4b34cab87' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '82d8e4ab588ca0dc95d05de4bff8ebe5e4aae206' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:

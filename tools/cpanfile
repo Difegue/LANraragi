@@ -59,6 +59,7 @@ requires 'File::ChangeNotify', 0.31;
 
 # Plugin system
 requires 'Module::Pluggable', 5.2;
+requires 'SemVer',            0.10.0;
 
 # Eze plugin/Timestamp calculation
 requires 'Time::Local', 1.30;

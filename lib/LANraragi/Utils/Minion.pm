@@ -13,6 +13,7 @@ use MCE::Loop;
 use MCE::Shared;
 use Config;
 
+use LANraragi::Utils::Generic    qw(exec_with_lock_pure);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Redis      qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
@@ -26,6 +27,7 @@ use LANraragi::Model::Stats;
 use LANraragi::Model::Backup;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+use constant INSTALL_LOCK_TTL => 300;
 
 # Add Tasks to the Minion instance.
 sub add_tasks {
@@ -557,6 +559,60 @@ sub add_tasks {
     );
 
     $minion->add_task(
+        install_plugin => sub {
+            my ( $job, @args ) = @_;
+            my ( $namespace, $registry_id, $version, $force ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->info("Installing managed plugin '$namespace' from registry '$registry_id'...");
+
+            my $redis = LANraragi::Model::Config->get_redis_config;
+            my ( $acquired, $result ) = eval {
+                exec_with_lock_pure(
+                    [ "plugin-write:" . uc($namespace) ],
+                    sub {
+                        my ( $status, $plugmeta, $message ) =
+                            LANraragi::Model::Plugins::install_plugin( $namespace, $redis, $registry_id, $version, $force );
+                        return { status => $status, plugmeta => $plugmeta, message => $message };
+                    },
+                    $redis,
+                    INSTALL_LOCK_TTL
+                );
+            };
+            my $err = $@;
+            eval { $redis->quit(); 1 } or $logger->warn("Failed to close Redis connection after install of '$namespace': $@");
+
+            if ($err) {
+                $logger->error("install_plugin failed for '$namespace': $err");
+                return $job->fail( { error => "Plugin installation failed." } );
+            }
+
+            unless ($acquired) {
+                return $job->finish(
+                    { success => 0, error => "Another plugin operation is already in progress for '$namespace'." } );
+            }
+
+            my ( $status, $plugmeta, $message ) = ( $result->{status}, $result->{plugmeta}, $result->{message} );
+            if ( $status != 200 ) {
+                return $job->finish( { success => 0, error => $message } );
+            }
+
+            $job->finish(
+                {   success => 1,
+                    error   => undef,
+                    data    => {
+                        name      => $plugmeta->{name},
+                        namespace => $namespace,
+                        version   => $plugmeta->{version},
+                        registry  => $plugmeta->{registry},
+                        sha256    => $plugmeta->{sha256},
+                    }
+                }
+            );
+        }
+    );
+
+    $minion->add_task(
         backup_json => sub {
             my ( $job, @args ) = @_;
 
@@ -572,7 +628,7 @@ sub add_tasks {
                 my $filename = "backup_" . $job->id . ".json";
                 my $filepath = "$tempdir/$filename";
 
-                open my $fh, '>:encoding(UTF-8)', $filepath
+                open my $fh, '>', $filepath
                   or die "Cannot write to $filepath: $!";
                 print $fh $json;
                 close $fh;

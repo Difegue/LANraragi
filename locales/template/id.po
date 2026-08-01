@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2026-07-08 07:01+0000\n"
+"PO-Revision-Date: 2026-07-18 07:01+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1686,10 +1686,13 @@ msgstr ""
 "external-readers#generic-opds-readers'>pembaca OPDS.</a>"
 
 msgid "This comic streams its pages from the web"
-msgstr ""
+msgstr "Komik ini menampilkan halaman-halamannya langsung dari web"
 
 msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
 msgstr ""
+"Berkas CBW tidak berisi gambar sama sekali; halaman-halamannya diambil dari "
+"URL eksternal saat dibutuhkan. Pembacaan akan gagal jika sumber halaman "
+"tersebut sudah tidak tersedia secara daring."
 
 msgid "Navigation Help"
 msgstr "Bantuan Navigasi"

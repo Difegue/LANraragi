@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2026-07-07 03:01+0000\n"
+"PO-Revision-Date: 2026-07-21 19:01+0000\n"
 "Last-Translator: 四迷二葉亭 <sumu32000@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1630,10 +1630,13 @@ msgstr ""
 "readers'>OPDS リーダーを併用することを検討してください。</a>"
 
 msgid "This comic streams its pages from the web"
-msgstr ""
+msgstr "このコミックは、ページデータをWebから取得して表示します"
 
 msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
 msgstr ""
+"CBWファイルには画像は保存されていません。ページは必要なときにWeb上から取得し"
+"ます。配信元の画像が削除されたり公開終了した場合、そのページは表示できません"
+"。"
 
 msgid "Navigation Help"
 msgstr "操作方法"

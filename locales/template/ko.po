@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-06-03 02:01+0000\n"
+"PO-Revision-Date: 2026-07-18 07:01+0000\n"
 "Last-Translator: on9686 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1570,10 +1570,13 @@ msgstr ""
 "a>를 함께 사용하는 것을 고려해보세요."
 
 msgid "This comic streams its pages from the web"
-msgstr ""
+msgstr "이 만화는 웹에서 페이지를 스트리밍합니다"
 
 msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
 msgstr ""
+"CBW 파일 자체에는 이미지가 포함되어 있지 않으며, 해당 페이지는 요청 시 원격 "
+"URL에서 가져옵니다. 소스가 더 이상 온라인 상태가 아닌 페이지의 경우 읽기가 "
+"실패합니다."
 
 msgid "Navigation Help"
 msgstr "탐색 도움말"
@@ -2064,3 +2067,23 @@ msgstr ""
 
 msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
 msgstr "${n}개의 아카이브를 단행본 ${name}(으)로 병합합니다. 진행하시겠습니까?"
+
+msgid "This is the first archive"
+msgstr "첫 아카이브입니다"
+
+msgid "This is the last archive"
+msgstr "마지막 아카이브입니다"
+
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr ""
+"검색 결과에서 아카이브를 읽을 때는 다음 방법을 사용해 아카이브 간에 이동할 "
+"수 있습니다:"
+
+msgid "The , and . keys"
+msgstr "쉼표(,) 키 및 온점(.) 키"
+
+msgid "Reading past the first/last page"
+msgstr "처음/마지막 페이지를 넘어서 읽기"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "shift+좌우 방향키: 처음/마지막 페이지로 이동"
