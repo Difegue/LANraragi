@@ -27,6 +27,17 @@
     <script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script src="[% c.url_for("/js/duplicates.js?$version") %]" type="module"></script>
+
+    <script type="module">
+		import * as IndexTable from "[% c.url_for("/js/$version/mod/index_datatables.js") %]";
+		import * as LRR from "[% c.url_for("/js/$version/mod/common.js") %]";
+
+		jQuery(() => {
+			window.IndexTable = IndexTable;
+			window.LRR = LRR;
+		});
+	</script>
+
 </head>
 
 <style>
