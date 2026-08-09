@@ -30,7 +30,7 @@ export function ReaderPaginator()  {
 
     return html`
         <div class="sn paginator">
-            <a class="fa fa-backward-step page-link archive-nav-link" style=${`font-size: 1.5em; ${multiNavStyle}`} onclick=${(e) => {e.preventDefault(); changePage("outermost-left", true); }}></a>
+            <a class="fa fa-backward-step page-link archive-nav-link" style=${`font-size: 1.5em; ${multiNavStyle()}`} onclick=${(e) => {e.preventDefault(); changePage("outermost-left", true); }}></a>
             <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" onclick=${(e) => {e.preventDefault(); changePage("first", true);}}></a>
             <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" onclick=${(e) => {e.preventDefault(); changePage(-1, true);}}></a>
 
@@ -41,7 +41,7 @@ export function ReaderPaginator()  {
 
             <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" onclick=${(e) => {e.preventDefault(); changePage(1, true);}}></a>
             <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" onclick=${(e) => {e.preventDefault(); changePage("last", true);}}></a>
-            <a class="fa fa-forward-step page-link archive-nav-link" style=${`font-size: 1.5em; ${multiNavStyle}`} onclick=${(e) => {e.preventDefault(); changePage("outermost-right", true); }}></a>
+            <a class="fa fa-forward-step page-link archive-nav-link" style=${`font-size: 1.5em; ${multiNavStyle()}`} onclick=${(e) => {e.preventDefault(); changePage("outermost-right", true); }}></a>
         </div>
     `;
 }
