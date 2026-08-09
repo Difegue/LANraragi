@@ -280,7 +280,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     });
 
     effect(() => {
-        document.tile = state.content.value.title;
+        document.title = state.content.value.title;
     });
 
     effect(() => {
