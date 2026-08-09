@@ -75,7 +75,7 @@ function SettingsPanel() {
             <div id="toggle-double-mode">
                 <h2 class="config-panel">${I18N.PageRendering}</h2>
                 <${ToggleButton} id="single-page" active=${!state.doublePageMode.value} onClick=${() => state.doublePageMode.value = false} label=${I18N.Single} />
-                <${ToggleButton} id="fit-width" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
+                <${ToggleButton} id="double-page-mode" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
             </div>
         <//>
 
