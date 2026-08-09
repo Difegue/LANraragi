@@ -347,10 +347,7 @@ export function loadContentData() {
 
                     // Create archive chapter (with nested ToC chapters if present)
                     const archiveChapters = LRR.buildTankChapters(meta, pageOffset);
-                    content = {
-                        ...content,
-                        chapters: content.chapters.push(...archiveChapters)
-                    };
+                    content.chapters.push(...archiveChapters);
 
                     pageOffset += meta.pagecount || 0;
                 });
