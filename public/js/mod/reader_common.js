@@ -936,7 +936,7 @@ export async function refreshCurrentPage() {
         // Special case when going backwards and already showing a widespread, 
         // we need to go back by two pages to show the previous double-page spread
         if (state.showingSinglePage.value && state.previousPage > currentPage) {
-            currentPage = Math.max(0, state.currentPage - 1);
+            currentPage = Math.max(0, state.currentPage.value - 1);
         }
 
         // Composite an image and use that as the source
@@ -1400,15 +1400,15 @@ export function changePage(targetPage, resetAuto = false) {
     }
     if (destination < 0) {
         // Clamp if we're not at the first page, to avoid doublepage mode accidentally yeeting us to previous archive
-        if (state.currentPage > 0) {
+        if (state.currentPage.value > 0) {
             destination = 0;
         } else {
             return readPreviousArchive();
         }
-    } else if (destination > state.maxPage) {
+    } else if (destination > state.maxPage.value) {
         // Ditto for last page
-        if (state.currentPage < state.maxPage) {
-            destination = state.maxPage;
+        if (state.currentPage.value < state.maxPage.value) {
+            destination = state.maxPage.value;
         } else {
             return readNextArchive();
         }

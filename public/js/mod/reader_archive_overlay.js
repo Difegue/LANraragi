@@ -173,8 +173,8 @@ export function updateArchiveOverlay(forceUpdate = false) {
     if ($("#archivePagesOverlay").attr("loaded") === "true" && !forceUpdate) {
 
         if ((state.currentChapter === null) ||
-            (state.currentPage + 1 >= state.currentChapter.startPage &&
-                state.currentPage + 1 <= state.currentChapter.endPage)) {
+            (state.currentPage.value + 1 >= state.currentChapter.startPage &&
+                state.currentPage.value + 1 <= state.currentChapter.endPage)) {
             return;
         }
     }
@@ -261,7 +261,7 @@ export function updateArchiveOverlay(forceUpdate = false) {
 }
 
 export function checkStampedPages() {
-    const { arcId, localPage } = getArchiveForPage(state.currentPage + 1);
+    const { arcId, localPage } = getArchiveForPage(state.currentPage.value + 1);
     Server.callAPI(`/api/archives/${arcId}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
