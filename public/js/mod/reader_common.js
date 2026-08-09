@@ -883,11 +883,6 @@ function updateMetadata() {
     const img = $("#img")[0];
     const imgDoublePage = $("#img_doublepage")[0];
 
-    /*if (!state.filename.peek() && state.showingSinglePage.value) {
-        state.currentPageLoaded.value = true;
-        return;
-    }*/
-
     const width = img.naturalWidth;
     const height = img.naturalHeight;
     const widthDoublePage = imgDoublePage.naturalWidth;
