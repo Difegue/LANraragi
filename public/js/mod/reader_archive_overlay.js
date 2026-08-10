@@ -32,11 +32,9 @@ export function initializeArchiveOverlay() {
         const categoryId = $("#category").val();
         addCategoryBadge(categoryId);
 
-        // Turn ON bookmark icon.
-        if ($("#category").val() == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("far fa-bookmark")
-                .addClass("fas fa-bookmark");
+        if (categoryId === localStorage.bookmarkCategoryId) {
+            // Turn ON bookmark icon.
+            state.isBookmarked.value = true;
         }
     });
     $(document).on("click.remove-category", ".remove-category", (e) => {
@@ -44,11 +42,10 @@ export function initializeArchiveOverlay() {
         const catId = $(e.target).attr("data-id");
         Server.removeArchiveFromCategory(state.id, $(e.target).attr("data-id"));
         $(e.target).closest(".gt").remove();
-        // Turn OFF the bookmark icon
-        if (catId == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("fas fa-bookmark")
-                .addClass("far fa-bookmark");
+
+        if (catId === localStorage.bookmarkCategoryId) {
+            // Turn OFF the bookmark icon
+            state.isBookmarked.value = false;
         }
     });
 
