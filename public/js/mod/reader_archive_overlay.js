@@ -26,7 +26,8 @@ export function initializeArchiveOverlay() {
             }
         });
     });
-    $(document).on("click.add-category", "#add-category", () => {
+    $(document).on("click.add-category", "#add-category", (e) => {
+        e.preventDefault();
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(state.id, $("#category").val());
         const categoryId = $("#category").val();
