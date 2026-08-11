@@ -42,7 +42,9 @@ function SettingsPanel() {
             let value,
                 type;
 
-            [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
+            const match = /^(\d+)(px|%)?$/.exec(raw);
+            if (!match) return;
+            [, value, type] = match;
             value = value || 1200;
             type = type || "px";
             state.containerWidth.value = `${value}${type}`;
