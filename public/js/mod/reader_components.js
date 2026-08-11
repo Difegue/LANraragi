@@ -2,12 +2,14 @@ import { h } from "preact";
 import htm from "htm";
 import fscreen from "fscreen";
 import { computed } from "@preact/signals";
+import { Show } from "@preact/signals/utils";
 
 import { state, toggleBookmark, toggleHelp, toggleMangaMode, toggleAutoNextPage, toggleFullScreen } from "./reader_common.js";
 import { toggleSettingsOverlay } from "./reader_options.js";
 import { toggleArchiveOverlay } from "./reader_archive_overlay.js";
 
 import I18N from "i18n";
+import { bookmarkLinkConfigured } from "./common.js";
 
 const html = htm.bind(h);
 
@@ -17,8 +19,12 @@ export function ToggleButton({ id, active, onClick, label }) {
 }
 
 export function BookmarkButton() {
+    const showBookmark = computed(() => bookmarkLinkConfigured());
+
     return html`
-        <a class="${state.isBookmarked.value ? "fa" : "far"} fa-bookmark fa-2x" href="#" title=${I18N.ToggleBookmark} onclick=${(e) => {e.preventDefault();toggleBookmark();}}></a>
+        <${Show} when=${showBookmark}>
+            <a class="${state.isBookmarked.value ? "fa" : "far"} fa-bookmark fa-2x" href="#" title=${I18N.ToggleBookmark} onclick=${(e) => {e.preventDefault();toggleBookmark();}}></a>
+        </${Show}>
     `;
 }
 
