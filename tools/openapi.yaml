@@ -5609,10 +5609,7 @@ components:
               - mode
             properties:
               id:
-                type: string
-                description: Category ID.
-                minLength: 14
-                maxLength: 14
+                $ref: '#/components/schemas/CategoryId'
               mode:
                 type: string
                 description: Whether to include or exclude this category.
