@@ -3086,6 +3086,7 @@ paths:
   
   /search/composite:
     post:
+      security: []
       operationId: compositeSearchArchives
       x-mojo-to: api-search#handle_composite
       summary: Composite Search Archives
@@ -3157,6 +3158,7 @@ paths:
 
   /search/composite/ids:
     post:
+      security: []
       operationId: compositeSearchArchiveIds
       x-mojo-to: api-search#handle_composite_ids
       summary: Composite Search Archive IDs
@@ -3233,6 +3235,7 @@ paths:
 
   /search/composite/random:
     post:
+      security: []
       operationId: compositeSearchRandomArchives
       x-mojo-to: api-search#get_random_archives_composite
       summary: Composite Search Random Archives
