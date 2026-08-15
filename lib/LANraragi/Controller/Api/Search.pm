@@ -269,6 +269,53 @@ sub get_random_archives {
     );
 }
 
+# Pull random archives out of a given composite search
+sub get_random_archives_composite {
+
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+
+    my $clauses_raw  = $body->{clauses};
+    my $grouptanks   = $body->{groupby_tanks}   // 1;
+    my $random_count = $body->{count}           // 5;
+
+    # Use the search engine to get IDs matching the clause set, with start=-1 to get all data
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_composite_search(
+        $clauses_raw, -1, "title", 0, $grouptanks ? 1 : 0
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                data         => [],
+                recordsTotal => 0
+            },
+            status => 204
+        );
+        return;
+    }
+
+    my @random_ids;
+
+    $random_count = min( $random_count, scalar(@ids) );
+
+    # Get random IDs out of the array
+    for ( 1 .. $random_count ) {
+        my $random_index = int( rand( scalar(@ids) ) );
+        push( @random_ids, splice( @ids, $random_index, 1 ) );
+    }
+
+    my @data = get_archive_json_multi(@random_ids);
+    $self->render(
+        openapi => {
+            data         => \@data,
+            recordsTotal => $random_count
+        }
+    );
+}
+
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object ( $draw, $total, $totalsearched, @ids ) {
 
