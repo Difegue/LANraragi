@@ -545,6 +545,84 @@ note('testing resolve_search_clause: category exclude...');
         'resolve_search_clause exclude should return all archives except Saturn JP and US' );
 }
 
+# ── Category exclusion through the public composite entrypoint ───────────────
+# These drive do_composite_search with API-shaped clause descriptors, so they
+# assert the endpoint contract rather than any particular internal wiring.
+
+my $CAT_STATIC  = "SET_1589141306";    # static: Saturn JP + Saturn US
+my $CAT_DYNAMIC = "SET_1589200000";    # dynamic, created below
+my $SATURN_JP   = "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf";
+my $SATURN_US   = "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg";
+my $FATE_MEMO   = "28697b96f0ac5858be2614ed10ca47742c9522fd";    # artist:wada rco only
+my $FATE_MEMO_2 = "2810d5e0a8d027ecefebca6237031a0fa7b91eb3";    # artist:wada rco + character:ereshkigal
+
+sub composite_ids {
+    my (@clauses) = @_;
+    my ( undef, undef, @ids ) = LANraragi::Model::Search::do_composite_search( \@clauses, -1, "title", 0, 0 );
+    return @ids;
+}
+
+sub clause {
+    my ( $filter, $categories ) = @_;
+    return {
+        filter        => $filter,
+        categories    => $categories,
+        newonly       => 0,
+        untaggedonly  => 0,
+        hidecompleted => 0
+    };
+}
+
+note('testing composite search: excluding a multi-token dynamic category...');
+{
+    # Created here rather than in mocks.pl: opds.t asserts against a golden feed
+    # that enumerates every category as a facet link.
+    $redis_db->hset( $CAT_DYNAMIC, "id",       $CAT_DYNAMIC );
+    $redis_db->hset( $CAT_DYNAMIC, "name",     "WADA X ERESHKIGAL" );
+    $redis_db->hset( $CAT_DYNAMIC, "pinned",   "0" );
+    $redis_db->hset( $CAT_DYNAMIC, "archives", "[]" );
+    $redis_db->hset( $CAT_DYNAMIC, "search",   "artist:wada rco, character:ereshkigal" );
+
+    # Membership is a conjunction, so excluding the category must remove archives
+    # matching ALL its predicates -- not archives matching any one of them.
+    my @members = composite_ids( clause( "", [ { id => $CAT_DYNAMIC, mode => "include" } ] ) );
+    is_deeply( \@members, [$FATE_MEMO_2], 'dynamic category contains only the archive matching both predicates' );
+
+    my @excluded = composite_ids( clause( "", [ { id => $CAT_DYNAMIC, mode => "exclude" } ] ) );
+
+    my %is_member = map { $_ => 1 } @members;
+    my @expected = sort grep { !$is_member{$_} } @all_archive_ids;
+    is_deeply( [ sort @excluded ], \@expected, 'excluding a dynamic category drops exactly its members' );
+
+    my %got = map { $_ => 1 } @excluded;
+    ok( $got{$FATE_MEMO}, 'archive matching only one category predicate is not a member, so it survives exclusion' );
+
+    $redis_db->del($CAT_DYNAMIC);
+}
+
+note('testing composite search: excluding a static category...');
+{
+    my @excluded = composite_ids( clause( "", [ { id => $CAT_STATIC, mode => "exclude" } ] ) );
+
+    my %is_member = map { $_ => 1 } ( $SATURN_JP, $SATURN_US );
+    my @expected = sort grep { !$is_member{$_} } @all_archive_ids;
+    is_deeply( [ sort @excluded ], \@expected, 'excluding a static category drops exactly its members' );
+}
+
+note('testing composite search: a clause exclusion must not leak across the OR union...');
+{
+    # Clause A excludes the static category; clause B independently matches one of
+    # its members. OR semantics require the union to keep it.
+    my @union = composite_ids(
+        clause( "",         [ { id => $CAT_STATIC, mode => "exclude" } ] ),
+        clause( "American", [] )
+    );
+
+    my %got = map { $_ => 1 } @union;
+    ok( $got{$SATURN_US}, 'archive excluded by one clause is retained when another clause matches it' );
+    ok( !$got{$SATURN_JP}, 'archive excluded by one clause and matched by none is still dropped' );
+}
+
 note('testing hidecompleted filter...');
 
 # Completed archives in the mock data (progress / pagecount > 0.85):

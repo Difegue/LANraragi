@@ -75,6 +75,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
         }
 
         my @tokens = compute_search_filter( $filter // "" );
+        @candidates = resolve_clause_candidates( $redis, $redis_db, \@categories, \@candidates );
         my $clause = resolve_search_clause( \@tokens, \@categories, \@candidates, $newonly, $untaggedonly, $hidecompleted );
 
         my $keyed_count;
@@ -111,6 +112,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 #   $clause_descriptors - arrayref of descriptor hashrefs, each containing:
 #                           filter       => search filter string
 #                           categories   => arrayref of { id, mode } hashrefs
+#                               mode may be "include" or "exclude".
 #                           newonly      => 1 = only, -1 = exclude, 0 = off
 #                           untaggedonly => 1 = only, -1 = exclude, 0 = off
 #   $start      - pagination offset (-1 for all results)
@@ -151,10 +153,11 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
     # Resolve each normalized clause
     my @clauses;
     foreach my $n (@$normed) {
+        my @candidates = resolve_clause_candidates( $redis, $redis_db, $n->{raw_categories}, \@base_candidates );
         push @clauses, resolve_search_clause(
             $n->{raw_tokens},
             $n->{raw_categories},
-            \@base_candidates,
+            \@candidates,
             $n->{newonly},
             $n->{untaggedonly},
             $n->{hidecompleted},
@@ -200,7 +203,7 @@ sub do_composite_search_inner ( $redis, $redis_db, $clauses, $sortkey, $sortorde
         my $clause = $clauses->[0];
         return search_core(
             $redis, $redis_db,
-            $clause->{candidate_ids}, $clause->{tokens},
+            $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
             $sortkey, $sortorder,
             $clause->{newonly}, $clause->{untaggedonly},
             $clause->{hidecompleted}
@@ -214,7 +217,7 @@ sub do_composite_search_inner ( $redis, $redis_db, $clauses, $sortkey, $sortorde
     foreach my $clause (@$clauses) {
         my ( $kc, @results ) = search_core(
             $redis, $redis_db,
-            $clause->{candidate_ids}, $clause->{tokens},
+            $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
             undef, $sortorder,
             $clause->{newonly}, $clause->{untaggedonly},
             $clause->{hidecompleted}
@@ -296,6 +299,7 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 #   $redis         - Redis connection for search database (indexes, titles, cache)
 #   $redis_db      - Redis connection for main database (archive data)
 #   $candidate_ids - arrayref of IDs to search within (archive and/or tank IDs)
+#   $exclude_ids   - arrayref of IDs to exclude from the final result (archive and/or tank IDs)
 #   $tokens        - arrayref of token hashrefs from compute_search_filter, each { tag, isneg, isexact }
 #   $sortkey       - sort field: "title", "lastread", or a tag namespace; undef to skip sorting
 #   $sortorder     - 0 = ascending, 1 = descending
@@ -306,7 +310,7 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 # Returns: ($keyed_count, @sorted_ids)
 #   $keyed_count  - number of IDs possessing the sort key (-1 for title sort)
 #   @sorted_ids   - filtered and sorted ID list
-sub search_core ( $redis, $redis_db, $candidate_ids, $tokens, $sortkey, $sortorder, $newonly, $untaggedonly, $hidecompleted ) {
+sub search_core ( $redis, $redis_db, $candidate_ids, $exclude_ids, $tokens, $sortkey, $sortorder, $newonly, $untaggedonly, $hidecompleted ) {
 
     my $logger = get_logger( "Search Core", "lanraragi" );
 
@@ -510,6 +514,12 @@ LUA
     }
 
     if ( scalar @filtered > 0 ) {
+        # Static category exclusions
+        if ( $exclude_ids && @$exclude_ids ) {
+            @filtered = intersect_arrays( $exclude_ids, \@filtered, 1 );
+            return ( -1, () ) unless @filtered;
+        }
+
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
         # undef sortkey: skip sorting (used by multi-clause path which re-sorts globally)
@@ -549,6 +559,30 @@ LUA
 
     # Title sort and unfiltered results: all archives are keyed
     return ( -1, @filtered );
+}
+
+# Filter candidates through included dynamic or excluded static
+sub resolve_clause_candidates ( $redis, $redis_db, $categories, $base_candidates ) {
+    return @$base_candidates unless $categories && @$categories;
+    my @candidates = @$base_candidates;
+
+    foreach my $cat_entry (@$categories) {
+        last unless @candidates;
+        my %category = LANraragi::Model::Category::get_category( $cat_entry->{id} );
+        next unless %category;
+        my $mode = $cat_entry->{mode} // "include";
+
+        if ( $mode eq "include" && $category{search} eq "" ) {
+            # include static category
+            @candidates = intersect_arrays( $category{archives}, \@candidates, 0 );
+        } elsif ( $mode eq "exclude" && $category{search} ne "" ) {
+            # exclude dynamic category
+            my @tokens = compute_search_filter( $category{search} );
+            my ( undef, @members ) = search_core( $redis, $redis_db, \@candidates, [], \@tokens, undef, 0, 0, 0, 0 );
+            @candidates = intersect_arrays( \@members, \@candidates, 1 );
+        }
+    }
+    return @candidates;
 }
 
 sub sort_results ( $sortkey, $sortorder, @filtered ) {
