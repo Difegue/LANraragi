@@ -76,7 +76,7 @@ sub handle_api {
     my $filter        = $req->param('filter');
     my $category      = $req->param('category') || "";
     my $start         = $req->param('start')    || 0;
-    my $sortkey       = $req->param('sortby');
+    my $sortkey       = $req->param('sortby')   || "title";
     my $sortorder     = $req->param('order');
     my $newfilter     = $req->param('newonly')       // "false";
     my $untaggedf     = $req->param('untaggedonly')  // "false";
@@ -116,7 +116,7 @@ sub handle_api_ids {
     my $filter        = $req->param('filter');
     my $category      = $req->param('category') || "";
     my $start         = $req->param('start')    || 0;
-    my $sortkey       = $req->param('sortby');
+    my $sortkey       = $req->param('sortby')   || "title";
     my $sortorder     = $req->param('order');
     my $newfilter     = $req->param('newonly')       // "false";
     my $untaggedf     = $req->param('untaggedonly')  // "false";
@@ -161,7 +161,7 @@ sub handle_composite {
 
     my $clauses_raw = $body->{clauses};
     my $start       = $body->{start}    // 0;
-    my $sortkey     = $body->{sortby};
+    my $sortkey     = $body->{sortby}   || "title";
     my $sortorder   = ( $body->{order} && $body->{order} eq 'desc' ) ? 1 : 0;
     my $grouptanks  = $body->{groupby_tanks} // 1;
 
@@ -193,7 +193,7 @@ sub handle_composite_ids {
 
     my $clauses_raw = $body->{clauses};
     my $start       = $body->{start}    // 0;
-    my $sortkey     = $body->{sortby};
+    my $sortkey     = $body->{sortby}   || "title";
     my $sortorder   = ( $body->{order} && $body->{order} eq 'desc' ) ? 1 : 0;
     my $grouptanks  = $body->{groupby_tanks} // 1;
 
