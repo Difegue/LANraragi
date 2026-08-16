@@ -1,3 +1,17 @@
+# Search algorithm assumption constraints for (some) optimization:
+#
+# - number of archives in static category << number of total archives
+# - number of tokens in dynamic category is small
+#
+# This breaks our handling of cases to the following:
+#
+# 1. If an including category is dynamic, filter candidates after the search.
+# 2. If an including category is static, filter candidates before the search.
+# 3. If an excluding category is dynamic, exclude candidates before the search.
+# 4. If an excluding category is static, exclude candidates after the search.
+#
+# "before the search" cases are thus evaluated before `resolve_search_clause`, and the results
+# should be passed through as `base_candidates`.
 package LANraragi::Utils::Search;
 
 use strict;
@@ -112,8 +126,9 @@ sub compute_search_filter ($filter) {
 # Returns: hashref { candidate_ids, tokens, newonly, untaggedonly, hidecompleted }
 sub resolve_search_clause ( $tokens, $categories, $base_candidates, $newonly, $untaggedonly, $hidecompleted ) {
 
-    my @candidates = @$base_candidates;
-    my @tokens     = @$tokens;
+    my @candidates      = @$base_candidates;
+    my @exclude_ids     = ();
+    my @tokens          = @$tokens;
 
     foreach my $cat_entry (@$categories) {
         my $cat_id = $cat_entry->{id};
@@ -122,27 +137,19 @@ sub resolve_search_clause ( $tokens, $categories, $base_candidates, $newonly, $u
         my %category = LANraragi::Model::Category::get_category($cat_id);
         next unless %category;
 
-        if ( $category{search} ne "" ) {
-
-            # Dynamic category: add search predicate tokens
+        if ( $mode eq "include" && $category{search} ne "" ) {
+            # include dynamic category
             my @cat_tokens = compute_search_filter( $category{search} );
-            if ( $mode eq "exclude" ) {
-                foreach my $token (@cat_tokens) {
-                    $token->{isneg} = $token->{isneg} ? 0 : 1;
-                }
-            }
             push @tokens, @cat_tokens;
-        } else {
-
-            # Static category: intersect or subtract candidate set
-            my $isneg = ( $mode eq "exclude" ) ? 1 : 0;
-            @candidates = intersect_arrays( $category{archives}, \@candidates, $isneg );
-            last if scalar @candidates == 0;
+        } elsif ( $mode eq "exclude" && $category{search} eq "" ) {
+            # exclude static category: prepare archives to exclude
+            push @exclude_ids, @{ $category{archives} };
         }
     }
 
     return {
         candidate_ids => \@candidates,
+        exclude_ids   => \@exclude_ids,
         tokens        => \@tokens,
         newonly       => $newonly,
         untaggedonly  => $untaggedonly,
