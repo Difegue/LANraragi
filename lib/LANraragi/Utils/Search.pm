@@ -172,9 +172,9 @@ sub normalize_clauses ($clause_descriptors) {
             raw_tokens     => \@tokens,
             categories     => \@canon_cats,
             raw_categories => $categories,
-            newonly        => $desc->{newonly},
-            untaggedonly   => $desc->{untaggedonly},
-            hidecompleted  => $desc->{hidecompleted},
+            newonly        => $desc->{newonly}          // 0,
+            untaggedonly   => $desc->{untaggedonly}     // 0,
+            hidecompleted  => $desc->{hidecompleted}    // 0,
         };
     }
 
