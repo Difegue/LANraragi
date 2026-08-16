@@ -5631,7 +5631,6 @@ components:
             Untagged archive filter. 1 = only untagged, -1 = exclude untagged, 0 = off.
         hidecompleted:
           type: boolean
-          description: >-
-            Hide completed archives (progress >= pagecount). Defaults to false.
+          description: Hide archives where reading progress has reached the end.
 servers:
   - url: https://lrr.tvc-16.science/api
