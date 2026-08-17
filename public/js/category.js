@@ -101,7 +101,7 @@ Category.updateCategoryDetails = function () {
 
     document.getElementById("catname").value = category.name;
     document.getElementById("catsearch").value = category.search;
-    document.getElementById("pinned").checked = category.pinned === "1";
+    document.getElementById("pinned").checked = Number(category.pinned) === 1;
 
     if (category.search === "") {
         // Show tankoubons and archives if static and check the matching IDs

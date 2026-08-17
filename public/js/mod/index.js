@@ -1111,7 +1111,7 @@ export function loadCategories() {
 
             for (let i = 0; i < iteration; i++) {
                 const category = data[i];
-                const pinned = category.pinned === "1";
+                const pinned = Number(category.pinned) === 1;
 
                 let catName = (pinned ? "📌" : "") + category.name;
                 catName = LRR.encodeHTML(catName);
