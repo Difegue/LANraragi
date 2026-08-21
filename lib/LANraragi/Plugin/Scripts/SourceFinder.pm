@@ -60,7 +60,7 @@ sub run_script {
 
     if ( $url =~ /https?:\/\/e-hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
         my $url2 = "https://exhentai.org/g/$1/$2";
-        $last_chance_id = LANraragi::Model::Stats::is_url_recorded($url);
+        $last_chance_id = LANraragi::Model::Stats::is_url_recorded($url2);
     }
 
     if ($last_chance_id) {
