@@ -343,13 +343,13 @@ td.itdc {
 
 .paginate_button:hover {
   background-color: #F5F7F7;
-  border-radius: 100%;
+  border-radius: 15px;
 }
 
 .paginate_button.current {
   font-weight: bold;
   background-color: #363940;
-  border-radius: 100%;
+  border-radius: 15px;
 }
 
 .ellipsis {

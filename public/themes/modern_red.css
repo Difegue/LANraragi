@@ -347,12 +347,12 @@ td.itdc {
 
 .paginate_button:hover {
   background-color: #BE234B;
-  border-radius: 100%;
+  border-radius: 15px;
 }
 
 .paginate_button.current {
   background-color: #E9A53A;
-  border-radius: 100%;
+  border-radius: 15px;
   font-weight: bold;
 }
 

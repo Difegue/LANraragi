@@ -145,8 +145,10 @@ table thead .sorting_disabled a:after {
 }
 
 .paginate_button {
+  box-sizing: border-box;
   min-width: 2rem;
   width: auto !important;
+  padding: 0 10px;
 }
 
 .ellipsis {

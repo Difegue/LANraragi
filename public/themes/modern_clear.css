@@ -408,13 +408,13 @@ td.itdc {
 
 .paginate_button:hover {
     background-color: #df696e;
-    border-radius: 100% 100% 100% 100%;
+    border-radius: 15px;
 }
 
 .paginate_button.current {
     font-weight: bold;
     background-color: #566D75;
-    border-radius: 100% 100% 100% 100%;
+    border-radius: 15px;
     color: #E1E7E9;
 }
 
