@@ -816,7 +816,7 @@ body.swal2-shown>[aria-hidden="true"] {
   text-align: left;
 }
 
-#changelog>*>img {
+#changelog img {
   max-width: 400px;
   height: auto;
 }
