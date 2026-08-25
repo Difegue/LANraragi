@@ -500,7 +500,10 @@ sub get_version {
 
 sub get_authenticator {
     my $authenticator = Crypt::Passphrase->new(
-        encoder    => 'Bcrypt'
+        encoder => {
+            module  => "Bcrypt",
+            subtype => "2a"
+        },
     );
     return $authenticator;
 }
