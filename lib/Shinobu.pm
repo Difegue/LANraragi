@@ -7,7 +7,7 @@ package Shinobu;
 #    Tracking all files in the content folder and making sure they're sync'ed with the database
 #
 
-use v5.38;
+use v5.36;
 use utf8;
 
 use local::lib;
@@ -67,6 +67,24 @@ sub initialize_from_new_process {
     if ( !IS_UNIX ) {
         # Enable autoflush
         $| = 1;
+    }
+
+    eval { LANraragi::Model::Config->get_redis->ping(); };
+    if ($@) {
+        say "(╯・_>・）╯︵ ┻━┻";
+        say "It appears your Redis database is currently not running.";
+        say "The program will cease functioning now.";
+        die;
+    }
+
+    while (1) {
+        eval { LANraragi::Model::Config->get_redis->keys('*') };
+
+        last unless ($@);
+
+        say "Redis error encountered: $@";
+        say "Trying again in 2 seconds...";
+        sleep 2;
     }
 
     my $userdir = LANraragi::Model::Config->get_userdir;
