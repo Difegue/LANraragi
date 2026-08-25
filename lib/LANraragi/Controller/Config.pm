@@ -1,14 +1,12 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic  qw(generate_themes_header generate_css_detail);
+use LANraragi::Utils::Generic  qw(generate_themes_header generate_css_detail get_authenticator);
 use LANraragi::Utils::String   qw(trim trim_CRLF);
 use LANraragi::Utils::Database qw(save_computed_tagrules);
 use LANraragi::Utils::Tags     qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON                 qw(encode_json);
 use LANraragi::Utils::Redis    qw(redis_encode);
-
-use Authen::Passphrase::BlowfishCrypt;
 
 # Render the configuration page
 sub index {
@@ -108,14 +106,7 @@ sub save_config {
         my $password = $self->req->param('newpassword');
 
         if ( $password ne "" ) {
-            my $ppr = Authen::Passphrase::BlowfishCrypt->new(
-                cost        => 8,
-                salt_random => 1,
-                passphrase  => $password,
-            );
-
-            my $pass_hashed = $ppr->as_rfc2307;
-            $confhash{password} = $pass_hashed;
+            $confhash{password} = "{CRYPT}" . get_authenticator->hash_password( $password );
         }
     }
 

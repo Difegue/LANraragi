@@ -12,13 +12,6 @@ cd ./tools
 
 # Manually download and patch modules
 
-cpanm --notest --installdeps Crypt::DES@2.07
-curl -L -s https://cpan.metacpan.org/authors/id/D/DP/DPARIS/Crypt-DES-2.07.tar.gz | tar -xz
-cd Crypt-DES-2.07
-patch -p1 < ../build/all/perl-Crypt-DES-fedora-c99.patch
-perl Makefile.PL && mingw32-make install
-cd ../ && rm -rf Crypt-DES-2.07
-
 cpanm --notest --installdeps Minion@11.0
 curl -L -s https://cpan.metacpan.org/authors/id/S/SR/SRI/Minion-11.0.tar.gz | tar -xz
 cd Minion-11.0

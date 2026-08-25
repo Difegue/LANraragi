@@ -2,10 +2,9 @@ package LANraragi::Controller::Login;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use Authen::Passphrase;
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Login qw(is_logged_in_api);
+use LANraragi::Utils::Generic qw(generate_themes_header get_authenticator);
+use LANraragi::Utils::Login   qw(is_logged_in_api);
 
 sub check {
     my $self = shift;
@@ -14,9 +13,23 @@ sub check {
     my $redirect = $self->req->param('redirect') || 'index';
 
     #match password we got with the authen hash stored in redis
-    my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
+    my $auth = get_authenticator;
+    my $hash = $self->LRR_CONF->get_password;
 
-    if ( $ppr->match($pw) ) {
+    if ( $hash =~ /{CRYPT}(.*)/ ) { # Convert RFC 2307 to bare hash
+        $hash = $1;
+    }
+
+    if ( $auth->verify_password( $pw, $hash ) ) {
+
+        if ( $auth->needs_rehash( $hash ) ) {
+            $self->LRR_LOGGER->info( "Rehashing password" );
+            my $rehash = "{CRYPT}" . $auth->hash_password( $pw );
+
+            my $redis = $self->LRR_CONF->get_redis_config;
+            $redis->hset( "LRR_CONFIG", "password", $rehash );
+            $redis->quit;
+        }
 
         $self->LRR_LOGGER->info( "Successful login attempt from " . $self->tx->remote_address );
 

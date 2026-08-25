@@ -6,9 +6,8 @@ use URI::Escape;
 use Redis;
 use Encode;
 use File::Basename;
-use Authen::Passphrase;
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header get_authenticator);
 use LANraragi::Utils::Path    qw(get_archive_path);
 
 # This endpoint is technically superseded by /api/search/random, but it's still useful in the Reader.
@@ -49,8 +48,13 @@ sub index {
     my $self = shift;
 
     #Checking if the user still has the default password enabled
-    my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
-    my $passcheck = ( $ppr->match("kamimamita") && $self->LRR_CONF->enable_pass );
+    my $hash = $self->LRR_CONF->get_password;
+
+    if ( $hash =~ /{CRYPT}(.*)/ ) { # Convert RFC 2307 to bare hash
+        $hash = $1;
+    }
+
+    my $passcheck = ( get_authenticator->verify_password( "kamimamita", $hash ) && $self->LRR_CONF->enable_pass );
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
 

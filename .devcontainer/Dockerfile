@@ -23,13 +23,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     cpanminus valkey-server libarchive-dev webp libssl-dev zlib1g-dev \
     perlmagick libvips-dev npm perltidy exuberant-ctags 
 
-# Install patched Crypt::DES
-RUN cpanm --notest --installdeps Crypt::DES
-RUN curl -L -s https://cpan.metacpan.org/authors/id/D/DP/DPARIS/Crypt-DES-2.07.tar.gz | tar -xz 
-RUN wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/build/all/perl-Crypt-DES-fedora-c99.patch
-RUN cd Crypt-DES-2.07 && patch -p1 < ../tools/perl-Crypt-DES-fedora-c99.patch && perl Makefile.PL && make install 
-RUN rm -rf Crypt-DES-2.07
-
 # Just re-grab cpanfile/install.pl/package.json from the online repo as codespaces' build context is super fucked and I don't get it at all
 # Dropping copies of the files in the .devcontainer folder should also work, but I cba to duplicate my build files for this and symlinks aint working I hate computers
 RUN wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/cpanfile \

@@ -84,7 +84,6 @@ RUN apk add --no-cache \
 
 # Copy perl build time files
 COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-perl-deps.sh tools/
-COPY --chown=koyomi:koyomi /tools/build/all/* tools/build/all/
 
 # Switch to rootless
 USER koyomi

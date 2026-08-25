@@ -15,6 +15,7 @@ use Mojo::JSON qw(decode_json);
 use Proc::Simple;
 use MCE::Util;
 use Config;
+use Crypt::Passphrase;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::String     qw(trim);
@@ -33,7 +34,8 @@ BEGIN {
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail get_version get_item_title);
+  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure generate_css_detail get_version
+  get_item_title get_authenticator);
 
 # Version information
 my $version_info;
@@ -494,6 +496,13 @@ sub get_version {
     # Load package.json to get version/vername/description
     $version_info = decode_json( Mojo::File->new('package.json')->slurp ), shift unless $version_info;
     return $version_info;
+}
+
+sub get_authenticator {
+    my $authenticator = Crypt::Passphrase->new(
+        encoder    => 'Bcrypt'
+    );
+    return $authenticator;
 }
 
 1;
