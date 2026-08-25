@@ -1,12 +1,12 @@
 package Worker;
 
-use v5.38;
+use v5.36;
 use utf8;
 
 use local::lib;
 
 use FindBin;
-use Sys::CpuAffinity;
+use MCE::Util;
 use Minion;
 use Config;
 
@@ -34,6 +34,24 @@ sub initialize_from_new_process {
         $| = 1;
     }
 
+    eval { LANraragi::Model::Config->get_redis->ping(); };
+    if ($@) {
+        say "(╯・_>・）╯︵ ┻━┻";
+        say "It appears your Redis database is currently not running.";
+        say "The program will cease functioning now.";
+        die;
+    }
+
+    while (1) {
+        eval { LANraragi::Model::Config->get_redis->keys('*') };
+
+        last unless ($@);
+
+        say "Redis error encountered: $@";
+        say "Trying again in 2 seconds...";
+        sleep 2;
+    }
+
     $logger->info("Minion Worker started.");
 
     my $userdir = LANraragi::Model::Config->get_userdir;
@@ -54,7 +72,7 @@ sub initialize_from_new_process {
     my $worker = $minion->repair->worker;
 
     if ( IS_UNIX ) {
-        my $numcpus = Sys::CpuAffinity::getNumCpus();
+        my $numcpus = MCE::Util::get_ncpu();
         $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
         $worker->status->{jobs} = $numcpus;

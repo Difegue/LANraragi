@@ -3,7 +3,7 @@
 # Transparent Process Manager.
 #  Self-contained process orchestrator for the server and helper processes.
 
-use v5.38;
+use v5.36;
 use utf8;
 
 use local::lib;
@@ -39,15 +39,20 @@ sub start_process( $process, $arg1, @argv ) {
 }
 
 sub stop_processes {
-    kill INT => $pids{lanraragi};
-    kill INT => $pids{shinobu};
-    kill TERM => $pids{tsubasa};
+    foreach my $key (keys %pids) {
+        kill( "INT", $pids{$key} ) if $pids{$key};
+        $pids{$key} = 0;
+    }
 }
 
 sub restart_command ( $value, $client ) {
     if ( $value eq "all" ) {
-        stop_processes();
         $client->send( 1 );
+        sleep 1;
+        stop_processes();
+        foreach my $key (keys %run) {
+            $run{$key} = 1;
+        }
     } else {
         my $pid = $pids{$value};
         if ( $pid ) {
@@ -58,9 +63,9 @@ sub restart_command ( $value, $client ) {
         $run{$value} = 1; # Make sure process is enabled
 
         my $retries = 0;
-        while (!$pids{$value} && $retries < 5) { # Wait for start
+        while (!$pids{$value} && $retries < 10) { # Wait for start
             $retries++;
-            sleep 1;
+            sleep $retries;
         }
 
         $client->send( $pids{$value} );
@@ -73,9 +78,13 @@ sub pid_command ( $value, $client ) {
 
 sub stop_command ( $value, $client ) {
     $run{$value} = 0;
-    kill INT => $pids{$value};
-    $pids{$value} = 0;
-    $client->send( 1 );
+    if ( $pids{$value} ) {
+        kill INT => $pids{$value};
+        $pids{$value} = 0;
+        $client->send( 1 );
+    } else {
+        $client->send( 0 );
+    }
 }
 
 if ( $ENV{LRR_DATA_DIRECTORY} ) {
@@ -102,6 +111,13 @@ local $SIG{TERM} = sub {
     stop_processes();
 };
 
+local $SIG{USR1} = sub {
+    stop_processes();
+    foreach my $key (keys %run) {
+        $run{$key} = 1;
+    }
+};
+
 my $socket = "/tmp/hitagi.sock";
 
 if ( $ENV{XDG_RUNTIME_DIR} ) {
@@ -118,9 +134,9 @@ say( "Starting processes" );
 
 my @monitor_threads;
 
-push @monitor_threads, threads->create( \&start_process, "lanraragi", "./script/launcher.pl", @ARGV );
-push @monitor_threads, threads->create( \&start_process, "shinobu", "./lib/Shinobu.pm" );
 push @monitor_threads, threads->create( \&start_process, "tsubasa", "./lib/Tsubasa.pm" );
+push @monitor_threads, threads->create( \&start_process, "shinobu", "./lib/Shinobu.pm" );
+push @monitor_threads, threads->create( \&start_process, "lanraragi", "./script/launcher.pl", @ARGV );
 
 unlink $socket if -e $socket;
 

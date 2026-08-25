@@ -1,10 +1,12 @@
 package LANraragi::Utils::Hitagi;
 
-use v5.38;
+use v5.36;
 use utf8;
 
 use IO::Socket qw(SHUT_WR);
 use IO::Socket::UNIX;
+
+my $available = defined($ENV{HITAGI_SOCK});
 
 sub hitagi_send ( $command ) {
     my $client = IO::Socket::UNIX->new(
@@ -25,6 +27,7 @@ sub hitagi_send ( $command ) {
 
 sub restart_all() {
     hitagi_send( "-r all" );
+    return 0;
 }
 
 sub restart( $process ) {
@@ -32,7 +35,7 @@ sub restart( $process ) {
 }
 
 sub stop( $process ) {
-    return hitagi_send( "-s $process" );
+    return int(hitagi_send( "-s $process" ));
 }
 
 sub pid( $process ) {
@@ -40,7 +43,7 @@ sub pid( $process ) {
 }
 
 sub available {
-    return defined($ENV{HITAGI_SOCK});
+    return $available;
 }
 
 1;
