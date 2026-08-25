@@ -91,7 +91,6 @@ jobs:
     - name: Build MSI Installer
       run: |
         choco uninstall wixtoolset
-        choco install wixtoolset --version 3.14.0 --allow-downgrade --force
         ./tools/build/windows/build-installer.ps1
     - name: Upload Installer
       uses: actions/upload-artifact@v7

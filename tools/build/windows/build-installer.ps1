@@ -1,5 +1,7 @@
 # --- LRR Windows build script V2 ---
 
+$ErrorActionPreference = "Stop"
+
 echo "🎌 Building up LRR Windows Package 🎌"
 echo "Inferring version from package.json..."
 
