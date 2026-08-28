@@ -25,6 +25,7 @@ use LANraragi::Utils::I18NInitializer;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Registry;
 use LANraragi::Model::Server;
 use LANraragi::Model::Setup      qw(first_install_actions);
 use LANraragi::Model::Metrics;
@@ -143,6 +144,17 @@ sub startup {
     # Reconcile discovered plugins with Redis state.
     my $redis_config = $self->LRR_CONF->get_redis_config;
     LANraragi::Model::Plugins::scan_plugins($redis_config);
+
+    # Refresh plugin registries at server start. 
+    # This doesn't really help long-running servers, but those can just hit manual refreshes
+    # in the Registry UI. 
+    foreach my $registry ( LANraragi::Model::Registry::get_registry_list($redis_config) ) {
+        my $registry_id = $registry->{id};
+        my ( $status, undef, $error ) = LANraragi::Model::Registry::refresh_registry( $registry_id, $redis_config );
+        unless ( $status == 200 ) {
+            $self->LRR_LOGGER->warn("Startup refresh of registry '$registry_id' failed: $error");
+        }
+    }
 
     # Reset restart flag.
     LANraragi::Model::Server::clear_restart_pending($redis_config);

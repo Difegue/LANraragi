@@ -77,9 +77,9 @@ sub get_registry {
     my $redis       = $self->LRR_CONF->get_redis_config;
 
     my ( $registry, $status, $error ) = LANraragi::Model::Registry::get_registry( $registry_id, $redis );
-    $redis->quit();
 
     unless ($registry) {
+        $redis->quit();
         $self->render(
             openapi => {
                 operation => "get_registry",
@@ -90,6 +90,10 @@ sub get_registry {
         );
         return;
     }
+
+    # Attach the cached registry.json index (if any) -- this doesn't refetch the remote index.
+    $registry->{index} = LANraragi::Model::Registry::get_cached_index( $registry_id, $redis );
+    $redis->quit();
 
     $self->render(
         openapi => {

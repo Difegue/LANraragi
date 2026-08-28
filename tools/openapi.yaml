@@ -891,7 +891,19 @@ paths:
                     type: string
                     nullable: true
                   registry:
-                    $ref: '#/components/schemas/RegistryMetadata'
+                    allOf:
+                      - $ref: '#/components/schemas/RegistryMetadata'
+                      - type: object
+                        properties:
+                          index:
+                            type: object
+                            nullable: true
+                            description: >-
+                              Cached registry.json content from the last successful refresh
+                              (on creation, server boot, or manual refresh), or null if this
+                              registry has never been successfully refreshed. This is a
+                              read of the cache only -- it does not trigger a new fetch from
+                              the registry's source.
         '404':
           description: Registry not found
           content:

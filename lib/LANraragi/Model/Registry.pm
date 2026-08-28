@@ -82,6 +82,15 @@ sub create_registry {
         }
     }
     $logger->info("Created registry '$registry_id' (name: $name, provider: $provider)");
+
+    # Get registry data immediately after creation. 
+    # Creation still succeeds even if this fails (e.g. offline);
+    # the registry is simply left without a cached index until refreshed.
+    my ( $refresh_status, undef, $refresh_error ) = refresh_registry( $registry_id, $redis );
+    unless ( $refresh_status == 200 ) {
+        $logger->warn("Initial refresh of newly created registry '$registry_id' failed: $refresh_error");
+    }
+
     return ( $registry_id, undef );
 }
 
@@ -96,6 +105,27 @@ sub get_registry {
     return ( undef, 404, "This registry doesn't exist." ) unless %config;
     $config{id} = $registry_id;
     return ( \%config, 200, undef );
+}
+
+# Read the cached registry.json index for a registry, without fetching from source.
+# Returns the decoded index (hashref), or undef if no cache exists or it fails to decode.
+sub get_cached_index {
+    my ( $registry_id, $redis ) = @_;
+
+    my ($suffix) = $registry_id =~ /^REG_(\d{10})$/;
+    return unless $suffix;
+
+    my $registry_index_key = "REG_INDEX_$suffix";
+    my $cached_json = $redis->get($registry_index_key);
+    return unless defined $cached_json;
+
+    my $index = eval { decode_json($cached_json) };
+    if ($@) {
+        my $logger = get_logger( "Registry", "lanraragi" );
+        $logger->warn("Registry '$registry_id': failed to decode cached index: $@");
+        return;
+    }
+    return $index;
 }
 
 sub get_registry_list {
