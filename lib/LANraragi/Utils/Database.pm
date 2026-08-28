@@ -16,6 +16,7 @@ use Cwd;
 use Unicode::Normalize;
 use List::Util      qw(max);
 use List::MoreUtils qw(uniq);
+use Time::HiRes     qw(time);
 
 use LANraragi::Utils::Generic qw(flat);
 use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
@@ -26,10 +27,44 @@ use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified get_
 
 use LANraragi::Model::Config;
 
+# Copy of LANraragi::Model::Search::natural_key — duplicated here to avoid
+# circular dependency (Search.pm -> Archive.pm -> Database.pm -> Search.pm).
+# This is a pure function with no external deps, kept in sync manually.
+sub natural_key ($str) {
+
+    my $pre = lc($str);
+    $pre =~ s/\W+//s;
+
+    my $key = '';
+    my $pos = 0;
+
+    while ( length $pre ) {
+        if ( $pre =~ s/^(\d+)//s ) {
+            my $n = $1;
+            $n =~ s/^0+//s;
+            $n = '0' if $n eq '';
+            my $len = sprintf( '%08d', length $n );
+            $key .= ( $pos == 0 ? "\x01\x00" : "\x02" ) . $len . $n;
+        } else {
+            $pre =~ s/^(.)//s;
+            $key .= ( $pos == 0 ? "\x02" : "\x01" ) . $1;
+        }
+        $pos++;
+    }
+
+    if ( $pos == 0 ) {
+        $key = "\x01\x01";
+    }
+
+    $key .= "\x00" . $str;
+
+    return $key;
+}
+
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK = qw(
-  invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file update_indexes
+  invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file update_indexes rebuild_title_sort_index rebuild_nsindex
   get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis
   redis_decode redis_encode
 );
@@ -166,7 +201,7 @@ sub get_archive_json ( $redis, $id ) {
             $arcdata = build_tank_json($id);
         } else {
             my %hash = $redis->hgetall($id);
-            $arcdata = build_json( $id, %hash );
+            $arcdata = build_json( $id, \%hash );
         }
     };
 
@@ -176,51 +211,72 @@ sub get_archive_json ( $redis, $id ) {
 # Uses Redis' MULTI to get an archive JSON for each ID.
 sub get_archive_json_multi (@ids) {
 
+    return () unless @ids;
+
     my $redis = LANraragi::Model::Config->get_redis;
+    my $logger = get_logger( "Archive", "lanraragi" );
 
-    # Get the archive JSON for each ID.
-    my @archives;
-    my @results;
-    eval {
-        $redis->multi;
-        foreach my $id (@ids) {
-
-            # Tanks can be mixed in with search results, and need to be handled differently than archive hashes.
-            if ( $id =~ /^TANK/ ) {
-
-                # Just get the name -- We'll have to call the tank API afterwards to get full data anyway.
-                $redis->zrangebyscore( $id, 0, 0, qw{LIMIT 0 1} );
-            } else {
-                $redis->hgetall($id);
-            }
-        }
-        @results = $redis->exec;
-        $redis->quit;
-    };
-
-    # Build the archive JSONs.
-    for my $i ( 0 .. $#results ) {
-        my $id = $ids[$i];
-
-        # If we got no results for one ID/hgetall, skip it.
-        next unless ( $results[$i] );
-
-        my $arcdata;
-
+    # Separate Tank IDs from regular archive IDs
+    my @archive_ids;
+    my @tank_ids;
+    for my $id (@ids) {
         if ( $id =~ /^TANK/ ) {
-            # For tanks, $results[$i] is just the name array from zrangebyscore, not a hash
-            # build_tank_json will fetch the full data
-            $arcdata = build_tank_json($id);
+            push @tank_ids, $id;
         } else {
-            my %hash = @{ $results[$i] };
-            $arcdata = build_json( $id, %hash );
-        }
-
-        if ($arcdata) {
-            push @archives, $arcdata;
+            push @archive_ids, $id;
         }
     }
 
+    my @archives;
+
+    # --- Batch-fetch regular archives via MULTI/EXEC (single round-trip) ---
+    if (@archive_ids) {
+        my $start_time = time();
+
+        $redis->multi;
+        for my $id (@archive_ids) {
+            $redis->hgetall($id);
+        }
+        my @multi_results = $redis->exec;
+
+        my $fetch_time = time() - $start_time;
+        $logger->debug("[PERF] get_archive_json_multi: fetched " . scalar(@archive_ids) . " archives from Redis in ${fetch_time}s");
+
+        # Build JSON objects, skipping per-item file existence checks for batch operations
+        my $build_start = time();
+        my $skipped = 0;
+        for my $j (0 .. $#archive_ids) {
+            my $id = $archive_ids[$j];
+            my $fields = $multi_results[$j];
+
+            next unless $fields && @$fields;
+
+            # HGETALL returns flat array: [field1, val1, field2, val2, ...]
+            my %hash;
+            for (my $k = 0; $k < scalar @$fields; $k += 2) {
+                $hash{$fields->[$k]} = $fields->[$k + 1];
+            }
+
+            # Skip file existence check in batch mode — avoids 80k+ disk stats
+            my $arcdata = build_json( $id, \%hash, 1 );
+            if ($arcdata) {
+                push @archives, $arcdata;
+            } else {
+                $skipped++;
+            }
+        }
+
+        my $build_time = time() - $build_start;
+        $logger->debug("[PERF] get_archive_json_multi: built " . scalar(@archives) . " JSON objects ($skipped skipped) in ${build_time}s");
+    }
+
+    # --- Handle Tank IDs (unchanged logic) ---
+    for my $tank_id (@tank_ids) {
+        my $arcdata = build_tank_json($tank_id);
+        push @archives, $arcdata if $arcdata;
+    }
+
+    $redis->quit;
     return @archives;
 }
 
@@ -231,16 +287,20 @@ sub get_tags ($id) {
 }
 
 # Internal function for building an archive JSON.
-sub build_json ( $id, %hash ) {
+# Pass $skip_filecheck = 1 for batch operations to skip per-item disk stat.
+sub build_json ( $id, $hashref, $skip_filecheck = 0 ) {
 
     # Grab all metadata from the hash
     my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize, $toc ) =
-      @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize toc)};
+      @{$hashref}{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize toc)};
 
     $file = create_path($file);
 
     # Return undef if the file doesn't exist.
-    return unless ( defined($file) && -e $file );
+    # In batch mode ($skip_filecheck), trust the DB — Shinobu validates files and
+    # clean_database removes stale entries. Per-item stat on 80k+ archives is the #1 bottleneck.
+    return unless defined($file);
+    return unless ( $skip_filecheck || -e $file );
 
     # Parameters have been obtained, let's decode them.
     ( $_ = LANraragi::Utils::Redis::redis_decode($_) ) for ( $name, $title, $tags, $summary );
@@ -450,9 +510,116 @@ sub set_title ( $id, $newtitle ) {
         $newtitle = trim_CRLF($newtitle);
         $newtitle = LANraragi::Utils::Redis::redis_encode($newtitle);
         $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
+
+        # Invalidate the precomputed title sort index — it will be rebuilt lazily on next search
+        $redis_search->del("LRR_SORTED_title");
     }
     $redis->quit;
     $redis_search->quit;
+}
+
+# Rebuild the precomputed title sort index (LRR_SORTED_title).
+# Stores a naturally-sorted list of IDs as a Redis List for O(1) retrieval.
+# Called lazily on first title-sorted search, or explicitly during cache warmup.
+sub rebuild_title_sort_index {
+
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $logger       = get_logger( "Search", "lanraragi" );
+
+    my $start = time();
+    $logger->info("Rebuilding title sort index...");
+
+    # Get all title\x00id entries, sorted by natural_key
+    my @entries = $redis_search->zrangebylex( "LRR_TITLES", "-", "+" );
+    $logger->info("Title sort index: fetched " . scalar(@entries) . " entries from LRR_TITLES");
+    my @sorted_ids = map  { $_->[0] }
+                     sort { $a->[1] cmp $b->[1] }
+                     map  {
+                         # Extract the title part (before \x00) for natural_key computation
+                         my $title = substr($_, 0, index($_, "\x00"));
+                         my $id    = substr($_, index($_, "\x00") + 1);
+                         [ $id, natural_key($title) ]
+                     }
+                     @entries;
+
+    # Store as a Redis list (delete old, then RPUSH all)
+    $redis_search->del("LRR_SORTED_title");
+    $redis_search->rpush( "LRR_SORTED_title", @sorted_ids ) if @sorted_ids;
+
+    my $elapsed = sprintf( "%.2f", time() - $start );
+    $logger->info("Title sort index rebuilt: " . scalar(@sorted_ids) . " archives in ${elapsed}s");
+
+    $redis_search->quit;
+    return scalar(@sorted_ids);
+}
+
+# Rebuild all NSINDEX_* namespace secondary indexes for fuzzy tag search (P1-B).
+# Scans every archive's tags and rebuilds NSINDEX_<namespace>: sets from scratch.
+# Called lazily on startup if indexes are missing, or explicitly during cache warmup.
+sub rebuild_nsindex {
+
+    my $logger       = get_logger( "Search", "lanraragi" );
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+    my $start = time();
+    $logger->info("Rebuilding NSINDEX_* namespace indexes...");
+
+    # Get all archive IDs
+    my @ids = $redis->keys('????????????????????????????????????????');
+
+    # Delete all existing NSINDEX_* keys
+    my @old_nskeys = $redis_search->keys('NSINDEX_*');
+    if (@old_nskeys) {
+        $redis_search->del(@old_nskeys);
+    }
+
+    # Batch-fetch tags via MULTI/EXEC
+    my $batch_size = 1000;
+    my %ns_counts;
+    my $processed = 0;
+
+    for ( my $i = 0 ; $i < scalar @ids ; $i += $batch_size ) {
+        my $end = $i + $batch_size - 1;
+        $end = $#ids if $end > $#ids;
+        my @batch = @ids[ $i .. $end ];
+
+        $redis->multi;
+        $redis->hget( $_, "tags" ) for @batch;
+        my @results = $redis->exec;
+
+        for my $j ( 0 .. $#batch ) {
+            my $id   = $batch[$j];
+            my $tags = $results[$j];
+            next unless defined $tags;
+
+            $tags = LANraragi::Utils::Redis::redis_decode($tags);
+            my @tag_list = split( /,\s?/, $tags );
+
+            foreach my $tag (@tag_list) {
+                $tag = lc($tag);
+                if ( $tag =~ /^([^:]+):/ ) {
+                    my $ns = $1 . ":";
+                    # Redis module requires octet strings
+                    my $ns_key = LANraragi::Utils::Redis::redis_encode("NSINDEX_" . $ns);
+                    $redis_search->sadd( $ns_key, $id );
+                    $ns_counts{$ns}++;
+                }
+            }
+        }
+
+        $processed += scalar(@batch);
+        if ( $processed % 10000 == 0 || $processed == scalar @ids ) {
+            $logger->info("NSINDEX rebuild progress: $processed / " . scalar(@ids) . " archives");
+        }
+    }
+
+    my $elapsed = sprintf( "%.2f", time() - $start );
+    $logger->info("NSINDEX_* rebuilt: " . scalar(keys %ns_counts) . " namespaces, $processed archives in ${elapsed}s");
+
+    $redis->quit;
+    $redis_search->quit;
+    return scalar( keys %ns_counts );
 }
 
 # Set $tags for the archive with id $id.
@@ -552,6 +719,13 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         # Update tag index and stats for the tag
         $redis->srem( "INDEX_" . $tag, $id );
         $redis->zincrby( "LRR_STATS", -1, $tag );
+
+        # P1-B: Update namespace secondary index for fuzzy tag search
+        # e.g. tag "female:big_breasts" -> NSINDEX_female:
+        if ( $tag =~ /^([^:]+):/ ) {
+            my $ns = $1 . ":";
+            $redis->srem( "NSINDEX_" . $ns, $id );
+        }
     }
 
     foreach my $tag (@newtags) {
@@ -572,6 +746,12 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         # Update tag index and stats for the tag
         $redis->sadd( "INDEX_" . $tag, $id );
         $redis->zincrby( "LRR_STATS", 1, $tag );
+
+        # P1-B: Update namespace secondary index for fuzzy tag search
+        if ( $tag =~ /^([^:]+):/ ) {
+            my $ns = $1 . ":";
+            $redis->sadd( "NSINDEX_" . $ns, $id );
+        }
     }
 
     # Add or remove the ID from the untagged list (not applicable to tanks)
@@ -616,6 +796,8 @@ sub invalidate_cache ( $rebuild_indexes = 0 ) {
 
     my $redis = LANraragi::Model::Config->get_redis_search;
     $redis->del("LRR_SEARCHCACHE");
+    $redis->del("LRR_ARCLIST_CACHE");
+    $redis->del("LRR_SORTED_title");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 

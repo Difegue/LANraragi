@@ -10,7 +10,6 @@ use utf8;
 use List::Util qw(min);
 use Redis;
 use Storable qw/ nfreeze thaw /;
-use Sort::Naturally;
 use Cpanel::JSON::XS qw(decode_json);
 use Time::HiRes      qw(time);
 
@@ -23,12 +22,81 @@ use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
 use LANraragi::Model::Tankoubon qw(tank_has_archive_in_set get_tank_unified_tags);
 
+# natural_key($str)
+# Pre-computes a byte-wise comparable key whose ordering matches
+# Sort::Naturally::ncmp (v1.03) on the same input: case-insensitive, the first
+# non-word run is dropped, digit runs compare numerically (digits sort first at
+# the string start, text sorts first at later positions), text runs are consumed
+# character by character so a longer text run can give way to a number in the
+# other string at any point, and ties fall back to the original string. This
+# keeps the O(n log n) sort comparator trivial (a plain cmp) instead of
+# re-tokenizing every pair like ncmp does.
+sub natural_key ($str) {
+
+    my $pre = lc($str);
+    $pre =~ s/\W+//s;    # Same preprocessing as ncmp/nsort
+
+    my $key = '';
+    my $pos = 0;         # token position; 0 = start of string
+
+    while ( length $pre ) {
+        if ( $pre =~ s/^(\d+)//s ) {
+            my $n = $1;
+            $n =~ s/^0+//s;               # leading zeros don't change the value
+            $n = '0' if $n eq '';
+            my $len = sprintf( '%08d', length $n );
+            # At the string start digits come first; at later positions text does.
+            $key .= ( $pos == 0 ? "\x01\x00" : "\x02" ) . $len . $n;
+        } else {
+            # ncmp consumes text runs by the shorter side's length, so each
+            # non-digit character is its own token: this lets a longer text run
+            # "give way" to a number in the other string at any position.
+            $pre =~ s/^(.)//s;
+            $key .= ( $pos == 0 ? "\x02" : "\x01" ) . $1;
+        }
+        $pos++;
+    }
+
+    # An empty result still sorts after digit-initial strings and before
+    # text-initial ones, matching ncmp's "digits first at string start" rule.
+    if ( $pos == 0 ) {
+        $key = "\x01\x01";
+    }
+
+    # Tiebreak: once one side's tokens run out, the shorter remainder sorts
+    # first (the \x00 below sorts before every token marker); when both token
+    # streams are exhausted and identical, the original strings decide, exactly
+    # like ncmp's final $a cmp $b.
+    $key .= "\x00" . $str;
+
+    return $key;
+}
+
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, hidecompleted)
 # Performs a search on the database.
 sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $hidecompleted ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
+
+    # Ensure all parameters have default values to avoid 'uninitialized value' warnings
+    $filter = "" unless defined $filter;
+    $category_id = "" unless defined $category_id;
+    $start = 0 unless defined $start;
+    $sortkey = "" unless defined $sortkey;
+
+    if ($sortkey eq "date_added") {
+        $sortorder = 1;
+    } else {
+        $sortorder = 1 unless defined $sortorder;
+    }
+
+    $newonly = 0 unless defined $newonly;
+    $untaggedonly = 0 unless defined $untaggedonly;
+    $grouptanks = 0 unless defined $grouptanks;
+    $hidecompleted = 0 unless defined $hidecompleted;
+
+    $logger->debug("Starting do_search with filter: $filter, category: $category_id, sortkey: $sortkey, sortorder: $sortorder");
 
     unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
         $logger->warn("Search engine is not initialized yet. Please wait a few seconds.");
@@ -240,86 +308,229 @@ LUA
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
             if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
                 my $col       = $1;
-                my $operator  = $2;
+                my $operator  = $2 || "=";    # If no operator is specified, we assume it's an exact match
                 my $pagecount = $3;
 
                 $logger->debug("Searching for IDs with $operator $pagecount $col");
-
-                # If no operator is specified, we assume it's an exact match
-                $operator = "=" if !$operator;
 
                 # Change the column based off the tag searched.
                 # "pages" -> "pagecount"
                 # "read" -> "progress"
                 $col = $col eq "pages" ? "pagecount" : "progress";
 
-                # Go through all IDs in @filtered and check if they have the right pagecount
-                # This could be sped up with an index, but it's probably not worth it.
-                foreach my $id (@filtered) {
+                # Use Lua script to batch process pagecount/progress filtering
+                my $script = <<'LUA';
+                local ids = ARGV[1]
+                local col = ARGV[2]
+                local operator = ARGV[3]
+                local pagecount = tonumber(ARGV[4])
+                local result = {}
+                
+                -- Convert comma-separated IDs string to table
+                local id_table = {}
+                for id in string.gmatch(ids, "[^,]+") do
+                    table.insert(id_table, id)
+                end
+                
+                for i, id in ipairs(id_table) do
+                    -- Skip tank IDs
+                    if not string.match(id, "^TANK") then
+                        -- Default to 0 if null
+                        local count = tonumber(redis.call('HGET', id, col) or 0)
+                        
+                        local match = false
+                        if operator == "=" and count == pagecount then
+                            match = true
+                        elseif operator == ">" and count > pagecount then
+                            match = true
+                        elseif operator == ">=" and count >= pagecount then
+                            match = true
+                        elseif operator == "<" and count < pagecount then
+                            match = true
+                        elseif operator == "<=" and count <= pagecount then
+                            match = true
+                        end
+                        
+                        if match then
+                            table.insert(result, id)
+                        end
+                    end
+                end
+                
+                return result
+LUA
 
-                    # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO TANKS: Maybe an index would be good actually..
-                    if ( $id =~ /^TANK/ ) {
-                        next;
+                my @result = eval { $redis_db->eval( $script, 0, join( ",", @filtered ), $col, $operator, $pagecount ); };
+
+                if ($@) {
+                    $logger->debug("Lua script not available for $col filter, falling back to per-ID queries.");
+                    @ids = ();
+                    foreach my $id (@filtered) {
+
+                        # Tanks don't have a set pagecount property, so they're not included here for now.
+                        if ( $id =~ /^TANK/ ) {
+                            next;
+                        }
+
+                        # Default to 0 if null.
+                        my $count = $redis_db->hget( $id, $col ) || 0;
+
+                        if (   ( $operator eq "=" && $count == $pagecount )
+                            || ( $operator eq ">"  && $count > $pagecount )
+                            || ( $operator eq ">=" && $count >= $pagecount )
+                            || ( $operator eq "<"  && $count < $pagecount )
+                            || ( $operator eq "<=" && $count <= $pagecount ) ) {
+                            push @ids, $id;
+                        }
                     }
-
-                    # Default to 0 if null.
-                    my $count = $redis_db->hget( $id, $col ) || 0;
-
-                    if (   ( $operator eq "=" && $count == $pagecount )
-                        || ( $operator eq ">"  && $count > $pagecount )
-                        || ( $operator eq ">=" && $count >= $pagecount )
-                        || ( $operator eq "<"  && $count < $pagecount )
-                        || ( $operator eq "<=" && $count <= $pagecount ) ) {
-                        push @ids, $id;
-                    }
+                } else {
+                    @ids = @result;
                 }
+
+                $logger->debug( "Found " . scalar @ids . " IDs matching $operator $pagecount $col" );
             }
 
-            # For exact tag searches, just check if an index for it exists
-            if ( $isexact && $redis->exists("INDEX_$tag") ) {
+            # Use Lua script to batch process tag search for better performance
+            my $script;
+            if ($isexact) {
 
-                # Get the list of IDs for this tag
-                @ids = $redis->smembers("INDEX_$tag");
+                # For exact tag searches, just check if an index for it exists and get its members
+                $script = <<'LUA';
+                local tag = ARGV[1]
+                local key = "INDEX_"..tag
+                if redis.call('EXISTS', key) == 1 then
+                    return redis.call('SMEMBERS', key)
+                else
+                    return {}
+                end
+LUA
+                my @result = eval { $redis->eval( $script, 0, $tag ); };
+
+                if ($@) {
+                    $logger->debug("Lua script not available for exact tag search, falling back to per-ID queries.");
+                    if ( $redis->exists("INDEX_$tag") ) {
+                        @ids = $redis->smembers("INDEX_$tag");
+                    }
+                } else {
+                    @ids = @result;
+                }
+
                 $logger->debug( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
             } else {
 
-                # Get index keys that match this tag.
-                # If the tag has a namespace, We don't add a wildcard at the start of the tag to keep it intact.
-                # Otherwise, we add a wildcard at the start to match all namespaces.
-                my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
-                my @keys     = $redis->keys($indexkey);
+                # P1-B: For fuzzy tag searches, use namespace secondary index when available.
+                # If the tag is a namespace prefix (e.g. "female:"), check NSINDEX_ directly
+                # instead of KEYS scanning + per-key SMEMBERS.
+                my $ns_match = ( $tag =~ /^([^:]+:).*$/ );  # tag ends with : or has namespace prefix
+                my $exact_ns = ( $tag =~ /^([^:]+):$/ );     # tag is exactly "namespace:"
 
-                # Get the list of IDs for each key
-                foreach my $key (@keys) {
-                    my @keyids = $redis->smembers($key);
-                    $logger->trace( "Found index $key for $tag, containing " . scalar @ids . " IDs" );
-                    push @ids, @keyids;
+                if ( $exact_ns && $redis->exists("NSINDEX_$tag") ) {
+                    # Fast path: namespace secondary index exists
+                    @ids = $redis->smembers("NSINDEX_$tag");
+                    $logger->debug("Using NSINDEX_$tag (" . scalar(@ids) . " IDs)");
+                } else {
+                    # Fallback: Lua KEYS scan for partial tag matches
+                    $script = <<'LUA';
+                    local tag = ARGV[1]
+                    local has_namespace = string.find(tag, ":") ~= nil
+                    local pattern = has_namespace and "INDEX_"..tag.."*" or "INDEX_*"..tag.."*"
+                    local keys = redis.call('KEYS', pattern)
+                    local result = {}
+                    
+                    for i, key in ipairs(keys) do
+                        local members = redis.call('SMEMBERS', key)
+                        for j, member in ipairs(members) do
+                            table.insert(result, member)
+                        end
+                    end
+                    
+                    return result
+LUA
+                    my @result = eval { $redis->eval( $script, 0, $tag ); };
+
+                    if ($@) {
+                        $logger->debug("Lua script not available for fuzzy tag search, falling back to per-ID queries.");
+                        my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
+                        my @keys     = $redis->keys($indexkey);
+
+                        # Get the list of IDs for each key
+                        foreach my $key (@keys) {
+                            my @keyids = $redis->smembers($key);
+                            push @ids, @keyids;
+                        }
+                    } else {
+                        @ids = @result;
+                    }
                 }
+
+                $logger->debug( "Found " . scalar @ids . " IDs for fuzzy tag search: $tag" );
             }
 
-            # Append fuzzy title search
+            # Append fuzzy title search using Lua script for better performance
             my $namesearch = $isexact ? "$tag\x00*" : "*$tag*";
-            my $scan       = -1;
-            while ( $scan != 0 ) {
+            $logger->trace("Scanning for title matches: $namesearch");
 
-                # First iteration
-                if ( $scan == -1 ) { $scan = 0; }
-                $logger->trace("Scanning for $namesearch, cursor=$scan");
+            # Use Lua script to perform the entire zscan operation in one go
+            my $script_title = <<'LUA';
+            local pattern = ARGV[1]
+            local result = {}
+            local cursor = 0
+            local done = false
+            
+            while not done do
+                local scan_result = redis.call('ZSCAN', 'LRR_TITLES', cursor, 'MATCH', pattern, 'COUNT', 1000)
+                cursor = tonumber(scan_result[1])
+                
+                -- Process the results, skipping scores (every other element)
+                for i = 1, #scan_result[2], 2 do
+                    local title = scan_result[2][i]
+                    if title ~= "0" then
+                        -- Find the position of the null byte and extract the ID
+                        local pos = string.find(title, string.char(0))
+                        if pos then
+                            local id = string.sub(title, pos + 1)
+                            table.insert(result, id)
+                        end
+                    end
+                end
+                
+                -- Check if we're done scanning
+                if cursor == 0 then
+                    done = true
+                end
+            end
+            
+            return result
+LUA
 
-                my @result = $redis->zscan( "LRR_TITLES", $scan, "MATCH", $namesearch, "COUNT", 100 );
-                $scan = $result[0];
+            my @title_ids = eval { $redis->eval( $script_title, 0, $namesearch ); };
 
-                foreach my $title ( @{ $result[1] } ) {
+            if ($@) {
+                $logger->debug("Lua script not available for title search, falling back to per-iteration zscan.");
+                my $scan = -1;
+                while ( $scan != 0 ) {
 
-                    if ( $title eq "0" ) { next; }    # Skip scores
-                    $logger->trace("Found title match: $title");
+                    # First iteration
+                    if ( $scan == -1 ) { $scan = 0; }
+                    $logger->trace("Scanning for $namesearch, cursor=$scan");
 
-                    # Strip everything before \x00 to get the ID out of the key
-                    my $id = substr( $title, index( $title, "\x00" ) + 1 );
-                    push @ids, $id;
+                    my @result = $redis->zscan( "LRR_TITLES", $scan, "MATCH", $namesearch, "COUNT", 100 );
+                    $scan = $result[0];
+
+                    foreach my $title ( @{ $result[1] } ) {
+
+                        if ( $title eq "0" ) { next; }    # Skip scores
+                        $logger->trace("Found title match: $title");
+
+                        # Strip everything before \x00 to get the ID out of the key
+                        my $id = substr( $title, index( $title, "\x00" ) + 1 );
+                        push @title_ids, $id;
+                    }
                 }
             }
+
+            $logger->debug( "Found " . scalar @title_ids . " title matches for: $tag" );
+            push @ids, @title_ids;
 
             if ( scalar @ids == 0 && !$isneg ) {
 
@@ -351,16 +562,28 @@ LUA
         if ( $sortkey eq "title" ) {
             my @ordered = ();
 
-            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
-            @ordered = nsort( $redis->zrangebylex( "LRR_TITLES", "-", "+" ) );
+            # P1-A: Use precomputed title sort index if available.
+            # Fallback to on-the-fly computation if the index hasn't been built yet.
+            if ( $redis->exists("LRR_SORTED_title") ) {
+                # Fast path: read the pre-sorted ID list in one shot
+                @ordered = $redis->lrange( "LRR_SORTED_title", 0, -1 );
+                $logger->debug("Using precomputed LRR_SORTED_title (" . scalar(@ordered) . " IDs)");
+            } else {
+                # Fallback: build on the fly (slow, 5-7s for 80k archives)
+                $logger->debug("LRR_SORTED_title not found, building on-the-fly...");
+                @ordered = map  { $_->[0] }
+                  sort { $a->[1] cmp $b->[1] }
+                  map  {
+                      my $title = substr($_, 0, index($_, "\x00"));
+                      my $id    = substr($_, index($_, "\x00") + 1);
+                      [ $id, natural_key($title) ]
+                  }
+                  $redis->zrangebylex( "LRR_TITLES", "-", "+" );
+            }
+
             if ($sortorder) {
                 @ordered = reverse(@ordered);
             }
-
-            # Remove the titles from the keys, which are stored as "title\x00id"
-            @ordered = map { substr( $_, index( $_, "\x00" ) + 1 ) } @ordered;
-
-            $logger->trace( "Example element from ordered list: " . $ordered[0] );
 
             # Just intersect the ordered list with the filtered one to get the final result
             @filtered = intersect_arrays( \@filtered, \@ordered, 0 );
@@ -609,8 +832,8 @@ LUA
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
         @sorted = map { $_->[0] }                  # Map back to only having the ID
-          sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
-          map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
+          sort { $a->[1] cmp $b->[1] }             # Sort by the pre-computed natural key
+          map  { [ $_, natural_key( lc( $tmpfilter{$_} ) ) ] }    # Map to an array containing the ID and the lowercased natural key
           @keyed_ids;                              # List of keyed archive IDs
 
         if ($sortorder) {
