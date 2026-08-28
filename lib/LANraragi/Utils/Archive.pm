@@ -189,7 +189,12 @@ sub get_filelist ($archive, $arcid) {
 
     }
 
-    @files = sort { &expand($a) cmp &expand($b) } @files;
+    # Decorate-sort-undecorate: expand() runs once per entry instead of once per
+    # comparison (~O(N log N) calls). Matters a lot for large archives (1000+ pages).
+    @files = map  { $_->[0] }
+      sort { $a->[1] cmp $b->[1] }
+      map  { [ $_, expand($_) ] }
+      @files;
 
     # Move front cover pages to the start of a gallery, and miscellaneous pages such as translator credits to the end.
     my @cover_pages  = grep { /^(?!.*(back|end|rear|recover|discover)).*cover.*/i } @files;
