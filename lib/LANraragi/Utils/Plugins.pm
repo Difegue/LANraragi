@@ -26,7 +26,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin register_plugin unregister_plugin read_registered_plugins check_plugin_loads);
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin register_plugin unregister_plugin read_registered_plugins check_plugin_loads infer_plugin_origin);
 
 # Get metadata of all registered plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -61,7 +61,10 @@ sub get_plugins {
             elsif ( $type eq 'download' ) { next if ( !$plugin->can('provide_url') ); }
             elsif ( $type eq 'login' )    { next if ( !$plugin->can('do_login') ); }
 
-            if ( $pluginfo{type} eq $type || $type eq "all" ) { push( @validplugins, \%pluginfo ); }
+            if ( $pluginfo{type} eq $type || $type eq "all" ) {
+                $pluginfo{origin} = infer_plugin_origin( "LRR_PLUGIN_" . uc( $pluginfo{namespace} ), $redis );
+                push( @validplugins, \%pluginfo );
+            }
         } else {
             $logger->warn("Skipping plugin '$plugin' while listing type '$type': class has no plugin_info().");
         }
@@ -328,6 +331,22 @@ sub is_plugin_enabled {
 
     $redis->quit();
     return $enabled;
+}
+
+# Infer plugin origin from the recorded install path.
+# Returns one of "managed", "sideloaded", or "builtin".
+sub infer_plugin_origin {
+    my ( $namerds, $redis ) = @_;
+
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        my $path = $redis->hget( $namerds, "installed_path" );
+        if ($path) {
+            return "managed"    if $path =~ m{Plugin/Managed/};
+            return "sideloaded" if $path =~ m{Plugin/Sideloaded/};
+        }
+    }
+
+    return "builtin";
 }
 
 # Shorthand method to use a plugin by name.

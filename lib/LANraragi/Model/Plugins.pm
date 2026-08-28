@@ -24,7 +24,7 @@ use LANraragi::Utils::Generic  qw(exec_with_lock_pure);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
-use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin check_plugin_loads);
+use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin register_plugin unregister_plugin check_plugin_loads infer_plugin_origin);
 use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Path     qw(create_path package_to_path);
 use LANraragi::Utils::Registry qw(
@@ -729,22 +729,6 @@ sub scan_plugins {
     }
 
     $logger->info("Plugin scan complete.");
-}
-
-# Infer plugin origin from the recorded install path.
-# Returns one of "managed", "sideloaded", or "builtin".
-sub infer_plugin_origin {
-    my ( $namerds, $redis ) = @_;
-
-    if ( $redis->hexists( $namerds, "installed_path" ) ) {
-        my $path = $redis->hget( $namerds, "installed_path" );
-        if ( $path ) {
-            return "managed"    if $path =~ m{Plugin/Managed/};
-            return "sideloaded" if $path =~ m{Plugin/Sideloaded/};
-        }
-    }
-
-    return "builtin";
 }
 
 # Validate downloaded plugin content against registry metadata and filesystem state.
