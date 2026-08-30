@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2026-05-17 02:25+0000\n"
-"Last-Translator: ssantos <ssantos@web.de>\n"
+"PO-Revision-Date: 2026-08-31 17:00+0000\n"
+"Last-Translator: DevonDekhran <devondekhran@protonmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
 "Language: pt\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -438,7 +438,7 @@ msgid "Clean Database"
 msgstr "Limpar Banco de Dados"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "Habilitar métricas"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 msgstr ""
@@ -1998,3 +1998,31 @@ msgstr "Erro a adicionar/remover capítulo:"
 
 msgid "Untitled Chapter"
 msgstr "Capítulo sem nome"
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr ""
+"Arquivos sem etiquetas ou já selecionados anteriormente foram pré-marcados."
+
+msgid "Discard Selection"
+msgstr "Descartar seleção"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "Mostrando ${n} arquivos da seleção anterior."
+
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "No Tankoubons in your library yet."
+msgstr "Nenhum Tankoubon em sua biblioteca por enquanto."
+
+msgid "Archives"
+msgstr "Arquivos"
+
+msgid "No Archives in your library yet."
+msgstr "Sem Arquivos em sua biblioteca por enquanto."
+
+msgid "Automatic (browser default)"
+msgstr "Automático (padrão do navegador)"
+
+msgid "Disable OpenAPI Validation"
+msgstr "Desabilitar validação OpenAPI"
