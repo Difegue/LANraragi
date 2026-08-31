@@ -877,6 +877,7 @@ div.fullscreen img {
 #display {
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .fullscreen #display {

@@ -54,8 +54,11 @@ export function initializeStamps() {
         if (state.doublePageMode.value && state.currentPage > 0
             && state.currentPage < state.maxPage) {
             if (img.id == "img_doublepage") {
-                page += 1;
-                markerData.left = false;
+                page = state.mangaMode.value ? state.currentPage + 1 : state.currentPage + 2;
+                markerData.left = state.mangaMode.value;
+            } else {
+                page = state.mangaMode.value ? state.currentPage + 2 : state.currentPage + 1;
+                markerData.left = !state.mangaMode.value;
             }
         }
         LRR.showPopUp({
@@ -140,13 +143,15 @@ function addStamp() {
 
 function createMarkerElement(markerData, index) {
     if (state.infiniteScroll.value) return;
-    const img = markerData.left
+
+    const img = state.showingSinglePage
         ? document.getElementById("img")
-        : document.getElementById("img_doublepage");
+        : (markerData.left !== state.mangaMode.value)
+            ? document.getElementById("img")
+            : document.getElementById("img_doublepage");
 
 
     const display = document.getElementById("display");
-    const container = document.getElementById("i1");
 
     const marker = document.createElement("div");
     marker.className = "marker marker-context-menu";
@@ -156,19 +161,13 @@ function createMarkerElement(markerData, index) {
     const xPx = (markerData.x / 100) * rect.width;
     const yPx = (markerData.y / 100) * rect.height;
 
-    const containerRect = container.getBoundingClientRect();
+    // Calculate position relative to #display (the marker's parent element)
+    const displayRect = display.getBoundingClientRect();
+    const imgLeft = rect.left - displayRect.left;
+    const imgTop = rect.top - displayRect.top;
 
-    let leftFix = rect.left - containerRect.left;
-    let topFix = rect.top - containerRect.top;
-
-    if (!markerData.left) {
-        // Add the width of the left page plus the left and right margin
-        const img = document.getElementById("img");
-        leftFix += img.width+2;
-    }
-
-    marker.style.left = `${leftFix + xPx}px`;
-    marker.style.top = `${topFix + yPx}px`;
+    marker.style.left = `${imgLeft + xPx}px`;
+    marker.style.top = `${imgTop + yPx}px`;
 
     marker.title = markerData.name;
     marker.dataset.index = index;
@@ -192,15 +191,18 @@ function createMarkerElement(markerData, index) {
         const imgRect = img.getBoundingClientRect();
         const dispRect = display.getBoundingClientRect();
 
-        // Ensure that the stamp remains inside the image
-        let x = e.clientX - imgRect.left + leftFix;
-        let y = e.clientY - imgRect.top + topFix;
+        // Position relative to #display, clamped to the image bounds
+        let x = e.clientX - imgRect.left;
+        let y = e.clientY - imgRect.top;
 
-        x = Math.max(leftFix, Math.min(x, imgRect.width + leftFix));
-        y = Math.max(topFix, Math.min(y, imgRect.height + topFix));
+        x = Math.max(0, Math.min(x, imgRect.width));
+        y = Math.max(0, Math.min(y, imgRect.height));
 
-        marker.style.left = `${imgRect.left + x - dispRect.left}px`;
-        marker.style.top = `${imgRect.top + y - dispRect.top}px`;
+        const currentImgLeft = imgRect.left - dispRect.left;
+        const currentImgTop = imgRect.top - dispRect.top;
+
+        marker.style.left = `${currentImgLeft + x}px`;
+        marker.style.top = `${currentImgTop + y}px`;
     });
 
     document.addEventListener("mouseup", (e) => {
@@ -280,7 +282,7 @@ function loadStamps(currentPage) {
             }
 
             if (state.doublePageMode.value && currentPage > 0
-                && currentPage < state.maxPage) {
+                && currentPage < state.maxPage && !state.showingSinglePage) {
 
                 const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
                 // Call for the second page (may be in a different archive for tanks)
@@ -363,14 +365,22 @@ function handleMarkerContextMenu(option, index) {
     }
 }
 
-export function updateStamps(page) {
-    // Clear markers
-    state.markers = [];
-    renderMarkers();
+let lastStampPage = null;
+let lastStampDoublePage = null;
 
-    // Load stamps
+export function updateStamps(page) {
     if (!state.infiniteScroll.value) {
-        loadStamps(page);
+        if (page !== lastStampPage || state.doublePageMode.value !== lastStampDoublePage) {
+            // Page changed or double-page mode toggled: reload stamps
+            lastStampPage = page;
+            lastStampDoublePage = state.doublePageMode.value;
+            state.markers = [];
+            renderMarkers();
+            loadStamps(page);
+        } else {
+            // Same page and mode (e.g. reading direction toggle): just re-render
+            renderMarkers();
+        }
     }
 }
 
