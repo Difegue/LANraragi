@@ -81,8 +81,8 @@ msgstr "使用外掛："
 msgid "Timeout (max 20s):"
 msgstr "逾時 (最多 20 秒）："
 
-msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "此外掛建議的冷卻時間為 <span id=\"cooldown\">-1</span> 秒。"
+msgid "This plugin recommends a cooldown of \${n} seconds."
+msgstr "此外掛建議的冷卻時間為 %1 秒。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr "如果頻繁呼叫外掛，部分外部服務可能會因負載過高暫時封鎖您的裝置！"
@@ -123,8 +123,8 @@ msgstr "取消"
 msgid "Start another job"
 msgstr "開始另一個任務"
 
-msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "已處理 <span id=\"arcs\"></span> 個，共 <span id=\"totalarcs\"></span> 個"
+msgid "Processed \${x} out of \${y}"
+msgstr "已處理 ${x} 個，共 ${y} 個"
 
 msgid "Preparing your data."
 msgstr "正在準備您的資料。"

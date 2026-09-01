@@ -17,37 +17,41 @@ let isScriptRunning = false;
  * @returns The result of the callback, or NULL.
  */
 export function callAPI(endpoint, method, successMessage, errorMessage, successCallback) {
-    let endpointUrl = new LRR.ApiURL(endpoint);
-    return fetch(endpointUrl, { method })
-        .then((response) => response.json())
+    return callAPIAsync(endpoint, method, successMessage, errorMessage)
         .then((data) => {
+            if (successCallback !== null) return successCallback(data);
+        });
+}
 
-            // Handle OpenAPI-style error messages (HTTP status code + message)
-            if (Object.hasOwn(data, "errors")) {
-                throw new Error(data.errors[0].message);
+export async function callAPIAsync(endpoint, method, successMessage, errorMessage) {
+    let endpointUrl = new LRR.ApiURL(endpoint);
+    try {
+        const response = await fetch(endpointUrl, { method });
+        const data = response.json();
+
+        // Handle OpenAPI-style error messages (HTTP status code + message)
+        if (Object.hasOwn(data, "errors")) {
+            throw new Error(data.errors[0].message);
+        }
+        else { 
+            // Handle LRR API-style error messages (success=0 + error string)
+            let message = successMessage;
+            if ("successMessage" in data && data.successMessage) {
+                message = data.successMessage;
             }
-            else // Handle LRR API-style error messages (success=0 + error string)
-                if (Object.hasOwn(data, "success") && !data.success) {
-                    throw new Error(data.error);
-                } else {
-                    let message = successMessage;
-                    if ("successMessage" in data && data.successMessage) {
-                        message = data.successMessage;
-                    }
-                    if (message !== null) {
-                        LRR.toast({
-                            heading: message,
-                            icon: "success",
-                            hideAfter: 7000,
-                        });
-                    }
-
-                    if (successCallback !== null) return successCallback(data);
-
-                    return null;
-                }
-        })
-        .catch((error) => LRR.showErrorToast(errorMessage, error));
+            if (message !== null) {
+                LRR.toast({
+                    heading: message,
+                    icon: "success",
+                    hideAfter: 7000,
+                });
+            }
+            return data;
+        }
+    } catch (error) {
+        LRR.showErrorToast(errorMessage, error);
+    }
+    return null;
 }
 
 /**

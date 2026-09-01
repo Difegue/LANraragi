@@ -1,9 +1,9 @@
 package LANraragi::Controller::Batch;
 use Mojo::Base 'Mojolicious::Controller';
-
+use utf8;
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON qw(decode_json to_json);
 
 use LANraragi::Utils::Generic  qw(generate_themes_header exec_with_lock_pure);
 use LANraragi::Utils::Tags     qw(rewrite_tags build_tag_replace_hash split_tags_to_array restore_CRLF);
@@ -37,12 +37,12 @@ sub index {
 
     $self->render(
         template   => "batch",
-        plugins    => \@pluginlist,
+        plugins    => to_json(\@pluginlist),
         title      => $self->LRR_CONF->get_htmltitle,
         descstr    => $self->LRR_DESC,
         csshead    => generate_themes_header($self),
-        tagrules   => restore_CRLF( $self->LRR_CONF->get_tagrules ),
-        categories => \@categories,
+        tagrules   => to_json(restore_CRLF( $self->LRR_CONF->get_tagrules )),
+        categories => to_json(\@categories),
         version    => $self->LRR_VERSION
     );
 }
