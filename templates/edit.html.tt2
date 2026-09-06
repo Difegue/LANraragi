@@ -104,6 +104,15 @@
 						</td>
 					</tr>
 
+					[% IF is_tank %]
+					<tr>
+						<td></td>
+						<td style="float: left; ">
+							<b>These are custom tags to be added to the Tank, Tanks auto generate their own tags as the sum of all archives tags.</b>
+						</td>
+					</tr>
+					[% END %]
+
 					[% UNLESS is_tank %]
 					<tr>
 						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Import Tags from Plugin :") %] <br />
