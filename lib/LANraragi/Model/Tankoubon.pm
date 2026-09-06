@@ -145,6 +145,11 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1 ) {
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
     my %tank  = fetch_metadata_fields($tank_id);
 
+    # Replace own tank tags with own + imputed
+    my $unified  = get_tank_unified_tags($tank_id);
+    my @all_tags = ( @{ $unified->{own_tags} }, @{ $unified->{imputed_tags} } );
+    $tank{tags} = join(",", @all_tags);
+
     my %tankoubon;
 
     # Grab page
