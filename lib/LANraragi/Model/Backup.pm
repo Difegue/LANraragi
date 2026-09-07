@@ -69,7 +69,7 @@ sub build_backup_JSON {
     }
 
     # Backup tanks
-    my ( $total, $filtered, @tanks ) = LANraragi::Model::Tankoubon::get_tankoubon_list(-1, 0);
+    my ( $total, $filtered, @tanks ) = LANraragi::Model::Tankoubon::get_tankoubon_list(-1);
     my $tank_count  = 0;
     my $total_tanks = scalar @tanks;
 
