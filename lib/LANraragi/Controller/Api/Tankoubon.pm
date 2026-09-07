@@ -64,6 +64,16 @@ sub get_tankoubon_full {
     $self->render( openapi => { result => \%tankoubon, total => $total, filtered => $filtered } );
 }
 
+sub get_tankoubon_tags {
+
+    my $self    = shift->openapi->valid_input or return;
+    my $tank_id = $self->stash('id');
+
+    my $tags = LANraragi::Model::Tankoubon::get_full_tags( $tank_id );
+
+    $self->render( openapi => { tags => $tags } );
+}
+
 sub create_tankoubon {
 
     my $self   = shift->openapi->valid_input or return;
