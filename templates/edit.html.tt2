@@ -108,7 +108,7 @@
 					<tr>
 						<td></td>
 						<td style="float: left; ">
-							<b>These are custom tags to be added to the Tank, Tanks auto generate their own tags as the sum of all archives tags.</b>
+							<b>[% c.lh("These are custom tags to be added to the Tank, Tanks auto generate their own tags as the sum of all archives tags.") %]</b>
 						</td>
 					</tr>
 					[% END %]

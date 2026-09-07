@@ -690,6 +690,9 @@ msgstr "Read Archive"
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "These are custom tags to be added to the Tank, Tanks auto generate their own tags as the sum of all archives tags."
+msgstr "These are custom tags to be added to the Tank, Tanks auto generate their own tags as the sum of all archives tags."
+
 # ------End of Edit.html.tt2------
 
 # ------Start of Index.html.tt2------
