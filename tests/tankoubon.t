@@ -132,7 +132,7 @@ ok($meta_result, 'Updated metadata');
 my %tank_meta = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_meta{name}, "Updated Tank Name", 'Name updated correctly');
 is($tank_meta{summary}, "A test summary", 'Summary updated correctly');
-is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
+is($tank_meta{tags}, "test,tankoubon,fruit:dragon,fruit:cherry,fruit:banana,fruit:apple,medjed,character:doubles guy,character:king of GETs,check this 5,year of shadow,character:vector the crocodile,parody:fate grand order,group:wadamemo,artist:wada rco,artbook,full color,male:very cool too,character:abigail williams,character:artoria pendragon alter,character:asterios,character:ereshkigal,character:gilgamesh,character:hans christian andersen,character:hassan of serenity,character:hector,character:helena blavatsky,character:irisviel von einzbern,character:jeanne alter,character:jeanne darc,character:kiara sessyoin,character:kiyohime,character:lancer,character:martha,character:minamoto no raikou,character:mochizuki chiyome,character:mordred pendragon,character:nitocris,character:oda nobunaga,character:osakabehime,character:penthesilea,character:queen of sheba,character:rin tosaka,character:saber,character:sakata kintoki,character:scheherazade,character:sherlock holmes,character:suzuka gozen,character:tamamo no mae,character:ushiwakamaru,character:waver velvet,character:xuanzang,character:zhuge liang,artist:shirow masamune,parody: jojo's bizarre adventure,character:segata sanshiro,male:very cool,date_added:1700000000", 'Tags updated correctly');
 
 my ($new_total, $new_filtered, @new_name_ids) =
     LANraragi::Model::Search::do_search("updated tank name", "", 0, 0, 0, 0, 0, 1, 0);

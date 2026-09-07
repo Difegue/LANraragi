@@ -30,7 +30,7 @@ our @EXPORT_OK = qw(tank_has_archive_in_set set_tank_tags get_tank_unified_tags 
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
-sub get_tankoubon_list ( $page = 0 ) {
+sub get_tankoubon_list ( $page = 0, $full_tags = 1 ) {
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Tankoubon", "lanraragi" );
@@ -43,7 +43,8 @@ sub get_tankoubon_list ( $page = 0 ) {
     # Jam tanks into an array of hashes
     my @result;
     foreach my $key ( sort @tanks ) {
-        my %data = get_tankoubon($key);
+        # Hardcoding the default values, since I couldn't find a way to send only first and last
+        my %data = get_tankoubon($key, 0, -1, $full_tags);
         push( @result, \%data );
     }
 
@@ -123,7 +124,7 @@ sub create_tankoubon ( $name, $tank_id ) {
 # get_tankoubon(tankoubonid, fulldata, page)
 #   Returns the Tankoubon matching the given id.
 #   Returns undef if the id doesn't exist.
-sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1 ) {
+sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1, $full_tags = 1 ) {
 
     my $logger      = get_logger( "Tankoubon", "lanraragi" );
     my $redis       = LANraragi::Model::Config->get_redis;
@@ -146,9 +147,11 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = -1 ) {
     my %tank  = fetch_metadata_fields($tank_id);
 
     # Replace own tank tags with own + imputed
-    my $unified  = get_tank_unified_tags($tank_id);
-    my @all_tags = ( @{ $unified->{own_tags} }, @{ $unified->{imputed_tags} } );
-    $tank{tags} = join(",", @all_tags);
+    if ( $full_tags ) {
+        my $unified  = get_tank_unified_tags($tank_id);
+        my @all_tags = ( @{ $unified->{own_tags} }, @{ $unified->{imputed_tags} } );
+        $tank{tags} = join(",", @all_tags);
+    }
 
     my %tankoubon;
 
