@@ -31,6 +31,8 @@ tags:
     description: Other APIs that don't fit a dedicated theme.
   - name: stamps
     description: Stamps.
+  - name: hitagi
+    description: Hitagi Process Manager APIs.
 
 paths:
   /opds:
@@ -4797,6 +4799,190 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /hitagi:
+    get:
+      security:
+        - api_key: []
+      operationId: hitagiAvailable
+      x-mojo-to: api-hitagi#hitagi_available
+      summary: 🔑 Check Hitagi availability
+      description: Check if Hitagi is being used as the process manager.
+      tags:
+        - hitagi
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum: 
+                      - hitagi_available
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  is_available:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                example:
+                  operation: hitagi_available
+                  success: 1
+                  is_available: 1
+  /hitagi/{target}:
+    get:
+      security:
+        - api_key: []
+      operationId: hitagiPid
+      x-mojo-to: api-hitagi#hitagi_pid
+      summary: 🔑 Process Id
+      description: Get the PID of the target process
+      tags:
+        - hitagi
+      parameters:
+        - name: target
+          in: path
+          required: true
+          description: Target process.
+          schema:
+            type: string
+            enum:
+              - lanraragi
+              - shinobu
+              - tsubasa
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - hitagi_pid
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  pid:
+                    type: integer
+                    description: PID of the process.
+                example:
+                  operation: hitagi_pid
+                  success: 1
+                  pid: 1727
+        '501':
+          description: Hitagi is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    post:
+      security:
+        - api_key: []
+      operationId: hitagiRestart
+      x-mojo-to: api-hitagi#hitagi_restart
+      summary: 🔑 Restart Process
+      description: Restart the target process
+      tags:
+        - hitagi
+      parameters:
+        - name: target
+          in: path
+          required: true
+          description: Target process.
+          schema:
+            type: string
+            enum:
+              - all
+              - lanraragi
+              - shinobu
+              - tsubasa
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - hitagi_restart
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                  pid:
+                    type: integer
+                    description: PID of the new process.
+                example:
+                  operation: hitagi_restart
+                  success: 1
+                  pid: 1727
+        '501':
+          description: Hitagi is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      security:
+        - api_key: []
+      operationId: hitagiStop
+      x-mojo-to: api-hitagi#hitagi_stop
+      summary: 🔑 Stop Process
+      description: Stop the target process
+      tags:
+        - hitagi
+      parameters:
+        - name: target
+          in: path
+          required: true
+          description: Target process.
+          schema:
+            type: string
+            enum:
+              - shinobu
+              - tsubasa
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                      - hitagi_stop
+                  success:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                example:
+                  operation: hitagi_stop
+                  success: 1
+        '501':
+          description: Hitagi is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+
 components:
   securitySchemes:
     api_key:
