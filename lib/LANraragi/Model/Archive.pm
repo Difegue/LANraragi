@@ -420,6 +420,8 @@ sub delete_archive ($id) {
     $redis->del($id);
     $redis->quit();
 
+    LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
+
     # Remove matching data from the search indexes
     my $redis_search = LANraragi::Model::Config->get_redis_search;
     $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
@@ -427,8 +429,6 @@ sub delete_archive ($id) {
     $redis_search->srem( "LRR_UNTAGGED",    $id );
     $redis_search->srem( "LRR_TANKGROUPED", $id );
     $redis_search->quit();
-
-    LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
         my $status = unlink_path($filename);
