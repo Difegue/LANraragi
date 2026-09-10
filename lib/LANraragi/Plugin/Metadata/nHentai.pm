@@ -1,7 +1,6 @@
 package LANraragi::Plugin::Metadata::nHentai;
 
-use strict;
-use warnings;
+use v5.36;
 
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
@@ -91,13 +90,11 @@ sub get_tags {
 ######
 
 #Uses the website's search to find a gallery and returns its content.
-sub get_search_json {
-
-    my ( $title, $ua ) = @_;
+sub get_search_json( $title, $ua ) {
 
     my $logger = get_plugin_logger();
 
-    my $URL = "https://nhentai.net/api/v2/search?query=" . uri_escape_utf8($title);
+    my $URL = "https://nhentai.net/api/v2/search?query=" . uri_escape_utf8( "\"" . $title . "\"" );
 
     my $res = $ua->get($URL)->result;
 
@@ -108,12 +105,11 @@ sub get_search_json {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    return decode_json $res->body;
+    return $res->json;
 }
 
-sub get_gallery_id_from_title {
+sub get_gallery_id_from_title( $file, $ua ) {
 
-    my ( $file, $ua ) = @_;
     my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     my $logger = get_plugin_logger();
@@ -125,19 +121,17 @@ sub get_gallery_id_from_title {
 
     my $json = get_search_json( $title, $ua );
 
-    my @results = @{ $json->{"result"} };
+    my @results = @{ $json->{result}  };
 
     if ( scalar @results > 0 ) {
-        return $results[0]->{"id"};
+        return $results[0]->{id};
     }
 
     return;
 }
 
 # retrieves html page from NH
-sub get_json_from_nh {
-
-    my ( $gID, $ua ) = @_;
+sub get_json_from_nh( $gID, $ua ) {
 
     my $logger = get_plugin_logger();
 
@@ -152,20 +146,20 @@ sub get_json_from_nh {
 
     $logger->debug("Tentative JSON: " . $res->body);
 
-    return decode_json $res->body;
+    return $res->json;
 }
 
 sub get_tags_from_json {
 
     my ($json) = @_;
 
-    my @json_tags = @{ $json->{"tags"} };
+    my @json_tags = @{ $json->{tags} };
     my @tags      = ();
 
     foreach my $tag (@json_tags) {
 
-        my $namespace = $tag->{"type"};
-        my $name      = $tag->{"name"};
+        my $namespace = $tag->{type};
+        my $name      = $tag->{name};
 
         if ( $namespace eq "tag" ) {
             push( @tags, $name );
@@ -177,19 +171,15 @@ sub get_tags_from_json {
     return @tags;
 }
 
-sub get_title_from_json {
-    my ($json) = @_;
-    return $json->{"title"}{"pretty"};
+sub get_title_from_json( $json ) {
+    return $json->{title}{pretty} || $json->{title}{english};
 }
 
-sub get_upload_from_json {
-    my ($json) = @_;
-    return $json->{"upload_date"};
+sub get_upload_from_json( $json ) {
+    return $json->{upload_date};
 }
 
-sub get_tags_from_nh {
-
-    my ( $gID, $ua, $add_uploaded ) = @_;
+sub get_tags_from_nh( $gID, $ua, $add_uploaded ) {
 
     my %hashdata = ( tags => "" );
 

@@ -28,7 +28,7 @@ note('testing searching gallery by title ...');
     local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::nHentai::get_search_json   = sub { return $json; };
 
-    my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this");
+    my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this", undef);
 
     is( $gID, undef, 'empty gallery ID' );
 }
@@ -40,7 +40,7 @@ note('testing searching gallery by title ...');
     local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::nHentai::get_search_json   = sub { return $json; };
 
-    my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("a title that exists");
+    my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("a title that exists", undef);
 
     is( $gID, '52249', 'gallery ID' );
 }
