@@ -214,6 +214,7 @@ p#nb {
   font-size: 10pt;
   padding: 3px 0px 7px;
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .caption-tags {
