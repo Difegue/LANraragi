@@ -196,21 +196,30 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
 sub do_composite_search_inner ( $redis, $redis_db, $clauses, $sortkey, $sortorder ) {
 
     # Run search_core per clause and union the membership results.
-    my %seen;
     my @union;
-
-    foreach my $clause (@$clauses) {
-        my @results = search_core(
+    if ( scalar @$clauses == 1 ) {
+        my $clause = $clauses->[0];
+        @union = search_core(
             $redis, $redis_db,
             $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
             $clause->{newonly}, $clause->{untaggedonly},
             $clause->{hidecompleted}
         );
+    } else {
+        my %seen;
+        foreach my $clause (@$clauses) {
+            my @results = search_core(
+                $redis, $redis_db,
+                $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
+                $clause->{newonly}, $clause->{untaggedonly},
+                $clause->{hidecompleted}
+            );
 
-        # Deduplicate: preserve first occurrence across clauses
-        foreach my $id (@results) {
-            unless ( $seen{$id}++ ) {
-                push @union, $id;
+            # Deduplicate: preserve first occurrence across clauses
+            foreach my $id (@results) {
+                unless ( $seen{$id}++ ) {
+                    push @union, $id;
+                }
             }
         }
     }
