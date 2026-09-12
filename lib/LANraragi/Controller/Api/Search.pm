@@ -76,7 +76,7 @@ sub handle_api {
     my $filter        = $req->param('filter');
     my $category      = $req->param('category') || "";
     my $start         = $req->param('start')    || 0;
-    my $sortkey       = $req->param('sortby');
+    my $sortkey       = $req->param('sortby')   || "title";
     my $sortorder     = $req->param('order');
     my $newfilter     = $req->param('newonly')       // "false";
     my $untaggedf     = $req->param('untaggedonly')  // "false";
@@ -107,7 +107,7 @@ sub handle_api {
     }
 }
 
-# Search endpoint returning only archive IDs for a query.
+# handle_api but only return archive IDs
 sub handle_api_ids {
 
     my $self = shift->openapi->valid_input or return;
@@ -116,7 +116,7 @@ sub handle_api_ids {
     my $filter        = $req->param('filter');
     my $category      = $req->param('category') || "";
     my $start         = $req->param('start')    || 0;
-    my $sortkey       = $req->param('sortby');
+    my $sortkey       = $req->param('sortby')   || "title";
     my $sortorder     = $req->param('order');
     my $newfilter     = $req->param('newonly')       // "false";
     my $untaggedf     = $req->param('untaggedonly')  // "false";
@@ -129,6 +129,76 @@ sub handle_api_ids {
         $filter,    $category,            $start,               $sortkey,
         $sortorder, $newfilter eq "true", $untaggedf eq "true", $grouptanks eq "true",
         $hidecompleted eq "true"
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                recordsTotal    => 0,
+                recordsFiltered => 0,
+                data            => []
+            },
+            status => 204
+        );
+    } else {
+        $self->render(
+            openapi => {
+                recordsTotal    => $total,
+                recordsFiltered => $filtered,
+                data            => \@ids
+            }
+        );
+    }
+}
+
+# Composite search API with multi-clause OR support.
+sub handle_composite {
+
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+
+    my $clauses_raw = $body->{clauses};
+    my $start       = $body->{start}    // 0;
+    my $sortkey     = $body->{sortby}   || "title";
+    my $sortorder   = ( $body->{order} && $body->{order} eq 'desc' ) ? 1 : 0;
+    my $grouptanks  = $body->{groupby_tanks} // 1;
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_composite_search(
+        $clauses_raw, $start, $sortkey, $sortorder, $grouptanks ? 1 : 0
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                recordsTotal    => 0,
+                recordsFiltered => 0,
+                data            => []
+            },
+            status => 204
+        );
+    } else {
+        $self->render( openapi => get_api_object( $total, $filtered, @ids ) );
+    }
+}
+
+# handle_composite but only return archive IDs
+sub handle_composite_ids {
+
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+
+    my $clauses_raw = $body->{clauses};
+    my $start       = $body->{start}    // 0;
+    my $sortkey     = $body->{sortby}   || "title";
+    my $sortorder   = ( $body->{order} && $body->{order} eq 'desc' ) ? 1 : 0;
+    my $grouptanks  = $body->{groupby_tanks} // 1;
+
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_composite_search(
+        $clauses_raw, $start, $sortkey, $sortorder, $grouptanks ? 1 : 0
     );
 
     if ( $total eq -1 && $filtered eq -1 ) {
@@ -180,6 +250,53 @@ sub get_random_archives {
         $grouptanks eq "true",
         $hidecompleted eq "true"
     );
+    my @random_ids;
+
+    $random_count = min( $random_count, scalar(@ids) );
+
+    # Get random IDs out of the array
+    for ( 1 .. $random_count ) {
+        my $random_index = int( rand( scalar(@ids) ) );
+        push( @random_ids, splice( @ids, $random_index, 1 ) );
+    }
+
+    my @data = get_archive_json_multi(@random_ids);
+    $self->render(
+        openapi => {
+            data         => \@data,
+            recordsTotal => $random_count
+        }
+    );
+}
+
+# Pull random archives out of a given composite search
+sub get_random_archives_composite {
+
+    my $self = shift->openapi->valid_input or return;
+    my $body = $self->req->json;
+
+    my $clauses_raw  = $body->{clauses};
+    my $grouptanks   = $body->{groupby_tanks}   // 1;
+    my $random_count = $body->{count}           // 5;
+
+    # Use the search engine to get IDs matching the clause set, with start=-1 to get all data
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_composite_search(
+        $clauses_raw, -1, "title", 0, $grouptanks ? 1 : 0
+    );
+
+    if ( $total eq -1 && $filtered eq -1 ) {
+
+        # Search engine not initialized
+        $self->render(
+            openapi => {
+                data         => [],
+                recordsTotal => 0
+            },
+            status => 204
+        );
+        return;
+    }
+
     my @random_ids;
 
     $random_count = min( $random_count, scalar(@ids) );
