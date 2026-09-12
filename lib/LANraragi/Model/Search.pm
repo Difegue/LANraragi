@@ -185,9 +185,6 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
 # Core composite search logic. Runs search_core per clause, unions results, sorts globally.
 # Accepts Redis connections from the caller.
 #
-# For a single clause, delegates directly to search_core (no overhead).
-# For multiple clauses, runs search_core per clause, deduplicates the union, and re-sorts globally.
-#
 # Parameters:
 #   $redis      - Redis connection for search database
 #   $redis_db   - Redis connection for main database
@@ -198,27 +195,14 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
 # Returns: ($keyed_count, @sorted_ids)
 sub do_composite_search_inner ( $redis, $redis_db, $clauses, $sortkey, $sortorder ) {
 
-    # Single clause: delegate directly to search_core
-    if ( scalar @$clauses == 1 ) {
-        my $clause = $clauses->[0];
-        return search_core(
-            $redis, $redis_db,
-            $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
-            $sortkey, $sortorder,
-            $clause->{newonly}, $clause->{untaggedonly},
-            $clause->{hidecompleted}
-        );
-    }
-
-    # Multi-clause: run search_core per clause, union, re-sort globally
+    # Run search_core per clause and union the membership results.
     my %seen;
     my @union;
 
     foreach my $clause (@$clauses) {
-        my ( $kc, @results ) = search_core(
+        my @results = search_core(
             $redis, $redis_db,
             $clause->{candidate_ids}, $clause->{exclude_ids}, $clause->{tokens},
-            undef, $sortorder,
             $clause->{newonly}, $clause->{untaggedonly},
             $clause->{hidecompleted}
         );
@@ -291,8 +275,8 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
     return ( $cachehit, @filtered );
 }
 
-# search_core (redis, redis_db, candidate_ids, tokens, sortkey, sortorder, newonly, untaggedonly, hidecompleted)
-# Core search function operating on a pre-resolved candidate set.
+# search_core (redis, redis_db, candidate_ids, exclude_ids, tokens, newonly, untaggedonly, hidecompleted)
+# Core search function operating on a pre-resolved candidate set. Does not handle sorting.
 # No category or grouptanks awareness — the caller resolves those into candidate_ids and tokens.
 #
 # Parameters:
@@ -301,16 +285,12 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 #   $candidate_ids - arrayref of IDs to search within (archive and/or tank IDs)
 #   $exclude_ids   - arrayref of IDs to exclude from the final result (archive and/or tank IDs)
 #   $tokens        - arrayref of token hashrefs from compute_search_filter, each { tag, isneg, isexact }
-#   $sortkey       - sort field: "title", "lastread", or a tag namespace; undef to skip sorting
-#   $sortorder     - 0 = ascending, 1 = descending
 #   $newonly        - tri-state: 1 = only new, -1 = exclude new, 0 = off
 #   $untaggedonly   - tri-state: 1 = only untagged, -1 = exclude untagged, 0 = off
 #   $hidecompleted - boolean: 1 = hide archives with progress/pagecount > 0.85
 #
-# Returns: ($keyed_count, @sorted_ids)
-#   $keyed_count  - number of IDs possessing the sort key (-1 for title sort)
-#   @sorted_ids   - filtered and sorted ID list
-sub search_core ( $redis, $redis_db, $candidate_ids, $exclude_ids, $tokens, $sortkey, $sortorder, $newonly, $untaggedonly, $hidecompleted ) {
+# Returns: the IDs matching the clause.
+sub search_core ( $redis, $redis_db, $candidate_ids, $exclude_ids, $tokens, $newonly, $untaggedonly, $hidecompleted ) {
 
     my $logger = get_logger( "Search Core", "lanraragi" );
 
@@ -318,7 +298,7 @@ sub search_core ( $redis, $redis_db, $candidate_ids, $exclude_ids, $tokens, $sor
 
     # Empty candidate set: no results possible
     if ( scalar @filtered == 0 ) {
-        return ( -1, () );
+        return ();
     }
 
     # Untagged filter: 1 = only untagged, -1 = only tagged
@@ -517,48 +497,13 @@ LUA
         # Static category exclusions
         if ( $exclude_ids && @$exclude_ids ) {
             @filtered = intersect_arrays( $exclude_ids, \@filtered, 1 );
-            return ( -1, () ) unless @filtered;
+            return () unless @filtered;
         }
 
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
-
-        # undef sortkey: skip sorting (used by multi-clause path which re-sorts globally)
-        unless ( defined $sortkey ) {
-            return ( -1, @filtered );
-        }
-
-        if ( !$sortkey ) {
-            $sortkey = "title";
-        }
-
-        if ( $sortkey eq "title" ) {
-            my @ordered = ();
-
-            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
-            @ordered = nsort( $redis->zrangebylex( "LRR_TITLES", "-", "+" ) );
-            if ($sortorder) {
-                @ordered = reverse(@ordered);
-            }
-
-            # Remove the titles from the keys, which are stored as "title\x00id"
-            @ordered = map { substr( $_, index( $_, "\x00" ) + 1 ) } @ordered;
-
-            $logger->trace( "Example element from ordered list: " . $ordered[0] );
-
-            # Just intersect the ordered list with the filtered one to get the final result
-            @filtered = intersect_arrays( \@filtered, \@ordered, 0 );
-        } else {
-
-            # For other sorting, we need to get the metadata for each archive and sort it manually.
-            my $keyed_count;
-            ( $keyed_count, @filtered ) = sort_results( $sortkey, $sortorder, @filtered );
-
-            return ( $keyed_count, @filtered );
-        }
     }
 
-    # Title sort and unfiltered results: all archives are keyed
-    return ( -1, @filtered );
+    return @filtered;
 }
 
 # Filter candidates through included dynamic or excluded static
@@ -577,8 +522,8 @@ sub resolve_clause_candidates ( $redis, $redis_db, $categories, $base_candidates
             @candidates = intersect_arrays( $category{archives}, \@candidates, 0 );
         } elsif ( $mode eq "exclude" && $category{search} ne "" ) {
             # exclude dynamic category
-            my @tokens = compute_search_filter( $category{search} );
-            my ( undef, @members ) = search_core( $redis, $redis_db, \@candidates, [], \@tokens, undef, 0, 0, 0, 0 );
+            my @tokens  = compute_search_filter( $category{search} );
+            my @members = search_core( $redis, $redis_db, \@candidates, [], \@tokens, 0, 0, 0 );
             @candidates = intersect_arrays( \@members, \@candidates, 1 );
         }
     }
