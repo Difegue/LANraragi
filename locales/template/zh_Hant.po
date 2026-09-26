@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2026-01-11 06:01+0000\n"
+"PO-Revision-Date: 2026-09-27 13:51+0000\n"
 "Last-Translator: 炙燒鮭魚讚（benny） <bennyz327@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hant/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -376,10 +376,10 @@ msgid "Clean Database"
 msgstr "清理資料庫"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "啟用效能指標"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
-msgstr ""
+msgstr "啟用效能指標收集，並透過 metrics 端點以 Prometheus 格式提供指標資料。"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "清理資料庫會移除不存在於檔案系統中的紀錄。"
@@ -681,13 +681,13 @@ msgid "Crop thumbnails"
 msgstr "裁切縮圖"
 
 msgid "If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side."
-msgstr ""
+msgstr "啟用後，若縮圖無法完整放入標準 A4 頁面，將會裁切，只保留左側內容。"
 
 msgid "Hide completed"
-msgstr ""
+msgstr "隱藏已讀完"
 
 msgid "If enabled, Archives you've already completed will be hidden from the list."
-msgstr ""
+msgstr "啟用後，列表中將隱藏你已看完的檔案。"
 
 msgid "Go to Page:"
 msgstr "跳轉至頁面："
@@ -753,16 +753,16 @@ msgstr ""
 ">...或者乾脆關掉密碼功能！順便去查看其他設定選項也不錯？。 "
 
 msgid "Select Archives"
-msgstr ""
+msgstr "選擇檔案"
 
 msgid "Run Batch Operations on selection"
-msgstr ""
+msgstr "對選中的項目執行批量操作"
 
 msgid "Clear selection"
-msgstr ""
+msgstr "清空選擇"
 
 msgid "Select All in Page"
-msgstr ""
+msgstr "本頁全選"
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1184,13 +1184,13 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr "還原備份時發生錯誤。<br/>請檢查伺服器日誌，並確認 JSON 格式正確。"
 
 msgid "Backup generation in progress..."
-msgstr ""
+msgstr "正在產生備份…"
 
 msgid "Uploading backup file..."
-msgstr ""
+msgstr "正在上傳備份檔案…"
 
 msgid "Backup complete! Download will start automatically."
-msgstr ""
+msgstr "備份完成！將自動開始下載。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "無法載入完整的檔案清單！請重新整理頁面。"
@@ -1516,10 +1516,12 @@ msgstr ""
 "readers#generic-opds-readers'>OPDS 閱讀器</a>使用"
 
 msgid "This comic streams its pages from the web"
-msgstr ""
+msgstr "這部漫畫的頁面會直接從網路串流載"
 
 msgid "CBW files contain no images themselves; their pages are fetched from remote URLs on demand. Reading will fail for any page whose source is no longer online."
 msgstr ""
+"CBW 檔本身不包含圖片；閱讀時會視需要從遠端網址載入各頁內容。若某一頁的來源已"
+"無法連線，該頁將無法顯示。"
 
 msgid "Navigation Help"
 msgstr "導航幫助"
@@ -1754,3 +1756,265 @@ msgstr "清除評分"
 
 msgid " -- Select Rating -- "
 msgstr " -- 選擇評分 -- "
+
+msgid "Archives with no tags or from your last selection have been pre-checked."
+msgstr "無標籤或您上次選擇的檔案已預先勾選。"
+
+msgid "Discard Selection"
+msgstr "捨棄選擇"
+
+msgid "Displaying ${n} Archives from previous selection."
+msgstr "正在顯示先前選擇的 ${n} 個檔案。"
+
+msgid "Tankoubons"
+msgstr "單行本"
+
+msgid "No Tankoubons in your library yet."
+msgstr "您的庫中尚無單行本。"
+
+msgid "Archives"
+msgstr "檔案"
+
+msgid "No Archives in your library yet."
+msgstr "您的庫中尚無檔案。"
+
+msgid "Language"
+msgstr "語言"
+
+msgid "Automatic (browser default)"
+msgstr "自動 (使用瀏覽器默認設定)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr "選擇使用者介面的語言。設定為自動將使用瀏覽器的慣用語言設定。"
+
+msgid "Authenticated Progress Tracking"
+msgstr "已登入使用者進度追蹤"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"啟用後，只有在使用密碼登入時，伺服器端才會儲存閱讀進度，並覆蓋瀏覽器端的進度"
+"。這樣訪客瀏覽時就不會影響主要使用者的閱讀進度。"
+
+msgid "Disable OpenAPI Validation"
+msgstr "停用 OpenAPI 驗證"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"停用 OpenAPI 的 API 結構描述驗證。若使用舊版 API 用戶端時遇到驗證相關錯誤，請"
+"啟用此選項。"
+
+msgid "Excluded Namespaces"
+msgstr "排除的命名空間"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr ""
+"以逗號分隔要排除的標籤命名空間，這些命名空間中的標籤不會出現在搜尋建議與標籤"
+"統計中。"
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr "用戶端會依照這份清單，從自動完成建議與標籤雲中排除雜訊較多的標籤。"
+
+msgid "Editing %1 (Tankoubon)"
+msgstr "正在編輯 %1 (單行本)"
+
+msgid "Delete Tankoubon"
+msgstr "刪除單行本"
+
+msgid "Read Tankoubon"
+msgstr "閱讀單行本"
+
+msgid "Archives:"
+msgstr "檔案："
+
+msgid "Add Archive to Tankoubon:"
+msgstr "將檔案加入單行本："
+
+msgid "Archive ID (40-character long)"
+msgstr "檔案 ID (40個字元)"
+
+msgid "Add"
+msgstr "加入"
+
+msgid "Group Tankoubons"
+msgstr "將單行本分組"
+
+msgid "If enabled, Archives belonging to a Tankoubon will show as a single item."
+msgstr "啟用後，收錄於同一本單行本的作品會合併顯示為單個項目。"
+
+msgid "Index Settings"
+msgstr "索引設定"
+
+msgid "Display Mode"
+msgstr "顯示模式"
+
+msgid "Compact"
+msgstr "緊湊"
+
+msgid "Thumbnail"
+msgstr "縮圖"
+
+msgid "Merge Archives into Tankoubon"
+msgstr "將檔案合併為單行本"
+
+msgid "Edit Tankoubon"
+msgstr "編輯單行本"
+
+msgid "This is the first archive"
+msgstr "這是第一個檔案"
+
+msgid "This is the last archive"
+msgstr "這是最後一個檔案"
+
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "從搜尋結果開啟檔案閱讀時，也可以使用以下方式切換前後檔案："
+
+msgid "The , and . keys"
+msgstr "「,」與「.」鍵"
+
+msgid "Reading past the first/last page"
+msgstr "跨書翻頁"
+
+msgid "shift+Left/Right: go to first page/last page"
+msgstr "Shift + ←／→：跳到第一頁／最後一頁"
+
+msgid "G: go to page number"
+msgstr "G：跳至指定頁碼"
+
+msgid "S: set a Stamp"
+msgstr "S：新增頁面標記"
+
+msgid "Toggle Stamps"
+msgstr "顯示／隱藏頁面標記"
+
+msgid "Set Stamp"
+msgstr "新增頁面標記"
+
+msgid "Filter stamped pages"
+msgstr "篩選已標記的頁面"
+
+msgid "Error saving tankoubon metadata"
+msgstr "儲存單行本中繼資料時發生錯誤"
+
+msgid "Remove from Tankoubon"
+msgstr "從單行本中移除"
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+"確定要刪除這本單行本嗎？其中的檔案仍會保留在你的收藏庫中，但不會再歸類在一起"
+"。"
+
+msgid "Tankoubon deleted"
+msgstr "單行本已刪除"
+
+msgid "Error deleting tankoubon"
+msgstr "刪除單行本時發生錯誤"
+
+msgid "Error adding archive to Tankoubon"
+msgstr "將檔案加入單行本時發生錯誤"
+
+msgid "New archive"
+msgstr "新建檔案"
+
+msgid "Archive read"
+msgstr "已讀檔案"
+
+msgid "Tankoubon (collection)"
+msgstr "單行本（合集）"
+
+msgid "Pages read / Total pages"
+msgstr "已讀頁數／總頁數"
+
+msgid "Pages read / Total pages / Archives in Tankoubon"
+msgstr "已讀頁數／總頁數／單行本檔案數"
+
+msgid "About Tankoubons"
+msgstr "關於單行本"
+
+msgid "Tankoubons are unified collections of Archives. <br/>You can change the order of the contained Archives here by dragging the handles on the left, as well as remove Archives from the Tankoubon.<br/> Make sure to click Save once you're happy with the changes."
+msgstr ""
+"單行本可將多個作品整合為一個集合。<br/>你可以在這裡拖曳左側的控制柄來調整作品"
+"順序，也可以將作品從單行本中移除。<br/>調整完成後，記得按下「儲存」套用變更。"
+
+msgid "Chapters"
+msgstr "章節"
+
+msgid "Add Chapter at this Page"
+msgstr "在此頁新增章節"
+
+msgid "Edit Chapter name"
+msgstr "編輯章節名稱"
+
+msgid "Delete Chapter"
+msgstr "刪除章節"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "確定要刪除這個章節／段落嗎？"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "請輸入這個章節／段落的標題："
+
+msgid "Chapter added!"
+msgstr "已新增章節！"
+
+msgid "Error adding/removing chapter:"
+msgstr "新增／移除章節時發生錯誤："
+
+msgid "Untitled Chapter"
+msgstr "未命名章節"
+
+msgid "Go to page:"
+msgstr "跳至頁面："
+
+msgid "Selection"
+msgstr "選擇項目"
+
+msgid "\${n} selected"
+msgstr "已選擇 ${n} 項"
+
+msgid "Click Archives to add them to the selection. Your selection carries over across searches."
+msgstr "點選檔案即可加入選取清單。即使重新搜尋，已選取的檔案也會保留。"
+
+msgid "Exit selection mode? Your current selection will be lost. "
+msgstr "要離開選取模式嗎？目前選取的項目將會清除。 "
+
+msgid "Add to selection"
+msgstr "加入選擇"
+
+msgid "Remove from selection"
+msgstr "從選擇中移除"
+
+msgid "Enter a name for the new Tankoubon."
+msgstr "請輸入新單行本的名稱。"
+
+msgid "This will contain all the selected Archives as a single item in your Library."
+msgstr "這些選取的檔案會整合成一個單行本，並在收藏庫中顯示為單一項目。"
+
+msgid "Please enter a name."
+msgstr "請輸入名稱。"
+
+msgid "Added \${n} Archives to \${tank}!"
+msgstr "已將 ${n} 個檔案加入 ${tank}！"
+
+msgid "Error creating Tankoubon"
+msgstr "建立單行本時發生錯誤"
+
+msgid "Error adding archives to Tankoubon"
+msgstr "將檔案加入單行本時發生錯誤"
+
+msgid "This will merge \${n} Archives into Tankoubon \${name}. Proceed?"
+msgstr "這會將 ${n} 個檔案合併到單行本「${name}」中。確定要繼續嗎？"
+
+msgid "Merge selection into a Tankoubon"
+msgstr "將選取的檔案合併成單行本"
+
+msgid "Hide completed Archives"
+msgstr "隱藏已讀完的檔案"
+
+msgid "Enter Stamp name:"
+msgstr "請輸入頁面標記名稱："
+
+msgid "Stamp name"
+msgstr "頁面標記名稱"
+
+msgid "Error setting up the Stamp"
+msgstr "設定頁面標記時發生錯誤"
