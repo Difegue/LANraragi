@@ -250,23 +250,8 @@ sub get_random_archives {
         $grouptanks eq "true",
         $hidecompleted eq "true"
     );
-    my @random_ids;
 
-    $random_count = min( $random_count, scalar(@ids) );
-
-    # Get random IDs out of the array
-    for ( 1 .. $random_count ) {
-        my $random_index = int( rand( scalar(@ids) ) );
-        push( @random_ids, splice( @ids, $random_index, 1 ) );
-    }
-
-    my @data = get_archive_json_multi(@random_ids);
-    $self->render(
-        openapi => {
-            data         => \@data,
-            recordsTotal => $random_count
-        }
-    );
+    render_random_archives( $self, $random_count, @ids );
 }
 
 # Pull random archives out of a given composite search
@@ -296,6 +281,12 @@ sub get_random_archives_composite {
         );
         return;
     }
+
+    render_random_archives( $self, $random_count, @ids );
+}
+
+# Render up to $random_count archives picked at random out of @ids.
+sub render_random_archives ( $self, $random_count, @ids ) {
 
     my @random_ids;
 
