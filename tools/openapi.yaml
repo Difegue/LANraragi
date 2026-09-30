@@ -3107,6 +3107,7 @@ paths:
                 clauses:
                   type: array
                   minItems: 1
+                  maxItems: 10
                   description: >-
                     Array of search clauses. Each clause is an independent AND
                     conjunction. Multiple clauses are OR-unioned.
@@ -3178,6 +3179,7 @@ paths:
                 clauses:
                   type: array
                   minItems: 1
+                  maxItems: 10
                   description: >-
                     Array of search clauses. Each clause is an independent AND
                     conjunction. Multiple clauses are OR-unioned.
@@ -3255,6 +3257,7 @@ paths:
                 clauses:
                   type: array
                   minItems: 1
+                  maxItems: 10
                   description: >-
                     Array of search clauses. Each clause is an independent AND
                     conjunction. Multiple clauses are OR-unioned.
