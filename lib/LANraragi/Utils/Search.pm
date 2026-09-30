@@ -26,7 +26,6 @@ our @EXPORT_OK = qw(reduce_clauses normalize_clauses compute_search_filter resol
 use LANraragi::Utils::String  qw(trim);
 use LANraragi::Utils::Generic qw(intersect_arrays);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Model::Category;
 
 # compute_search_filter (filter)
 # Transform the search engine syntax into a list of tokens.
@@ -119,38 +118,16 @@ sub compute_search_filter ($filter) {
     return @tokens;
 }
 
-# resolve_search_clause (tokens, categories, base_candidates, newonly, untaggedonly, hidecompleted)
+# resolve_search_clause (tokens, exclude_ids, base_candidates, newonly, untaggedonly, hidecompleted)
 # Resolves a search clause into a clause hashref for do_composite_search_inner.
-# Processes category entries: dynamic categories add filter tokens, static categories intersect/subtract candidates.
 #
 # Returns: hashref { candidate_ids, tokens, newonly, untaggedonly, hidecompleted }
-sub resolve_search_clause ( $tokens, $categories, $base_candidates, $newonly, $untaggedonly, $hidecompleted ) {
-
-    my @candidates      = @$base_candidates;
-    my @exclude_ids     = ();
-    my @tokens          = @$tokens;
-
-    foreach my $cat_entry (@$categories) {
-        my $cat_id = $cat_entry->{id};
-        my $mode   = $cat_entry->{mode} // "include";
-
-        my %category = LANraragi::Model::Category::get_category($cat_id);
-        next unless %category;
-
-        if ( $mode eq "include" && $category{search} ne "" ) {
-            # include dynamic category
-            my @cat_tokens = compute_search_filter( $category{search} );
-            push @tokens, @cat_tokens;
-        } elsif ( $mode eq "exclude" && $category{search} eq "" ) {
-            # exclude static category: prepare archives to exclude
-            push @exclude_ids, @{ $category{archives} };
-        }
-    }
+sub resolve_search_clause ( $tokens, $exclude_ids, $base_candidates, $newonly, $untaggedonly, $hidecompleted ) {
 
     return {
-        candidate_ids => \@candidates,
-        exclude_ids   => \@exclude_ids,
-        tokens        => \@tokens,
+        candidate_ids => $base_candidates,
+        exclude_ids   => $exclude_ids,
+        tokens        => $tokens,
         newonly       => $newonly,
         untaggedonly  => $untaggedonly,
         hidecompleted => $hidecompleted,
