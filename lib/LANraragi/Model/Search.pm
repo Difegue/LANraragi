@@ -68,7 +68,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
             @candidates = $redis_db->keys('????????????????????????????????????????');
         }
 
-        # Convert single category_id to structured format for resolve_search_clause
+        # Convert single category_id to structured format for resolve_clause_categories
         my @categories = ();
         if ( $category_id && $category_id ne "" ) {
             push @categories, { id => $category_id, mode => "include" };
@@ -76,7 +76,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
         my @tokens = compute_search_filter( $filter // "" );
         my ( $cat_candidates, $extra_tokens, $exclude_ids ) =
-          resolve_clause_candidates( $redis, $redis_db, \@categories, \@candidates );
+          resolve_clause_categories( $redis, $redis_db, \@categories, \@candidates );
         my $clause = resolve_search_clause( [ @tokens, @$extra_tokens ],
             $exclude_ids, $cat_candidates, $newonly, $untaggedonly, $hidecompleted );
 
@@ -156,7 +156,7 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
     my @clauses;
     foreach my $n (@$normed) {
         my ( $candidates, $extra_tokens, $exclude_ids ) =
-          resolve_clause_candidates( $redis, $redis_db, $n->{raw_categories}, \@base_candidates );
+          resolve_clause_categories( $redis, $redis_db, $n->{raw_categories}, \@base_candidates );
         push @clauses, resolve_search_clause(
             [ @{ $n->{raw_tokens} }, @$extra_tokens ],
             $exclude_ids,
@@ -521,7 +521,7 @@ LUA
 # Filter candidates through included static or excluded dynamic categories, and collect
 # included dynamic tokens and excluded static archive ids for resolve_search_clause.
 # Returns: (\@candidates, \@extra_tokens, \@exclude_ids)
-sub resolve_clause_candidates ( $redis, $redis_db, $categories, $base_candidates ) {
+sub resolve_clause_categories ( $redis, $redis_db, $categories, $base_candidates ) {
     my @candidates   = @$base_candidates;
     my @extra_tokens = ();
     my @exclude_ids  = ();

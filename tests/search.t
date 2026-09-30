@@ -529,7 +529,7 @@ note('testing resolve_search_clause: category exclude...');
 {
     # Test resolve_search_clause with mode=exclude on static category "Segata Sanshiro"
     my @tokens = LANraragi::Utils::Search::compute_search_filter("");
-    my ( $candidates, $extra_tokens, $exclude_ids ) = LANraragi::Model::Search::resolve_clause_candidates(
+    my ( $candidates, $extra_tokens, $exclude_ids ) = LANraragi::Model::Search::resolve_clause_categories(
         $redis_search, $redis_db,
         [{ id => "SET_1589141306", mode => "exclude" }],
         \@all_archive_ids
