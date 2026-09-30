@@ -75,8 +75,10 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
         }
 
         my @tokens = compute_search_filter( $filter // "" );
-        @candidates = resolve_clause_candidates( $redis, $redis_db, \@categories, \@candidates );
-        my $clause = resolve_search_clause( \@tokens, \@categories, \@candidates, $newonly, $untaggedonly, $hidecompleted );
+        my ( $cat_candidates, $extra_tokens, $exclude_ids ) =
+          resolve_clause_candidates( $redis, $redis_db, \@categories, \@candidates );
+        my $clause = resolve_search_clause( [ @tokens, @$extra_tokens ],
+            $exclude_ids, $cat_candidates, $newonly, $untaggedonly, $hidecompleted );
 
         my $keyed_count;
         ( $keyed_count, @filtered ) = do_composite_search_inner( $redis, $redis_db, [$clause], $sortkey, $sortorder );
@@ -153,11 +155,12 @@ sub do_composite_search ( $clause_descriptors, $start, $sortkey, $sortorder, $gr
     # Resolve each normalized clause
     my @clauses;
     foreach my $n (@$normed) {
-        my @candidates = resolve_clause_candidates( $redis, $redis_db, $n->{raw_categories}, \@base_candidates );
+        my ( $candidates, $extra_tokens, $exclude_ids ) =
+          resolve_clause_candidates( $redis, $redis_db, $n->{raw_categories}, \@base_candidates );
         push @clauses, resolve_search_clause(
-            $n->{raw_tokens},
-            $n->{raw_categories},
-            \@candidates,
+            [ @{ $n->{raw_tokens} }, @$extra_tokens ],
+            $exclude_ids,
+            $candidates,
             $n->{newonly},
             $n->{untaggedonly},
             $n->{hidecompleted},
@@ -515,10 +518,14 @@ LUA
     return @filtered;
 }
 
-# Filter candidates through included dynamic or excluded static
+# Filter candidates through included static or excluded dynamic categories, and collect
+# included dynamic tokens and excluded static archive ids for resolve_search_clause.
+# Returns: (\@candidates, \@extra_tokens, \@exclude_ids)
 sub resolve_clause_candidates ( $redis, $redis_db, $categories, $base_candidates ) {
-    return @$base_candidates unless $categories && @$categories;
-    my @candidates = @$base_candidates;
+    my @candidates   = @$base_candidates;
+    my @extra_tokens = ();
+    my @exclude_ids  = ();
+    return ( \@candidates, \@extra_tokens, \@exclude_ids ) unless $categories && @$categories;
 
     foreach my $cat_entry (@$categories) {
         last unless @candidates;
@@ -534,9 +541,15 @@ sub resolve_clause_candidates ( $redis, $redis_db, $categories, $base_candidates
             my @tokens  = compute_search_filter( $category{search} );
             my @members = search_core( $redis, $redis_db, \@candidates, [], \@tokens, 0, 0, 0 );
             @candidates = intersect_arrays( \@members, \@candidates, 1 );
+        } elsif ( $mode eq "include" ) {
+            # include dynamic category
+            push @extra_tokens, compute_search_filter( $category{search} );
+        } elsif ( $mode eq "exclude" ) {
+            # exclude static category
+            push @exclude_ids, @{ $category{archives} };
         }
     }
-    return @candidates;
+    return ( \@candidates, \@extra_tokens, \@exclude_ids );
 }
 
 sub sort_results ( $sortkey, $sortorder, @filtered ) {
