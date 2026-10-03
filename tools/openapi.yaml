@@ -4405,6 +4405,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+  /tankoubons/{id}/tags:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Tankoubon desired
+        schema:
+          $ref: '#/components/schemas/TankoubonId'
+    get:
+      security: []
+      operationId: getTankoubonTags
+      x-mojo-to: api-tankoubon#get_tankoubon_tags
+      summary: Get all tags for a Tankoubon
+      description: >-
+         Get the whole list of tags for a Tankoubon(Own + Imputed).
+      tags:
+        - tankoubons
+      responses:
+        '200':
+          description: Tankoubon
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: string
+                    description: The full list of tags for a Tankoubon.
+        '400':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
   /tankoubons/{id}/thumbnail:
     parameters:
       - name: id

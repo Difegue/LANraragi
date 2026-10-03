@@ -930,4 +930,12 @@ sub tank_has_archive_in_set ( $tank_id, $set_ref ) {
     return 0;
 }
 
+sub get_full_tags( $tank_id ) {
+    my $unified  = get_tank_unified_tags($tank_id);
+    my @all_tags = ( @{ $unified->{own_tags} }, @{ $unified->{imputed_tags} } );
+    my $tags = join(",", @all_tags);
+
+    return $tags;
+}
+
 1;
