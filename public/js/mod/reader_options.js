@@ -9,14 +9,10 @@ import { Show } from "@preact/signals/utils";
 import htm from "htm";
 
 import { state, stopAutoNextPage, toggleOverlay } from "./reader_common.js";
+import { ToggleButton } from "./reader_components.js";
 import I18N from "i18n";
 
 const html = htm.bind(h);
-
-function ToggleButton({ id, active, onClick, label }) {
-    return html`<input id=${id} class="favtag-btn config-btn ${active ? "toggled" : ""}"
-        type="button" onClick=${onClick} value=${label} />`;
-}
 
 function SettingsPanel() {
     const [autoNextPageInterval, setAutoNextPageInterval] = useState(state.AutoNextPageInterval.value);
@@ -81,7 +77,7 @@ function SettingsPanel() {
             <div id="toggle-double-mode">
                 <h2 class="config-panel">${I18N.PageRendering}</h2>
                 <${ToggleButton} id="single-page" active=${!state.doublePageMode.value} onClick=${() => state.doublePageMode.value = false} label=${I18N.Single} />
-                <${ToggleButton} id="fit-width" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
+                <${ToggleButton} id="double-page-mode" active=${state.doublePageMode.value} onClick=${() => state.doublePageMode.value = true} label=${I18N.Double} />
             </div>
         <//>
 
@@ -149,8 +145,6 @@ function SettingsPanel() {
 export function initializeSettings() {
     render(
         html`<${SettingsPanel} />`, document.getElementById("settingsOverlay"));
-
-    $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", toggleSettingsOverlay);
 }
 
 export function toggleSettingsOverlay() {
