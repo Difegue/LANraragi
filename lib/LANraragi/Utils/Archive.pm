@@ -383,6 +383,12 @@ sub get_filelist ($archive, $arcid) {
                 }
             }
 
+            if ( is_embedded_thumbnail_path($filename) ) {
+                $logger->debug("Ignoring embedded thumbnail $filename");
+                $r->read_data_skip;
+                next;
+            }
+
             push @files, $filename;
             $r->read_data_skip;
         }
@@ -454,6 +460,11 @@ sub is_apple_signature_like_path ($path) {
     my ($name) = fileparse($p);
     return 1 if defined $name && $name =~ /^\._/;
     return 0;
+}
+
+# Check if the image file is a thumbnail embedded by a downloader.
+sub is_embedded_thumbnail_path ($path) {
+    return ( ( $path // '' ) =~ m{^thumb\.[^./]+$}i ) ? 1 : 0;
 }
 
 # Uses libarchive::peek to figure out if $archive contains $file.

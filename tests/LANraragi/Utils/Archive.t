@@ -66,6 +66,38 @@ note('testing get_filelist on archive...');
     is_deeply(\@files, ['cover.jpg'], 'get_filelist returns the image entry from tar');
 }
 
+note('testing is_embedded_thumbnail_path...');
+{
+    my %cases = (
+        'thumb.webp'    => 1,
+        'THUMB.JPG'     => 1,
+        'sub/thumb.jpg' => 0,
+        'thumbnail.jpg' => 0,
+        '01.jpg'        => 0,
+    );
+
+    for my $input ( sort keys %cases ) {
+        my $result = LANraragi::Utils::Archive::is_embedded_thumbnail_path($input);
+        is ( $result, $cases{$input}, "Embedded thumbnail check for '$input'" );
+    }
+}
+
+note('testing get_filelist ignores embedded thumbnail...');
+{
+    local $ENV{LRR_FORCE_DEBUG}     = 1;
+    my $tmpdir                      = tempdir(CLEANUP => 1);
+    my $tarpath                     = "$tmpdir/test.tar";
+
+    my $tar                         = Archive::Tar->new;
+    my $img_data                    = path('tests/samples/reader.jpg')->slurp;
+    $tar->add_data('01.jpg', $img_data);
+    $tar->add_data('thumb.webp', $img_data);
+    $tar->write($tarpath);
+    my @files = LANraragi::Utils::Archive::get_filelist($tarpath, 'arcid-thumb');
+
+    is_deeply(\@files, ['01.jpg'], 'get_filelist skips thumb.webp at the archive root');
+}
+
 note('testing get_filelist on missing archive...');
 {
     local $ENV{LRR_FORCE_DEBUG}     = 1;
