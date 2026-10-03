@@ -10,49 +10,36 @@ env:
 name: Continuous Delivery 
 jobs:
 
-  buildDockerArm:
-    name: Build Docker Images (ARM)
-    runs-on: ubuntu-24.04-arm
+  buildDocker:
+    name: Build Docker Images
+    runs-on: ${{ matrix.variant.runner }}
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux/arm/v6
-          - linux/arm/v7
-          - linux/arm64
+        variant:
+          - platform: linux/arm/v6
+            runner: ubuntu-24.04-arm
+          - platform: linux/arm/v7
+            runner: ubuntu-24.04-arm
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+          - platform: linux/386
+            runner: ubuntu-24.04
+          - platform: linux/amd64
+            runner: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
     - name: Docker builder
       uses: ./.github/actions/docker-builder
       with:
-        platform: ${{ matrix.platform }}
-        docker-username: ${{ secrets.DOCKER_USERNAME }}
-        docker-password: ${{ secrets.DOCKER_PASSWORD }}
-
-  buildDockerx86:
-    name: Build Docker Images (x86)
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/386
-          - linux/amd64
-    steps:
-    - uses: actions/checkout@v6
-    - name: Docker builder
-      uses: ./.github/actions/docker-builder
-      with:
-        platform: ${{ matrix.platform }}
+        platform: ${{ matrix.variant.platform }}
         docker-username: ${{ secrets.DOCKER_USERNAME }}
         docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
   mergeDocker:
     name: Merge Docker Images
     runs-on: ubuntu-24.04
-    needs:
-      - buildDockerArm
-      - buildDockerx86
+    needs: buildDocker
     steps:
       - uses: actions/checkout@v6
       - name: Docker merge
