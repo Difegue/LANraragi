@@ -7,11 +7,8 @@ package Shinobu;
 #    Tracking all files in the content folder and making sure they're sync'ed with the database
 #
 
-use strict;
-use warnings;
+use v5.36;
 use utf8;
-use feature qw(say signatures);
-no warnings 'experimental::signatures';
 
 use local::lib;
 
@@ -72,6 +69,24 @@ sub initialize_from_new_process {
         $| = 1;
     }
 
+    eval { LANraragi::Model::Config->get_redis->ping(); };
+    if ($@) {
+        say "(╯・_>・）╯︵ ┻━┻";
+        say "It appears your Redis database is currently not running.";
+        say "The program will cease functioning now.";
+        die;
+    }
+
+    while (1) {
+        eval { LANraragi::Model::Config->get_redis->keys('*') };
+
+        last unless ($@);
+
+        say "Redis error encountered: $@";
+        say "Trying again in 2 seconds...";
+        sleep 2;
+    }
+
     my $userdir = LANraragi::Model::Config->get_userdir;
     my $metrics_enabled = LANraragi::Model::Config->enable_metrics;
 
@@ -102,9 +117,10 @@ sub initialize_from_new_process {
     my $running = 1;
     my $metrics_counter = 0;
 
-    while ($running) {
-        local $SIG{INT} = sub { $running = 0 };
+    local $SIG{INT} = sub { $running = 0 };
+    local $SIG{TERM} = sub { $running = 0 };
 
+    while ($running) {
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
