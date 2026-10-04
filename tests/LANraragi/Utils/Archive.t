@@ -3,11 +3,17 @@ use warnings;
 use utf8;
 
 use Test::More;
+use Test::MockModule;
 use Archive::Tar;
 use File::Temp qw(tempdir);
 use Mojo::File 'path';
 
 BEGIN { use_ok('LANraragi::Utils::Archive'); }
+
+# "Files to ignore" is read from Redis; default to empty so get_filelist needs no database.
+my $ignoredfiles = '';
+my $config_mock  = Test::MockModule->new('LANraragi::Model::Config');
+$config_mock->mock( 'get_ignoredfiles', sub { return $ignoredfiles } );
 
 note('testing is_apple_signature_like_path...');
 {
@@ -64,6 +70,58 @@ note('testing get_filelist on archive...');
     my @files = LANraragi::Utils::Archive::get_filelist($tarpath, 'arcid-ok');
 
     is_deeply(\@files, ['cover.jpg'], 'get_filelist returns the image entry from tar');
+}
+
+note('testing is_ignored_path...');
+{
+    is ( LANraragi::Utils::Archive::is_ignored_path( 'thumb.webp', undef ), 0, "Undefined regex ignores nothing" );
+
+    my $regex = qr/(?i)^thumb\.[^.\/]+$/;
+    my %cases = (
+        'thumb.webp'    => 1,
+        'THUMB.JPG'     => 1,
+        'sub/thumb.jpg' => 0,
+        'thumbnail.jpg' => 0,
+        '01.jpg'        => 0,
+    );
+
+    for my $input ( sort keys %cases ) {
+        my $result = LANraragi::Utils::Archive::is_ignored_path( $input, $regex );
+        is ( $result, $cases{$input}, "Ignored path check for '$input'" );
+    }
+}
+
+note('testing get_filelist with Files to ignore...');
+{
+    local $ENV{LRR_FORCE_DEBUG}     = 1;
+    my $tmpdir                      = tempdir(CLEANUP => 1);
+    my $tarpath                     = "$tmpdir/test.tar";
+
+    my $tar                         = Archive::Tar->new;
+    my $img_data                    = path('tests/samples/reader.jpg')->slurp;
+    $tar->add_data('01.jpg', $img_data);
+    $tar->add_data('thumb.webp', $img_data);
+    $tar->write($tarpath);
+
+    {
+        $ignoredfiles = '';
+        my @files = LANraragi::Utils::Archive::get_filelist($tarpath, 'arcid-thumb');
+        is_deeply(\@files, ['01.jpg', 'thumb.webp'], 'get_filelist keeps all images when Files to ignore is empty');
+    }
+
+    {
+        $ignoredfiles = '(?i)^thumb\.[^./]+$';
+        my @files = LANraragi::Utils::Archive::get_filelist($tarpath, 'arcid-thumb');
+        is_deeply(\@files, ['01.jpg'], 'get_filelist skips images matching Files to ignore');
+    }
+
+    {
+        $ignoredfiles = '(';
+        my @files = LANraragi::Utils::Archive::get_filelist($tarpath, 'arcid-thumb');
+        is_deeply(\@files, ['01.jpg', 'thumb.webp'], 'get_filelist ignores an invalid Files to ignore regex');
+    }
+
+    $ignoredfiles = '';
 }
 
 note('testing get_filelist on missing archive...');

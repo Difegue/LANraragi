@@ -270,6 +270,21 @@ msgstr "Synology eCryptFS Compatibility Mode"
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 
+msgid "Files to ignore"
+msgstr "Files to ignore"
+
+msgid "Regular expression matched against the path of each image inside an archive. Matching images are not shown as pages."
+msgstr "Regular expression matched against the path of each image inside an archive. Matching images are not shown as pages."
+
+msgid "Leave empty to show all images."
+msgstr "Leave empty to show all images."
+
+msgid "Example, to ignore a thumbnail at the archive root:"
+msgstr "Example, to ignore a thumbnail at the archive root:"
+
+msgid "Page counts already stored for existing archives are not recomputed."
+msgstr "Page counts already stored for existing archives are not recomputed."
+
 msgid "Rescan Archive Directory"
 msgstr "Rescan Archive Directory"
 

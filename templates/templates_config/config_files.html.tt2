@@ -25,6 +25,20 @@
     </td>
 </tr>
 
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> [% c.lh("Files to ignore") %] </h2>
+    </td>
+    <td class="config-td">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% ignoredfiles | html %]"
+            name="ignoredfiles" type="text">
+        <br>[% c.lh("Regular expression matched against the path of each image inside an archive. Matching images are not shown as pages.") %]
+        <br>[% c.lh("Leave empty to show all images.") %]
+        [% c.lh("Example, to ignore a thumbnail at the archive root:") %] <code>(?i)^thumb\.[^./]+$</code>
+        <br>[% c.lh("Page counts already stored for existing archives are not recomputed.") %]
+    </td>
+</tr>
+
 <tr></tr>
 
 <tr>
