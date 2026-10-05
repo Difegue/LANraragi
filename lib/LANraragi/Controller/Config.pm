@@ -51,7 +51,8 @@ sub index {
         csslist            => generate_css_detail,
         replacedupe        => $self->LRR_CONF->get_replacedupe,
         language           => $self->LRR_CONF->get_language,
-        excludednamespaces => $self->LRR_CONF->get_excludednamespaces
+        excludednamespaces => $self->LRR_CONF->get_excludednamespaces,
+        ignoredfiles       => $self->LRR_CONF->get_ignoredfiles
     );
 }
 
@@ -78,6 +79,7 @@ sub save_config {
         theme              => scalar $self->req->param('theme'),
         language           => scalar $self->req->param('language'),
         excludednamespaces => scalar $self->req->param('excludednamespaces'),
+        ignoredfiles       => scalar $self->req->param('ignoredfiles'),
 
         # For checkboxes,
         # we check if the parameter exists in the POST to return either 1 or 0.
@@ -122,6 +124,13 @@ sub save_config {
         || $confhash{sizethreshold} =~ /\D+/ ) {
         $success   = 0;
         $errormess = "Invalid characters.";
+    }
+
+    # Files to ignore must be a valid regex
+    my $ignoredfiles = $confhash{ignoredfiles} // "";
+    if ( $ignoredfiles ne "" && !eval { qr/$ignoredfiles/; 1 } ) {
+        $success   = 0;
+        $errormess = "Invalid regular expression in Files to ignore.";
     }
 
     #Did all the checks pass ?

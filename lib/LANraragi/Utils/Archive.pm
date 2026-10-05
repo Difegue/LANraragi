@@ -364,6 +364,14 @@ sub get_filelist ($archive, $arcid) {
             die $open_filename_err;
         }
 
+        # Images matching the "Files to ignore" regex are not pages.
+        my $ignored_re;
+        my $ignored_pattern = LANraragi::Model::Config->get_ignoredfiles;
+        if ( defined $ignored_pattern && $ignored_pattern ne '' ) {
+            $ignored_re = eval { qr/$ignored_pattern/ };
+            $logger->warn("Invalid regex in Files to ignore, ignoring it: $@") unless defined $ignored_re;
+        }
+
         my $e = Archive::Libarchive::Entry->new;
         while ( $r->next_header($e) == ARCHIVE_OK ) {
 
@@ -371,6 +379,12 @@ sub get_filelist ($archive, $arcid) {
             my $filename = $e->pathname;
 
             unless ( is_image($filename) ) {
+                $r->read_data_skip;
+                next;
+            }
+
+            if ( is_ignored_path( $filename, $ignored_re ) ) {
+                $logger->debug("Ignoring $filename (matches Files to ignore)");
                 $r->read_data_skip;
                 next;
             }
@@ -454,6 +468,13 @@ sub is_apple_signature_like_path ($path) {
     my ($name) = fileparse($p);
     return 1 if defined $name && $name =~ /^\._/;
     return 0;
+}
+
+# Check if the in-archive path matches the compiled "Files to ignore" regex.
+# An undefined regex matches nothing.
+sub is_ignored_path ( $path, $regex ) {
+    return 0 unless defined $regex;
+    return ( ( $path // '' ) =~ $regex ) ? 1 : 0;
 }
 
 # Uses libarchive::peek to figure out if $archive contains $file.
