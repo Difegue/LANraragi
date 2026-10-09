@@ -350,7 +350,7 @@ export function loadTagSuggestions() {
             });
 
             // Setup awesomplete for the tag search bar
-            new Awesomplete("#search-input", {
+            const tagSuggestions = new Awesomplete("#search-input", {
                 list: data,
                 data(tag) {
                     // Format tag objects from the API into a format awesomplete likes.
@@ -373,6 +373,14 @@ export function loadTagSuggestions() {
                     const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
                     this.input.value = `${before + text}$, `;
                 },
+            });
+
+            // Apply highlighted suggestion when tab press is detected
+            $("#search-input").on("keydown.tab-select", (e) => {
+                if (e.key !== "Tab" || e.shiftKey) return;
+                if (!tagSuggestions.opened || !tagSuggestions.selected) return;
+                e.preventDefault();
+                tagSuggestions.select();
             });
         },
     );
