@@ -532,22 +532,26 @@ LUA
             }
         }
 
+        # Partition: IDs that have been read vs those that haven't
+        my @keyed_ids   = grep { defined $tmpfilter{$_} && $tmpfilter{$_} > 0 } @filtered;
+        my @unkeyed_ids = grep { !( defined $tmpfilter{$_} && $tmpfilter{$_} > 0 ) } @filtered;
+
         # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
         @sorted = map { $_->[0] }                    # Map back to only having the ID
           sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
-          grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
-          @filtered;                                 # List of IDs
+          @keyed_ids;                                # List of read IDs
 
         if ($sortorder) {
             @sorted = reverse @sorted;
         }
 
+        # IDs that have never been read always go to the back
+        push @sorted, @unkeyed_ids;
+
         my $total_time = time() - $start_time;
         $logger->debug("[PERF] sort_results completed in ${total_time}s");
-
-        # lastread: all returned archives are keyed (nil timestamps excluded)
-        return ( -1, @sorted );
+        return ( scalar @keyed_ids, @sorted );
 
     } else {
 
