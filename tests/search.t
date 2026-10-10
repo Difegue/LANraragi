@@ -414,7 +414,7 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
     is_deeply( [ sort @ids[ 0 .. 5 ] ], [ sort keys %read ], 'tank lastread sort: read archives and tanks come first' );
     ok( !( grep { $read{$_} } @ids[ 6 .. $#ids ] ), 'tank lastread sort: unread archives come after read ones' );
     is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
-        'tank lastread sort: Saturn JP (highest lastreadtime 1589038281) should be first' );
+        'tank lastread sort: Saturn USA (highest lastreadtime 1589038281) should be first' );
 
     my %lrt = map { $_ => 1 } @ids;
     ok( exists $lrt{"TANK_1589141306"},
@@ -424,15 +424,15 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
     ok( !exists $lrt{"28697b96f0ac5777be2614ed10ca47742c9522fa"},
         'tank lastread sort grouptanks=1: Computer Room itself not present (grouped into its tanks)' );
 
-    # Ascending: oldest-read archives first, so tanks (1589038279) precede Saturn JP (1589038281)
+    # Ascending: oldest-read archives first, so tanks (1589038279) precede Saturn USA (1589038281)
     # Only the read archives are reversed; unread archives stay at the back.
     my ( $total2, $filtered2, @ids2 ) = LANraragi::Model::Search::do_search( "", "", -1, "lastread", 1, 0, 0, 1, 0 );
     is( $ids2[5], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
-        'tank lastread sort asc: Saturn JP (most recently read) should be last among read archives' );
+        'tank lastread sort asc: Saturn USA (most recently read) should be last among read archives' );
     ok( !( grep { $read{$_} } @ids2[ 6 .. $#ids2 ] ), 'tank lastread sort asc: unread archives stay after read ones' );
     my %pos2 = map { $ids2[$_] => $_ } 0 .. $#ids2;
     ok( $pos2{"TANK_1589141306"} < $pos2{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"},
-        'tank lastread sort asc: TANK_1589141306 appears before Saturn JP' );
+        'tank lastread sort asc: TANK_1589141306 appears before Saturn USA' );
 
     $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 0 );
 }
