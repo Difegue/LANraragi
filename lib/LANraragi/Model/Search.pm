@@ -265,9 +265,7 @@ LUA
                         # Tanks don't have a set pagecount property, so they're not included here for now, except for lastread.
                         # TODO TANKS: Maybe an index would be good actually..
                         next unless $col eq "lastreadtime";
-
-                        # Like lastread sorting, use the latest lastreadtime across the tank's archives.
-                        $count = max( 0, map { $redis_db->hget( $_, $col ) || 0 } $redis_db->zrangebyscore( $id, 1, "+inf" ) );
+                        $count = _get_tank_lastreadtime( $redis_db, $id );
                     } else {
 
                         # Default to 0 if null.
@@ -629,6 +627,12 @@ LUA
     return ( scalar @keyed_ids, @sorted );
 }
 
+# A tank's lastreadtime = the latest lastreadtime across its member archives (0 if none were read).
+# TODO: this could be a lua script.
+sub _get_tank_lastreadtime ( $redis, $tank_id ) {
+    return max( 0, map { $redis->hget( $_, "lastreadtime" ) || 0 } $redis->zrangebyscore( $tank_id, 1, "+inf" ) );
+}
+
 # For tanks currently unkeyed in search results (filter is at "zzzz"),
 # get the unified tags from the model and check if any of them match the sortkey namespace.  
 # This is mostly meant for date_added/timestamp, which are inferred from the member archives if not present on the tank itself.
@@ -654,13 +658,7 @@ sub _fallback_lastread ( $redis, $tmpfilter, @filtered ) {
     my @archive_ids = grep { !/^TANK/ } @filtered;
 
     foreach my $tank_id (@tank_ids) {
-        my @arc_ids  = $redis->zrangebyscore( $tank_id, 1, "+inf" );
-        my $max_time = 0;
-        foreach my $arc_id (@arc_ids) {
-            my $t = $redis->hget( $arc_id, "lastreadtime" ) // 0;
-            $max_time = $t if $t > $max_time;
-        }
-        $tmpfilter->{$tank_id} = $max_time;
+        $tmpfilter->{$tank_id} = _get_tank_lastreadtime( $redis, $tank_id );
     }
 
     %$tmpfilter = ( %$tmpfilter, map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids );
