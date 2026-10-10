@@ -2767,8 +2767,7 @@ paths:
             **Server-side Progress Tracking** is enabled)  
 
 
-            (Default value is title. If you sort by lastread, IDs that have
-            never been read will be removed from the search.)
+            (Default value is title.)
           schema:
             type: string
         - name: order
@@ -2902,8 +2901,7 @@ paths:
             **Server-side Progress Tracking** is enabled)
 
 
-            (Default value is title. If you sort by lastread, IDs that have
-            never been read will be removed from the search.)
+            (Default value is title.)
           schema:
             type: string
         - name: order
