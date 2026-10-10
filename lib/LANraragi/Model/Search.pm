@@ -487,6 +487,8 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
     }
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
+    my @keyed_ids;
+    my @unkeyed_ids;
     if ( $sortkey eq "lastread" ) {
 
         # Prepare a Lua script to retrieve the lastreadtime for both tanks (via ZRANGEBYSCORE of member archives)
@@ -533,25 +535,14 @@ LUA
         }
 
         # Partition: IDs that have been read vs those that haven't
-        my @keyed_ids   = grep { defined $tmpfilter{$_} && $tmpfilter{$_} > 0 } @filtered;
-        my @unkeyed_ids = grep { !( defined $tmpfilter{$_} && $tmpfilter{$_} > 0 ) } @filtered;
+        @keyed_ids   = grep { defined $tmpfilter{$_} && $tmpfilter{$_} > 0 } @filtered;
+        @unkeyed_ids = grep { !( defined $tmpfilter{$_} && $tmpfilter{$_} > 0 ) } @filtered;
 
         # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
         @sorted = map { $_->[0] }                    # Map back to only having the ID
           sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
           @keyed_ids;                                # List of read IDs
-
-        if ($sortorder) {
-            @sorted = reverse @sorted;
-        }
-
-        # IDs that have never been read always go to the back
-        push @sorted, @unkeyed_ids;
-
-        my $total_time = time() - $start_time;
-        $logger->debug("[PERF] sort_results completed in ${total_time}s");
-        return ( scalar @keyed_ids, @sorted );
 
     } else {
 
@@ -608,26 +599,26 @@ LUA
         }
 
         # Partition: IDs that have the sort namespace vs those that don't
-        my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
-        my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
+        @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
+        @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
         @sorted = map { $_->[0] }                  # Map back to only having the ID
           sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
           map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
           @keyed_ids;                              # List of keyed archive IDs
-
-        if ($sortorder) {
-            @sorted = reverse @sorted;
-        }
-
-        # IDs missing the sort namespace always go to the back
-        push @sorted, @unkeyed_ids;
-
-        my $total_time = time() - $start_time;
-        $logger->debug("[PERF] sort_results completed in ${total_time}s");
-        return ( scalar @keyed_ids, @sorted );
     }
+
+    if ($sortorder) {
+        @sorted = reverse @sorted;
+    }
+
+    # IDs missing the sort namespace always go to the back
+    push @sorted, @unkeyed_ids;
+
+    my $total_time = time() - $start_time;
+    $logger->debug("[PERF] sort_results completed in ${total_time}s");
+    return ( scalar @keyed_ids, @sorted );
 }
 
 # For tanks currently unkeyed in search results (filter is at "zzzz"),
