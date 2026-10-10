@@ -7,7 +7,7 @@ use strict;
 use warnings;
 use utf8;
 
-use List::Util qw(min);
+use List::Util qw(min max);
 use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
@@ -259,14 +259,20 @@ LUA
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
 
-                    # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO TANKS: Maybe an index would be good actually..
+                    my $count;
                     if ( $id =~ /^TANK/ ) {
-                        next;
-                    }
 
-                    # Default to 0 if null.
-                    my $count = $redis_db->hget( $id, $col ) || 0;
+                        # Tanks don't have a set pagecount property, so they're not included here for now, except for lastread.
+                        # TODO TANKS: Maybe an index would be good actually..
+                        next unless $col eq "lastreadtime";
+
+                        # Like lastread sorting, use the latest lastreadtime across the tank's archives.
+                        $count = max( 0, map { $redis_db->hget( $_, $col ) || 0 } $redis_db->zrangebyscore( $id, 1, "+inf" ) );
+                    } else {
+
+                        # Default to 0 if null.
+                        $count = $redis_db->hget( $id, $col ) || 0;
+                    }
 
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
