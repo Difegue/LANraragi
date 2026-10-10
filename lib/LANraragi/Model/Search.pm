@@ -238,7 +238,8 @@ LUA
            # Specific case for pagecount searches
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
-            if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
+           # Or you can search for galleries by last read time (unix timestamp) with lastread:>1589038280, or any read galleries: lastread:>0
+            if ( $tag =~ /^(read|pages|lastread):(>|<|>=|<=)?(\d+)$/ ) {
                 my $col       = $1;
                 my $operator  = $2;
                 my $pagecount = $3;
@@ -251,7 +252,8 @@ LUA
                 # Change the column based off the tag searched.
                 # "pages" -> "pagecount"
                 # "read" -> "progress"
-                $col = $col eq "pages" ? "pagecount" : "progress";
+                # "lastread" -> "lastreadtime"
+                $col = $col eq "pages" ? "pagecount" : $col eq "read" ? "progress" : "lastreadtime";
 
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
