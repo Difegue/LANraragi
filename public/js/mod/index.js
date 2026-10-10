@@ -451,7 +451,10 @@ export function updateCarousel(e) {
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
+
+    // Build one general filter, and one for On Deck
     const filter = IndexTable.currentSearch ? `&filter=${IndexTable.currentSearch}` : "";
+    const onDeckFilter = `&filter=lastread:>0${IndexTable.currentSearch ? `, ${IndexTable.currentSearch}` : ""}`;
 
     // See LANraragi::Controller::Api::Search::handle_databases
     const isBuiltinSelector = selectedCategory === "NEW_ONLY" || selectedCategory === "UNTAGGED_ONLY";
@@ -486,7 +489,7 @@ export function updateCarousel(e) {
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
             $("#carousel-title").text(I18N.CarouselOnDeck);
             // hidecompleted always true here by design
-            endpoint = `/api/search?sortby=lastread&hidecompleted=true${filter}${groupTanks}${untaggedOnly}${newOnly}`;
+            endpoint = `/api/search?sortby=lastread&hidecompleted=true${onDeckFilter}${groupTanks}${untaggedOnly}${newOnly}`;
             break;
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
