@@ -30,7 +30,7 @@ export function getArchiveData(id) {
     return archiveDataCache.get(id);
 }
 
-function _get_baseurl_cookie() {
+export function get_baseurl_cookie() {
     let cookies = document.cookie;
     let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
     if (val === undefined) {
@@ -50,7 +50,7 @@ function _get_baseurl_cookie() {
 // URL, and can be wrapped around another instance of itself without a
 // change.
 export class ApiURL {
-    static base_url = _get_baseurl_cookie();
+    static base_url = get_baseurl_cookie();
     load_url = "";
 
     /**

@@ -9,6 +9,7 @@ export let dataTable = {};
 let originalTitle = document.title;
 let isComingFromPopstate = false;
 export let currentSearch = "";
+let baseUrlWithSlash = LRR.get_baseurl_cookie() + "/";
 
 /**
  * Initialize DataTables.
@@ -343,7 +344,7 @@ export function drawCallback() {
                 // special case for empty search params: window.location.search is "" if there are
                 // no search params, even if window.location ends with '?'
                 if (window.location.search !== "") {
-                    window.history.pushState(null, null, "/");
+                    window.history.pushState(null, null, baseUrlWithSlash);
                 }
             } else if (params !== window.location.search) {
                 window.history.pushState(null, null, params);
