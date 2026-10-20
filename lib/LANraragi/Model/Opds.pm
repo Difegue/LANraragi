@@ -146,7 +146,7 @@ sub render_archive_page {
     my @images = get_filelist( $archive, $id );
 
     # If the page number is invalid, use the first page.
-    if ( $page > scalar @images ) {
+    if ( $page < 1 || $page > scalar @images ) {
         $page = 1;
     }
 
