@@ -291,8 +291,7 @@ export function loadContentData() {
         return fetch(new LRR.ApiURL(`/api/tankoubons/${state.id}/tags`))
             .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
             .then(data => {
-                const tags = data.tags;
-                state.content.tags    = tags    || "";
+                state.content.tags = data.tags || "";
             })
             .catch(err => LRR.showErrorToast(I18N.ServerInfoError, err));
     };
@@ -300,7 +299,7 @@ export function loadContentData() {
     // If the ID is a Tank ID (TANK_xxxx), use the Tankoubon API for metadata
     if (state.id.startsWith("TANK_")) {
 
-        fetch(new LRR.ApiURL(`/api/tankoubons/${state.id}/full`))
+        return fetch(new LRR.ApiURL(`/api/tankoubons/${state.id}/full`))
             .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
             .then(data => {
                 const tank = data.result;
@@ -327,7 +326,7 @@ export function loadContentData() {
 
                 state.content.pages = pageOffset;
                 updateProgress(tank, state.id);
-                updateTankTags();
+                return updateTankTags();
             })
             .catch(err => LRR.showErrorToast(I18N.ServerInfoError, err));
     }
