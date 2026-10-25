@@ -156,9 +156,9 @@ function loadContextMenuRatings(id, refreshCallback) {
                         if(i === 0) delete tags["rating"];
                         else tags["rating"] = [ratings[i].name];
 
-                        if (isTankoubon) 
+                        if (isTankoubon)
                             Server.updateTagsFromTankoubon(id, LRR.buildTagList(tags));
-                        else 
+                        else
                             Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
 
                         if (refreshCallback) {

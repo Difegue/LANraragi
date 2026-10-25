@@ -19,7 +19,7 @@ function initializeAll() {
                 $("#processing").attr("style", "");
                 $("#processing-status").html(I18N.BackupRestoring);
                 $("#result").html("");
-                
+
                 // Poll the job status
                 pollJob(data.result.job, false);
             } else {
@@ -46,7 +46,7 @@ function startBackup() {
     $("#processing-status").html(I18N.BackupGenerating);
     $("#result").html("");
     $("#progress-info").html("");
-    
+
     // Disable button to prevent double-clicks
     $("#do-backup").prop("disabled", true);
 
@@ -73,7 +73,7 @@ function pollJob(jobId, isBackup) {
             // Job completed successfully
             $("#processing").attr("style", "display:none");
             $("#do-backup").prop("disabled", false);
-            
+
             if (isBackup) {
                 // Download the backup file using API endpoint
                 window.open(`./api/database/backup/${jobId}?format=file`, "_blank");
@@ -98,21 +98,21 @@ function pollJob(jobId, isBackup) {
 
 function updateProgress(notes) {
     if (!notes || !notes.status) return;
-    
+
     let progressText = notes.status + "<br/>";
-    
+
     if (notes.categories_processed !== undefined && notes.total_categories !== undefined) {
         progressText += `Categories: ${notes.categories_processed}/${notes.total_categories}<br/>`;
     }
-    
+
     if (notes.tankoubons_processed !== undefined && notes.total_tankoubons !== undefined) {
         progressText += `Tankoubons: ${notes.tankoubons_processed}/${notes.total_tankoubons}<br/>`;
     }
-    
+
     if (notes.archives_processed !== undefined && notes.total_archives !== undefined) {
         progressText += `Archives: ${notes.archives_processed}/${notes.total_archives}`;
     }
-    
+
     $("#progress-info").html(progressText);
 }
 

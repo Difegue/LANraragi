@@ -53,8 +53,8 @@ export function initializeArchiveOverlay() {
         }
     });
 
-    $(document).on("click.add-toc", ".add-toc", (e) => { 
-        const page = +$(e.target).closest("div[page]").attr("page") + 1; 
+    $(document).on("click.add-toc", ".add-toc", (e) => {
+        const page = +$(e.target).closest("div[page]").attr("page") + 1;
         addTocSection(page);
 
         // Stop event propagation to avoid going to page
@@ -109,11 +109,11 @@ export function removeCategoryBadge(categoryId) {
 
 export function addTocSection(page, currentTitle = null) {
 
-    LRR.closeOverlay(); 
+    LRR.closeOverlay();
     LRR.showPopUp({
         title: I18N.ReaderTocPrompt,
         input: "text",
-        inputPlaceholder: currentTitle || I18N.UntitledChapter, 
+        inputPlaceholder: currentTitle || I18N.UntitledChapter,
         inputAttributes: {
             autocapitalize: "off",
         },
@@ -137,7 +137,7 @@ export function addTocSection(page, currentTitle = null) {
 
 export function removeTocSection() {
 
-    LRR.closeOverlay(); 
+    LRR.closeOverlay();
     LRR.showPopUp({
         text: I18N.ReaderDeleteTocPrompt,
         icon: "warning",
@@ -232,13 +232,13 @@ export function updateArchiveOverlay(forceUpdate = false) {
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const { arcId, localPage } = getArchiveForPage(page);
         const thumbnailUrl = new LRR.ApiURL(`/api/archives/${arcId}/thumbnail?page=${localPage}`);
-        
+
         let thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
                 <span class='page-number'>${I18N.ReaderPage(page)}</span>
                 <img src="${thumbnailUrl}" id="${index}_thumb" loading="lazy" />`;
-        
-        if (LRR.isUserLogged()) 
+
+        if (LRR.isUserLogged())
             thumbnail += `<a href="#" style="padding:12px; top:2%; left:72%;" 
                              title="${I18N.ReaderSetPageAsThumbnail}" 
                              class="fas fa-file-image page-number set-thumbnail"></a>
@@ -248,7 +248,7 @@ export function updateArchiveOverlay(forceUpdate = false) {
 
         if (state.pageThumbnails.includes(index)) thumbnail +=
             `</div>`;
-        else thumbnail += 
+        else thumbnail +=
                 `<i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
 

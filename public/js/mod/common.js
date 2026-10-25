@@ -433,7 +433,7 @@ export function buildTankChapters(archiveData, pageOffset) {
         startPage: pageOffset + 1,
         endPage: pageOffset + (archiveData.pagecount || 0)
     };
-        
+
     // If there's a ToC, recursively build sub-chapters
     if (archiveData.toc && archiveData.toc.length > 0) {
         archiveChapter.chapters = buildArchiveChapters(archiveData.toc, archiveData.arcid, archiveData.pagecount);
@@ -443,13 +443,13 @@ export function buildTankChapters(archiveData, pageOffset) {
             ch.endPage += pageOffset;
         });
     }
-    
+
     return [archiveChapter];
 }
 
 export function buildArchiveChapters(toc, id, totalpages) {
     const chapters = [];
-    
+
     if (!toc || toc.length === 0) {
         return chapters;
     }

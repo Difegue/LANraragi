@@ -314,13 +314,13 @@ export function toggleBookmarkStatusByIcon(e) {
 
 // #endregion
 
-// #region Search and Suggestions 
+// #region Search and Suggestions
 
 /**
  * Handle quick search functionality. If user is in index page and
  * presses "/" key, focus to search input. If the release overlay
  * is open, closes it before focusing to search input.
- * 
+ *
  * @param {KeyboardEvent} e - The keyboard event
  */
 export function handleQuickSearch(e) {
@@ -383,7 +383,7 @@ export function loadTagSuggestions() {
 // #region Carousel
 
 export function toggleCarousel(e, updateLocalStorage = true) {
-    if (updateLocalStorage) 
+    if (updateLocalStorage)
         localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!carouselInitialized) {
@@ -584,10 +584,10 @@ export function toggleMultiSelectMode() {
                     clearSelection();
                     exitSelectionCarouselMode();
                 }
-                else 
+                else
                     isMultiSelectMode = true; // Revert the toggle if user cancels
             });
-        else 
+        else
             exitSelectionCarouselMode();
     }
 }
@@ -675,7 +675,7 @@ export function toggleArchiveSelection(id) {
         selectedArchives.add(id);
         // Find archive data from DataTables to build the carousel slide.
         // If there's nothing in DT (because we're adding something from the current carousel instead),
-        // fallback to the shared data cache. 
+        // fallback to the shared data cache.
         const row = IndexTable.dataTable.row(`#${id}`);
         const data = row.data() || LRR.getArchiveData(id);
         if (data) {
@@ -696,13 +696,13 @@ export function addArchiveToSelection(data) {
     swiper.virtual.appendSlide(slide);
     swiper.virtual.update();
 
-    // Add highlight classes to matching divs in compact and thumb mode 
+    // Add highlight classes to matching divs in compact and thumb mode
     $(`#thumbs_container #${id}`).addClass("msm-selected");
     $(`tr#${id}.context-menu`).addClass("msm-selected");
 
     // Bind click on newly added slide to deselect the archive
     // Uses event delegation so it works even with virtual slides
-    $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`, 
+    $(document).off(`click.msm-carousel-${id}`).on(`click.msm-carousel-${id}`, `#${id}.swiper-slide`,
         function (e) {
             if (!isMultiSelectMode) return;
             e.preventDefault();
@@ -763,7 +763,7 @@ export function clearSelection() {
 }
 
 /**
- * Update the count display for the current selection and save a copy to localStorage. 
+ * Update the count display for the current selection and save a copy to localStorage.
  * Also show/hide controls if applicable.
  */
 export function updateSelectionCount() {
@@ -1009,12 +1009,12 @@ export function migrateProgress() {
             const progress  = localStorage.getItem(`${id}-reader`);
             const isTank    = id.startsWith("TANK_");
 
-            const metadataUrl = isTank ? 
-                new LRR.ApiURL(`api/tankoubons/${id}`) : 
+            const metadataUrl = isTank ?
+                new LRR.ApiURL(`api/tankoubons/${id}`) :
                 new LRR.ApiURL(`api/archives/${id}/metadata`);
 
-            const progressUrl = isTank ? 
-                `api/tankoubons/${id}/progress/${progress}?force=1` : 
+            const progressUrl = isTank ?
+                `api/tankoubons/${id}/progress/${progress}?force=1` :
                 `api/archives/${id}/progress/${progress}?force=1`;
 
             const promise = fetch(metadataUrl, { method: "GET" })
@@ -1025,7 +1025,7 @@ export function migrateProgress() {
                         return null;
                     }
                     if (!response.ok) {
-                         
+
                         console.warn(`Failed to migrate progress for ${id} (status ${response.status})`);
                         return null;
                     }
@@ -1057,7 +1057,7 @@ export function migrateProgress() {
             hideAfter: 13000,
         }));
     } else {
-         
+
         console.log("No local reading progression to migrate");
     }
 }
@@ -1096,7 +1096,7 @@ export function loadCategories() {
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
             data.sort((a, b) => b.pinned - a.pinned);
-            // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
+            // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint.
             let html = `<div style='display:inline-block'>
                             <input class='favtag-btn ${(("NEW_ONLY" === selectedCategory) ? "toggled" : "")}' 
                             type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
@@ -1238,7 +1238,7 @@ export function handleCustomSort() {
     if (namespace === "title") {
         order[0][0] = 0;
     } else {
-        // The order set in the combobox uses is offset from title by 1; 
+        // The order set in the combobox uses is offset from title by 1;
         // e.g. customColumn1 is offset from title by 1.
         order[0][0] = 1;
         localStorage.customColumn1 = namespace;

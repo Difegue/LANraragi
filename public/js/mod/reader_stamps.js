@@ -72,7 +72,7 @@ export function initializeStamps() {
             state.markerMode = false;
             if (result.isConfirmed && result.value.trim() !== "") {
                 const { arcId, localPage } = getArchiveForPage(page);
-                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`, 
+                Server.callAPI(`/api/archives/${arcId}/stamps/${localPage}?position=${markerData.x},${markerData.y}&content=${result.value}`,
                     "PUT", "Stamp added!", I18N.StampError,
                     (data) => {
                         markerData.id = data["stamp_id"];

@@ -93,7 +93,7 @@ Edit.addArchiveToTank = function () {
 
     // Get the Archive metadata to feature the name, but don't actually save the Tank.
     // That's handled by the Save button.
-    Server.callAPI(`/api/archives/${arcId}`, "GET", 
+    Server.callAPI(`/api/archives/${arcId}`, "GET",
         null,
         I18N.TankoubonAddArchiveError,
         (data) => {

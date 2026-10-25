@@ -123,7 +123,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
 
     // Load metadata for the requested ID and populate the page
     loadContentData().then(() => {
-      
+
         document.title = state.content.title;
         $(".max-page").text(state.content.pages);
 
@@ -171,9 +171,9 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                     }
 
                     let tagList = LRR.buildTagList(tags);
-                    if (state.id.startsWith("TANK_")) 
+                    if (state.id.startsWith("TANK_"))
                         Server.updateTagsFromTankoubon(state.id, tagList);
-                    else 
+                    else
                         Server.updateTagsFromArchive(state.id, tagList);
                     $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
                 }
@@ -330,7 +330,7 @@ export function loadContentData() {
 
             updateProgress(data, state.id);
 
-            if (data.toc) 
+            if (data.toc)
                 state.content.chapters = LRR.buildArchiveChapters(data.toc, state.id, data.pagecount);
 
             // Check and display warnings for unsupported filetypes
@@ -916,9 +916,9 @@ export async function goToPage(page) {
         if (state.doublePageMode.value && state.currentPage > 0
             && state.currentPage < state.maxPage) {
 
-            // Special case when going backwards and already showing a widespread, 
+            // Special case when going backwards and already showing a widespread,
             // we need to go back by two pages to show the previous double-page spread
-            if (state.showingSinglePage && state.previousPage > state.currentPage) 
+            if (state.showingSinglePage && state.previousPage > state.currentPage)
                 state.currentPage = Math.max(0, state.currentPage - 1);
             // Composite an image and use that as the source
             const img1 = await loadImage(state.currentPage);
@@ -998,7 +998,7 @@ function updateProgress() {
     } else if (!state.authenticateProgress) {
         Server.updateServerSideProgress(state.id, page);
     }
-    
+
     updateStamps(page);
 }
 
@@ -1254,7 +1254,7 @@ function generateThumbnails() {
 
 /**
  * Change current page in reader.
- * 
+ *
  * @param {(-1|1|"first"|"last")} targetPage    One of -1 (previous), 1 (next), "first", or "last" page.
  * @param {boolean} resetAuto                   Whether to reset current slideshow counter.
  */
@@ -1505,7 +1505,7 @@ async function loadDatatablesArchives(datatablesPage) {
     const indexOrder = localStorage.getItem("indexOrder") || "asc";
     let searchUrlStr = `/api/search/ids?start=${(datatablesPage - 1) * datatablesPageSize}`;
     if (indexSearchQuery) searchUrlStr += `&filter=${encodeURIComponent(indexSearchQuery)}`;
-    
+
     // See Index.updateCarousel
     if (indexSelectedCategory === "NEW_ONLY") {
         searchUrlStr += `&newonly=true`;
