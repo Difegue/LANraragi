@@ -9,7 +9,7 @@ use feature qw(signatures);
 use String::Similarity;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(clean_title trim trim_CRLF trim_url most_similar remove_separator);
+our @EXPORT_OK = qw(clean_title trim trim_CRLF trim_url canonicalize_url most_similar remove_separator);
 
 # Remove "junk" from titles, turning something like "(c12) [poop (butt)] hardcore handholding [monogolian] [recensored]" into "hardcore handholding"
 sub clean_title ($title) {
@@ -60,6 +60,14 @@ sub trim_url ($url) {
     my $char = chop $url;
     if ( $char ne "/" ) {
         $url .= $char;
+    }
+    return $url;
+}
+
+sub canonicalize_url ($url) {
+    if ( $url =~ m{^(https?://)?(e(?:-|x)hentai\.org)/mpv/(\d+)/([0-9a-z]+)}i ) {
+        my $scheme = $1 // "";
+        $url = "$scheme$2/g/$3/$4";
     }
     return $url;
 }

@@ -26,7 +26,7 @@ sub plugin_info {
             'forceresampled' => {type => "bool", desc => "Force resampled archive download", default_value => "0"}
         },
         # Downloader-specific metadata
-        url_regex => "https?:\/\/e(-|x)hentai.org\/g\/.*\/.*"
+        url_regex => "https?:\/\/e(-|x)hentai.org\/(g|mpv)\/.*\/.*"
     );
 
 }
@@ -46,7 +46,7 @@ sub provide_url {
     my $domain  = ( $url =~ /.*exhentai\.org/gi ) ? 'https://exhentai.org' : 'https://e-hentai.org';
 
     $logger->debug($url);
-    if ( $url =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
+    if ( $url =~ /.*\/(?:g|mpv)\/([0-9]*)\/([0-z]*)\/*.*/ ) {
         $gID    = $1;
         $gToken = $2;
     } else {
