@@ -52,8 +52,8 @@ sub trim_url ($url) {
 
     $url = trim($url);
 
-    # Remove scheme, www. and query parameters if present. Other subdomains are not removed
-    if ( $url =~ /https?:\/\/(www\.)?([^\?]*)\??.*/gm ) {
+    # Remove scheme, www., query parameters, and hash if present. Other subdomains are not removed
+    if ( $url =~ /https?:\/\/(www\.)?([^\?#]*)[\?#]?.*/gmi ) {
         $url = $2;
     }
 
