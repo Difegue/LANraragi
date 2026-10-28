@@ -343,7 +343,7 @@ export function drawCallback() {
                 // special case for empty search params: window.location.search is "" if there are
                 // no search params, even if window.location ends with '?'
                 if (window.location.search !== "") {
-                    window.history.pushState(null, null, "/");
+                    window.history.pushState(null, null, window.location.pathname);
                 }
             } else if (params !== window.location.search) {
                 window.history.pushState(null, null, params);
