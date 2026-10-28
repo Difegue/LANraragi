@@ -66,7 +66,7 @@ sub serve_opds_item {
 sub serve_opds_page {
     my $self = shift->openapi->valid_input or return;
     my $id   = $self->stash('id');
-    my $page = $self->req->param('page') || 1;
+    my $page = ( $self->req->param('page') // 0 ) + 1;
 
     LANraragi::Model::Opds::render_archive_page( $self, $id, $page );
 }
