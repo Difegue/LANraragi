@@ -52,10 +52,10 @@ export function callAPI(endpoint, method, successMessage, errorMessage, successC
 
 /**
  * Silent version of callAPI that doesn't show any toasts, popups, or catches errors.
- * Returns the promise so you can chain/try-catch yourself. 
- * @param {*} endpoint 
- * @param {*} method 
- * @returns The data from the API call. If any error occurs, this will throw. 
+ * Returns the promise so you can chain/try-catch yourself.
+ * @param {*} endpoint
+ * @param {*} method
+ * @returns The data from the API call. If any error occurs, this will throw.
  */
 export function callAPISilent(endpoint, method) {
     let endpointUrl = new LRR.ApiURL(endpoint);
@@ -423,8 +423,8 @@ export function loadBookmarkCategoryId() {
  */
 export function updateServerSideProgress(id, currentPage) {
 
-    let endpointUrl = id.startsWith("TANK_") ? 
-        new LRR.ApiURL(`/api/tankoubons/${id}/progress/${currentPage}`) : 
+    let endpointUrl = id.startsWith("TANK_") ?
+        new LRR.ApiURL(`/api/tankoubons/${id}/progress/${currentPage}`) :
         new LRR.ApiURL(`/api/archives/${id}/progress/${currentPage}`);
 
     return fetch(endpointUrl, { method: "PUT" })

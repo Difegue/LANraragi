@@ -74,6 +74,7 @@ const config = {
         "@stylistic/indent": ["error", 4, { "SwitchCase": 1 }],
         "@stylistic/one-var-declaration-per-line": ["error", "initializations"],
         "@stylistic/quotes": ["error", "double", { "allowTemplateLiterals": true }],
+        "@stylistic/no-trailing-spaces": ["error"],
     },
 };
 

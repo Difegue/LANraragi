@@ -85,9 +85,9 @@ Config.switchStyle = function (e) {
 
     for (i = 0, linkTag = document.getElementsByTagName("link"); i < linkTag.length; i++) {
         if ((linkTag[i].rel.indexOf("stylesheet") !== -1) && linkTag[i].title) {
-            if ((linkTag[i].rel.indexOf("alternate stylesheet") !== -1)) 
+            if ((linkTag[i].rel.indexOf("alternate stylesheet") !== -1))
                 linkTag[i].disabled = true;
-            else 
+            else
                 defaultStyle = linkTag[i];
 
             if (linkTag[i].title === cssTitle) {

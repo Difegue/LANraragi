@@ -86,11 +86,11 @@ Batch.loadSelectionOnly = function (ids) {
     const archiveIds = ids.filter((id) => !id.startsWith("TANK_"));
 
     // Acquire archive IDs from Tanks and merge with directly selected archive IDs, then fetch metadata for each archive ID
-    const tankFetches = tankIds.map((id) => 
+    const tankFetches = tankIds.map((id) =>
         Server.callAPI(`/api/tankoubons/${id}`, "GET", null, I18N.ArchiveListLoadFailure, (data) => {
             archiveIds.push(...(data.archives || []));
         }));
-        
+
     Promise.all(tankFetches).then(() => {
 
         const archiveFetches = archiveIds.map((id) =>
@@ -98,7 +98,7 @@ Batch.loadSelectionOnly = function (ids) {
                 .catch(() => null),
         );
 
-        Promise.all(archiveFetches).then((results) => { 
+        Promise.all(archiveFetches).then((results) => {
 
             const addedIds = new Set();
 
@@ -254,7 +254,7 @@ Batch.startBatch = function () {
     Batch.socket.onopen = function () {
         const command = commandBase;
         command.archive = arcs.splice(0, 1)[0];
-         
+
         console.log(command);
         Batch.socket.send(JSON.stringify(command));
     };
@@ -277,7 +277,7 @@ Batch.startBatch = function () {
         setTimeout(() => {
             const command = commandBase;
             command.archive = arcs.splice(0, 1)[0];
-             
+
             console.log(command);
             Batch.socket.send(JSON.stringify(command));
         }, timeout * 1000);
