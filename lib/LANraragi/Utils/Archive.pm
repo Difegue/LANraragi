@@ -369,7 +369,7 @@ sub get_filelist ($archive, $arcid) {
         my $ignored_pattern = LANraragi::Model::Config->get_ignoredfiles;
         if ( defined $ignored_pattern && $ignored_pattern ne '' ) {
             $ignored_re = eval { qr/$ignored_pattern/ };
-            $logger->warn("Invalid regex in Files to ignore, ignoring it: $@") unless defined $ignored_re;
+            $logger->warn("Invalid regex in Exclude files in Archives, ignoring it: $@") unless defined $ignored_re;
         }
 
         my $e = Archive::Libarchive::Entry->new;
@@ -384,7 +384,7 @@ sub get_filelist ($archive, $arcid) {
             }
 
             if ( is_ignored_path( $filename, $ignored_re ) ) {
-                $logger->debug("Ignoring $filename (matches Files to ignore)");
+                $logger->debug("Ignoring $filename (matches excluded file regex");
                 $r->read_data_skip;
                 next;
             }
@@ -470,7 +470,7 @@ sub is_apple_signature_like_path ($path) {
     return 0;
 }
 
-# Check if the in-archive path matches the compiled "Files to ignore" regex.
+# Check if the in-archive path matches the compiled "Exclude files in Archives" regex.
 # An undefined regex matches nothing.
 sub is_ignored_path ( $path, $regex ) {
     return 0 unless defined $regex;

@@ -241,7 +241,7 @@ The base architecture is as follows:
 |  |- dirname  <- Content directory
 |  |- thumbdir <- Thumbnail directory  
 |  |- tempmaxsize <- Temp folder max size 
-|  |- ignoredfiles <- Regex of in-archive image paths that are not pages
+|  |- ignoredfiles <- Regex expression that matches in-archive image paths that should be ignored
 |  |- enableresize <- Whether automatic image resizing is enabled  
 |  |- sizethreshold <- Auto-resizing threshold
 |  |- readerquality <- Auto-resizing quality

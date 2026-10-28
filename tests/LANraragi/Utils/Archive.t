@@ -10,7 +10,7 @@ use Mojo::File 'path';
 
 BEGIN { use_ok('LANraragi::Utils::Archive'); }
 
-# "Files to ignore" is read from Redis; default to empty so get_filelist needs no database.
+# The ignored files regex is read from Redis; default to empty so get_filelist needs no database.
 my $ignoredfiles = '';
 my $config_mock  = Test::MockModule->new('LANraragi::Model::Config');
 $config_mock->mock( 'get_ignoredfiles', sub { return $ignoredfiles } );

@@ -130,7 +130,7 @@ sub save_config {
     my $ignoredfiles = $confhash{ignoredfiles} // "";
     if ( $ignoredfiles ne "" && !eval { qr/$ignoredfiles/; 1 } ) {
         $success   = 0;
-        $errormess = "Invalid regular expression in Files to ignore.";
+        $errormess = "Invalid regular expression in Exclude files in Archives.";
     }
 
     #Did all the checks pass ?
