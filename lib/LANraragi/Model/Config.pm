@@ -219,5 +219,6 @@ sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
 sub can_replacetitles    { return &get_redis_conf( "replacetitles",   "1" ) }
 sub get_language         { return &get_redis_conf( "language",        "auto" ) }
 sub get_excludednamespaces { return &get_redis_conf( "excludednamespaces", "source, date_added" ) }
+sub get_ignoredfiles     { return &get_redis_conf( "ignoredfiles",    "" ) }
 
 1;
