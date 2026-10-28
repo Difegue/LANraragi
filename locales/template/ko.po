@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-07-18 07:01+0000\n"
-"Last-Translator: on9686 <on9686@gmail.com>\n"
+"PO-Revision-Date: 2026-10-29 05:51+0000\n"
+"Last-Translator: on9686 <on9686@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
 "Language: ko\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -2087,3 +2087,25 @@ msgstr "처음/마지막 페이지를 넘어서 읽기"
 
 msgid "shift+Left/Right: go to first page/last page"
 msgstr "shift+좌우 방향키: 처음/마지막 페이지로 이동"
+
+msgid "Exclude files in Archives"
+msgstr "아카이브에서 제외할 파일"
+
+msgid "Regular expression matched against the path of each image inside an archive. Matching images are not shown as pages."
+msgstr ""
+"아카이브 내 각 이미지의 경로와 비교할 정규식입니다. 일치하는 이미지는 "
+"페이지로 표시되지 않습니다."
+
+msgid "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader.""
+msgstr ""
+"아카이브 내 각 이미지의 경로와 비교할 정규식입니다. 일치하는 이미지는 리더에 "
+"표시되지 않습니다.\""
+
+msgid "Leave empty to show all images."
+msgstr "비워두면 모든 이미지를 표시합니다."
+
+msgid "Example, to ignore a thumbnail at the archive root:"
+msgstr "예를 들어, 아카이브 루트에 있는 썸네일을 무시하려면:"
+
+msgid "Page counts already stored for existing archives are not recomputed."
+msgstr "기존 아카이브에 이미 저장된 페이지 수는 다시 계산되지 않습니다."
