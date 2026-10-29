@@ -56,6 +56,15 @@ I18N.CategoryPredicateTitle = "[% c.lh("Writing a Predicate") %]";
 I18N.BookmarkLinkError = "[% c.lh("Error linking bookmark button:") %]";
 I18N.BookmarkUnlinkError = "[% c.lh("Error unlinking bookmark button:") %]";
 I18N.GetBookmarkError = "[% c.lh("Error getting bookmark category:") %]";
+I18N.CategoryPin = "[% c.lh("Pin") %]";
+I18N.CategoryUnpin = "[% c.lh("Unpin") %]";
+I18N.CategoryPinError = "[% c.lh("Error updating category pin:") %]";
+I18N.CategorySetBookmark = "[% c.lh("Set as Bookmark") %]";
+I18N.CategoryRemoveBookmark = "[% c.lh("Remove Bookmark") %]";
+I18N.CategoryPinned = "[% c.lh("Category pinned!") %]";
+I18N.CategoryUnpinned = "[% c.lh("Category unpinned!") %]";
+I18N.BookmarkLinked = "[% c.lh("Bookmark category set!") %]";
+I18N.BookmarkUnlinked = "[% c.lh("Bookmark category removed!") %]";
 
 I18N.StatusNew = "[% c.lh("New archive") %]";
 I18N.StatusRead = "[% c.lh("Archive read") %]";
