@@ -4419,7 +4419,7 @@ paths:
       x-mojo-to: api-tankoubon#get_tankoubon_tags
       summary: Get all tags for a Tankoubon
       description: >-
-         Get the whole list of tags for a Tankoubon(Own + Imputed).
+         Get the whole list of tags for a Tankoubon (Its own + the ones from included Archives).
       tags:
         - tankoubons
       responses:

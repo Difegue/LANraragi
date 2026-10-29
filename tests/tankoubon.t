@@ -237,6 +237,10 @@ ok($meta_result2, 'Updated tank own tags');
 my @series_index = $redis_search->smembers("INDEX_series:test series");
 ok((grep { $_ eq $index_tank_id } @series_index), 'Tank in INDEX for its own tags');
 
+# Test: Check that get_all_tags return imputed and tank tags.
+my $tags = LANraragi::Model::Tankoubon::get_full_tags($index_tank_id);
+is($tags, 'series:test series,fruit:elderberry', 'Tank returns imputed + own tags');
+
 # Test: Bulk update_archive_list handles index updates
 # Add cherry archive, remove elderberry (banana) archive
 my $cherry_archive = "7e41c6480852a4a914e48c7a3a4084f193e963d9";
