@@ -30,8 +30,18 @@ sub redis_decode ($data) {
     # Without this setting, it typically tries to replace characters... which might already be valid UTF8!
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
 
-    # Do another UTF-8 decode just in case the data was double-encoded
+    # Do another UTF-8 decode just in case the data was double-encoded.
+    # If the string mixes wide characters (> 255) with double-encoded UTF-8 sequences,
+    # decode_utf8 croaks on the whole string, so fall back to decoding each UTF-8 byte sequence individually.
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
+    if ( $@ && defined $data ) {
+        $data =~ s/([\xC2-\xF4][\x80-\xBF]+)/do {
+            my $bytes = pack( "C*", unpack( "U*", $1 ) );
+            my $decoded;
+            eval { $decoded = decode_utf8( $bytes, Encode::FB_CROAK ) };
+            defined $decoded ? $decoded : $1;
+        }/eg;
+    }
 
     return $data;
 }
