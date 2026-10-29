@@ -104,6 +104,15 @@
 						</td>
 					</tr>
 
+					[% IF is_tank %]
+					<tr>
+						<td></td>
+						<td style="float: left; ">
+							<b>[% c.lh("Tankoubons contain all of their Archives' tags by default. You can add custom additional tags here.") %]</b>
+						</td>
+					</tr>
+					[% END %]
+
 					[% UNLESS is_tank %]
 					<tr>
 						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Import Tags from Plugin :") %] <br />

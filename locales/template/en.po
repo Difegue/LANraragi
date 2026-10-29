@@ -706,6 +706,9 @@ msgstr "Read Archive"
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Tankoubons contain all of their Archives' tags by default. You can add custom additional tags here."
+msgstr "Tankoubons contain all of their Archives' tags by default. You can add custom additional tags here."
+
 # ------End of Edit.html.tt2------
 
 # ------Start of Index.html.tt2------
