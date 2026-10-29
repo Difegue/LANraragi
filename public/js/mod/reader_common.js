@@ -913,8 +913,11 @@ export async function goToPage(page) {
     if (state.infiniteScroll.value) {
         $("#display img:not(#img_doublepage)").get(state.currentPage).scrollIntoView({ block: "nearest" });
     } else {
+        // Page 0 (cover) is always shown as a single page. When stepping back from page 2 to page 1,
+        // page 1 cannot pair with page 0 (cover) or page 2 (already shown), so show page 1 alone.
+        const isLonelySecondPage = state.currentPage === 1 && state.previousPage === 2;
         if (state.doublePageMode.value && state.currentPage > 0
-            && state.currentPage < state.maxPage) {
+            && state.currentPage < state.maxPage && !isLonelySecondPage) {
 
             // Special case when going backwards and already showing a widespread,
             // we need to go back by two pages to show the previous double-page spread
@@ -1290,6 +1293,11 @@ function changePage(targetPage, resetAuto = false) {
             offset *= 2;
         }
         destination = state.currentPage + (state.mangaMode.value ? -offset : offset);
+        // Since page 0 (cover) is always displayed alone, stepping back 2 pages from a spread at page 2
+        // would jump directly to page 0 and skip page 1. Step to page 1 instead.
+        if (state.doublePageMode.value && !state.showingSinglePage && state.currentPage === 2 && destination === 0) {
+            destination = 1;
+        }
     }
     if (destination < 0) {
         // Clamp if we're not at the first page, to avoid doublepage mode accidentally yeeting us to previous archive
