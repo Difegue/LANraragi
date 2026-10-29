@@ -277,11 +277,13 @@ LUA
             }
 
             # For exact tag searches, just check if an index for it exists
-            if ( $isexact && $redis->exists("INDEX_$tag") ) {
+            if ($isexact) {
+                if ( $redis->exists("INDEX_$tag") ) {
 
-                # Get the list of IDs for this tag
-                @ids = $redis->smembers("INDEX_$tag");
-                $logger->debug( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
+                    # Get the list of IDs for this tag
+                    @ids = $redis->smembers("INDEX_$tag");
+                    $logger->debug( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
+                }
             } else {
 
                 # Get index keys that match this tag.
