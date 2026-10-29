@@ -78,4 +78,22 @@ cmp_deeply( \@sorted_computed, \@sorted_expected, "Backup tankoubon comparison" 
 
 cmp_deeply( \@sorted_computed, \@sorted_expected, "Backup stamps comparison" );
 
+subtest 'redis_decode handles mixed wide characters and double-encoded UTF-8 (#1738)' => sub {
+    use utf8;
+    use Encode qw(encode_utf8);
+    use LANraragi::Utils::Redis qw(redis_decode redis_encode);
+
+    # Simulate a tag string stored in Redis where double-encoded UTF-8 tags are mixed with a wide character (♀, U+2640)
+    my $double_encoded_tag = encode_utf8( encode_utf8("artist:조우 (jowoo)") );
+    my $single_encoded_wide = encode_utf8("sole_female:♀");
+    my $mixed_raw = "$double_encoded_tag, $single_encoded_wide";
+
+    my $decoded = redis_decode($mixed_raw);
+    is( $decoded, "artist:조우 (jowoo), sole_female:♀", "mixed double-encoded and wide-character string is cleanly decoded" );
+
+    # Verify normal single-encoded strings and pure double-encoded strings continue to work unchanged
+    my $normal_raw = redis_encode("language:korean, character:세이아, sole_female:♀");
+    is( redis_decode($normal_raw), "language:korean, character:세이아, sole_female:♀", "single-encoded UTF-8 string with wide chars is preserved" );
+};
+
 done_testing();
