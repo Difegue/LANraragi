@@ -277,10 +277,13 @@ note('testing hidecompleted filter...');
     # hidecompleted with lastread sort
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0, 0, 1 );
 
-    # Only e69e43..ebg has a non-zero lastreadtime among the non-completed archives
-    is( $filtered, 1, 'hidecompleted + lastread sort should only return read-but-not-completed archives' );
+    # Only e69e43..ebg has a non-zero lastreadtime among the 10 non-completed archives
+    # followed by 9 unread archives.
+    is( $filtered, 10, 'hidecompleted + lastread sort should return all non-completed archives, read or not' );
     is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
-        'hidecompleted + lastread should return Saturn American Manual (read but not completed)' );
+        'hidecompleted + lastread should return Saturn American Manual (read but not completed) first' );
+    is( scalar( grep { $redis->hget( $_, "lastreadtime" ) } @ids[ 1 .. $#ids ] ),
+        0, 'hidecompleted + lastread: all archives after the first are unread' );
 }
 
 note('testing tag sort with tanks (grouptanks=1) -- exercises _fallback_tags since evalsha is not mocked...');
@@ -391,7 +394,7 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
 
 {
     # Give Computer Room (a member of both tanks) a non-zero lastreadtime so both tanks
-    # appear in the lastread sort results.  Restore the value after the block.
+    # sort among the read results.  Restore the value after the block.
     $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 1589038279 );
 
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "lastread", 0, 0, 0, 1, 0 );
@@ -401,9 +404,17 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
     # Tanks with max member lastreadtime > 0:
     #   TANK_1589141306: max(Egypt=0, Computer Room=1589038279) = 1589038279
     #   TANK_1589138380: max(Computer Room=1589038279) = 1589038279
-    is( $filtered, 6, 'tank lastread sort: both tanks with a read member archive should appear' );
+    # Followed by 7 unread
+    my %read = map { $_ => 1 } (
+        "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "4857fd2e7c00db8b0af0337b94055d8445118630", "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
+        "TANK_1589141306",                          "TANK_1589138380"
+    );
+    is( $filtered, 13, 'tank lastread sort: unread archives are kept in the results' );
+    is_deeply( [ sort @ids[ 0 .. 5 ] ], [ sort keys %read ], 'tank lastread sort: read archives and tanks come first' );
+    ok( !( grep { $read{$_} } @ids[ 6 .. $#ids ] ), 'tank lastread sort: unread archives come after read ones' );
     is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
-        'tank lastread sort: Saturn JP (highest lastreadtime 1589038281) should be first' );
+        'tank lastread sort: Saturn USA (highest lastreadtime 1589038281) should be first' );
 
     my %lrt = map { $_ => 1 } @ids;
     ok( exists $lrt{"TANK_1589141306"},
@@ -413,13 +424,45 @@ note('testing lastread sort with tanks (grouptanks=1) -- exercises _fallback_las
     ok( !exists $lrt{"28697b96f0ac5777be2614ed10ca47742c9522fa"},
         'tank lastread sort grouptanks=1: Computer Room itself not present (grouped into its tanks)' );
 
-    # Ascending: oldest-read archives first, so tanks (1589038279) precede Saturn JP (1589038281)
+    # Ascending: oldest-read archives first, so tanks (1589038279) precede Saturn USA (1589038281)
+    # Only the read archives are reversed; unread archives stay at the back.
     my ( $total2, $filtered2, @ids2 ) = LANraragi::Model::Search::do_search( "", "", -1, "lastread", 1, 0, 0, 1, 0 );
-    is( $ids2[-1], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
-        'tank lastread sort asc: Saturn JP (most recently read) should be last' );
+    is( $ids2[5], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+        'tank lastread sort asc: Saturn USA (most recently read) should be last among read archives' );
+    ok( !( grep { $read{$_} } @ids2[ 6 .. $#ids2 ] ), 'tank lastread sort asc: unread archives stay after read ones' );
     my %pos2 = map { $ids2[$_] => $_ } 0 .. $#ids2;
     ok( $pos2{"TANK_1589141306"} < $pos2{"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"},
-        'tank lastread sort asc: TANK_1589141306 appears before Saturn JP' );
+        'tank lastread sort asc: TANK_1589141306 appears before Saturn USA' );
+
+    # lastread: filter -- tanks match on their latest member lastreadtime, like the lastread sort
+    my ( $total3, $filtered3, @ids3 ) = LANraragi::Model::Search::do_search( "lastread:>0", "", -1, "lastread", 0, 0, 0, 1, 0 );
+    is_deeply( [ sort @ids3 ], [ sort keys %read ], 'lastread filter: lastread:>0 returns only read archives and tanks' );
+
+    my ( $total4, $filtered4, @ids4 ) =
+      LANraragi::Model::Search::do_search( "lastread:1589038279", "", -1, "lastread", 0, 0, 0, 1, 0 );
+    is_deeply( [ sort @ids4 ], [ "TANK_1589138380", "TANK_1589141306" ],
+        'lastread filter: tanks match on their latest member lastreadtime (Computer Room, 1589038279)' );
+
+    my ( $total5, $filtered5, @ids5 ) =
+      LANraragi::Model::Search::do_search( "lastread:>1589038279", "", -1, "lastread", 0, 0, 0, 1, 0 );
+    is_deeply(
+        [ sort @ids5 ],
+        [   sort "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+            "4857fd2e7c00db8b0af0337b94055d8445118630", "2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
+        ],
+        'lastread filter: lastread:>1589038279 returns the 4 standalones read after Computer Room'
+    );
+    ok( !( grep { /^TANK/ } @ids5 ),
+        'lastread filter: tanks whose latest member lastreadtime is 1589038279 are excluded by lastread:>1589038279' );
+
+    my ( $total6, $filtered6, @ids6 ) = LANraragi::Model::Search::do_search( "-lastread:>0", "", -1, "lastread", 0, 0, 0, 1, 0 );
+    is( $filtered6, 7, 'lastread filter: -lastread:>0 returns the 7 unread archives' );
+    ok( !( grep { $read{$_} } @ids6 ), 'lastread filter: -lastread:>0 excludes read archives and tanks' );
+
+    my ( $total7, $filtered7, @ids7 ) = LANraragi::Model::Search::do_search( "lastread:>0", "", -1, "lastread", 0, 0, 0, 0, 0 );
+    is( $filtered7, 5, 'lastread filter grouptanks=0: lastread:>0 returns the 5 read archives' );
+    ok( ( grep { $_ eq "28697b96f0ac5777be2614ed10ca47742c9522fa" } @ids7 ),
+        'lastread filter grouptanks=0: Computer Room itself is included when tanks are not grouped' );
 
     $redis->hset( "28697b96f0ac5777be2614ed10ca47742c9522fa", "lastreadtime", 0 );
 }

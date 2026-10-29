@@ -7,7 +7,7 @@ use strict;
 use warnings;
 use utf8;
 
-use List::Util qw(min);
+use List::Util qw(min max);
 use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
@@ -238,7 +238,8 @@ LUA
            # Specific case for pagecount searches
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
-            if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
+           # Or you can search for galleries by last read time (unix timestamp) with lastread:>1589038280, or any read galleries: lastread:>0
+            if ( $tag =~ /^(read|pages|lastread):(>|<|>=|<=)?(\d+)$/ ) {
                 my $col       = $1;
                 my $operator  = $2;
                 my $pagecount = $3;
@@ -251,20 +252,25 @@ LUA
                 # Change the column based off the tag searched.
                 # "pages" -> "pagecount"
                 # "read" -> "progress"
-                $col = $col eq "pages" ? "pagecount" : "progress";
+                # "lastread" -> "lastreadtime"
+                $col = $col eq "pages" ? "pagecount" : $col eq "read" ? "progress" : "lastreadtime";
 
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
 
-                    # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO TANKS: Maybe an index would be good actually..
+                    my $count;
                     if ( $id =~ /^TANK/ ) {
-                        next;
-                    }
 
-                    # Default to 0 if null.
-                    my $count = $redis_db->hget( $id, $col ) || 0;
+                        # Tanks don't have a set pagecount property, so they're not included here for now, except for lastread.
+                        # TODO TANKS: Maybe an index would be good actually..
+                        next unless $col eq "lastreadtime";
+                        $count = _get_tank_lastreadtime( $redis_db, $id );
+                    } else {
+
+                        # Default to 0 if null.
+                        $count = $redis_db->hget( $id, $col ) || 0;
+                    }
 
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
@@ -487,6 +493,8 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
     }
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
+    my @keyed_ids;
+    my @unkeyed_ids;
     if ( $sortkey eq "lastread" ) {
 
         # Prepare a Lua script to retrieve the lastreadtime for both tanks (via ZRANGEBYSCORE of member archives)
@@ -532,22 +540,15 @@ LUA
             }
         }
 
+        # Partition: IDs that have been read vs those that haven't
+        @keyed_ids   = grep { defined $tmpfilter{$_} && $tmpfilter{$_} > 0 } @filtered;
+        @unkeyed_ids = grep { !( defined $tmpfilter{$_} && $tmpfilter{$_} > 0 ) } @filtered;
+
         # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
         @sorted = map { $_->[0] }                    # Map back to only having the ID
           sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
-          grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
-          @filtered;                                 # List of IDs
-
-        if ($sortorder) {
-            @sorted = reverse @sorted;
-        }
-
-        my $total_time = time() - $start_time;
-        $logger->debug("[PERF] sort_results completed in ${total_time}s");
-
-        # lastread: all returned archives are keyed (nil timestamps excluded)
-        return ( -1, @sorted );
+          @keyed_ids;                                # List of read IDs
 
     } else {
 
@@ -604,26 +605,32 @@ LUA
         }
 
         # Partition: IDs that have the sort namespace vs those that don't
-        my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
-        my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
+        @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
+        @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
         @sorted = map { $_->[0] }                  # Map back to only having the ID
           sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
           map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
           @keyed_ids;                              # List of keyed archive IDs
-
-        if ($sortorder) {
-            @sorted = reverse @sorted;
-        }
-
-        # IDs missing the sort namespace always go to the back
-        push @sorted, @unkeyed_ids;
-
-        my $total_time = time() - $start_time;
-        $logger->debug("[PERF] sort_results completed in ${total_time}s");
-        return ( scalar @keyed_ids, @sorted );
     }
+
+    if ($sortorder) {
+        @sorted = reverse @sorted;
+    }
+
+    # IDs missing the sort namespace always go to the back
+    push @sorted, @unkeyed_ids;
+
+    my $total_time = time() - $start_time;
+    $logger->debug("[PERF] sort_results completed in ${total_time}s");
+    return ( scalar @keyed_ids, @sorted );
+}
+
+# A tank's lastreadtime = the latest lastreadtime across its member archives (0 if none were read).
+# TODO: this could be a lua script.
+sub _get_tank_lastreadtime ( $redis, $tank_id ) {
+    return max( 0, map { $redis->hget( $_, "lastreadtime" ) || 0 } $redis->zrangebyscore( $tank_id, 1, "+inf" ) );
 }
 
 # For tanks currently unkeyed in search results (filter is at "zzzz"),
@@ -651,13 +658,7 @@ sub _fallback_lastread ( $redis, $tmpfilter, @filtered ) {
     my @archive_ids = grep { !/^TANK/ } @filtered;
 
     foreach my $tank_id (@tank_ids) {
-        my @arc_ids  = $redis->zrangebyscore( $tank_id, 1, "+inf" );
-        my $max_time = 0;
-        foreach my $arc_id (@arc_ids) {
-            my $t = $redis->hget( $arc_id, "lastreadtime" ) // 0;
-            $max_time = $t if $t > $max_time;
-        }
-        $tmpfilter->{$tank_id} = $max_time;
+        $tmpfilter->{$tank_id} = _get_tank_lastreadtime( $redis, $tank_id );
     }
 
     %$tmpfilter = ( %$tmpfilter, map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids );
