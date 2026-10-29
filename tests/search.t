@@ -110,6 +110,14 @@ $search = qq(character:segata\$);
 do_test_search();
 ok( $filtered eq 1 && $ids[0] eq "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Exact search without quotes ($search)) );
 
+$search = qq(character:segat\$);
+do_test_search();
+is( $filtered, 0, qq(Exact search with \$ for non-existent prefix tag returns 0 results ($search)) );
+
+$search = qq("character:segat");
+do_test_search();
+is( $filtered, 0, qq(Exact search with quotes for non-existent prefix tag returns 0 results ($search)) );
+
 $search = qq("Fate GO MEMO");
 do_test_search();
 is( $filtered, 1, qq(Exact search with quotes ($search)) );
