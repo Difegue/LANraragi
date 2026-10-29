@@ -16,7 +16,7 @@ my @modules = (
     "LANraragi::Utils::Generic",                 "LANraragi::Utils::Plugins",
     "LANraragi::Utils::Routing",                 "LANraragi::Utils::TempFolder",
     "LANraragi::Utils::Logging",                 "LANraragi::Utils::OpenAPI",
-    "LANraragi::Utils::Minion",
+    "LANraragi::Utils::Minion",                  "LANraragi::Utils::Search",
     "LANraragi::Utils::Tags",                    "LANraragi::Controller::Api::Archive",
     "LANraragi::Controller::Api::Search",        "LANraragi::Controller::Api::Category",
     "LANraragi::Controller::Api::Database",      "LANraragi::Controller::Api::Shinobu",
