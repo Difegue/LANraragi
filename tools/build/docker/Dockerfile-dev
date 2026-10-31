@@ -79,6 +79,13 @@ RUN ./tools/install-perl-deps.sh
 
 RUN rm -rf /tmp/lrr
 
+# Configure ENV variables (output of perl -Mlocal::lib)
+ENV PATH="/home/koyomi/perl5/bin:$PATH"
+ENV PERL5LIB="/home/koyomi/perl5/lib/perl5"
+ENV PERL_LOCAL_LIB_ROOT="/home/koyomi/perl5"
+ENV PERL_MB_OPT="--install_base \"/home/koyomi/perl5\""
+ENV PERL_MM_OPT="INSTALL_BASE=/home/koyomi/perl5"
+
 # We're done, since this is not a production build.
 WORKDIR /home/koyomi/lanraragi
 CMD ["npm", "run", "dev-server"]
