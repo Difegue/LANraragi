@@ -273,8 +273,8 @@ msgstr "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which 
 msgid "Exclude files in Archives"
 msgstr "Exclude files in Archives"
 
-msgid "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader.""
-msgstr "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader.""
+msgid "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader."
+msgstr "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader."
 
 msgid "Leave empty to show all images."
 msgstr "Leave empty to show all images."
