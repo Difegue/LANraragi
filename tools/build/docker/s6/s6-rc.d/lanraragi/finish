@@ -1,7 +1,0 @@
-#!/bin/sh
-
-pkill --signal SIGINT -F "/home/koyomi/lanraragi/temp/shinobu.pid-s6"
-pkill --signal SIGTERM -F "/home/koyomi/lanraragi/temp/minion.pid-s6"
-
-pidwait -F "/home/koyomi/lanraragi/temp/shinobu.pid-s6"
-pidwait -F "/home/koyomi/lanraragi/temp/minion.pid-s6"
