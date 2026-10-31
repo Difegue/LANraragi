@@ -55,7 +55,7 @@ Presto! Your database is not deleted in case you ever fancy coming back.
 
 Make sure you have the Windows App SDK runtime installed to ensure the tray GUI app can run.  
 The installer will try to install this for you, but in case you need it, a copy can be downloaded [here](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads).  
-The LANraragi GUI app currently requires WASDK 2.2.
+The LANraragi GUI app currently requires WASDK 2.4.
 
 The tray GUI will show the error message it encountered instead of the LRR Version number if it fails to test the runtime - This might help you troubleshoot further. A detailed error can be found in the log console.
 
