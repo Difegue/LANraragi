@@ -97,11 +97,11 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     // Custom download and new tab context menu because preload uses blobs (because safari)
     // and at download time the browser doesn't know the filename
     $.contextMenu({
-        selector: '.reader-image',
+        selector: ".reader-image",
         build: ($trigger, e) => {
-            const src = $trigger.attr('src');
-            const url = $trigger.data('url');
-            const filename = $trigger.data('filename');
+            const src = $trigger.attr("src");
+            const url = $trigger.data("url");
+            const filename = $trigger.data("filename");
             return {
                 items: {
                     newTab: {
@@ -126,7 +126,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
                         }
                     }
                 }
-            }
+            };
         }
     });
 
