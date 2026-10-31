@@ -1099,7 +1099,7 @@ export async function goToPage(page) {
                 loadingDebounceTimer = null;
             }, 500);
         }
-            
+
         // update full image link
         $("#imgLink").attr("href", state.pages.value[state.currentPage.value]);
 
