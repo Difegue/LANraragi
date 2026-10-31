@@ -94,6 +94,42 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         window.location.href = new LRR.ApiURL(`/reader?id=${state.id}&force_reload`);
     });
 
+    // Custom download and new tab context menu because preload uses blobs (because safari)
+    // and at download time the browser doesn't know the filename
+    $.contextMenu({
+        selector: '.reader-image',
+        build: ($trigger, e) => {
+            const src = $trigger.attr('src');
+            const url = $trigger.data('url');
+            const filename = $trigger.data('filename');
+            return {
+                items: {
+                    newTab: {
+                        name: I18N.OpenInNewTab,
+                        icon: "fas fa-arrow-up-right-from-square",
+                        callback: function(key, options) {
+                            LRR.openInNewTab(url);
+                        }
+                    },
+                    download: {
+                        name: I18N.SaveImage,
+                        icon: "fas fa-download",
+                        callback: function(key, options) {
+                            const link = document.createElement("a");
+                            link.href = src;
+                            link.download = filename;
+                            link.style.display = "none";
+
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     // Return to index, re-applying the search/page state the user came from
     $(document).on("click.return-to-index", "#return-to-index", () => {
         returnToIndex();
@@ -857,10 +893,10 @@ function loadBookmarkStatus() {
 
 function updateMetadata() {
     const img = $("#img")[0];
-    const {filename} = img.dataset;
+    const filename = $("#img").data("filename");
 
     const imgDoublePage = $("#img_doublepage")[0];
-    const filenameDoublePage = imgDoublePage.dataset.filename;
+    const filenameDoublePage = $("#img_doublepage").data("filename");
 
     if (!filename && state.showingSinglePage) {
         state.currentPageLoaded = true;
@@ -932,47 +968,54 @@ export async function goToPage(page) {
                 state.currentPage = Math.max(0, state.currentPage - 1);
             // Composite an image and use that as the source
             const img1 = await loadImage(state.currentPage);
-            const img1Filename = getFilename(state.currentPage);
-            const img1Size = await getImageSize(img1);
+            const img1Size = await getImageSize(img1.src);
             const img2 = await loadImage(state.currentPage + 1);
-            const img2Filename = getFilename(state.currentPage + 1);
-            const img2Size = await getImageSize(img2);
+            const img2Size = await getImageSize(img2.src);
             // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
             if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
                 // Depending on whether we were going forward or backward, display img1 or img2
-                const wideSrc = state.previousPage > state.currentPage ? img2 : img1;
-                const wideFilename = state.previousPage > state.currentPage ? img2Filename : img1Filename;
+                const page2 = state.previousPage > state.currentPage;
+                const wideSrc = page2 ? img2.src : img1.src;
+                const wideFilename = page2 ? img2.filename : img1.filename;
+                const wideUrl = page2 ? img2.url : img1.url;
                 $("#img").attr("src", wideSrc);
-                $("#img").attr("data-filename", wideFilename);
+                $("#img").data("filename", wideFilename);
+                $("#img").data("url", wideUrl);
                 $("#display").removeClass("double-mode");
                 $("#img_doublepage").attr("src", "");
-                $("#img_doublepage").attr("data-filename", "");
+                $("#img_doublepage").data("filename", "");
+                $("#img_doublepage").data("url", "");
                 state.showingSinglePage = true;
                 // Adjust currentPage to the page of the image being displayed (don't jump by 2 anymore)
                 state.currentPage = state.previousPage > state.currentPage ? state.currentPage + 1 : state.currentPage;
             } else {
                 $("#display").addClass("double-mode");
                 if (state.mangaMode.value) {
-                    $("#img").attr("src", img2);
-                    $("#img").attr("data-filename", img2Filename);
-                    $("#img_doublepage").attr("src", img1);
-                    $("#img_doublepage").attr("data-filename", img1Filename);
+                    $("#img").attr("src", img2.src);
+                    $("#img").data("filename", img2.filename);
+                    $("#img").data("url", img2.url);
+                    $("#img_doublepage").attr("src", img1.src);
+                    $("#img_doublepage").data("filename", img1.filename);
+                    $("#img_doublepage").data("url", img1.url);
                 } else {
-                    $("#img").attr("src", img1);
-                    $("#img").attr("data-filename", img1Filename);
-                    $("#img_doublepage").attr("src", img2);
-                    $("#img_doublepage").attr("data-filename", img2Filename);
+                    $("#img").attr("src", img1.src);
+                    $("#img").data("filename", img1.filename);
+                    $("#img").data("url", img1.url);
+                    $("#img_doublepage").attr("src", img2.src);
+                    $("#img_doublepage").data("filename", img2.filename);
+                    $("#img_doublepage").data("url", img2.url);
                 }
                 state.showingSinglePage = false;
             }
         } else {
             const img = await loadImage(state.currentPage);
-            const imgFilename = getFilename(state.currentPage);
-            $("#img").attr("src", img);
-            $("#img").attr("data-filename", imgFilename);
+            $("#img").attr("src", img.src);
+            $("#img").data("filename", img.filename);
+            $("#img").data("url", img.url);
             $("#display").removeClass("double-mode");
             $("#img_doublepage").attr("src", "");
-            $("#img_doublepage").attr("data-filename", "");
+            $("#img_doublepage").data("filename", "");
+            $("#img_doublepage").data("url", "");
             state.showingSinglePage = true;
         }
 
@@ -1029,16 +1072,17 @@ function preloadImages() {
 }
 
 async function loadImage(index) {
-    const src = state.pages[index];
+    const url = state.pages[index];
 
-    if (!state.preloadedImg[src]) {
-        const res = await fetch(src);
+    if (!state.preloadedImg[url]) {
+        const res = await fetch(url);
         state.preloadedSizes[index] = parseInt(res.headers.get("Content-Length") / 1024, 10);
         const blob = await res.blob();
-        state.preloadedImg[src] = URL.createObjectURL(blob);
+        const filename = /filename="(.+)"/i.exec(res.headers.get("Content-Disposition"))[1];
+        state.preloadedImg[url] = { src: URL.createObjectURL(blob), filename: filename, url: url };
     }
 
-    return state.preloadedImg[src];
+    return state.preloadedImg[url];
 }
 
 export function applyContainerWidth() {
@@ -1342,10 +1386,6 @@ function handlePaginator() {
         default:
             break;
     }
-}
-
-function getFilename(index) {
-    return new URLSearchParams(state.pages[index].split("?")[1]).get("path");
 }
 
 function getImageSize(url) {

@@ -1947,6 +1947,12 @@ msgstr "Stamp name"
 msgid "Error setting up the Stamp"
 msgstr "Error setting up the Stamp"
 
+msgid "Open in New Tab"
+msgstr "Open in New Tab"
+
+msgid "Save image"
+msgstr "Save image"
+
 # ------End of i18n.html.tt2------
 
 # ------Start of Duplicates.html.tt2------

@@ -287,7 +287,7 @@ sub serve_page {
     } else {
 
         # Get the file extension to report content-type properly
-        my ( $n, $p, $file_ext ) = fileparse( $path, qr/\.[^.]*/ );
+        my ( $filename, $p, $file_ext ) = fileparse( $path, qr/\.[^.]*/ );
         my $content = get_page_data( $id, $path );
         $logger->debug( "Data size:" . length($content) );
 
@@ -295,7 +295,8 @@ sub serve_page {
         $self->render_file(
             data                => $content,
             content_disposition => "inline",
-            format              => substr( $file_ext, 1 )
+            format              => substr( $file_ext, 1 ),
+            filename            => $filename . $file_ext
         );
     }
 }
