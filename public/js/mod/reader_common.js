@@ -326,7 +326,7 @@ export function loadContentData() {
         return fetch(new LRR.ApiURL(`/api/tankoubons/${state.id}/tags`))
             .then(r => r.ok ? r.json() : Promise.reject(new Error(I18N.ServerInfoError)))
             .then(data => {
-                state.content.tags = data.tags || "";
+                state.content.value = {...state.content.value, tags: data.tags || ""};
             })
             .catch(err => LRR.showErrorToast(I18N.ServerInfoError, err));
     };
