@@ -2,7 +2,7 @@ import { h, render } from "preact";
 import htm from "htm";
 
 import { state } from "./reader_common.js";
-import { computed } from "@preact/signals";
+import { useComputed } from "@preact/signals";
 import { FileInfo, LeftToolbar, RightToolbar } from "./reader_components.js";
 import { ReaderPaginator } from "./reader_paginator.js";
 import { ApiURL } from "./common.js";
@@ -10,15 +10,15 @@ import { ApiURL } from "./common.js";
 const html = htm.bind(h);
 
 export function ReaderHeader()  {
-    const hideHeader = computed(() => {
+    const hideHeader = useComputed(() => {
         return state.hideHeader.value || state.infiniteScroll.value;
     });
-    
-    const defaultTitle = computed(() => {
+
+    const defaultTitle = useComputed(() => {
         return state.content.value?.title || "...";
     });
 
-    const artistUrl = computed(() => {
+    const artistUrl = useComputed(() => {
         return new ApiURL(`/?sort=0&q=artist%3A${encodeURIComponent(state.artist.value)}%24&`);
     });
 

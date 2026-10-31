@@ -4,7 +4,7 @@
 
 import { h, render } from "preact";
 import { useState } from "preact/hooks";
-import { computed } from "@preact/signals";
+import { useComputed } from "@preact/signals";
 import { Show } from "@preact/signals/utils";
 import htm from "htm";
 
@@ -51,8 +51,8 @@ function SettingsPanel() {
         state.preloadCount.value = preloadCount;
     }
 
-    const notInfiniteScroll = computed(() => !state.infiniteScroll.value);
-    const isFitContainerMode = computed(() => state.fitMode.value === "fit-container");
+    const notInfiniteScroll = useComputed(() => !state.infiniteScroll.value);
+    const isFitContainerMode = useComputed(() => state.fitMode.value === "fit-container");
 
     return html`
         <h2 class="ih" style="text-align:center">${I18N.ReaderOptions}</h2>

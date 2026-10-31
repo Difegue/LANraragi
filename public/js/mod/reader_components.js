@@ -1,7 +1,7 @@
 import { h } from "preact";
 import htm from "htm";
 import fscreen from "fscreen";
-import { computed } from "@preact/signals";
+import { useComputed } from "@preact/signals";
 import { Show } from "@preact/signals/utils";
 
 import { state, toggleBookmark, toggleHelp, toggleMangaMode, toggleAutoNextPage, toggleFullScreen } from "./reader_common.js";
@@ -19,8 +19,8 @@ export function ToggleButton({ id, active, onClick, label }) {
 }
 
 export function BookmarkButton() {
-    const showBookmark = computed(() => bookmarkLinkConfigured());
-    const style = computed(() => {
+    const showBookmark = useComputed(() => bookmarkLinkConfigured());
+    const style = useComputed(() => {
         if (!isUserLogged()) {
             return "opacity: 0.5; cursor: not-allowed;";
         }
@@ -34,9 +34,8 @@ export function BookmarkButton() {
     `;
 }
 
-export function FileInfo()
-{
-    const title = computed(() => {
+export function FileInfo() {
+    const title = useComputed(() => {
         if (state.showingSinglePage.value) {
             return `${state.filename.value} :: ${state.width.value} x ${state.height.value} :: ${state.size.value} KB`;
         } else {
