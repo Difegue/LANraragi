@@ -2,19 +2,19 @@ import { h } from "preact";
 import htm from "htm";
 
 import { state, changePage } from "./reader_common.js";
-import { computed } from "@preact/signals";
+import { useComputed } from "@preact/signals";
 
 const html = htm.bind(h);
 
 export function ReaderPaginator()  {
-    const currentPage = computed(() => {
+    const currentPage = useComputed(() => {
         if (state.currentPage.value === -1) {
             return "...";
         }
         return state.showingSinglePage.value ? state.currentPage.value + 1 : `${state.currentPage.value + 1} + ${state.currentPage.value + 2}`;
     });
 
-    const maxPage = computed(() => {
+    const maxPage = useComputed(() => {
         if (state.maxPage.value === -1) {
             return "...";
         }
