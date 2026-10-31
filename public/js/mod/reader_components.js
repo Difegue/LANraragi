@@ -45,7 +45,7 @@ export function FileInfo()
     });
 
     return html`
-        <div class="file-info" title=${title.value}>${title}</div>
+        <div class="file-info" title=${title.value}>${title.value}</div>
     `;
 }
 
