@@ -128,7 +128,7 @@
                             <td class="date-added">[% archive.date_added %]</td>
 
                             <td>
-                                <span class="tag-tooltip" data-tags="[% archive.tags | html %]" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv(this.dataset.tags); LRR.buildTagTooltip(this)"
+                                <span class="tag-tooltip tag-count" data-tags="[% archive.tags | html %]" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv(this.dataset.tags); LRR.buildTagTooltip(this)"
                                       style="text-overflow:ellipsis;">
                                     <i class="fa-solid fa-tag"></i>
                                     [% archive.tags.split(",").size %]
