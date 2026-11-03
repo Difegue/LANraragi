@@ -530,7 +530,7 @@ function enterInfiniteScrollView() {
         if (loaded === state.pages.value.length) {
             allImagesLoaded = true;
             if (window.scrollY === 0) {
-                goToPage(state.currentPage.value);
+                goToPage(state.currentPage.value, true);
             }
         }
     }
@@ -551,15 +551,20 @@ function enterInfiniteScrollView() {
     // Create an observer to update progress when a new page is scrolled in
     let allImagesLoaded = false;
     infiniteScrollObserver = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && allImagesLoaded) {
-            // Find the entry in the list of images
-            const index = entries[0].target.id.replace("page-", "");
-            // Convert to int
-            const page = parseInt(index, 10);
-            // Avoid double progress updates
-            if (state.currentPage.value !== page) {
-                state.setCurrentPage(page);
-                updateProgress();
+        // Only consider the first _intersecting_ entry, there may be multiple of either kind
+        for(let i = 0; i < entries.length; i++) {
+            if (entries[i].isIntersecting && allImagesLoaded) {
+                // Find the entry in the list of images
+                const index = entries[i].target.id.replace("page-", "");
+                // Convert to int
+                const page = parseInt(index, 10);
+                // Avoid double progress updates
+                if (state.currentPage.value !== page) {
+                    console.log(`IntersectionObserver found ${page}`);
+                    state.setCurrentPage(page);
+                    updateProgress();
+                }
+                break;
             }
         }
     }, { threshold: 0.5 });
@@ -1067,14 +1072,19 @@ export async function refreshCurrentPage() {
     }
 }
 
-export async function goToPage(page) {
+/**
+ * @param {number} page
+ * @param {boolean} force True when goToPage should always "do work" (such as during initialization)
+ * @returns {Promise<void>}
+ */
+export async function goToPage(page, force = false) {
     if (state.maxPage.value < 0) {
         // Not yet loaded, NOOP
         return;
     }
 
     const requestedPage = Math.min(state.maxPage.value, Math.max(0, +page));
-    if (requestedPage === state.currentPage.peek()) {
+    if (requestedPage === state.currentPage.peek() && !force) {
         // No change, do nothing
         return;
     }
