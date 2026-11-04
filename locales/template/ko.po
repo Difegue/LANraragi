@@ -2097,7 +2097,7 @@ msgstr ""
 "아카이브 내 각 이미지의 경로와 비교할 정규식입니다. 일치하는 이미지는 "
 "페이지로 표시되지 않습니다."
 
-msgid "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader.""
+msgid "Regular expression matched against the path of each image inside an Archive. Images that match will not be shown in the Reader."
 msgstr ""
 "아카이브 내 각 이미지의 경로와 비교할 정규식입니다. 일치하는 이미지는 리더에 "
 "표시되지 않습니다."
