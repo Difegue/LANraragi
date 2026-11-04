@@ -1215,8 +1215,6 @@ export function applyContainerWidth() {
         // Finally, fall back to 1200px width if none of the above matches
         $(".sni").attr("style", "max-width: 1200px");
     }
-
-    renderMarkers();
 }
 
 export function toggleMangaMode() {

@@ -104,10 +104,12 @@ export function initializeStamps() {
         }
     });
 
-    window.addEventListener("resize", () => {
+    const stampResizeObserver = new ResizeObserver(() => {
         // Reload the markers everytime the image size changes
         renderMarkers();
     });
+    stampResizeObserver.observe(document.getElementById("img"));
+    stampResizeObserver.observe(document.getElementById("img_doublepage"));
 }
 
 /** Process inputs
