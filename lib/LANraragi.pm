@@ -198,7 +198,7 @@ sub startup {
     say "Minion will use the Redis database at $miniondb";
     $self->plugin( 'Minion' => { Redis => "redis://$redispassword$miniondb" } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
-    $self->minion->missing_after(5);    # Clean up older workers after 5 seconds of unavailability
+    $self->minion->missing_after(1800); # Allow several 300-second heartbeats before removing a worker
 
     LANraragi::Utils::Minion::add_tasks( $self->minion );
     $self->LRR_LOGGER->debug("Registered tasks with Minion.");
