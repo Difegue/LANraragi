@@ -245,9 +245,8 @@ function createMarkerElement(markerData, index) {
 
 export function renderMarkers() {
     if (state.infiniteScroll.value || inFullscreen()) return;
-    // Clean markers
-    const existing = document.querySelectorAll(".marker");
-    existing.forEach(el => el.remove());
+
+    clearMarkers();
 
     if (!state.markersVisible.value) return;
 
