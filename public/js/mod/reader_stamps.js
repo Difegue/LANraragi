@@ -9,6 +9,8 @@ import { state, getArchiveForPage, inFullscreen } from "./reader_common.js";
 import { checkStampedPages } from "./reader_archive_overlay.js";
 import { effect } from "@preact/signals";
 
+let pendingStampPage = null;
+
 export function initializeStamps() {
     initContextMenu();
 
@@ -101,6 +103,15 @@ export function initializeStamps() {
             state.pageNaviState = true;
             $(".reader-image").css("cursor", "");
             $(".reader-image").css("z-index", 19);
+        }
+    });
+
+    effect(() => {
+        if (state.infiniteScroll.value) return;
+        // Only load stamps after the image is loaded AND showingSinglePage is set
+        if (state.currentPageLoaded.value && pendingStampPage !== null) {
+            loadStamps(pendingStampPage);
+            pendingStampPage = null;
         }
     });
 
@@ -374,11 +385,11 @@ export function updateStamps(page) {
             lastStampPage = page;
             lastStampDoublePage = state.doublePageMode.value;
             state.markers = [];
-            renderMarkers();
-            loadStamps(page);
+            clearMarkers();
+            pendingStampPage = page;
         } else {
             // Same page and mode (e.g. reading direction toggle): just re-render
-            renderMarkers();
+            pendingStampPage = page;
         }
     }
 }
