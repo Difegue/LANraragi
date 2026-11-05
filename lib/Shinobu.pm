@@ -17,7 +17,6 @@ use local::lib;
 
 use FindBin;
 use MCE::Loop;
-use Sys::CpuAffinity;
 use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
 use Config;

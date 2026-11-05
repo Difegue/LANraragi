@@ -13,7 +13,7 @@ use Mojo::Util qw(xml_escape);
 use Mojo::IOLoop;
 use Mojo::JSON qw(decode_json);
 use Proc::Simple;
-use Sys::CpuAffinity;
+use MCE::Util;
 use Config;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
@@ -121,7 +121,7 @@ sub start_minion {
     my $logger = get_logger( "Minion", "minion" );
 
     if (IS_UNIX) {
-        my $numcpus = Sys::CpuAffinity::getNumCpus();
+        my $numcpus = MCE::Util::get_ncpu();
         $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
         my $worker = $mojo->app->minion->worker;
