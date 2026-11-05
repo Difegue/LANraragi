@@ -1004,6 +1004,9 @@ export async function refreshCurrentPage() {
             getImageSize(img1.src),
             getImageSize(img2.src),
         ]);
+        if (ourGeneration !== refreshGeneration) {
+            return;
+        }
         // If w > h on one of the images(widespread), set canvasdata to the first(or second) image only
         if (img1Size.width > img1Size.height || img2Size.width > img2Size.height) {
             // Depending on whether we were going forward or backward, display img1 or img2
