@@ -250,6 +250,9 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
         // Load the actual reader pages now that we have basic info
         loadImages()
             .then(() => {
+                if (!state.infiniteScroll.value) {
+                    goToPage(state.currentPage.value, true);
+                }
                 effect(() => {
                     if (state.infiniteScroll.value) {
                         enterInfiniteScrollView();
