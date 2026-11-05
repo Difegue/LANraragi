@@ -521,7 +521,6 @@ export function inFullscreen() {
 function enterInfiniteScrollView() {
     if (infiniteScrollObserver !== null) {
         // We're already in infiniteScrollView
-        console.log("Infinite scroll view already active");
         return;
     }
 
@@ -563,7 +562,6 @@ function enterInfiniteScrollView() {
                 const page = parseInt(index, 10);
                 // Avoid double progress updates
                 if (state.currentPage.value !== page) {
-                    console.log(`IntersectionObserver found ${page}`);
                     state.setCurrentPage(page);
                     updateProgress();
                 }
