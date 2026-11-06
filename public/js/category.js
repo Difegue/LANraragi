@@ -50,9 +50,10 @@ Category.addNewCategory = function (isDynamic) {
         if (result.isConfirmed) {
             // Initialize dynamic collections with a bogus search
             const searchtag = isDynamic ? "language:english" : "";
+            const params = new URLSearchParams({ name: result.value, search: searchtag });
 
             // Make an API request to create category, search is empty -> static, otherwise dynamic
-            Server.callAPI(`/api/categories?name=${result.value}&search=${searchtag}`, "PUT", `Category "${result.value}" created!`, "Error creating category:",
+            Server.callAPI(`/api/categories?${params}`, "PUT", `Category "${result.value}" created!`, "Error creating category:",
                 (data) => {
                     // Reload categories and select the newly created ID
                     Category.loadCategories(data.category_id);
@@ -153,12 +154,13 @@ Category.saveCurrentCategoryDetails = function () {
     const catName = document.getElementById("catname").value;
     const searchtag = document.getElementById("catsearch").value;
     const pinned = document.getElementById("pinned").checked ? "1" : "0";
+    const params = new URLSearchParams({ name: catName, search: searchtag, pinned });
 
     Category.indicateSaving();
 
     // PUT update with name and search (search is empty if this is a static category)
     // Indicate saved and load categories are placed inside the API call to avoid race conditions.
-    Server.callAPI(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, "PUT", null, "Error updating category:",
+    Server.callAPI(`/api/categories/${categoryID}?${params}`, "PUT", null, "Error updating category:",
         (data) => {
             Category.indicateSaved();
             Category.loadCategories(data.category_id);
