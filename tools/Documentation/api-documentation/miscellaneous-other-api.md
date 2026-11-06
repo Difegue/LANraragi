@@ -4,6 +4,14 @@ description: Other APIs that don't fit a dedicated theme.
 
 # Miscellaneous other API
 
+## Server information
+
+`GET /api/info` returns all properties documented below in the current server
+version. Their optional status in the OpenAPI schema allows compatibility with
+older servers, which may omit fields introduced in later versions. Older servers
+may also return integers instead of booleans. Clients that support multiple
+server versions should check the `version` field and handle missing fields.
+
 {% openapi-operation spec="lanraragi-api" path="/info" method="get" %}
 [OpenAPI lanraragi-api](https://raw.githubusercontent.com/Difegue/LANraragi/refs/heads/dev/tools/openapi.yaml)
 {% endopenapi-operation %}

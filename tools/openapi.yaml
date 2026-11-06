@@ -4841,7 +4841,12 @@ components:
   schemas:
     ServerInfo:
       type: object
-      description: Server info payload emitted by /api/info. Older server versions used integers instead of booleans here.
+      description: >-
+        Server info payload emitted by /api/info. The current server returns all
+        properties listed below on every successful response. Properties are not
+        marked as required in this schema for compatibility with older servers,
+        which may omit newer fields. Older server versions also used integers
+        instead of booleans here.
       properties:
         name:
           type: string
