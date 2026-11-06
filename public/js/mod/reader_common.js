@@ -1074,6 +1074,8 @@ export async function refreshCurrentPage() {
             }
         });
     }
+
+    updateProgress();
 }
 
 /**
@@ -1122,7 +1124,6 @@ export async function goToPage(page, force = false) {
     }
 
     updateArchiveOverlay();
-    updateProgress();
 }
 
 function updateProgress() {
