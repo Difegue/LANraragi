@@ -92,6 +92,9 @@ export function callAPIBody(endpoint, method, body, successMessage, errorMessage
     return fetch(endpointUrl, { method, body, headers })
         .then((response) => response.json())
         .then((data) => {
+            if (Object.hasOwn(data, "errors")) {
+                throw new Error(data.errors[0].message);
+            }
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
             } else {
