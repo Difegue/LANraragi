@@ -180,21 +180,25 @@ sub get_random_archives {
         $grouptanks eq "true",
         $hidecompleted eq "true"
     );
-    my @random_ids;
-
     $random_count = min( $random_count, scalar(@ids) );
 
-    # Get random IDs out of the array
-    for ( 1 .. $random_count ) {
-        my $random_index = int( rand( scalar(@ids) ) );
-        push( @random_ids, splice( @ids, $random_index, 1 ) );
+    # Metadata building skips archives whose files no longer exist. Draw more
+    # candidates until we have enough results or have exhausted the search.
+    my @data;
+    while ( @ids && @data < $random_count ) {
+        my @random_ids;
+        my $batch_count = min( $random_count - scalar(@data), scalar(@ids) );
+        for ( 1 .. $batch_count ) {
+            my $random_index = int( rand( scalar(@ids) ) );
+            push( @random_ids, splice( @ids, $random_index, 1 ) );
+        }
+        push @data, get_archive_json_multi(@random_ids);
     }
 
-    my @data = get_archive_json_multi(@random_ids);
     $self->render(
         openapi => {
             data         => \@data,
-            recordsTotal => $random_count
+            recordsTotal => scalar(@data)
         }
     );
 }
