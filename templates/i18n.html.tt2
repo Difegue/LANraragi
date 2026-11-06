@@ -297,6 +297,10 @@ I18N.TheDefaultIs10Seconds = "[% c.lh('The default is 10 seconds.') %]";
 
 I18N.ToggleStamps = "[% c.lh('Toggle Stamps') %]";
 
-I18N.ToggleBookmark = "[% c.lh('Toggle Bookmark') %]";
+I18N.ReaderSettings = "[% c.lh('Reader Options') %]";
+I18N.Help = "[% c.lh('Help') %]";
+I18N.AutoNextPage = "[% c.lh('Auto Next Page') %]";
+I18N.ArchiveOverview = "[% c.lh('Archive Overview') %]";
+I18N.FullScreen = "[% c.lh('FullScreen') %]";
 
 export default I18N;
