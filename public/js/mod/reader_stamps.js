@@ -7,9 +7,9 @@ import I18N from "i18n";
 
 import { state, getArchiveForPage, inFullscreen } from "./reader_common.js";
 import { checkStampedPages } from "./reader_archive_overlay.js";
-import { effect } from "@preact/signals";
+import { effect, signal } from "@preact/signals";
 
-let pendingStampPage = null;
+const pendingStampPage = signal(/** @type {number|null} */ null);
 
 export function initializeStamps() {
     initContextMenu();
@@ -109,9 +109,10 @@ export function initializeStamps() {
     effect(() => {
         if (state.infiniteScroll.value) return;
         // Only load stamps after the image is loaded AND showingSinglePage is set
-        if (state.currentPageLoaded.value && pendingStampPage !== null) {
-            loadStamps(pendingStampPage);
-            pendingStampPage = null;
+        if (state.currentPageLoaded.value && pendingStampPage.value !== null) {
+            const page = pendingStampPage.value;
+            pendingStampPage.value = null;
+            loadStamps(page);
         }
     });
 
@@ -386,10 +387,14 @@ export function updateStamps(page) {
             lastStampDoublePage = state.doublePageMode.value;
             state.markers = [];
             clearMarkers();
-            pendingStampPage = page;
+            pendingStampPage.value = page;
         } else {
             // Same page and mode (e.g. reading direction toggle): just re-render
-            pendingStampPage = page;
+            if (state.currentPageLoaded.peek()) {
+                renderMarkers();
+            } else {
+                pendingStampPage.value = page;
+            }
         }
     }
 }
