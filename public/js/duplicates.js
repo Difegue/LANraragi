@@ -167,6 +167,10 @@ Duplicates.compareDuplicates = function (rows, field, fieldType, order = "desc")
         }
     });
 
+    // Missing dates or metadata cannot be ranked safely for deletion.
+    // Leave the entire group unselected rather than delete an unknown value.
+    if (values.some((value) => !Number.isFinite(value))) return;
+
     // Do not check anything if all values are equal
     var allEqual = values.every((val) => val === values[0]);
     if (allEqual) return;
