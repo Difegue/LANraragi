@@ -201,7 +201,7 @@ export function triggerScript(namespace) {
 
     // Save data before triggering script
     saveFormData("#editPluginForm")
-        .then(callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, I18N.ScriptError,
+        .then(() => callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, I18N.ScriptError,
             (data) => {
                 // Check minion job state periodically while we're on this page
                 checkJobStatus(
