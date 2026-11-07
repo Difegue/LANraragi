@@ -352,14 +352,14 @@ export function loadContentData() {
         summary: ""
     };
 
-    const updateProgress = function(data, id) {
+    function restoreProgress(data, id) {
         // Use localStorage progress value instead of the server one if needed
         if (state.trackProgressLocally && !(state.authenticateProgress && LRR.isUserLogged())) {
             state.progress = localStorage.getItem(`${id}-reader`) - 1 || 0;
         } else {
             state.progress = data.progress - 1;
         }
-    };
+    }
 
     const updateTankTags = function() {
         return fetch(new LRR.ApiURL(`/api/tankoubons/${state.id}/tags`))
@@ -404,7 +404,7 @@ export function loadContentData() {
                     ...content,
                     pages: pageOffset,
                 };
-                updateProgress(tank, state.id);
+                restoreProgress(tank, state.id);
                 return updateTankTags();
             })
             .catch(err => LRR.showErrorToast(I18N.ServerInfoError, err));
@@ -422,7 +422,7 @@ export function loadContentData() {
                     summary: data.summary,
                 };
 
-                updateProgress(data, state.id);
+                restoreProgress(data, state.id);
 
                 if (data.toc) {
                     state.content.value = {
@@ -1127,16 +1127,17 @@ export async function goToPage(page, force = false) {
 }
 
 function updateProgress() {
-    // Clear markers
     let page = state.currentPage.value + 1; // progress is 1-indexed
 
-    // Send an API request to update progress on the server
-    if (state.authenticateProgress && LRR.isUserLogged()) {
-        Server.updateServerSideProgress(state.id, page);
-    } else if (state.trackProgressLocally) {
-        localStorage.setItem(`${state.id}-reader`, page);
-    } else if (!state.authenticateProgress) {
-        Server.updateServerSideProgress(state.id, page);
+    if (!state.ignoreProgress.peek()) {
+        // Send an API request to update progress on the server
+        if (state.authenticateProgress && LRR.isUserLogged()) {
+            Server.updateServerSideProgress(state.id, page);
+        } else if (state.trackProgressLocally) {
+            localStorage.setItem(`${state.id}-reader`, page);
+        } else if (!state.authenticateProgress) {
+            Server.updateServerSideProgress(state.id, page);
+        }
     }
 
     updateStamps(page);
