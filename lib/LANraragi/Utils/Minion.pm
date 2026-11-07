@@ -18,7 +18,7 @@ use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Redis      qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::String     qw(trim_url);
+use LANraragi::Utils::String     qw(trim_url canonicalize_url);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
 use LANraragi::Model::Upload;
@@ -423,6 +423,8 @@ sub add_tasks {
             # Keep a clean copy of the url for display and tagging
             my $og_url = $url;
             $og_url = trim_url($og_url);
+
+            $og_url = canonicalize_url($og_url);
 
             # If the URL is already recorded, abort the download
             my $recorded_id = LANraragi::Model::Stats::is_url_recorded($og_url);
