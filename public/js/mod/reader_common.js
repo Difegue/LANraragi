@@ -611,6 +611,7 @@ function handleShortcuts(e) {
             spaceScrollProcessInput(e);
             break;
         case 37: // left arrow
+        case 38: // up arrow
             if (e.shiftKey) {
                 changePage("first", true);
             } else {
@@ -618,6 +619,7 @@ function handleShortcuts(e) {
             }
             break;
         case 39: // right arrow
+        case 40: // down arrow
             if (e.shiftKey) {
                 changePage("last", true);
             } else {
