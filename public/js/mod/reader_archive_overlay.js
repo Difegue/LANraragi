@@ -7,7 +7,6 @@ import I18N from "i18n";
 import { state, goToPage, loadContentData, stopAutoNextPage, toggleOverlay, getCurrentChapter, getArchiveForPage } from "./reader_common.js";
 
 export function initializeArchiveOverlay() {
-    $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", toggleArchiveOverlay);
     $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(new LRR.ApiURL(`/edit?id=${state.id}`)));
     $(document).on("click.delete-archive", "#delete-archive", () => {
         const isTank = state.id.startsWith("TANK_");
@@ -27,17 +26,16 @@ export function initializeArchiveOverlay() {
             }
         });
     });
-    $(document).on("click.add-category", "#add-category", () => {
+    $(document).on("click.add-category", "#add-category", (e) => {
+        e.preventDefault();
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(state.id, $("#category").val());
         const categoryId = $("#category").val();
         addCategoryBadge(categoryId);
 
-        // Turn ON bookmark icon.
-        if ($("#category").val() == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("far fa-bookmark")
-                .addClass("fas fa-bookmark");
+        if (categoryId === localStorage.bookmarkCategoryId) {
+            // Turn ON bookmark icon.
+            state.isBookmarked.value = true;
         }
     });
     $(document).on("click.remove-category", ".remove-category", (e) => {
@@ -45,11 +43,10 @@ export function initializeArchiveOverlay() {
         const catId = $(e.target).attr("data-id");
         Server.removeArchiveFromCategory(state.id, $(e.target).attr("data-id"));
         $(e.target).closest(".gt").remove();
-        // Turn OFF the bookmark icon
-        if (catId == localStorage.bookmarkCategoryId) {
-            $(".toggle-bookmark")
-                .removeClass("fas fa-bookmark")
-                .addClass("far fa-bookmark");
+
+        if (catId === localStorage.bookmarkCategoryId) {
+            // Turn OFF the bookmark icon
+            state.isBookmarked.value = false;
         }
     });
 
@@ -174,8 +171,8 @@ export function updateArchiveOverlay(forceUpdate = false) {
     if ($("#archivePagesOverlay").attr("loaded") === "true" && !forceUpdate) {
 
         if ((state.currentChapter === null) ||
-            (state.currentPage + 1 >= state.currentChapter.startPage &&
-                state.currentPage + 1 <= state.currentChapter.endPage)) {
+            (state.currentPage.value + 1 >= state.currentChapter.startPage &&
+                state.currentPage.value + 1 <= state.currentChapter.endPage)) {
             return;
         }
     }
@@ -189,15 +186,15 @@ export function updateArchiveOverlay(forceUpdate = false) {
     // Otherwise, update chapter and overlay -- If there are no chapters defined, just show all pages
     state.currentChapter = getCurrentChapter();
     let firstPage = state.currentChapter ? state.currentChapter.startPage : 1;
-    let lastPage = state.currentChapter ? state.currentChapter.endPage : state.pages.length;
+    let lastPage = state.currentChapter ? state.currentChapter.endPage : state.pages.value.length;
 
     $("#overlay-section").text(state.currentChapter ? state.currentChapter.name : I18N.ReaderPages);
 
     if (state.currentChapter !== null) {
         // Create <select> options for jumping to other chapters
         let chapterOptions = `<select class="favtag-btn" id="chapter-select">`;
-        if (state.content.chapters) {
-            state.content.chapters.forEach((chapter) => {
+        if (state.content.value.chapters) {
+            state.content.value.chapters.forEach((chapter) => {
                 const selected = (state.currentChapter && chapter.startPage === state.currentChapter.startPage) ? "selected" : "";
                 chapterOptions += `<option value="${chapter.startPage}" ${selected}>${LRR.encodeHTML(chapter.name)}</option>`;
 
@@ -262,7 +259,7 @@ export function updateArchiveOverlay(forceUpdate = false) {
 }
 
 export function checkStampedPages() {
-    const { arcId, localPage } = getArchiveForPage(state.currentPage + 1);
+    const { arcId, localPage } = getArchiveForPage(state.currentPage.value + 1);
     Server.callAPI(`/api/archives/${arcId}/stamps/`, "GET", null, I18N.ServerInfoError,
         (data) => {
             $("#extract-spinner").hide();
