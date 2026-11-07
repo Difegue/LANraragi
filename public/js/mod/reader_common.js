@@ -479,7 +479,7 @@ function loadImages() {
     };
 
     const onFinally = () => {
-        if (state.pages.value === undefined) {
+        if (state.pages.value.length === 0) {
             $("#img").attr("src", new LRR.ApiURL("/img/flubbed.gif").toString());
             $("#display").append(`<h2>${I18N.ReaderArchiveError}</h2>`);
         }
