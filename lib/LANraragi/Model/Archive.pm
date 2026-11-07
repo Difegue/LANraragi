@@ -45,14 +45,77 @@ sub get_title ($id) {
 # Functions used when dealing with archives.
 
 # Generates an array of all the archive JSONs in the database that have existing files.
-# This doesn't include Tanks. 
+# This doesn't include Tanks.
+# Results are cached in Redis (LRR_ARCLIST_CACHE) for instant subsequent loads.
+# The cache is invalidated whenever invalidate_cache() is called (tag edits, imports, etc.).
 sub generate_archive_list {
 
+    my $logger = get_logger( "Archives", "lanraragi" );
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+    # Try cache first
+    my $cached = $redis_search->get("LRR_ARCLIST_CACHE");
+    if ($cached) {
+        $redis_search->quit;
+        $logger->debug("generate_archive_list: cache hit");
+        my @archives = @{ decode_json($cached) };
+        return @archives;
+    }
+
+    $redis_search->quit;
+
+    # Cache miss - build the full list
+    $logger->info("generate_archive_list: cache miss, building full archive list...");
     my $redis = LANraragi::Model::Config->get_redis;
     my @keys  = $redis->keys('????????????????????????????????????????');
     $redis->quit;
 
-    return get_archive_json_multi(@keys);
+    my @archives = get_archive_json_multi(@keys);
+
+    # Store in cache as a JSON string
+    $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $json = encode_json(\@archives);
+    $redis_search->set( "LRR_ARCLIST_CACHE", $json );
+    $redis_search->quit;
+
+    $logger->info("generate_archive_list: cached " . scalar(@archives) . " archives");
+    return @archives;
+}
+
+# Returns the full archive list as a raw JSON string from cache (or builds+ caches it).
+# This avoids the decode_json -> encode_json round-trip for API endpoints that just
+# need to output JSON.
+sub get_archivelist_json {
+
+    my $logger = get_logger( "Archives", "lanraragi" );
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+    # Try cache first
+    my $cached = $redis_search->get("LRR_ARCLIST_CACHE");
+    if ($cached) {
+        $redis_search->quit;
+        $logger->debug("get_archivelist_json: cache hit");
+        return $cached;
+    }
+
+    $redis_search->quit;
+
+    # Cache miss - build and cache
+    $logger->info("get_archivelist_json: cache miss, building full archive list...");
+    my @archives = generate_archive_list();
+
+    # generate_archive_list already wrote the cache, but let's read it back
+    # to get the exact JSON string (it may have returned Perl structures from cache miss path)
+    $redis_search = LANraragi::Model::Config->get_redis_search;
+    $cached = $redis_search->get("LRR_ARCLIST_CACHE");
+    $redis_search->quit;
+
+    if ($cached) {
+        return $cached;
+    }
+
+    # Fallback: encode ourselves
+    return encode_json(\@archives);
 }
 
 sub update_thumbnail {

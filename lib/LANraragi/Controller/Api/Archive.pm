@@ -30,9 +30,12 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 
 sub serve_archivelist {
-    my $self   = shift->openapi->valid_input or return;
-    my @idlist = LANraragi::Model::Archive::generate_archive_list;
-    $self->render( openapi => \@idlist );
+    my $self = shift->openapi->valid_input or return;
+
+    # Use cached raw JSON to avoid decode_json -> encode_json round-trip on 80k+ archives
+    my $json = LANraragi::Model::Archive::get_archivelist_json();
+    $self->res->headers->content_type('application/json');
+    $self->render( text => $json );
 }
 
 sub serve_untagged_archivelist {

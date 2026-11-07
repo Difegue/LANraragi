@@ -186,6 +186,12 @@ sub startup {
     # Anything else can cause weird database lockups.
     $self->minion->enqueue('build_stat_hashes');
 
+    # Auto-detect and build missing search indexes (P1-A title sort + P1-B namespace indexes).
+    # This is a no-op if indexes already exist. Covers first-time deploy, container rebuild,
+    # and Redis data loss scenarios — no manual bootstrap script needed.
+    $self->LRR_LOGGER->info("Enqueuing bootstrap_indexes task for missing index detection.");
+    $self->minion->enqueue('bootstrap_indexes');
+
     # Start a Minion worker in a subprocess
     start_minion($self);
 
