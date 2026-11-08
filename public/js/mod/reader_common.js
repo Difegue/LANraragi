@@ -80,6 +80,8 @@ export let state = {
     pageNaviState: true,
     wakeLock: null,
     isBookmarked: signal(/** @type boolean|null */null),
+    bookmarkCategoryId: signal(localStorage.bookmarkCategoryId || ""),
+    bookmarkLinkConfigured: computed(() => state.bookmarkCategoryId.value.startsWith("SET_")),
     filename: signal(""), // TODO: compute from bigger object
     filenameDoublePage: signal(""), // TODO: compute from bigger object
     width: signal(0),
@@ -917,10 +919,11 @@ export function toggleBookmark() {
 function loadBookmarkStatus() {
     Server.loadBookmarkCategoryId().then(
         category_id => {
-            if (!LRR.bookmarkLinkConfigured()) {
+            state.bookmarkCategoryId.value = category_id ?? localStorage.getItem("bookmarkCategoryId") ?? "";
+            if (!state.bookmarkLinkConfigured.peek()) {
                 return;
             }
-            fetch(new LRR.ApiURL(`/api/categories/${category_id}`))
+            fetch(new LRR.ApiURL(`/api/categories/${state.bookmarkCategoryId.value}`))
                 .then(response => response.json()).then(categoryData => {
                     state.isBookmarked.value = categoryData.archives.includes(state.id);
                 });
