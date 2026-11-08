@@ -7,15 +7,17 @@ import { useComputed } from "@preact/signals";
 const html = htm.bind(h);
 
 export function ReaderPaginator()  {
+    const hasPages = useComputed(() => state.pages.value.length > 0);
+
     const currentPage = useComputed(() => {
-        if (state.currentPage.value === -1) {
+        if (!hasPages.value) {
             return "...";
         }
         return state.showingSinglePage.value ? state.currentPage.value + 1 : `${state.currentPage.value + 1} + ${state.currentPage.value + 2}`;
     });
 
     const maxPage = useComputed(() => {
-        if (state.maxPage.value === -1) {
+        if (!hasPages.value) {
             return "...";
         }
         return state.maxPage.value + 1;
