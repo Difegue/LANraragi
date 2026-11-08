@@ -50,8 +50,8 @@ export function FileInfo() {
 export function LeftToolbar() {
     return html`
         <div class="absolute-options absolute-left">
-            <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title=${I18N.ReaderSettings} onClick=${(e) => { e.preventDefault(); toggleSettingsOverlay(); }}></a>
-            <a class="fa fa-question-circle fa-2x" id="toggle-help" href="#" title=${I18N.Help} onClick=${(e) => { e.preventDefault(); toggleHelp(); }}></a>
+            <a class="fa fa-cog fa-2x" href="#" title=${I18N.ReaderSettings} onClick=${(e) => { e.preventDefault(); toggleSettingsOverlay(); }}></a>
+            <a class="fa fa-question-circle fa-2x" href="#" title=${I18N.Help} onClick=${(e) => { e.preventDefault(); toggleHelp(); }}></a>
             <${BookmarkButton} />
         </div>
     `;
@@ -63,8 +63,8 @@ export function RightToolbar() {
             <a class="fa ${!state.autoNextPage.value?"fa-stopwatch":""} fa-2x toggle-auto-next-page" href="#" title=${I18N.AutoNextPage} onClick=${(e) => { e.preventDefault(); toggleAutoNextPage(); }}>
                 ${state.autoNextPage.value ? state.autoNextPageCountdown.value : ""}
             </a>
-            <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title=${I18N.ArchiveOverview} onClick=${(e) => { e.preventDefault(); toggleArchiveOverlay(); }}></a>
-            <a class="fa fa-compress fa-2x" id="toggle-full-screen" href="#" title=${I18N.FullScreen} onClick=${(e) => { e.preventDefault(); toggleFullScreen(); }} style=${!fscreen.fullscreenEnabled ? { display: "none" } : {}}></a>
+            <a class="fa fa-th fa-2x" href="#" title=${I18N.ArchiveOverview} onClick=${(e) => { e.preventDefault(); toggleArchiveOverlay(); }}></a>
+            <a class="fa fa-compress fa-2x" href="#" title=${I18N.FullScreen} onClick=${(e) => { e.preventDefault(); toggleFullScreen(); }} style=${!fscreen.fullscreenEnabled ? { display: "none" } : {}}></a>
         </div>
     `;
 }
