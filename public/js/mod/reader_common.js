@@ -1105,6 +1105,7 @@ export async function goToPage(page, force = false) {
     if (state.infiniteScroll.value) {
         $("#display img:not(#img_doublepage)").get(state.currentPage.value).scrollIntoView({ block: "nearest" });
         state.showingSinglePage.value = false;
+        updateProgress();
     } else {
         preloadImages();
         applyContainerWidth();
