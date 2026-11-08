@@ -1452,7 +1452,8 @@ export function changePage(targetPage, resetAuto = false) {
         if (state.doublePageMode.value && !state.showingSinglePage.value && state.currentPage.value > 0) {
             // Avoid skipping page 2. First page is always displayed solo, so double-jumping back to
             // the first page would skip page 2.
-            if (offset !== -1 || state.currentPage.value > 2) {
+            const step = state.mangaMode.value ? -offset : offset;
+            if (step !== -1 || state.currentPage.value > 2) {
                 offset *= 2;
             }
         }
