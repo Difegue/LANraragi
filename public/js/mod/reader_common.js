@@ -79,7 +79,7 @@ export let state = {
     overlayFiltered: false,
     pageNaviState: true,
     wakeLock: null,
-    isBookmarked: signal(/** @type boolean|null */null),
+    isBookmarked: signal(/** @type {boolean|null} */null),
     bookmarkCategoryId: signal(localStorage.bookmarkCategoryId || ""),
     bookmarkLinkConfigured: computed(() => state.bookmarkCategoryId.value.startsWith("SET_")),
     filename: signal(""), // TODO: compute from bigger object

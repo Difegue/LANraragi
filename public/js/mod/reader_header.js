@@ -9,7 +9,7 @@ import { ApiURL } from "./common.js";
 
 const html = htm.bind(h);
 
-export function ReaderHeader()  {
+export function ReaderHeader() {
     const hideHeader = useComputed(() => {
         return state.hideHeader.value || state.infiniteScroll.value;
     });
