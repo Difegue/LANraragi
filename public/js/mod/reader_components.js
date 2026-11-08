@@ -9,7 +9,7 @@ import { toggleSettingsOverlay } from "./reader_options.js";
 import { toggleArchiveOverlay } from "./reader_archive_overlay.js";
 
 import I18N from "i18n";
-import { bookmarkLinkConfigured, isUserLogged } from "./common.js";
+import { isUserLogged } from "./common.js";
 
 const html = htm.bind(h);
 
@@ -19,7 +19,6 @@ export function ToggleButton({ id, active, onClick, label }) {
 }
 
 export function BookmarkButton() {
-    const showBookmark = useComputed(() => bookmarkLinkConfigured());
     const style = useComputed(() => {
         if (!isUserLogged()) {
             return "opacity: 0.5; cursor: not-allowed;";
@@ -28,7 +27,7 @@ export function BookmarkButton() {
     });
 
     return html`
-        <${Show} when=${showBookmark}>
+        <${Show} when=${state.bookmarkLinkConfigured}>
             <a class="${state.isBookmarked.value ? "fa" : "far"} fa-bookmark fa-2x" style="${style}" href="#" title=${I18N.ToggleBookmark} onclick=${(e) => {e.preventDefault();toggleBookmark();}}></a>
         </${Show}>
     `;
