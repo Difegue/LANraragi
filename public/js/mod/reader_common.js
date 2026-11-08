@@ -1218,8 +1218,8 @@ export function applyContainerWidth() {
         // If the user defined a custom width, then we can fall back to that one
         $(".sni").attr("style", `max-width: ${state.containerWidth.value}`);
         $(".reader-image").attr("style", "width: 100%");
-    } else if (!state.showingSinglePage.value) {
-        // Otherwise, if we are showing two pages we can override the default width
+    } else if (!state.infiniteScroll.value && !state.showingSinglePage.value) {
+        // Otherwise, if we are showing two pages we can override the default width (for non-infinite-scroll).
         $(".sni").attr("style", "max-width: 90%");
     } else {
         // Finally, fall back to 1200px width if none of the above matches
