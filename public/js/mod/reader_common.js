@@ -284,6 +284,7 @@ export async function initializeAll(trackProgressLocally, authenticateProgress) 
     effect(() => {
         if (state.infiniteScroll.value) { return; }
         localStorage.doublePageMode = state.doublePageMode.value;
+        state.previousPage = state.currentPage.peek();
     });
 
     effect(() => {
