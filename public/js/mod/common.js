@@ -545,6 +545,18 @@ export function showPopUp(c) {
     return Swal.fire(c);
 }
 
+export function showDeleteConfirmPopUp(text) {
+    return showPopUp({
+        text,
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: I18N.ConfirmYes,
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+    });
+}
+
 /**
  * Fires a HEAD request to get filesize of a given URL.
  * return target img size.
