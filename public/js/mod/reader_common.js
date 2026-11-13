@@ -625,7 +625,7 @@ function enterStandardView() {
     // when click left or right img area change page
     $(document).off("click.changepage").on("click.changepage", (event) => {
         // check click Y position is in img Y area
-        if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && state.pageNaviState) {
+        if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") && state.pageNaviState && !state.markerMode) {
             // is click X position is left on screen or right
             if (event.pageX < $(window).width() / 2) {
                 changePage(-1, true);
