@@ -97,13 +97,13 @@ export function initializeStamps() {
     $(document).on("keydown.stamps", (e) => {
         e.stopPropagation();
         if (e.key === "Escape" && state.markerMode) {
-            $("#overlay-page").hide();
-            state.markerMode = false;
-            renderMarkers();
-            state.pageNaviState = true;
-            $(".reader-image").css("cursor", "");
-            $(".reader-image").css("z-index", 19);
+            exitMarkerMode();
         }
+    });
+
+    $(document).on("click.cancel-stamp", "#overlay-page", (e) => {
+        exitMarkerMode();
+        e.stopPropagation();
     });
 
     effect(() => {
@@ -151,6 +151,15 @@ function addStamp() {
     $(".reader-image").css("cursor", "cell");
     $(".reader-image").css("z-index", 22);
     $("#overlay-page").show();
+}
+
+function exitMarkerMode() {
+    state.markerMode = false;
+    state.pageNaviState = true;
+    $("#overlay-page").hide();
+    $(".reader-image").css("cursor", "");
+    $(".reader-image").css("z-index", 19);
+    renderMarkers();
 }
 
 function createMarkerElement(markerData, index) {
