@@ -4,12 +4,12 @@
 import * as Server from "./server.js";
 import * as LRR from "./common.js";
 import I18N from "i18n";
-import fscreen from "fscreen";
 
-
-import { state, getArchiveForPage } from "./reader_common.js";
+import { state, getArchiveForPage, inFullscreen } from "./reader_common.js";
 import { checkStampedPages } from "./reader_archive_overlay.js";
-import { effect } from "@preact/signals";
+import { effect, signal } from "@preact/signals";
+
+const pendingStampPage = signal(/** @type {number|null} */ null);
 
 export function initializeStamps() {
     initContextMenu();
@@ -49,15 +49,15 @@ export function initializeStamps() {
             left: true,
         };
 
-        let page = state.currentPage + 1;
+        let page = state.currentPage.value + 1;
 
-        if (state.doublePageMode.value && state.currentPage > 0
-            && state.currentPage < state.maxPage) {
+        if (state.doublePageMode.value && state.currentPage.value > 0
+            && state.currentPage.value < state.maxPage.value) {
             if (img.id == "img_doublepage") {
-                page = state.mangaMode.value ? state.currentPage + 1 : state.currentPage + 2;
+                page = state.mangaMode.value ? state.currentPage.value + 1 : state.currentPage.value + 2;
                 markerData.left = state.mangaMode.value;
             } else {
-                page = state.mangaMode.value ? state.currentPage + 2 : state.currentPage + 1;
+                page = state.mangaMode.value ? state.currentPage.value + 2 : state.currentPage.value + 1;
                 markerData.left = !state.mangaMode.value;
             }
         }
@@ -97,19 +97,31 @@ export function initializeStamps() {
     $(document).on("keydown.stamps", (e) => {
         e.stopPropagation();
         if (e.key === "Escape" && state.markerMode) {
-            $("#overlay-page").hide();
-            state.markerMode = false;
-            renderMarkers();
-            state.pageNaviState = true;
-            $(".reader-image").css("cursor", "");
-            $(".reader-image").css("z-index", 19);
+            exitMarkerMode();
         }
     });
 
-    window.addEventListener("resize", () => {
+    $(document).on("click.cancel-stamp", "#overlay-page", (e) => {
+        exitMarkerMode();
+        e.stopPropagation();
+    });
+
+    effect(() => {
+        if (state.infiniteScroll.value) return;
+        // Only load stamps after the image is loaded AND showingSinglePage is set
+        if (state.currentPageLoaded.value && pendingStampPage.value !== null) {
+            const page = pendingStampPage.value;
+            pendingStampPage.value = null;
+            loadStamps(page);
+        }
+    });
+
+    const stampResizeObserver = new ResizeObserver(() => {
         // Reload the markers everytime the image size changes
         renderMarkers();
     });
+    stampResizeObserver.observe(document.getElementById("img"));
+    stampResizeObserver.observe(document.getElementById("img_doublepage"));
 }
 
 /** Process inputs
@@ -141,10 +153,19 @@ function addStamp() {
     $("#overlay-page").show();
 }
 
+function exitMarkerMode() {
+    state.markerMode = false;
+    state.pageNaviState = true;
+    $("#overlay-page").hide();
+    $(".reader-image").css("cursor", "");
+    $(".reader-image").css("z-index", 19);
+    renderMarkers();
+}
+
 function createMarkerElement(markerData, index) {
     if (state.infiniteScroll.value) return;
 
-    const img = state.showingSinglePage
+    const img = state.showingSinglePage.value
         ? document.getElementById("img")
         : (markerData.left !== state.mangaMode.value)
             ? document.getElementById("img")
@@ -244,10 +265,9 @@ function createMarkerElement(markerData, index) {
 }
 
 export function renderMarkers() {
-    if (state.infiniteScroll.value || fscreen.inFullscreen()) return;
-    // Clean markers
-    const existing = document.querySelectorAll(".marker");
-    existing.forEach(el => el.remove());
+    if (state.infiniteScroll.value || inFullscreen()) return;
+
+    clearMarkers();
 
     if (!state.markersVisible.value) return;
 
@@ -282,7 +302,7 @@ function loadStamps(currentPage) {
             }
 
             if (state.doublePageMode.value && currentPage > 0
-                && currentPage < state.maxPage && !state.showingSinglePage) {
+                && currentPage < state.maxPage.value && !state.showingSinglePage.value) {
 
                 const { arcId: id2, localPage: p2 } = getArchiveForPage(currentPage + 1);
                 // Call for the second page (may be in a different archive for tanks)
@@ -375,11 +395,15 @@ export function updateStamps(page) {
             lastStampPage = page;
             lastStampDoublePage = state.doublePageMode.value;
             state.markers = [];
-            renderMarkers();
-            loadStamps(page);
+            clearMarkers();
+            pendingStampPage.value = page;
         } else {
             // Same page and mode (e.g. reading direction toggle): just re-render
-            renderMarkers();
+            if (state.currentPageLoaded.peek()) {
+                renderMarkers();
+            } else {
+                pendingStampPage.value = page;
+            }
         }
     }
 }
