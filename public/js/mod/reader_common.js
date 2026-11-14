@@ -1252,17 +1252,14 @@ function startAutoNextPage() {
         if (state.autoNextPageCountdown.value <= 0) {
             clearInterval(state.autoNextPageCountdownTaskId);
 
-            const atLastPage = state.mangaMode.value ? state.currentPage.value === 0 : state.currentPage.value === state.maxPage.value;
+            const atLastPage = state.currentPage.value === state.maxPage.value;
 
             if (atLastPage) {
                 // At archive boundary: attempt cross-archive navigation.
-                // readNextArchive/readPreviousArchive persists slideshow state
+                // readNextArchive persists slideshow state
                 // to sessionStorage; loadImages on the new page resumes it.
                 if (state.archiveIds.length > 0) {
-                    if (state.mangaMode.value)
-                        readPreviousArchive();
-                    else
-                        readNextArchive();
+                    readNextArchive();
                 }
                 stopAutoNextPage();
             } else {
