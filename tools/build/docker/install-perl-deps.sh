@@ -13,9 +13,6 @@ curl -L https://cpanmin.us | perl - App::cpanminus
 
 cd ./tools
 
-# Manually download modules
-cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
-
 # Install the LRR dependencies proper
 cpanm --notest --installdeps . --configure-timeout 300
 
