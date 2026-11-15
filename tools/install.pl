@@ -185,7 +185,7 @@ if ( $back || $full ) {
 
         install_package( "Win32::Process",                     $cpanopt );
         install_package( "Win32::FileSystemHelper",            $cpanopt,
-            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip" );
+            "https://github.com/Guerra24/Win32-FileSystemHelper/archive/bc53b1ececdfb85844eefdc6bd0ec1ffdb4dfd88.zip" );
         install_package( "File::ChangeNotify::Watcher::Win32", $cpanopt,
             "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip" );
         install_package( "Win32API::File",                     $cpanopt );
