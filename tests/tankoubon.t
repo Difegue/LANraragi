@@ -258,4 +258,12 @@ ok(!(grep { $_ eq $index_tank_id } @elderberry_index), 'Tank removed from INDEX_
 # Cleanup
 LANraragi::Model::Tankoubon::delete_tankoubon($index_tank_id);
 
+# Test: Re-creating a tank under its existing ID (what a backup restore does) replaces a non-ASCII name
+my $cjk_tank_id = LANraragi::Model::Tankoubon::create_tankoubon("シリーズ Café", "");
+LANraragi::Model::Tankoubon::create_tankoubon("シリーズ Café 2", $cjk_tank_id);
+my @cjk_names = $redis->zrangebyscore( $cjk_tank_id, 0, 0 );
+is( scalar @cjk_names, 1, 'Re-created tankoubon keeps a single name entry' );
+my %cjk_tank = LANraragi::Model::Tankoubon::get_tankoubon($cjk_tank_id);
+is( $cjk_tank{name}, "シリーズ Café 2", 'Re-created tankoubon has the new name' );
+
 done_testing();
