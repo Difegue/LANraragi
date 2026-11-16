@@ -122,7 +122,8 @@ export function addTocSection(page, currentTitle = null) {
     }).then((result) => {
         if (result.isConfirmed && result.value.trim() !== "") {
             const { arcId, localPage } = getArchiveForPage(page);
-            Server.callAPI(`/api/archives/${arcId}/toc?page=${localPage}&title=${result.value}`, "PUT", "Chapter added!", I18N.ReaderTocError,
+            const params = new URLSearchParams({ page: localPage, title: result.value });
+            Server.callAPI(`/api/archives/${arcId}/toc?${params.toString()}`, "PUT", "Chapter added!", I18N.ReaderTocError,
                 () => loadContentData().then(() => {
                     updateArchiveOverlay(true);
                     toggleArchiveOverlay();
