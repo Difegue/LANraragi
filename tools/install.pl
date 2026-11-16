@@ -191,8 +191,6 @@ if ( $back || $full ) {
         install_package( "Win32API::File",                     $cpanopt );
     }
 
-    install_package( "Net::IDN::Encode", $cpanopt, "ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz" );
-
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }

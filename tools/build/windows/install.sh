@@ -19,8 +19,6 @@ sed -i "s/croak 'Minion workers do not support fork emulation'/#croak 'Minion wo
 perl Makefile.PL && mingw32-make install
 cd ../ && rm -rf Minion-11.0
 
-cpanm --notest ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
-
 # Install remaining modules
 cpanm --notest --installdeps .
 
