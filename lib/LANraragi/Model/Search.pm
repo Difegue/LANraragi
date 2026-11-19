@@ -7,7 +7,7 @@ use strict;
 use warnings;
 use utf8;
 
-use List::Util qw(min max);
+use List::Util qw(min);
 use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
@@ -630,7 +630,13 @@ LUA
 # A tank's lastreadtime = the latest lastreadtime across its member archives (0 if none were read).
 # TODO: this could be a lua script.
 sub _get_tank_lastreadtime ( $redis, $tank_id ) {
-    return max( 0, map { $redis->hget( $_, "lastreadtime" ) || 0 } $redis->zrangebyscore( $tank_id, 1, "+inf" ) );
+    my @arc_ids  = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+    my $max_time = 0;
+    foreach my $arc_id (@arc_ids) {
+        my $t = $redis->hget( $arc_id, "lastreadtime" ) // 0;
+        $max_time = $t if $t > $max_time;
+    }
+    return $max_time;
 }
 
 # For tanks currently unkeyed in search results (filter is at "zzzz"),
