@@ -235,7 +235,7 @@ LUA
 
             my @ids = ();
 
-           # Specific case for pagecount searches
+           # Specific cases for searches that don't depend on tags/name 
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
            # Or you can search for galleries by last read time (unix timestamp) with lastread:>1589038280, or any read galleries: lastread:>0
