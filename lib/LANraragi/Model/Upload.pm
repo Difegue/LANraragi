@@ -96,7 +96,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
             $logger->debug("Deleting existing file with the same name as the uploaded file: $output_file");
             # More complex, the new file doesn't match an existing ID, but it matches an existing filename. 
             # We need to find the ID of the file with that name and delete it. 
-            my $existing_id = $redis_config->hget("LRR_FILEMAP", $output_file);
+            my $existing_id = $redis_config->hget("LRR_FILEMAP", (IS_UNIX ? encode_utf8($output_file) : $output_file));
 
             if ($redis->exists($existing_id)) {
                 $logger->debug("Found existing file with the same name, ID: $existing_id. Deleting it.");
