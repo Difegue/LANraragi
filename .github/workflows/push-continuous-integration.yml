@@ -20,7 +20,7 @@ name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
   eslint:
     name: ESLint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-node@v6
@@ -32,7 +32,7 @@ jobs:
 
   testSuite:
     name: Run Test Suite and Perl Critic
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
     - name: Set up Docker Buildx
@@ -57,7 +57,7 @@ jobs:
 
   integrationTestsDocker:
     name: Run Docker Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: testSuite
     steps:
       - name: Checkout LANraragi repository
