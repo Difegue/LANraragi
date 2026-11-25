@@ -92,10 +92,9 @@ sub create_tankoubon ( $name, $tank_id ) {
 
         # Get name
         my @old_name = $redis->zrangebyscore( $tank_id, 0, 0, qw{LIMIT 0 1} );
-        my $n        = redis_decode( $old_name[0] );
 
         if ( $redis->exists($tank_id) ) {
-            $redis->zrem( $tank_id, $n );
+            $redis->zrem( $tank_id, $old_name[0] );
         }
     }
     # Encode name
