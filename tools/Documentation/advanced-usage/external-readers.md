@@ -93,3 +93,4 @@ The following readers haven't been tested but should work:
 * [**TiReader (iOS)**](http://tireader.com)
 * [**Chunky Reader (iOS)**](http://chunkyreader.com)
 * [**Panels (iOS)**](https://panels.app/)
+* [**Yomu (iOS, iPadOS, macOS)**](https://apps.apple.com/app/yomu/id6760745234)
